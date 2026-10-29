@@ -15,7 +15,7 @@ export const marketResearchService = {
     if (!query.crop.trim() || !Number.isFinite(query.quantity) || query.quantity <= 0)
       throw new Error('Add a crop and a positive unit quantity before researching.');
     if (!options.provider) {
-      // The API researches the WFP market monitoring data; its result is checked below too.
+      // The API researches MoFA (via FAO) and WFP price data; its result is checked below too.
       const answer = await api<IntegrationResult<MarketResearchResult>>(
         '/admin/content/market/research',
         { method: 'POST', body: query, signal: options.signal },

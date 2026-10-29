@@ -142,7 +142,7 @@ endpoint, scopes every farmer request to that farmer's own data, re-checks loan 
 plans server-side, and writes the audit log. `proxy.ts` only uses the session cookies for fast
 redirects; the API is the real check. Its README lists every endpoint and the security model.
 
-Weather (Open-Meteo) and the market research evidence (WFP prices) work without any keys.
+Weather (Open-Meteo) and the market research evidence (MoFA prices via FAO, and WFP prices) work without any keys.
 Payments (Paystack), SMS (Arkesel), email (SMTP), Ghana Card checks (Smile ID) and real AI
 (Claude, for the assistant and the crop doctor) switch on when their keys are set in the
 backend's `.env`. Until then:
