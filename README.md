@@ -2,24 +2,31 @@
 
 A farm-records, credit-score and loan-access app for farmers in Ghana, plus a Super Admin Console
 that runs the platform. Next.js 16 (App Router, Turbopack, `proxy.ts`), React 19 with the React
-Compiler, TypeScript strict, Tailwind v4 and zustand, on the **AgriCtec API** in
-[`backend/`](backend/README.md): FastAPI, PostgreSQL and Python. All data lives in the database;
-the browser keeps only UI preferences.
+Compiler, TypeScript strict, Tailwind v4 and zustand, on the **AgriCtec API**: FastAPI, PostgreSQL and Python. The API is its own repository,
+`agrictec-backend`. All data lives in the database; the browser keeps only UI preferences.
+
+Clone the two repositories side by side. The deployment in `deploy/` expects this layout:
+
+```
+agrictec/
+  Agric-Tec-main/      this repository: the Next.js app and deploy/
+  agrictec-backend/    the API
+```
 
 ## Getting started
 
-Start the API first ([backend/README.md](backend/README.md) has the details):
+Start the API first (the backend repository's README has the details):
 
 ```bash
-cd backend
+cd ../agrictec-backend
 python -m venv .venv && .venv\Scripts\activate   # macOS/Linux: source .venv/bin/activate
-pip install -r requirements-dev.txt
+python -m pip install -r requirements-dev.txt
 copy .env.example .env      # set DATABASE_URL (your PostgreSQL), and SEED_DEMO_DATA=true for the demo
 alembic upgrade head
 uvicorn app.main:app --reload --port 8000        # API docs: http://localhost:8000/docs
 ```
 
-Then the app, in another terminal (Node.js 20.9+):
+Then the app, in another terminal, from this repository (Node.js 20.9+, 22 recommended):
 
 ```bash
 npm install
@@ -36,7 +43,6 @@ so the API's httpOnly session cookies belong to this site and no CORS setup is n
 | `npm run build` / `npm start` | Production build and server                          |
 | `npm run lint`                | ESLint (React Compiler rules included)               |
 | `npx tsc --noEmit`            | Type check                                           |
-| `cd backend && pytest`        | The API's tests: rules, permissions, audit, workflows |
 | `node --test tests/*.test.cjs` | The frontend's helper and component tests            |
 
 The tests for the old localStorage services were removed. That behaviour now lives in the API
@@ -62,7 +68,7 @@ risk flags, announcements and a team.
 | Analyst                      | `yaw.darko@agrictec.app`      | `Team@2026`                                     |
 | Any seeded farmer (`/login`) | shown in **All Farmers**      | `Farmer@2026`                                   |
 
-**Your own Super Admin:** set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `backend/.env` and restart the
+**Your own Super Admin:** set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in the backend's `.env` and restart the
 API. It is applied once per value, so a password you later change in the console is kept.
 
 Five failed sign-ins lock that email for five minutes, and 30 minutes of inactivity signs an
@@ -126,11 +132,11 @@ values are committed together. Sign-ins, sign-outs and password changes are logg
 - The log is **append-only**: a database trigger refuses any edit or delete, for everyone.
 - Secrets never enter it: temporary passwords, password hashes and full Ghana Card numbers are
   left out (only the masked card and its fingerprint are ever stored).
-- `backend/tests` check that allowed writes add exactly one entry and refused ones change nothing.
+- The backend's tests check that allowed writes add exactly one entry and refused ones change nothing.
 
 ### The backend
 
-[`backend/`](backend/README.md) is the server this app runs on. It authenticates every request
+The `agrictec-backend` repository is the server this app runs on. It authenticates every request
 (httpOnly session cookies, argon2 password hashes), enforces the role matrix on every admin
 endpoint, scopes every farmer request to that farmer's own data, re-checks loan eligibility and
 plans server-side, and writes the audit log. `proxy.ts` only uses the session cookies for fast
@@ -138,8 +144,8 @@ redirects; the API is the real check. Its README lists every endpoint and the se
 
 Weather (Open-Meteo) and the market research evidence (WFP prices) work without any keys.
 Payments (Paystack), SMS (Arkesel), email (SMTP) and Ghana Card checks (Smile ID) switch on when
-their keys are set in `backend/.env`. Until then, plans use demo payments and notifications
-appear only in the app. See "Outside services" in the [backend README](backend/README.md).
+their keys are set in the backend's `.env`. Until then, plans use demo payments and
+notifications appear only in the app. See "Outside services" in the backend's README.
 
 ### Deploying
 

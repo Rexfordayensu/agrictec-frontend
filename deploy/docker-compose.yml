@@ -23,7 +23,8 @@ services:
     networks: [internal]
 
   api:
-    build: ../backend
+    # The backend repository, cloned beside this one (see deploy/README.md).
+    build: ../../agrictec-backend
     restart: unless-stopped
     depends_on:
       db:

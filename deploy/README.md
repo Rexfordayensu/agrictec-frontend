@@ -24,10 +24,15 @@ This folder runs the whole app on one Linux server with Docker. It starts four c
    curl -fsSL https://get.docker.com | sh
    ```
 
-2. Get the code onto the server, for example from your private GitHub repository:
+2. Get the code onto the server. Clone both repositories into one folder, for example from
+   your private GitHub repositories. The backend's folder must be named `agrictec-backend`,
+   because that's where `docker-compose.yml` builds the API from:
 
    ```bash
-   git clone https://github.com/YOU/agrictec.git && cd agrictec/deploy
+   mkdir agrictec && cd agrictec
+   git clone https://github.com/YOU/agrictec-web.git
+   git clone https://github.com/YOU/agrictec-api.git agrictec-backend
+   cd agrictec-web/deploy
    ```
 
 3. Create the settings file and fill it in:
@@ -59,7 +64,9 @@ The production database starts empty, with no demo farmers. Every farmer signs u
 ## Updating
 
 ```bash
-cd agrictec && git pull && cd deploy && docker compose up -d --build
+cd agrictec
+git -C agrictec-backend pull && git -C agrictec-web pull
+cd agrictec-web/deploy && docker compose up -d --build
 ```
 
 Migrations run automatically when the API restarts.
@@ -81,7 +88,7 @@ docker compose start api web
 To run the backup daily, add it to `crontab -e`:
 
 ```
-0 2 * * * cd /root/agrictec/deploy && docker compose exec -T db pg_dump -U agrictec -Fc agrictec > /root/backups/agrictec-$(date +\%F).dump
+0 2 * * * cd /root/agrictec/agrictec-web/deploy && docker compose exec -T db pg_dump -U agrictec -Fc agrictec > /root/backups/agrictec-$(date +\%F).dump
 ```
 
 Your VPS provider's snapshots are a good second layer, but they aren't a replacement.
@@ -98,7 +105,7 @@ Add the keys to `deploy/.env`, then run `docker compose up -d` (no rebuild neede
 
   Until a key is set, farmers can only use the Free plan.
 - **SMS (Arkesel), email (SMTP), Ghana Card checks (Smile ID):** see "Outside services" in
-  [backend/README.md](../backend/README.md).
+  the backend repository's README.
 
 ## Checking on it
 
@@ -115,8 +122,9 @@ curl https://YOUR_DOMAIN/api/v1/health
   that network, so visitors can't fake their address.
 - **Changing `ADMIN_IDLE_MINUTES` needs `--build`.** The web app bakes it in at build time.
   Every other setting applies with `docker compose up -d`.
-- **Another host?** Render, Railway and Fly.io can build both Dockerfiles: `backend/Dockerfile`
-  and `deploy/web.Dockerfile`, built from the repository root. If you use them:
+- **Another host?** Render, Railway and Fly.io can build both Dockerfiles: the backend
+  repository's `Dockerfile`, and this repository's `deploy/web.Dockerfile` built from its root.
+  Each repository can be its own service there. If you use them:
   - Provide PostgreSQL from the host.
   - Set the same variables the `api` service gets in `docker-compose.yml`.
   - Build the web app with `BACKEND_URL` pointing at the API's private address.

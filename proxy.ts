@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 // Fast redirects only. agrictec_session and agrictec_admin are the API's httpOnly session
 // cookies (opaque tokens); here we only check that one is present, to redirect before a page
-// renders. The API (backend/) checks the session and the role on every request, so a forged
+// renders. The API (agrictec-backend) checks the session and the role on every request, so a forged
 // cookie gets a page shell and nothing else.
 
 const SESSION_COOKIE = 'agrictec_session';

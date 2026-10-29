@@ -1,9 +1,9 @@
 import type { NextConfig } from 'next';
 
 /**
- * Where the AgriCtec API (backend/) runs. The app calls /api/v1 on its own origin and Next.js
- * forwards it there, so the API's httpOnly session cookies belong to this site: proxy.ts can
- * see them and no CORS is needed.
+ * Where the AgriCtec API (the agrictec-backend repository) runs. The app calls /api/v1 on its
+ * own origin and Next.js forwards it there, so the API's httpOnly session cookies belong to this
+ * site: proxy.ts can see them and no CORS is needed.
  */
 const BACKEND_URL = (process.env.BACKEND_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
 

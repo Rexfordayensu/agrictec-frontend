@@ -1,4 +1,4 @@
-// The one way the app talks to the AgriCtec API (backend/). Every service goes through here.
+// The one way the app talks to the AgriCtec API (agrictec-backend). Every service goes through here.
 //
 // Requests go to /api/v1 on this same origin; next.config.ts forwards them to the backend, so
 // the httpOnly session cookies it sets belong to this site (proxy.ts can see them) and no CORS

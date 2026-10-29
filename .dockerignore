@@ -2,7 +2,6 @@
 .git
 node_modules
 .next
-backend
 deploy
 tests
 coverage
