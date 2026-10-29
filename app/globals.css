@@ -1,0 +1,449 @@
+@import 'tailwindcss';
+
+/* Dark is the default theme */
+:root,
+[data-theme='dark'] {
+  --bg-1: #0a0e1a;
+  --bg-2: #111827;
+  --glass: rgba(255, 255, 255, 0.06);
+  --glass-strong: rgba(255, 255, 255, 0.1);
+  --border: rgba(255, 255, 255, 0.12);
+  --text: #f5f7fb;
+  --text-dim: #a8b0c0;
+  /* ≥4.5:1 on every dark surface, chips included (#6b7280 was 2.6–4:1); still dimmer than text-dim. */
+  --text-mute: #949bab;
+  --accent: #10b981;
+  --accent-2: #34d399;
+  --accent-glow: rgba(16, 185, 129, 0.4);
+  --gold: #f5c451;
+  --danger: #ef4444;
+  /* Solid red behind white text (count badges, the maintenance banner): 4.8:1, both themes. */
+  --danger-strong: #dc2626;
+  --warning: #f59e0b;
+  --info: #3b82f6;
+  --purple: #a855f7;
+  --shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  /* Page background glows (PageBackground): emerald top-left, purple bottom-right. */
+  --bg-glow-1: rgba(16, 185, 129, 0.1);
+  --bg-glow-2: rgba(168, 85, 247, 0.08);
+  /* Text colours for tinted badges/chips: WCAG AA (≥4.5:1) on this theme's background */
+  --ink-green: #34d399;
+  --ink-red: #f87171;
+  --ink-blue: #60a5fa;
+  --ink-gold: #f5c451;
+  --ink-purple: #c084fc;
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --bg-1: #f5f8fc;
+  --bg-2: #edf3fb;
+  --glass: rgba(255, 255, 255, 0.82);
+  --glass-strong: rgba(255, 255, 255, 0.94);
+  --border: rgba(15, 23, 42, 0.12);
+  --text: #101827;
+  --text-dim: #1f2937;
+  --text-mute: #475569;
+  --accent: #059669;
+  --accent-2: #10b981;
+  --accent-glow: rgba(5, 150, 105, 0.22);
+  --shadow: 0 20px 60px rgba(15, 23, 42, 0.12);
+  --bg-glow-1: rgba(5, 150, 105, 0.06);
+  --bg-glow-2: rgba(168, 85, 247, 0.05);
+  --ink-green: #047857;
+  --ink-red: #b91c1c;
+  --ink-blue: #1d4ed8;
+  --ink-gold: #92400e;
+  --ink-purple: #7e22ce;
+  color-scheme: light;
+}
+
+/* Expose tokens to Tailwind (inline = resolve at runtime, so theme switching works) */
+@theme inline {
+  --color-bg-1: var(--bg-1);
+  --color-bg-2: var(--bg-2);
+  --color-glass: var(--glass);
+  --color-glass-strong: var(--glass-strong);
+  --color-border: var(--border);
+  --color-text: var(--text);
+  --color-text-dim: var(--text-dim);
+  --color-text-mute: var(--text-mute);
+  --color-accent: var(--accent);
+  --color-accent-2: var(--accent-2);
+  --color-gold: var(--gold);
+  --color-danger: var(--danger);
+  --color-danger-strong: var(--danger-strong);
+  --color-warning: var(--warning);
+  --color-info: var(--info);
+  --color-purple: var(--purple);
+  --color-ink-green: var(--ink-green);
+  --color-ink-red: var(--ink-red);
+  --color-ink-blue: var(--ink-blue);
+  --color-ink-gold: var(--ink-gold);
+  --color-ink-purple: var(--ink-purple);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-outfit);
+  --radius-card: 20px;
+  --shadow-glass: var(--shadow);
+}
+
+/* Not inline: also emitted as a CSS variable, because the sidebar uses var(--spacing-header).
+   The desktop top bar and the sidebar logo row share this height, so their edges line up. */
+@theme {
+  --spacing-header: 4.75rem;
+}
+
+/* ---------- Base styles ---------- */
+@layer base {
+  body {
+    @apply bg-bg-1 text-text font-sans antialiased;
+    min-height: 100vh;
+    /* clip, not hidden: hidden can make <body> a scroll container, which breaks the
+       sticky top bar (it then sticks to <body> instead of the viewport). */
+    overflow-x: clip;
+  }
+
+  /* Type pairing: Outfit for headings, Inter (font-sans on body) for everything else. */
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-outfit), var(--font-inter), system-ui, sans-serif;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-mute);
+  }
+
+  /* Visible keyboard focus everywhere (mouse clicks don't show it) */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Three bouncing dots (AI chat, Phase 11): animate each dot with a staggered delay */
+@keyframes typing {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  30% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+}
+
+/* Score ring: a typed custom property so the conic-gradient can animate from 0 */
+@property --ring-pct {
+  syntax: '<number>';
+  inherits: false;
+  initial-value: 0;
+}
+
+@keyframes ringFill {
+  from {
+    --ring-pct: 0;
+  }
+}
+
+@keyframes progressGrow {
+  from {
+    width: 0;
+  }
+}
+
+/* Score gauge: the arc draws in from empty (its full length is passed as --gauge-len) */
+@keyframes gaugeFill {
+  from {
+    stroke-dashoffset: var(--gauge-len);
+  }
+}
+
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+/* ---------- Utility classes ---------- */
+@utility animate-ring-fill {
+  animation: ringFill 1.2s ease-out both;
+}
+
+@utility animate-progress-grow {
+  animation: progressGrow 0.8s ease-out both;
+}
+
+@utility animate-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    var(--glass) 0%,
+    var(--glass-strong) 50%,
+    var(--glass) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.6s linear infinite;
+}
+
+@utility animate-fade-in {
+  animation: fadeIn 0.5s ease-out both;
+}
+
+/* Route changes: starts mostly visible and settles in 160ms, so a new page reads as instant
+   (the 0.5s fade-in from transparent made fast navigations look slow). */
+@keyframes pageIn {
+  from {
+    opacity: 0.6;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-page-in {
+  animation: pageIn 0.16s ease-out both;
+}
+
+/* Desktop top bar: one fixed look. A scroll-linked effect (even opacity-only) made Chrome
+   recalculate styles on every scroll frame; a static bar costs nothing while scrolling. */
+@utility topbar-glass {
+  background-color: var(--glass-strong);
+  box-shadow: 0 8px 30px -12px rgba(0, 0, 0, 0.35);
+}
+
+@utility animate-pulse-soft {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Modals (components/ui/modal.tsx): the backdrop fades in; the panel fades in and grows from
+   0.95 to full size. With reduced motion the panel only fades. */
+@keyframes backdropIn {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modalIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+@utility animate-backdrop-in {
+  animation: backdropIn 0.2s ease-out both;
+}
+
+@utility animate-modal-in {
+  animation: modalIn 0.2s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-modal-in {
+    animation-name: backdropIn;
+  }
+}
+
+/* The modal surface: the glass tint over a solid base, so text stays readable on the blur. */
+@utility modal-glass {
+  background-color: var(--bg-2);
+  background-image: linear-gradient(var(--glass-strong), var(--glass-strong));
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  box-shadow: var(--shadow);
+}
+
+/* At most 90% of the screen height (dvh where supported, so phone toolbars don't cut it off). */
+@utility modal-height {
+  max-height: 90vh;
+  max-height: 90dvh;
+}
+
+/* Admin range sliders: a flat two-tone track (set --range-fill to the filled %), round thumb. */
+@layer components {
+  .range-flat {
+    appearance: none;
+    height: 6px;
+    border-radius: 9999px;
+    cursor: pointer;
+    /* Hard colour stops: two flat colours, no blend. */
+    background: linear-gradient(
+      to right,
+      var(--purple) var(--range-fill, 0%),
+      var(--glass-strong) var(--range-fill, 0%)
+    );
+  }
+  .range-flat::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid var(--purple);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  }
+  .range-flat::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    border-radius: 9999px;
+    background: #fff;
+    border: 3px solid var(--purple);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.35);
+  }
+  .range-flat:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 6px;
+  }
+}
+
+/* Admin console: the navigation sidebar slides in from the left (below 1024px) */
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@utility animate-slide-in-left {
+  animation: slideInLeft 0.25s ease-out both;
+}
+
+/* Crop scanner: a line sweeping down and back up the viewfinder */
+@keyframes scanSweep {
+  0%,
+  100% {
+    top: 8%;
+  }
+  50% {
+    top: 92%;
+  }
+}
+
+@utility animate-scan-sweep {
+  animation: scanSweep 3s ease-in-out infinite;
+}
+
+@utility animate-typing {
+  animation: typing 1.4s ease-in-out infinite;
+}
+
+/* Onboarding: each step fades and slides in (the reduced-motion rule below turns it off). */
+@keyframes stepIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@utility animate-step-in {
+  animation: stepIn 0.28s ease-out both;
+}
+
+/* Onboarding map: keep Leaflet's own z-indexes inside the map, and draw the farm pin (a
+   divIcon with only this class, instead of Leaflet's image marker). */
+.leaflet-container {
+  z-index: 0;
+  font: inherit;
+}
+
+.farm-pin {
+  border-radius: 9999px;
+  background: #10b981;
+  border: 3px solid #ffffff;
+  box-shadow:
+    0 0 0 4px rgba(16, 185, 129, 0.35),
+    0 4px 12px rgba(0, 0, 0, 0.35);
+  cursor: grab;
+}
+
+/* Glass surface: tint + border. No backdrop blur here: content scrolls, and a blurred element
+   over moving content is re-blurred every frame (measured: the main cause of scroll jank).
+   Fixed chrome that sits over the page (sidebar, top bar, mobile bar) adds its own blur. */
+@utility glass {
+  background: var(--glass);
+  border: 1px solid var(--border);
+}
+
+@utility text-gradient-brand {
+  background-image: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    var(--accent-2) 45%,
+    var(--gold) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* ---------- Scrollbars ---------- */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--glass-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--glass-strong);
+  border-radius: 9999px;
+}
+
+/* ---------- Reduced motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

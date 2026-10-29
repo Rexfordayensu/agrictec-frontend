@@ -1,0 +1,25 @@
+.scanLine {
+  position: absolute;
+  inset-inline: 0;
+  top: 0;
+  height: 2px;
+  background: #34d399;
+  box-shadow: 0 0 24px 8px rgb(52 211 153 / 35%);
+  animation: scan 1.8s ease-in-out infinite alternate;
+}
+
+@keyframes scan {
+  from {
+    top: 0;
+  }
+  to {
+    top: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scanLine {
+    animation: none;
+    top: 50%;
+  }
+}
