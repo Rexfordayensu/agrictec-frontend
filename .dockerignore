@@ -1,0 +1,10 @@
+# What the web image's build never needs (deploy/web.Dockerfile builds from the repository root).
+.git
+node_modules
+.next
+backend
+deploy
+tests
+coverage
+*.tsbuildinfo
+.env*

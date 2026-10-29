@@ -1,0 +1,21 @@
+# HTTPS for {$DOMAIN}: Caddy gets and renews the certificate itself (ports 80 and 443 must be
+# open and the domain's DNS must point at this server).
+{$DOMAIN} {
+	# No `encode` here: the Next.js app compresses its own pages, and compressing the live
+	# event stream (/api/v1/events) would hold its messages back.
+	reverse_proxy web:3000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+}
+
+# Visitors typing www. land on the main address. Needs a DNS record for www too: without one,
+# delete this block (Caddy would keep retrying a certificate it can't get).
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}

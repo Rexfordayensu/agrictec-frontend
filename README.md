@@ -140,3 +140,9 @@ Weather (Open-Meteo) and the market research evidence (WFP prices) work without 
 Payments (Paystack), SMS (Arkesel), email (SMTP) and Ghana Card checks (Smile ID) switch on when
 their keys are set in `backend/.env`. Until then, plans use demo payments and notifications
 appear only in the app. See "Outside services" in the [backend README](backend/README.md).
+
+### Deploying
+
+[`deploy/`](deploy/README.md) runs the app on one Linux server with Docker Compose:
+PostgreSQL, the API, this app and Caddy, which provides automatic HTTPS. Its README walks
+through the first deployment, updates, backups and switching on the optional services.

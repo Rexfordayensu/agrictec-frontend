@@ -1,0 +1,98 @@
+# AgriCtec on one server: PostgreSQL, the API, the Next.js app and Caddy (HTTPS).
+#   cd deploy && cp .env.example .env   (fill it in)
+#   docker compose up -d --build
+# Only Caddy is reachable from outside (ports 80 and 443). See deploy/README.md.
+
+name: agrictec
+
+services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: agrictec
+      POSTGRES_USER: agrictec
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in deploy/.env}
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agrictec -d agrictec"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    networks: [internal]
+
+  api:
+    build: ../backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      ENVIRONMENT: production
+      DATABASE_URL: postgresql+psycopg2://agrictec:${POSTGRES_PASSWORD}@db:5432/agrictec
+      SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in deploy/.env}
+      CORS_ORIGINS: https://${DOMAIN:?set DOMAIN in deploy/.env}
+      PUBLIC_APP_URL: https://${DOMAIN}
+      COOKIE_SECURE: "true"
+      # Caddy and the web app reach the API from this network; their X-Forwarded-For is believed.
+      TRUSTED_PROXIES: 172.28.0.0/16
+      SEED_DEMO_DATA: "false"
+      ADMIN_EMAIL: ${ADMIN_EMAIL:?set ADMIN_EMAIL in deploy/.env}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:?set ADMIN_PASSWORD in deploy/.env}
+      ADMIN_IDLE_MINUTES: ${ADMIN_IDLE_MINUTES:-30}
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-2}
+      # Optional services: each stays off while its keys are empty.
+      PAYSTACK_SECRET_KEY: ${PAYSTACK_SECRET_KEY:-}
+      ARKESEL_API_KEY: ${ARKESEL_API_KEY:-}
+      SMS_SENDER_ID: ${SMS_SENDER_ID:-AgriCtec}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: ${SMTP_FROM:-}
+      SMTP_STARTTLS: ${SMTP_STARTTLS:-true}
+      SMILE_ID_PARTNER_ID: ${SMILE_ID_PARTNER_ID:-}
+      SMILE_ID_API_KEY: ${SMILE_ID_API_KEY:-}
+      SMILE_ID_SANDBOX: ${SMILE_ID_SANDBOX:-true}
+    networks: [internal]
+
+  web:
+    build:
+      context: ..
+      dockerfile: deploy/web.Dockerfile
+      args:
+        BACKEND_URL: http://api:8000
+        NEXT_PUBLIC_ADMIN_IDLE_MINUTES: ${ADMIN_IDLE_MINUTES:-30}
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    networks: [internal]
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    depends_on: [web]
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    networks: [internal]
+
+networks:
+  internal:
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  db-data:
+  caddy-data:
+  caddy-config:
