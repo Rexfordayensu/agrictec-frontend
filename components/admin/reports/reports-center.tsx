@@ -17,7 +17,7 @@ import { toast } from 'sonner';
 import { PageHeader } from '@/components/admin/layout/page-header';
 import { ReportBuilder } from '@/components/admin/reports/report-builder';
 import { ReportPreview } from '@/components/admin/reports/report-preview';
-import { ScheduledNote } from '@/components/admin/reports/scheduled-note';
+import { ReportSchedules } from '@/components/admin/reports/report-schedules';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   REPORT_CATALOG,
@@ -47,7 +47,7 @@ const iconButton =
 
 /**
  * Reports & analytics (phase A14): six ready-made reports (preview, CSV, landscape PDF), a custom
- * report builder and a note on scheduled reports. Every download is audited.
+ * report builder and scheduled email reports. Every download is audited.
  */
 export function ReportsCenter() {
   const [data, setData] = useState<ReportData | null>(null);
@@ -169,7 +169,7 @@ export function ReportsCenter() {
       </section>
 
       <ReportBuilder />
-      <ScheduledNote />
+      <ReportSchedules />
 
       <ReportPreview
         report={preview}

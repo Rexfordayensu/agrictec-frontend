@@ -57,6 +57,8 @@ export interface Diagnosis {
   crop?: Crop;
   imageThumb?: string;
   date: string;
+  /** "ai": Claude read the photo; "demo": a demonstration result (unset on older saves: demo). */
+  source?: 'ai' | 'demo';
 }
 
 export type FarmType = 'Smallholder' | 'Commercial' | 'Cooperative' | 'Out-grower';

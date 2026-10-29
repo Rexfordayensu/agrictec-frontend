@@ -13,7 +13,7 @@ import { FARMER_PASSWORD_MIN_LENGTH } from '@/services/auth.service';
 import { useAuthStore } from '@/store/auth-store';
 import type { Session } from '@/types';
 
-const newPasswordSchema = z
+export const newPasswordSchema = z
   .object({
     password: z
       .string()

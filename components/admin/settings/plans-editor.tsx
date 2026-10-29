@@ -65,7 +65,7 @@ export function PlansEditor({
       id="plans"
       icon={BadgeDollarSign}
       title="Subscription plans"
-      description="Manage monthly prices, offered tiers and Premium AI credits. Checkout uses mock payments; no money is collected."
+      description="Manage monthly prices, offered tiers and Premium AI credits. Farmers pay through Paystack once its key is set on the server; until then checkout is a demo and no money is collected."
     >
       <p className="text-text-dim mb-4 text-sm">
         Free keeps the essentials. Basic adds PDFs. Premium adds limited AI tools. Advanced includes

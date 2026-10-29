@@ -143,9 +143,15 @@ plans server-side, and writes the audit log. `proxy.ts` only uses the session co
 redirects; the API is the real check. Its README lists every endpoint and the security model.
 
 Weather (Open-Meteo) and the market research evidence (WFP prices) work without any keys.
-Payments (Paystack), SMS (Arkesel), email (SMTP) and Ghana Card checks (Smile ID) switch on when
-their keys are set in the backend's `.env`. Until then, plans use demo payments and
-notifications appear only in the app. See "Outside services" in the backend's README.
+Payments (Paystack), SMS (Arkesel), email (SMTP), Ghana Card checks (Smile ID) and real AI
+(Claude, for the assistant and the crop doctor) switch on when their keys are set in the
+backend's `.env`. Until then:
+- plans use demo payments
+- notifications appear only in the app
+- the assistant answers from the knowledge base
+- the crop doctor shows demonstration results
+
+Password-reset codes and scheduled email reports need email, and SMS for codes by phone. See "Outside services" in the backend's README.
 
 ### Deploying
 

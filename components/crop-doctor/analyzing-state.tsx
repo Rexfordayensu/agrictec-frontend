@@ -12,7 +12,7 @@ const STEPS = [
 ];
 
 /** Step-by-step progress while the (simulated) analysis runs. */
-export function AnalyzingState() {
+export function AnalyzingState({ ai = false }: { ai?: boolean }) {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
@@ -63,7 +63,7 @@ export function AnalyzingState() {
 
       <span className="text-ink-purple mt-6 inline-flex items-center gap-1.5 text-[11px]">
         <Sparkles size={13} aria-hidden="true" />
-        Simulated analysis
+        {ai ? 'AI analysis of your photo' : 'Simulated analysis'}
       </span>
     </div>
   );

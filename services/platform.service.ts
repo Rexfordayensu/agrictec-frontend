@@ -35,6 +35,8 @@ export interface PlatformSnapshot {
   announcements: Announcement[];
   /** How plans are paid for. */
   payments: { mode: PaymentMode };
+  /** "claude": the assistant and crop doctor use Claude; "off": the built-in rules and demo. */
+  ai: { mode: 'claude' | 'off' };
 }
 
 export const platformService = {

@@ -20,6 +20,8 @@ interface AuthState {
   signIn: (email: string, password: string) => Promise<Session>;
   /** After an admin reset: the temporary password, then the farmer's own new one. */
   replaceTemporaryPassword: (email: string, temporary: string, next: string) => Promise<Session>;
+  /** Forgot password: the emailed code, then a new password. */
+  resetPassword: (email: string, code: string, next: string) => Promise<Session>;
   signUp: (email: string, password: string) => Promise<Session>;
   continueAsGuest: () => Promise<Session>;
   signOut: () => Promise<void>;
@@ -50,6 +52,12 @@ export const useAuthStore = create<AuthState>()((set) => ({
 
   replaceTemporaryPassword: async (email, temporary, next) => {
     const session = await authService.replaceTemporaryPassword(email, temporary, next);
+    set({ session, status: 'ready' });
+    return session;
+  },
+
+  resetPassword: async (email, code, next) => {
+    const session = await authService.resetPassword(email, code, next);
     set({ session, status: 'ready' });
     return session;
   },

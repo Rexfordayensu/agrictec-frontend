@@ -7,7 +7,7 @@ import { NextResponse, type NextRequest } from 'next/server';
 
 const SESSION_COOKIE = 'agrictec_session';
 const ADMIN_COOKIE = 'agrictec_admin';
-const AUTH_PAGES = ['/login', '/signup'];
+const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
 const ADMIN_LOGIN = '/admin-login';
 /** Set by the farmer tab while an admin views the app as a farmer (read-only, phase A8). */
 const IMPERSONATION_COOKIE = 'agrictec_impersonating';

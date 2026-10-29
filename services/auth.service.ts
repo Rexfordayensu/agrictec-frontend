@@ -59,6 +59,28 @@ export const authService = {
     );
   },
 
+  /**
+   * Sends a six-digit reset code to the account's email (and verified phone). The answer is the
+   * same whether or not the email has an account.
+   */
+  async requestPasswordReset(email: string): Promise<string> {
+    const { detail } = await api<{ detail: string }>('/auth/password-reset/request', {
+      method: 'POST',
+      body: { email },
+    });
+    return detail;
+  },
+
+  /** The code and a new password: other sessions end, and the farmer is signed in here. */
+  async resetPassword(email: string, code: string, newPassword: string): Promise<Session> {
+    return signedIn(
+      await api<SignedIn>('/auth/password-reset/confirm', {
+        method: 'POST',
+        body: { email, code, newPassword },
+      }),
+    );
+  },
+
   /** One guest per device: the API remembers it with a long-lived cookie. */
   async continueAsGuest(): Promise<Session> {
     return signedIn(await api<SignedIn>('/auth/guest', { method: 'POST' }));

@@ -113,6 +113,11 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
             {...register('password')}
           />
         </FormField>
+        <p className="-mt-2 text-right text-sm">
+          <Link href="/forgot-password" className="text-ink-green font-semibold hover:underline">
+            Forgot password?
+          </Link>
+        </p>
 
         <Button type="submit" icon={LogIn} loading={isSubmitting} className="w-full">
           {isSubmitting ? 'Signing in…' : 'Sign in'}

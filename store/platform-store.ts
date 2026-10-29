@@ -59,6 +59,7 @@ export const initialPlatformState = (): Omit<
   diagnoses: DEFAULT_DIAGNOSES,
   announcements: [],
   payments: { mode: 'demo' },
+  ai: { mode: 'off' },
   dismissed: [],
   verifications: [],
   underReview: false,

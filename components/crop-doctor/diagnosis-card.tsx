@@ -166,9 +166,12 @@ export function DiagnosisCard({
             chemicals.
           </p>
         </div>
-        <p className="text-text-mute mt-3 text-[11px] leading-relaxed">
-          This result is a deterministic demo and does not assess the health of the uploaded plant.
-        </p>
+        {result.source !== 'ai' && (
+          <p className="text-text-mute mt-3 text-[11px] leading-relaxed">
+            This result is a deterministic demo and does not assess the health of the uploaded
+            plant.
+          </p>
+        )}
 
         <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
           <Button

@@ -9,6 +9,11 @@ const BACKEND_URL = (process.env.BACKEND_URL ?? 'http://127.0.0.1:8000').replace
 
 const nextConfig: NextConfig = {
   reactCompiler: true, // stable in Next.js 16: automatic memoization
+  experimental: {
+    // Forwarded API calls may wait this long for an answer: a crop doctor photo read by Claude
+    // can take longer than the default 30 s (the API gives up on Claude before this).
+    proxyTimeout: 120_000,
+  },
   // The Docker image (deploy/web.Dockerfile) ships the self-contained server only.
   output: process.env.NEXT_STANDALONE === '1' ? 'standalone' : undefined,
   // Hide the dev-only Next.js badge; on phones it sat over the bottom navigation.

@@ -34,6 +34,7 @@ import { cn } from '@/lib/utils';
 import { useChatStore } from '@/store/chat-store';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
+import { usePlatformStore } from '@/store/platform-store';
 import type { Crop, DiagnosisResult } from '@/types';
 import { useSubscriptionStore } from '@/store/subscription-store';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -55,6 +56,8 @@ const CHECKS: { icon: LucideIcon; title: string; text: string }[] = [
 
 export function CropDoctorView() {
   const { snapshot } = useSubscription();
+  // Claude reads the photo when the server has a key; otherwise the demonstration results.
+  const aiOn = usePlatformStore((s) => s.ai.mode === 'claude');
   const noCredits = snapshot?.creditsRemaining !== null && (snapshot?.creditsRemaining ?? 0) < 5;
   const router = useRouter();
   const openRecordWithDefaults = useModalStore((s) => s.openRecordWithDefaults);
@@ -238,9 +241,15 @@ export function CropDoctorView() {
           <div className="text-text-mute mt-4 space-y-1 text-[11px]">
             <p className="flex items-center gap-1.5">
               <ShieldCheck size={13} aria-hidden="true" className="text-ink-green shrink-0" />
-              Your photo stays on this device.
+              {aiOn
+                ? 'Your photo is sent securely for analysis and is not kept there.'
+                : 'Your photo stays on this device.'}
             </p>
-            <p>Results are simulated. Confirm with your extension officer.</p>
+            <p>
+              {aiOn
+                ? 'AI can be wrong. Confirm with your extension officer.'
+                : 'Results are simulated. Confirm with your extension officer.'}
+            </p>
           </div>
         </Card>
 
@@ -257,7 +266,7 @@ export function CropDoctorView() {
           </CardHeader>
           <div aria-live="polite">
             {analyzing ? (
-              <AnalyzingState />
+              <AnalyzingState ai={aiOn} />
             ) : result ? (
               <DiagnosisCard
                 result={result}
