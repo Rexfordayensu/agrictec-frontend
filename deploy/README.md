@@ -30,9 +30,9 @@ This folder runs the whole app on one Linux server with Docker. It starts four c
 
    ```bash
    mkdir agrictec && cd agrictec
-   git clone https://github.com/YOU/agrictec-web.git
-   git clone https://github.com/YOU/agrictec-api.git agrictec-backend
-   cd agrictec-web/deploy
+   git clone https://github.com/YOU/agrictec-frontend.git
+   git clone https://github.com/YOU/agrictec-backend.git
+   cd agrictec-frontend/deploy
    ```
 
 3. Create the settings file and fill it in:
@@ -65,8 +65,8 @@ The production database starts empty, with no demo farmers. Every farmer signs u
 
 ```bash
 cd agrictec
-git -C agrictec-backend pull && git -C agrictec-web pull
-cd agrictec-web/deploy && docker compose up -d --build
+git -C agrictec-backend pull && git -C agrictec-frontend pull
+cd agrictec-frontend/deploy && docker compose up -d --build
 ```
 
 Migrations run automatically when the API restarts.
@@ -88,7 +88,7 @@ docker compose start api web
 To run the backup daily, add it to `crontab -e`:
 
 ```
-0 2 * * * cd /root/agrictec/agrictec-web/deploy && docker compose exec -T db pg_dump -U agrictec -Fc agrictec > /root/backups/agrictec-$(date +\%F).dump
+0 2 * * * cd /root/agrictec/agrictec-frontend/deploy && docker compose exec -T db pg_dump -U agrictec -Fc agrictec > /root/backups/agrictec-$(date +\%F).dump
 ```
 
 Your VPS provider's snapshots are a good second layer, but they aren't a replacement.

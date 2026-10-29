@@ -9,7 +9,7 @@ Clone the two repositories side by side. The deployment in `deploy/` expects thi
 
 ```
 agrictec/
-  Agric-Tec-main/      this repository: the Next.js app and deploy/
+  agrictec-frontend/   this repository: the Next.js app and deploy/
   agrictec-backend/    the API
 ```
 
