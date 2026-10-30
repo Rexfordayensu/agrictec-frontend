@@ -169,7 +169,7 @@ function WeatherPanel({
             )}
             {locationError && (
               <p role="status" className="text-ink-gold mt-2 text-xs">
-                {locationError}
+                {locationError} {fallbackNote(location, true)}
               </p>
             )}
             <div className="text-text mt-2 text-sm" aria-live="polite">
@@ -239,7 +239,7 @@ function WeatherPanel({
       </p>
       {locationError && (
         <p role="alert" className="text-ink-gold mt-3 text-sm">
-          {locationError}
+          {locationError} {fallbackNote(location)}
         </p>
       )}
       <div className="mt-4" aria-live="polite">
@@ -348,6 +348,16 @@ function WeatherPanel({
       {state.status === 'ready' && <WeatherForecasts report={state.data} />}
     </Card>
   );
+}
+
+/** After a failed detection: which place the forecast is for instead, and what to do. */
+function fallbackNote(location: WeatherLocation | null, compact = false) {
+  if (!location)
+    return compact ? 'Choose your town on the Weather page.' : 'Choose your town below.';
+  const place = location.kind === 'coordinates' ? 'your last detected location' : location.label;
+  return compact
+    ? `Showing ${place}. Change it on the Weather page.`
+    : `Showing ${place} instead. Tap “Use my current location” to try again, or choose your town below.`;
 }
 
 /** A provider without a probability of rain (MET Norway, for Ghana) shows that, not a number. */

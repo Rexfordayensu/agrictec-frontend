@@ -42,43 +42,55 @@ export const weatherLocationKey = (location: WeatherLocation) =>
     ? `gps:${location.latitude!.toFixed(5)}:${location.longitude!.toFixed(5)}`
     : `ghana:${location.region}:${location.city?.trim().toLowerCase() ?? ''}`;
 
+/**
+ * First a quick fix (network position, or one from the last 10 minutes); if that times out or
+ * the network can't place the phone, one precise GPS attempt. Phones indoors or on a weak
+ * signal often need longer than the first try allows.
+ */
+export const LOCATION_ATTEMPTS: PositionOptions[] = [
+  { enableHighAccuracy: false, timeout: 20000, maximumAge: 600000 },
+  { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
+];
+
+function position(geolocation: Geolocation, options: PositionOptions) {
+  return new Promise<GeolocationPosition>((resolve, reject) =>
+    geolocation.getCurrentPosition(resolve, reject, options),
+  );
+}
+
 /** The browser always controls permission. No reverse-geocoding API call. */
-export function requestWeatherLocation(
+export async function requestWeatherLocation(
   geolocation = typeof navigator !== 'undefined' ? navigator.geolocation : undefined,
 ): Promise<WeatherLocation> {
-  if (!geolocation)
-    return Promise.reject(
-      new Error('Location access is unavailable. Select a Ghanaian region or city below.'),
+  if (!geolocation) throw new Error('This browser can’t share your location.');
+  let found: GeolocationPosition | undefined;
+  let failure: GeolocationPositionError | undefined;
+  for (const options of LOCATION_ATTEMPTS) {
+    try {
+      found = await position(geolocation, options);
+      break;
+    } catch (error) {
+      failure = error as GeolocationPositionError;
+      if (failure.code === 1) break; // Denied: asking again only repeats the refusal.
+    }
+  }
+  if (!found)
+    throw new Error(
+      failure?.code === 1
+        ? 'Location permission was denied.'
+        : failure?.code === 3
+          ? 'Your location could not be found in time (the GPS signal may be weak).'
+          : 'Your location could not be detected.',
     );
-  return new Promise((resolve, reject) =>
-    geolocation.getCurrentPosition(
-      (position) => {
-        const location: WeatherLocation = {
-          kind: 'coordinates',
-          label: 'Your current location',
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-          accuracyMetres: position.coords.accuracy,
-        };
-        if (!validWeatherLocation(location))
-          return reject(
-            new Error('The device returned an invalid location. Please select a city.'),
-          );
-        resolve(location);
-      },
-      (error) =>
-        reject(
-          new Error(
-            error.code === 1
-              ? 'Location permission was denied. You can select your region or city below.'
-              : error.code === 3
-                ? 'Location detection timed out. Try again or select a city below.'
-                : 'Your location could not be detected. Select a region or city below.',
-          ),
-        ),
-      { enableHighAccuracy: false, timeout: 12000, maximumAge: 300000 },
-    ),
-  );
+  const location: WeatherLocation = {
+    kind: 'coordinates',
+    label: 'Your current location',
+    latitude: found.coords.latitude,
+    longitude: found.coords.longitude,
+    accuracyMetres: found.coords.accuracy,
+  };
+  if (!validWeatherLocation(location)) throw new Error('The device returned an invalid location.');
+  return location;
 }
 
 const initialRequests = new Map<string, Promise<WeatherLocation | null>>();

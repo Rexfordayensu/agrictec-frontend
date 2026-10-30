@@ -4,7 +4,7 @@ export const DEMO_WEATHER_LOCATION: WeatherLocation = {
   kind: 'place',
   region: 'Greater Accra',
   city: 'Accra',
-  label: 'Accra, Ghana (demo default)',
+  label: 'Accra, Greater Accra, Ghana',
 };
 
 /** Explicit frontend fixtures. Coordinates select a sample set, not real measured weather. */

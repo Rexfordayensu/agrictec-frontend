@@ -41,6 +41,7 @@ const {
   evidenceToDraft,
 } = require('../lib/market/evidence.ts');
 const {
+  LOCATION_ATTEMPTS,
   requestWeatherLocation,
   requestInitialWeatherLocation,
   validWeatherLocation,
@@ -252,7 +253,7 @@ test('server rendering never prompts; browser location denials/timeouts have man
   const browser = {
     getCurrentPosition(success, _error, options) {
       calls++;
-      assert.equal(options.timeout, 12000);
+      assert.deepEqual(options, LOCATION_ATTEMPTS[0], 'A quick fix first');
       success({ coords: { latitude: 5.6, longitude: -0.2, accuracy: 50 } });
     },
   };
@@ -263,22 +264,38 @@ test('server rendering never prompts; browser location denials/timeouts have man
   assert.equal(calls, 1);
   assert.equal(current.latitude, 5.6);
   assert.equal(current.label, 'Your current location', 'No fabricated reverse-geocoded city');
+  const tries = [];
   await assert.rejects(
     requestWeatherLocation({
-      getCurrentPosition(_success, error) {
+      getCurrentPosition(_success, error, options) {
+        tries.push(options);
         error({ code: 1 });
       },
     }),
-    /denied.*region or city/,
+    /denied/,
   );
+  assert.equal(tries.length, 1, 'A refusal is not asked again');
+  tries.length = 0;
   await assert.rejects(
     requestWeatherLocation({
-      getCurrentPosition(_success, error) {
+      getCurrentPosition(_success, error, options) {
+        tries.push(options);
         error({ code: 3 });
       },
     }),
-    /timed out/,
+    /could not be found in time/,
   );
+  assert.deepEqual(tries, LOCATION_ATTEMPTS, 'A timeout gets one precise GPS attempt');
+  assert.equal(tries[1].enableHighAccuracy, true);
+  // The precise attempt can succeed where the quick one timed out.
+  let attempt = 0;
+  const slow = await requestWeatherLocation({
+    getCurrentPosition(success, error) {
+      if (attempt++ === 0) error({ code: 3 });
+      else success({ coords: { latitude: 9.4, longitude: -0.84, accuracy: 12 } });
+    },
+  });
+  assert.equal(slow.latitude, 9.4);
   await assert.rejects(
     requestWeatherLocation({
       getCurrentPosition(success) {
