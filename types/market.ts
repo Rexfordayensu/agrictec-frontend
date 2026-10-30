@@ -54,7 +54,8 @@ export interface DailyWeather {
   minTemp: number;
   maxTemp: number;
   rainMm: number;
-  rainChance: number;
+  /** null when the provider publishes no probability (MET Norway, for Ghana). */
+  rainChance: number | null;
   windKph: number;
 }
 export interface WeatherReport {
@@ -68,11 +69,11 @@ export interface WeatherReport {
     description: string;
     humidity: number;
     rainMm: number;
-    rainChance: number;
+    rainChance: number | null;
     windKph: number;
   };
   daily: DailyWeather[];
-  upcoming: { time: string; description: string; temp: number; rainChance: number }[];
+  upcoming: { time: string; description: string; temp: number; rainChance: number | null }[];
 }
 export interface WeatherProvider {
   getForecast(location: WeatherLocation, signal?: AbortSignal): Promise<WeatherReport | null>;

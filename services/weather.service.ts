@@ -9,6 +9,8 @@ import type {
 } from '@/types/market';
 
 const percent = z.number().min(0).max(100);
+// Some providers (MET Norway, for Ghana) publish no probability of rain: null, never a guess.
+const chance = percent.nullable();
 const temp = z.number().min(-100).max(65);
 const description = z.string().min(1).max(200);
 const reportSchema = z.object({
@@ -20,7 +22,7 @@ const reportSchema = z.object({
     description,
     humidity: percent,
     rainMm: z.number().min(0),
-    rainChance: percent,
+    rainChance: chance,
     windKph: z.number().min(0),
   }),
   daily: z
@@ -31,13 +33,13 @@ const reportSchema = z.object({
         minTemp: temp,
         maxTemp: temp,
         rainMm: z.number().min(0),
-        rainChance: percent,
+        rainChance: chance,
         windKph: z.number().min(0),
       }),
     )
     .max(16),
   upcoming: z
-    .array(z.object({ time: z.iso.datetime(), description, temp, rainChance: percent }))
+    .array(z.object({ time: z.iso.datetime(), description, temp, rainChance: chance }))
     .max(48),
 });
 

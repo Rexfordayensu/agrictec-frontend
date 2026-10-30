@@ -177,7 +177,7 @@ function WeatherPanel({
                     {state.data.current.temp}°C · {state.data.current.description}
                   </p>
                   <p className="text-text-dim mt-1">
-                    Rain probability: {state.data.current.rainChance}%
+                    Rain probability: {chanceLabel(state.data.current.rainChance)}
                   </p>
                   <p className="text-text-mute mt-1 text-xs">
                     Demo generated: {timeLabel(state.data.updatedAt)} · Not live weather
@@ -344,6 +344,11 @@ function WeatherPanel({
   );
 }
 
+/** A provider without a probability of rain (MET Norway, for Ghana) shows that, not a number. */
+function chanceLabel(chance: number | null) {
+  return chance === null ? 'Not given by this source' : `${chance}%`;
+}
+
 /** Present provider observations as supplied; never derive or fill in missing readings. */
 export function WeatherReadings({
   report,
@@ -357,7 +362,7 @@ export function WeatherReadings({
     ['Conditions', report.current.description],
     ['Humidity', `${report.current.humidity}%`],
     ['Rainfall', `${report.current.rainMm} mm`],
-    ['Rain probability', `${report.current.rainChance}%`],
+    ['Rain probability', chanceLabel(report.current.rainChance)],
     ['Wind speed', `${report.current.windKph} km/h`],
   ];
   return (
@@ -410,7 +415,9 @@ function WeatherForecasts({ report }: { report: WeatherReport }) {
                   {day.description} · {day.minTemp}–{day.maxTemp}°C
                 </p>
                 <p className="text-text-mute mt-1 text-xs">
-                  Rain: {day.rainMm} mm · {day.rainChance}% · Wind: {day.windKph} km/h
+                  Rain: {day.rainMm} mm
+                  {day.rainChance === null ? '' : ` · ${day.rainChance}%`} · Wind: {day.windKph}{' '}
+                  km/h
                 </p>
               </li>
             ))}
@@ -431,7 +438,8 @@ function WeatherForecasts({ report }: { report: WeatherReport }) {
                   {timeLabel(hour.time)}
                 </time>
                 <p className="text-text-dim mt-1">
-                  {hour.description} · {hour.temp}°C · {hour.rainChance}% rain probability
+                  {hour.description} · {hour.temp}°C
+                  {hour.rainChance === null ? '' : ` · ${hour.rainChance}% rain probability`}
                 </p>
               </li>
             ))}
