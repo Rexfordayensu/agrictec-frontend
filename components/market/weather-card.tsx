@@ -76,7 +76,7 @@ function WeatherPanel({
   const [locating, setLocating] = useState(false);
   const [autoChecking, setAutoChecking] = useState(true);
   const [locationError, setLocationError] = useState('');
-  const { state, loading, retry } = useLocationWeather(location, true);
+  const { state, loading, retry } = useLocationWeather(location);
   useEffect(() => {
     alive.current = true;
     let active = true;
@@ -152,9 +152,11 @@ function WeatherPanel({
               <CloudSun size={18} aria-hidden="true" className="text-ink-blue" />
               Local weather
             </CardTitle>
-            <p className="text-ink-gold mt-2 text-xs font-semibold">
-              Demo weather · sample measurements
-            </p>
+            {state.status === 'ready' && state.data.demo && (
+              <p className="text-ink-gold mt-2 text-xs font-semibold">
+                Demo weather · sample measurements
+              </p>
+            )}
             <p className="text-text-dim mt-2 text-sm break-words">
               {state.status === 'ready'
                 ? state.data.location.label
@@ -180,16 +182,18 @@ function WeatherPanel({
                     Rain probability: {chanceLabel(state.data.current.rainChance)}
                   </p>
                   <p className="text-text-mute mt-1 text-xs">
-                    Demo generated: {timeLabel(state.data.updatedAt)} · Not live weather
+                    {state.data.demo
+                      ? `Demo generated: ${timeLabel(state.data.updatedAt)} · Not live weather`
+                      : `${state.data.provider} · Updated ${timeLabel(state.data.updatedAt)}`}
                   </p>
                 </>
               ) : (
                 <p>
                   {state.status === 'loading' || state.status === 'idle'
-                    ? 'Preparing demo measurements…'
+                    ? 'Loading weather…'
                     : state.status === 'error'
                       ? 'Weather could not load. Open Weather to try again.'
-                      : 'Demo measurements could not load.'}
+                      : 'Weather data unavailable. Open Weather to try again.'}
                 </p>
               )}
             </div>
@@ -215,9 +219,11 @@ function WeatherPanel({
           <CardSub>Conditions and forecast for your selected location.</CardSub>
         </div>
       </CardHeader>
-      <p className="text-ink-gold mb-3 text-xs font-semibold">
-        Demo weather: sample measurements, not live weather observations.
-      </p>
+      {state.status === 'ready' && state.data.demo && (
+        <p className="text-ink-gold mb-3 text-xs font-semibold">
+          Demo weather: sample measurements, not live weather observations.
+        </p>
+      )}
       {autoChecking && (
         <p role="status" className="text-text-dim mb-3 text-sm">
           Detecting your location… Allow access in your browser if prompted.
@@ -241,7 +247,7 @@ function WeatherPanel({
           <WeatherReadings report={state.data} showForecasts={false} />
         ) : state.status === 'loading' || state.status === 'idle' ? (
           <p role="status" className="text-text-dim text-sm">
-            Preparing demo measurements for this location…
+            Loading weather for this location…
           </p>
         ) : (
           <div className="bg-bg-2/40 rounded-2xl p-4">
@@ -254,10 +260,10 @@ function WeatherPanel({
                 ? state.message
                 : state.status === 'unavailable'
                   ? state.reason
-                  : 'Select your current location or choose a region and city. Live readings will appear when a weather provider is connected.'}
+                  : 'Select your current location or choose a region and city.'}
             </p>
             <p className="text-text-mute mt-2 text-xs">
-              Temperature, humidity, rainfall, wind and forecasts are not available yet. Last
+              Temperature, humidity, rainfall, wind and forecasts are unavailable right now. Last
               updated: unavailable.
             </p>
             {location && (
@@ -285,7 +291,7 @@ function WeatherPanel({
           {location?.kind === 'coordinates' && (
             <p className="text-text-mute mb-3 text-xs">
               Detected coordinates: {location.latitude!.toFixed(4)},{' '}
-              {location.longitude!.toFixed(4)}. Demo measurements use this position; choose a city
+              {location.longitude!.toFixed(4)}. The forecast is for this position; choose a city
               below if you prefer a named location.
             </p>
           )}
@@ -329,13 +335,13 @@ function WeatherPanel({
               </datalist>
             </label>
             <Button type="submit" variant="ghost" className="whitespace-normal">
-              Update demo weather
+              Show weather
             </Button>
           </form>
           <p className="text-text-mute mt-3 text-xs">
             Your browser asks for location permission automatically on your first visit in this tab.
-            If access is denied, the saved region or demo default stays selected. You can adjust it
-            at any time.
+            If access is denied, the saved region or the default location stays selected. You can
+            adjust it at any time.
           </p>
         </div>
       </details>

@@ -340,13 +340,14 @@ test('future weather adapters receive the selected location and cannot return an
   );
 });
 
-test('shared weather UI clearly labels the demo and retains full location controls', () => {
+test('shared weather UI loads live weather and retains full location controls', () => {
   for (const scope of ['farmer', 'admin']) {
     const html = renderToStaticMarkup(createElement(WeatherCard, { scope }));
     assert.match(html, /Use my current location/);
-    assert.match(html, /Demo weather/);
+    assert.match(html, /Loading weather for this location/);
     assert.match(html, /Detecting your location/);
-    assert.match(html, /not live weather observations/);
+    // Live by default: the demo label belongs to demo reports only.
+    assert.doesNotMatch(html, /Demo weather|demo measurements|Update demo weather/);
     assert.match(html, /Ashanti/);
     assert.doesNotMatch(html, /Demo conditions|32°C|undefined/);
   }
@@ -423,7 +424,8 @@ test('market and weather have distinct desktop/mobile destinations and dashboard
     assert.match(html, /View weather forecast/);
     assert.ok(html.includes(`href="${scope === 'admin' ? adminWeather.href : weather.href}"`));
     assert.doesNotMatch(html, /<form|Use my current location|<select/);
-    assert.match(html, /Demo weather/);
+    assert.match(html, /Loading weather/);
+    assert.doesNotMatch(html, /Demo weather/);
   }
 });
 
