@@ -96,6 +96,8 @@ const MEANINGFUL_NULLS = new Set([
   'approvalRate',
   'defaultRate',
   'seededAt',
+  // "Not given by this source" (MET Norway publishes no probability of rain for Ghana).
+  'rainChance',
 ]);
 
 const reviver = (key: string, value: unknown) =>

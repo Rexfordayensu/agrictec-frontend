@@ -340,6 +340,27 @@ test('future weather adapters receive the selected location and cannot return an
   );
 });
 
+test('a forecast without a rain probability (MET Norway) survives the API client', async () => {
+  // Through the real api(): it turns most nulls into missing fields, but not this one.
+  const met = forecast();
+  met.provider = 'MET Norway';
+  met.current.rainChance = null;
+  met.daily[0].rainChance = null;
+  met.upcoming[0].rainChance = null;
+  const realFetch = globalThis.fetch;
+  globalThis.fetch = async () =>
+    new Response(JSON.stringify({ status: 'ready', data: met }), { status: 200 });
+  try {
+    const result = await weatherService.getForecast(accra);
+    assert.equal(result.status, 'ready');
+    assert.equal(result.data.current.rainChance, null);
+    assert.equal(result.data.daily[0].rainChance, null);
+    assert.equal(result.data.upcoming[0].rainChance, null);
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
 test('shared weather UI loads live weather and retains full location controls', () => {
   for (const scope of ['farmer', 'admin']) {
     const html = renderToStaticMarkup(createElement(WeatherCard, { scope }));
