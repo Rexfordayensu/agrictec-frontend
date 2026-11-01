@@ -17,8 +17,41 @@ const ONBOARDING = '/onboarding';
 
 const isAdminPath = (pathname: string) => pathname === '/admin' || pathname.startsWith('/admin/');
 
+// The API rate-limits per visitor. Behind Vercel it sees Vercel's shared address, and the
+// visitor's own X-Forwarded-For entries can be made up, so this app vouches for the address it
+// served, with a secret only it and the API know (FRONTEND_PROXY_SECRET on both).
+const CLIENT_IP_HEADER = 'x-agrictec-client-ip';
+const PROXY_SECRET_HEADER = 'x-agrictec-proxy-secret';
+
+/** Exported for tests. */
+export function apiRequestHeaders(
+  incoming: Headers,
+  secret = process.env.FRONTEND_PROXY_SECRET,
+  onVercel = Boolean(process.env.VERCEL),
+): Headers {
+  const headers = new Headers(incoming);
+  // Never pass on a visitor's attempt to vouch for themselves.
+  headers.delete(CLIENT_IP_HEADER);
+  headers.delete(PROXY_SECRET_HEADER);
+  // Vercel sets x-real-ip to the address it served. Elsewhere (deploy/: Caddy in front) the
+  // last X-Forwarded-For entry is the one the proxy appended; a visitor's x-real-ip isn't.
+  const visitor = onVercel
+    ? incoming.get('x-real-ip')?.trim()
+    : incoming.get('x-forwarded-for')?.split(',').at(-1)?.trim();
+  if (secret && visitor) {
+    headers.set(CLIENT_IP_HEADER, visitor);
+    headers.set(PROXY_SECRET_HEADER, secret);
+  }
+  return headers;
+}
+
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+
+  // ---- API calls: forwarded to the backend (next.config.ts) with the visitor's address. ----
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next({ request: { headers: apiRequestHeaders(request.headers) } });
+  }
 
   // ---- Admin console: its own cookie. A farmer session never grants access. ----
   const hasAdmin = request.cookies.has(ADMIN_COOKIE);
@@ -71,9 +104,11 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Skip all Next.js internals (static files, images, dev/HMR endpoints), public assets and the
-  // API (forwarded to the backend, which checks every request itself).
+  // Skip all Next.js internals (static files, images, dev/HMR endpoints) and public assets. The
+  // API is matched separately: only to add the visitor's address (the backend checks every
+  // request itself).
   matcher: [
     '/((?!_next/|api/|favicon.ico|icons/|images/|.*\\.(?:png|jpg|jpeg|svg|webp|ico|txt|xml)$).*)',
+    '/api/:path*',
   ],
 };
