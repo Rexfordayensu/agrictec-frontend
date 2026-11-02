@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { BrandLogo } from '@/components/layout/brand-logo';
+import { LegalLinks } from '@/components/legal/legal-document';
 import { MaintenanceGate } from '@/components/shared/maintenance-gate';
 import { Card } from '@/components/ui/card';
 
@@ -37,6 +38,7 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
             <p className="text-text-mute mt-6 flex items-center justify-center gap-1.5 text-xs">
               Built for Ghana&apos;s smallholder farmers <GhanaFlag />
             </p>
+            <LegalLinks className="mt-3" />
           </div>
         </main>
       </MaintenanceGate>

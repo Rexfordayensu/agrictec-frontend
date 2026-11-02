@@ -1,5 +1,6 @@
 import { Database, Flag, Info, Sparkles } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
+import { LegalLinks } from '@/components/legal/legal-document';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
 
@@ -29,9 +30,10 @@ export function AboutCard() {
         </Badge>
         <Badge color="gold">
           <Database size={11} aria-hidden="true" />
-          Data stored on this device
+          Data saved to your account
         </Badge>
       </div>
+      <LegalLinks className="mt-4 justify-start" />
     </Card>
   );
 }

@@ -178,6 +178,17 @@ export function SignupForm() {
         <Button type="submit" icon={UserPlus} loading={isSubmitting} className="w-full">
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
+        <p className="text-text-mute text-center text-xs leading-relaxed">
+          By creating an account or continuing as a guest, you agree to our{' '}
+          <Link href="/terms" className="text-ink-green font-semibold hover:underline">
+            Terms of Use
+          </Link>{' '}
+          and{' '}
+          <Link href="/privacy" className="text-ink-green font-semibold hover:underline">
+            Privacy Policy
+          </Link>
+          .
+        </p>
       </form>
 
       {guestMode && (

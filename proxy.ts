@@ -8,6 +8,8 @@ import { NextResponse, type NextRequest } from 'next/server';
 const SESSION_COOKIE = 'agrictec_session';
 const ADMIN_COOKIE = 'agrictec_admin';
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
+/** Open to everyone, signed in or not, onboarded or not (app/(legal)). */
+const PUBLIC_PAGES = ['/privacy', '/terms'];
 const ADMIN_LOGIN = '/admin-login';
 /** Set by the farmer tab while an admin views the app as a farmer (read-only, phase A8). */
 const IMPERSONATION_COOKIE = 'agrictec_impersonating';
@@ -52,6 +54,7 @@ export function proxy(request: NextRequest) {
   if (pathname.startsWith('/api/')) {
     return NextResponse.next({ request: { headers: apiRequestHeaders(request.headers) } });
   }
+  if (PUBLIC_PAGES.includes(pathname)) return NextResponse.next();
 
   // ---- Admin console: its own cookie. A farmer session never grants access. ----
   const hasAdmin = request.cookies.has(ADMIN_COOKIE);

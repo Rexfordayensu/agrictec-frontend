@@ -146,7 +146,7 @@ export function DataSettings() {
           <div>
             <p className="text-ink-red text-sm font-semibold">Delete all my data</p>
             <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
-              Clear your farm data and preferences on this device. Your sign-in stays active.
+              Clear your farm data and preferences from your account. Your sign-in stays active.
             </p>
           </div>
           <Button
@@ -183,7 +183,7 @@ export function DataSettings() {
       <ConfirmDialog
         open={deleteOpen}
         title="Delete all your farm data?"
-        message="This removes your profile, records, MoMo, diagnoses, chat, settings and loan applications from this device. Export a backup first if you want to restore them later."
+        message="This removes your profile, records, MoMo, diagnoses, chat and settings from your account. Your Ghana Card status and loan applications stay on record. Export a backup first if you want to restore them later."
         confirmLabel="Delete all data"
         danger
         loading={busy}
