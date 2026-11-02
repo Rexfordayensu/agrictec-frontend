@@ -116,6 +116,9 @@ export default function PrivacyPage() {
             information to provide their service to us:
             <LegalList>
               <li>Render, Vercel, Cloudflare and Supabase: host the app and store its data.</li>
+              <li>
+                GitHub: keeps our nightly backups, which are locked with a password only we have.
+              </li>
               <li>Brevo (email) and Arkesel (SMS): deliver our messages to you.</li>
               <li>Paystack: takes payments for plans.</li>
               <li>
@@ -163,6 +166,10 @@ export default function PrivacyPage() {
             The loan applications you sent stay on record after that, without your contact details,
             because lenders need a history of what they were asked for. Paystack keeps its own
             records of any payment you made.
+          </li>
+          <li>
+            We make a backup of all data every night and keep each backup for 30 days, so deleted
+            data is gone from our backups within 30 days too.
           </li>
           <li>Password reset codes expire after a short time and can be used only once.</li>
         </LegalList>

@@ -66,6 +66,15 @@ export function proxy(request: NextRequest) {
     }
     return NextResponse.next();
   }
+  // The home-screen app starts at "/": an admin (without a farmer session) lands in the console.
+  if (
+    pathname === '/' &&
+    hasAdmin &&
+    !request.cookies.has(SESSION_COOKIE) &&
+    !request.cookies.has(IMPERSONATION_COOKIE)
+  ) {
+    return NextResponse.redirect(new URL('/admin', request.url));
+  }
   if (pathname === ADMIN_LOGIN) {
     // Open without any farmer session; an admin who is already signed in goes to the console.
     return hasAdmin ? NextResponse.redirect(new URL('/admin', request.url)) : NextResponse.next();
@@ -111,7 +120,7 @@ export const config = {
   // API is matched separately: only to add the visitor's address (the backend checks every
   // request itself).
   matcher: [
-    '/((?!_next/|api/|favicon.ico|icons/|images/|.*\\.(?:png|jpg|jpeg|svg|webp|ico|txt|xml)$).*)',
+    '/((?!_next/|api/|favicon.ico|icons/|images/|sw.js|manifest.webmanifest|.*\\.(?:png|jpg|jpeg|svg|webp|ico|txt|xml)$).*)',
     '/api/:path*',
   ],
 };

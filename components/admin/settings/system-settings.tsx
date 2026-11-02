@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { BackupRestoreCard } from '@/components/admin/settings/backup-restore';
 import { DangerZoneCard } from '@/components/admin/settings/danger-zone';
 import { DemoDataCard } from '@/components/admin/settings/demo-data';
+import { ErrorAlertsCard } from '@/components/admin/settings/error-alerts';
 import { FeatureFlagsCard } from '@/components/admin/settings/feature-flags';
 import { MaintenanceModeCard } from '@/components/admin/settings/maintenance-mode';
 import { PlansEditor } from '@/components/admin/settings/plans-editor';
@@ -104,6 +105,8 @@ export function SystemSettings({ section }: { section: SystemSettingsSection }) 
           onSaved={(plans) => setData((current) => ({ ...current, plans }))}
         />
       ) : null;
+    case 'alerts':
+      return <ErrorAlertsCard />;
     case 'backup':
       return <BackupRestoreCard onRestored={reloadAll} />;
     case 'demo':

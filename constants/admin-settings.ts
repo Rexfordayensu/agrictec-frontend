@@ -1,5 +1,6 @@
 import {
   BadgeDollarSign,
+  BellRing,
   Construction,
   DatabaseBackup,
   Skull,
@@ -28,6 +29,13 @@ export const SYSTEM_SETTINGS_SECTIONS = [
     label: 'Plans',
     icon: BadgeDollarSign,
     description: 'Manage subscription prices and included features.',
+  },
+  {
+    id: 'alerts',
+    href: '/admin/settings/alerts',
+    label: 'Error alerts',
+    icon: BellRing,
+    description: 'Get a notification on your phone when something breaks.',
   },
   {
     id: 'backup',
