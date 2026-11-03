@@ -1,15 +1,18 @@
-import { ShieldCheck } from 'lucide-react';
+import { AgriCtecMark, AgriCtecWordmark } from '@/components/layout/agrictec-mark';
 import { cn } from '@/lib/utils';
 
-/** The console's brand: the purple shield and "AgriCtec". */
+/** The console's brand: the Growth Leaf, "AgriCtec" and a purple "Console" tag. */
 export function AdminBrand({ className }: { className?: string }) {
   return (
-    <div className={cn('flex items-center gap-3', className)}>
-      <div className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-[#7c3aed] to-[#a855f7] text-white shadow-[0_8px_24px_-6px_rgba(168,85,247,0.55)]">
-        <ShieldCheck size={22} aria-hidden="true" />
-      </div>
-      <div className="min-w-0">
-        <p className="font-display text-text text-xl leading-tight font-bold">AgriCtec</p>
+    <div className={cn('flex items-center gap-2', className)}>
+      <AgriCtecMark size={46} className="-my-1 shrink-0" />
+      <div className="flex min-w-0 items-center gap-2">
+        <p className="font-display text-xl leading-tight font-semibold tracking-tight">
+          <AgriCtecWordmark />
+        </p>
+        <span className="bg-purple/15 text-ink-purple rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+          Console
+        </span>
       </div>
     </div>
   );

@@ -32,6 +32,8 @@
   --ink-blue: #60a5fa;
   --ink-gold: #f5c451;
   --ink-purple: #c084fc;
+  /* The logo's gold seed (AgriCtecMark). */
+  --brand-seed: #f5c451;
   color-scheme: dark;
 }
 
@@ -55,6 +57,7 @@
   --ink-blue: #1d4ed8;
   --ink-gold: #92400e;
   --ink-purple: #7e22ce;
+  --brand-seed: #e0a82e;
   color-scheme: light;
 }
 
