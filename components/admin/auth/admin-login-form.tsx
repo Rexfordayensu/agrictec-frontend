@@ -19,7 +19,7 @@ import { FormField, fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { ADMIN_IDLE_MINUTES } from '@/lib/admin/admin-session';
 import { formatCountdown } from '@/lib/format';
-import { adminAuthService } from '@/services/admin/admin-auth.service';
+import { ApiError } from '@/services/api';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
 
 const REASON_NOTICE: Record<AdminLoginReason, string> = {
@@ -78,9 +78,10 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
       if (admin.mustChangePassword) setForcedChange(values.password);
       else enterConsole();
     } catch (error) {
-      // The API locks an email after five failures (it survives reloads: it is on the server).
-      const lock = await adminAuthService.isLocked(values.email).catch(() => null);
-      if (lock?.locked && lock.until) setLockedUntil(lock.until);
+      // Five failures from this address lock the email here for five minutes (423, with when it
+      // ends). The lock is on the server, so it survives reloads.
+      const until = error instanceof ApiError && error.code === 'locked' ? error.data.until : null;
+      if (typeof until === 'string' && !Number.isNaN(Date.parse(until))) setLockedUntil(until);
       else setFormError(error instanceof Error ? error.message : 'Could not sign in');
     }
   }

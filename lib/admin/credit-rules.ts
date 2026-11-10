@@ -195,6 +195,9 @@ export function configChanges(from: CreditConfigInput, to: CreditConfigInput): C
 // ---------- Impact on every farmer ----------
 
 /** What the score needs for one farmer (read once; scored many times while editing). */
+/** A farmer to pick in the simulator: who they are, not their records. */
+export type FarmerChoice = Pick<ScoringInput, 'userId' | 'name' | 'region'>;
+
 export interface ScoringInput {
   userId: string;
   name: string;

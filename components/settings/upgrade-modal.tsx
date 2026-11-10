@@ -9,6 +9,8 @@ import { useSubscription } from '@/hooks/use-subscription';
 export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const plans = usePlatformStore((s) => s.plans);
   const { plan } = useSubscription();
+  // "paystack": real payments; "demo": simulated (development only).
+  const live = usePlatformStore((s) => s.payments.mode === 'paystack');
   return (
     <Modal open={open} title="Choose a plan for your farm" onClose={onClose} size="md">
       <p className="text-text-dim text-sm">
@@ -25,7 +27,9 @@ export function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => 
           ))}
       </ul>
       <p className="text-text-mute mt-3 text-xs">
-        Payments are simulated for this demo. No money is charged.
+        {live
+          ? 'Pay securely with mobile money or a card on Paystack. Plans last one month.'
+          : 'Payments are not switched on yet. No money is charged.'}
       </p>
       <Link
         href="/settings/plans"

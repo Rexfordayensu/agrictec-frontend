@@ -64,6 +64,8 @@ async function fetchFarmerPage(id: string, role: AdminRole | undefined): Promise
       can(role, 'risk.review') ? riskService.list({ userId: id }) : null,
       lendersService.list({ includeInactive: true }),
     ]);
+    // The top bar names this farmer from the store, which holds only the farmers it needs.
+    useAdminDataStore.getState().rememberFarmer(detail.account);
     return { status: 'ready', data: { detail, applications, verifications, riskFlags, lenders } };
   } catch (cause) {
     const message = cause instanceof Error ? cause.message : 'Could not load the farmer';

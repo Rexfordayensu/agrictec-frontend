@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { assertWritable, isReadOnly } from '@/lib/read-only';
+import { assertWritable } from '@/lib/read-only';
 import { generateId } from '@/lib/utils';
 import { ApiError } from '@/services/api';
 import { aiService } from '@/services/ai.service';
@@ -9,9 +9,13 @@ import { useSubscriptionStore } from '@/store/subscription-store';
 
 let loadVersion = 0;
 
+/**
+ * Shown above every conversation, never saved: the conversation is written by the API only
+ * (Claude reads it back as earlier turns, so the browser must not be able to plant replies).
+ */
 function welcomeMessage(): ChatMessage {
   return {
-    id: generateId(),
+    id: 'welcome',
     role: 'ai',
     content:
       'Akwaaba! I’m your AgriCtec AI assistant. I can help with crop advice, pest control, weather, market prices and your farm finances. Ask me a question or choose a quick prompt below!',
@@ -41,10 +45,7 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     try {
       const history = await chatService.list(userId);
       if (get().userId !== userId || version !== loadVersion) return;
-      const messages = history.length ? history : [welcomeMessage()];
-      if (!history.length && !isReadOnly()) await chatService.save(userId, messages);
-      if (get().userId !== userId || version !== loadVersion) return;
-      set({ messages, status: 'ready' });
+      set({ messages: [welcomeMessage(), ...history], status: 'ready' });
     } catch (error) {
       if (get().userId !== userId || version !== loadVersion) return;
       set({ status: 'error' });
@@ -87,27 +88,22 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       }));
 
     try {
-      // The API answers from the farmer's own data and the admin's knowledge base.
-      const { result: reply, creditsRemaining } = await aiService.ask(trimmed);
+      // The API answers from the farmer's own data and the admin's knowledge base, and saves the
+      // question and the answer to the conversation itself.
+      const { result: reply, creditsRemaining, messages: saved } = await aiService.ask(trimmed);
       useSubscriptionStore.getState().applyCredits(creditsRemaining);
       if (!isCurrent()) return;
-      const aiMessage: ChatMessage = {
-        id: generateId(),
-        role: 'ai',
-        content: reply,
-        createdAt: new Date().toISOString(),
-      };
-      set((state) => ({ messages: [...state.messages, aiMessage] }));
-      await chatService.save(userId, get().messages);
+      const exchange: ChatMessage[] = saved.length
+        ? saved
+        : [userMessage, { id: generateId(), role: 'ai', content: reply, createdAt: new Date().toISOString() }];
+      set((state) => ({
+        messages: [...state.messages.filter((m) => m !== userMessage), ...exchange],
+      }));
     } catch (error) {
       if (!isCurrent()) return;
       // Plan and credit problems are worth showing as they are; anything else is generic.
+      // Shown in this tab only: nothing is saved for a failed question.
       appendError(error instanceof ApiError && error.status === 403 ? error.message : undefined);
-      try {
-        await chatService.save(userId, get().messages);
-      } catch {
-        // Keep the error visible even if saving is unavailable.
-      }
     } finally {
       if (isCurrent()) set({ isTyping: false });
     }
@@ -121,11 +117,9 @@ export const useChatStore = create<ChatState>()((set, get) => ({
     const version = loadVersion;
     set({ status: 'loading' });
     try {
-      const messages = [welcomeMessage()];
-      // Replace the persisted history atomically with just the welcome message.
-      await chatService.save(userId, messages);
+      await chatService.clear(userId);
       if (get().userId !== userId || version !== loadVersion) return;
-      set({ messages, status: 'ready' });
+      set({ messages: [welcomeMessage()], status: 'ready' });
     } finally {
       if (get().userId === userId && version === loadVersion) set({ status: 'ready' });
     }

@@ -26,7 +26,7 @@ const capabilities = [
   {
     icon: CloudSun,
     title: 'Weather intelligence',
-    description: 'Simulated conditions, practical tips.',
+    description: 'Live conditions at your farm, practical tips.',
     tone: 'bg-info/10 text-ink-blue',
   },
   {

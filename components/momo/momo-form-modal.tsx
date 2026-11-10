@@ -274,7 +274,12 @@ function MomoForm({
           />
         </FormField>
 
-        <FormField label="Date" htmlFor="momo-date" error={errors.date?.message}>
+        <FormField
+          label="Date"
+          htmlFor="momo-date"
+          error={errors.date?.message}
+          hint="Transactions added within 45 days of their date build your credit score."
+        >
           <Input
             id="momo-date"
             type="date"

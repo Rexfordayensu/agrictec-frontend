@@ -6,10 +6,42 @@ import type { FarmerAccount, FarmerDetail } from '@/types/admin';
 
 const farmer = (id: string) => `/admin/farmers/${encodeURIComponent(id)}`;
 
+/** A page of the farmers list from GET /admin/farmers/page. */
+export interface FarmerPage {
+  items: FarmerAccount[];
+  total: number;
+  page: number;
+  pageSize: number;
+  pageCount: number;
+  /** Everyone (guests aside), by status: the counts on the status tabs. */
+  summary: Record<'all' | FarmerAccount['status'], number>;
+  /** The options the filters offer. */
+  facets: { regions: string[]; crops: string[]; tags: string[] };
+  /** Every matching ID, only when asked for with ids=1. */
+  ids?: string[];
+}
+
 export const farmersService = {
-  /** Every farmer account (including guests) with their data summarised. */
-  async list(): Promise<FarmerAccount[]> {
-    return api<FarmerAccount[]>('/admin/farmers');
+  /**
+   * One page of the farmers list, searched, filtered and sorted by the API (guests left out).
+   * `params` are the list's URL parameters (q, region, status, sort, dir, page…).
+   */
+  async page(params: Record<string, string>, signal?: AbortSignal): Promise<FarmerPage> {
+    return api<FarmerPage>('/admin/farmers/page', { query: params, signal });
+  },
+
+  /** Only the farmers named (at most 500): the ones behind the queues the console shows. */
+  async lookup(ids: string[]): Promise<FarmerAccount[]> {
+    const unique = [...new Set(ids.filter(Boolean))];
+    if (!unique.length) return [];
+    const pages: string[][] = [];
+    for (let i = 0; i < unique.length; i += 500) pages.push(unique.slice(i, i + 500));
+    const found = await Promise.all(
+      pages.map((chunk) =>
+        api<FarmerAccount[]>('/admin/farmers/lookup', { method: 'POST', body: { ids: chunk } }),
+      ),
+    );
+    return found.flat();
   },
 
   /** Records, MoMo, diagnoses, the score breakdown and the live rules it was calculated with. */

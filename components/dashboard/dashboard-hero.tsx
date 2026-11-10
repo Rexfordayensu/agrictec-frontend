@@ -1,19 +1,15 @@
 'use client';
 
-import { useState } from 'react';
 import { format } from 'date-fns';
-import { Database, Plus, Sparkles } from 'lucide-react';
-import { toast } from 'sonner';
+import { Database, Plus } from 'lucide-react';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useFarmStats } from '@/hooks/use-farm-stats';
 import { formatGHS } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import { useProfileStore } from '@/store/profile-store';
-import { useUiStore } from '@/store/ui-store';
 
 function greeting(hour: number): string {
   if (hour < 12) return 'Good morning';
@@ -87,25 +83,9 @@ function ProfitSummary() {
   );
 }
 
-/** Shown before any data exists: offers sample data or a first record. */
+/** Shown before any data exists: the first real record (sample data would distort the score). */
 function Onboarding() {
-  const loadSampleData = useFarmStore((s) => s.loadSampleData);
   const openModal = useModalStore((s) => s.openModal);
-  const dismissed = useUiStore((s) => s.samplePromptDismissed);
-  const dismiss = useUiStore((s) => s.dismissSamplePrompt);
-  const [loading, setLoading] = useState(false);
-
-  async function handleLoad() {
-    setLoading(true);
-    try {
-      await loadSampleData();
-      toast.success('Sample data loaded. Explore your dashboard!');
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Could not load sample data');
-    } finally {
-      setLoading(false);
-    }
-  }
 
   return (
     <div className="border-accent/30 bg-accent/5 rounded-2xl border p-4 sm:p-5">
@@ -114,35 +94,15 @@ function Onboarding() {
           <Database size={20} aria-hidden="true" />
         </span>
         <div className="min-w-0">
-          <h3 className="text-text font-bold">
-            {dismissed
-              ? 'Add your first farm record'
-              : 'New here? Load sample data to explore the app'}
-          </h3>
+          <h3 className="text-text font-bold">Add your first farm record</h3>
           <p className="text-text-dim mt-1 text-sm">
-            {dismissed
-              ? 'Every sale, cost and activity you record builds your digital financial identity.'
-              : 'Adds 12 farm records and 6 MoMo transactions from the last 6 months. You can delete them anytime.'}
+            Every sale, cost and activity you record builds your digital financial identity.
           </p>
         </div>
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
-        {!dismissed && (
-          <Button mutates onClick={handleLoad} loading={loading} icon={Sparkles}>
-            Load sample data
-          </Button>
-        )}
-        <Button
-          variant={dismissed ? 'primary' : 'ghost'}
-          icon={Plus}
-          mutates
-          disabled={loading}
-          onClick={() => {
-            dismiss();
-            openModal('record');
-          }}
-        >
-          {dismissed ? 'Add your first record' : 'Start fresh'}
+        <Button icon={Plus} mutates onClick={() => openModal('record')}>
+          Add your first record
         </Button>
       </div>
     </div>

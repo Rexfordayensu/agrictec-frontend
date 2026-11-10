@@ -22,11 +22,12 @@ import { usePlatformStore } from '@/store/platform-store';
 import type { Session } from '@/types';
 
 /** Why the app sent the farmer back here (set by DataLoader). */
-export type LoginReason = 'suspended' | 'deleted';
+export type LoginReason = 'suspended' | 'deleted' | 'expired';
 
 const REASON_MESSAGES: Record<LoginReason, string> = {
   suspended: SUSPENDED_MESSAGE,
   deleted: 'This account no longer exists. Create a new account or contact support.',
+  expired: 'You were signed out after a week without using AgriCtec. Sign in again to continue.',
 };
 
 export function LoginForm({ next, reason }: { next: string; reason?: LoginReason }) {

@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { weatherService } from '@/services/weather.service';
-import { createDemoWeather } from '@/lib/market/demo-weather';
 import type { IntegrationResult, WeatherLocation, WeatherReport } from '@/types/market';
 
 type State =
@@ -10,16 +9,15 @@ type State =
   | { status: 'error'; message: string }
   | IntegrationResult<WeatherReport>;
 
-export function useLocationWeather(location: WeatherLocation | null, demo = false) {
+/** Live weather for a place, from the API's weather providers (never made-up readings). */
+export function useLocationWeather(location: WeatherLocation | null) {
   const [state, setState] = useState<State>({ status: 'idle' });
   const [version, setVersion] = useState(0);
   useEffect(() => {
     if (!location) return;
     const controller = new AbortController();
-    const result: Promise<IntegrationResult<WeatherReport>> = demo
-      ? Promise.resolve({ status: 'ready', data: createDemoWeather(location) })
-      : weatherService.getForecast(location, { signal: controller.signal });
-    void result
+    void weatherService
+      .getForecast(location, { signal: controller.signal })
       .then((result) => {
         if (!controller.signal.aborted) setState(result);
       })
@@ -34,7 +32,7 @@ export function useLocationWeather(location: WeatherLocation | null, demo = fals
           });
       });
     return () => controller.abort();
-  }, [location, version, demo]);
+  }, [location, version]);
   return {
     state,
     loading: () => setState({ status: 'loading' }),

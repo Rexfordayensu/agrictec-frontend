@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { safeNextPath } from '@/components/auth/auth-schemas';
 import { ADMIN_PASSWORD_RULES } from '@/lib/admin/passwords';
 
 export const ADMIN_HOME_PATH = '/admin';
@@ -30,9 +31,11 @@ export type ChangePasswordValues = z.infer<typeof changePasswordSchema>;
 
 /** Only admin-console paths are allowed after sign-in (never another site or the farmer app). */
 export function safeAdminNext(value: string | string[] | undefined): string {
-  const next = Array.isArray(value) ? value[0] : value;
-  if (!next || next.startsWith('//') || next.includes('\\')) return ADMIN_HOME_PATH;
-  return next === ADMIN_HOME_PATH || next.startsWith(`${ADMIN_HOME_PATH}/`)
+  // The same checks as the farmer's ?next= (same site, no control characters), resolved as the
+  // browser will ("/admin/../login" is not the console).
+  const next = safeNextPath(value);
+  const pathname = next.split(/[?#]/)[0];
+  return pathname === ADMIN_HOME_PATH || pathname.startsWith(`${ADMIN_HOME_PATH}/`)
     ? next
     : ADMIN_HOME_PATH;
 }

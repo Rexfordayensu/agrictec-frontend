@@ -16,6 +16,8 @@ interface AuthState {
   status: StoreStatus;
   /** Set while an admin views the app as this farmer; every write is then refused. */
   impersonation: ImpersonationView | null;
+  /** True when the last check found the session ended because it went unused for too long. */
+  sessionExpired: boolean;
   init: () => Promise<Session | null>;
   signIn: (email: string, password: string) => Promise<Session>;
   /** After an admin reset: the temporary password, then the farmer's own new one. */
@@ -31,12 +33,13 @@ export const useAuthStore = create<AuthState>()((set) => ({
   session: null,
   status: 'idle',
   impersonation: null,
+  sessionExpired: false,
 
   init: async () => {
     set({ status: 'loading' });
     try {
-      const session = await authService.getSession();
-      set({ session, status: 'ready' });
+      const { session, expired } = await authService.sessionState();
+      set({ session, status: 'ready', sessionExpired: expired });
       return session;
     } catch (error) {
       set({ status: 'error' });

@@ -1,6 +1,5 @@
 import { create } from 'zustand';
 import { assertWritable } from '@/lib/read-only';
-import { buildSampleData } from '@/data/mock/sample-data';
 import { diagnosesService } from '@/services/diagnoses.service';
 import { momoService } from '@/services/momo.service';
 import { recordsService } from '@/services/records.service';
@@ -8,7 +7,6 @@ import type {
   Diagnosis,
   FarmRecord,
   MomoTransaction,
-  NewDiagnosisInput,
   NewMomoInput,
   NewRecordInput,
   LoadOptions,
@@ -28,9 +26,9 @@ interface FarmState {
   addMomo: (input: NewMomoInput) => Promise<MomoTransaction>;
   updateMomo: (id: string, patch: Partial<NewMomoInput>) => Promise<MomoTransaction>;
   deleteMomo: (id: string) => Promise<void>;
-  addDiagnosis: (input: NewDiagnosisInput) => Promise<Diagnosis>;
+  /** A diagnosis the API saved with a scan: shown in the history at once. */
+  receiveDiagnosis: (diagnosis: Diagnosis) => void;
   deleteDiagnosis: (id: string) => Promise<void>;
-  loadSampleData: () => Promise<void>;
   clearAll: () => Promise<void>;
 }
 
@@ -114,14 +112,11 @@ export const useFarmStore = create<FarmState>()((set, get) => {
       set((state) => ({ momo: state.momo.filter((t) => t.id !== id) }));
     },
 
-    addDiagnosis: async (input) => {
-      assertWritable();
-      const userId = requireUser();
-      const diagnosis = await diagnosesService.create(userId, input);
-      if (get().userId === userId) {
-        set((state) => ({ diagnoses: [diagnosis, ...state.diagnoses].slice(0, 10) }));
-      }
-      return diagnosis;
+    receiveDiagnosis: (diagnosis) => {
+      if (get().userId !== diagnosis.userId) return;
+      set((state) => ({
+        diagnoses: [diagnosis, ...state.diagnoses.filter((d) => d.id !== diagnosis.id)].slice(0, 10),
+      }));
     },
 
     deleteDiagnosis: async (id) => {
@@ -133,23 +128,12 @@ export const useFarmStore = create<FarmState>()((set, get) => {
       }
     },
 
-    loadSampleData: async () => {
-      assertWritable();
-      const userId = requireUser();
-      const sample = buildSampleData(userId);
-      const [records, momo] = await Promise.all([
-        recordsService.replaceAll(userId, sample.records),
-        momoService.replaceAll(userId, sample.momo),
-      ]);
-      set({ records, momo });
-    },
-
     clearAll: async () => {
       assertWritable();
       const userId = requireUser();
       await Promise.all([
-        recordsService.replaceAll(userId, []),
-        momoService.replaceAll(userId, []),
+        recordsService.clear(userId),
+        momoService.clear(userId),
         diagnosesService.clear(userId),
       ]);
       set({ records: [], momo: [], diagnoses: [] });

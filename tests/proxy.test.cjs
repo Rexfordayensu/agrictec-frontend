@@ -23,7 +23,7 @@ require.extensions['.ts'] = (module, filename) => {
   });
   module._compile(outputText, filename);
 };
-const { apiRequestHeaders } = require('../proxy.ts');
+const { addressSource, apiRequestHeaders, plainAddress } = require('../proxy.ts');
 
 const SECRET = 's3cret-shared-with-the-api';
 
@@ -35,21 +35,46 @@ test('the app vouches for the visitor it served, and visitors cannot vouch for t
     'x-agrictec-proxy-secret': 'a guess',
     cookie: 'agrictec_session=abc',
   });
-  const onVercel = apiRequestHeaders(incoming, SECRET, true);
+  const onVercel = apiRequestHeaders(incoming, SECRET, 'vercel');
   assert.equal(onVercel.get('x-agrictec-client-ip'), '102.176.65.12');
   assert.equal(onVercel.get('x-agrictec-proxy-secret'), SECRET);
   assert.equal(onVercel.get('cookie'), 'agrictec_session=abc', 'Everything else is passed on');
 
-  // Behind Caddy (deploy/): the last X-Forwarded-For entry, never the visitor's own x-real-ip.
+  // Behind Caddy (deploy/, TRUST_FORWARDED_FOR=1): the last X-Forwarded-For entry, never the
+  // visitor's own x-real-ip.
   const selfHosted = apiRequestHeaders(
     new Headers({ 'x-real-ip': '9.9.9.9', 'x-forwarded-for': '1.2.3.4, 41.66.200.7' }),
     SECRET,
-    false,
+    'forwarded-for',
   );
   assert.equal(selfHosted.get('x-agrictec-client-ip'), '41.66.200.7');
 
+  // Anywhere else nothing is trustworthy: a visitor reaching the app directly writes
+  // X-Forwarded-For and x-real-ip themselves, so neither is vouched for.
+  const direct = apiRequestHeaders(
+    new Headers({ 'x-real-ip': '9.9.9.9', 'x-forwarded-for': '9.9.9.9' }),
+    SECRET,
+    'none',
+  );
+  assert.equal(direct.get('x-agrictec-client-ip'), null);
+  assert.equal(direct.get('x-agrictec-proxy-secret'), null);
+
+  // Only a plain address is vouched for.
+  const junk = apiRequestHeaders(new Headers({ 'x-real-ip': '1.2.3.4, 5.6.7.8' }), SECRET, 'vercel');
+  assert.equal(junk.get('x-agrictec-client-ip'), null);
+
   // Without the secret configured nothing is vouched for, and a visitor's attempt is dropped.
-  const off = apiRequestHeaders(incoming, undefined, true);
+  const off = apiRequestHeaders(incoming, undefined, 'vercel');
   assert.equal(off.get('x-agrictec-client-ip'), null);
   assert.equal(off.get('x-agrictec-proxy-secret'), null);
+});
+
+test('the address source is Vercel, an opted-in proxy, or nothing', () => {
+  assert.equal(addressSource({ VERCEL: '1' }), 'vercel');
+  assert.equal(addressSource({ TRUST_FORWARDED_FOR: '1' }), 'forwarded-for');
+  assert.equal(addressSource({}), 'none');
+  assert.equal(plainAddress(' 102.176.65.12 '), '102.176.65.12');
+  assert.equal(plainAddress('2001:db8::1'), '2001:db8::1');
+  assert.equal(plainAddress('999.1.1.1'), null);
+  assert.equal(plainAddress('<script>'), null);
 });

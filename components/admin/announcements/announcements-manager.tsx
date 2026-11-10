@@ -31,8 +31,8 @@ import {
   type AnnouncementInput,
 } from '@/services/admin/announcements.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
-import { farmersService } from '@/services/admin/farmers.service';
-import type { Announcement, FarmerAccount } from '@/types/admin';
+import type { AudienceMember } from '@/lib/admin/announcements';
+import type { Announcement } from '@/types/admin';
 
 const TAB_LABELS: Record<AnnouncementTab, string> = {
   active: 'Active',
@@ -58,7 +58,7 @@ function prefillFrom(params: URLSearchParams): AnnouncementFormMode | null {
 export function AnnouncementsManager() {
   const params = useSearchParams();
   const [items, setItems] = useState<Announcement[] | null>(null);
-  const [farmers, setFarmers] = useState<FarmerAccount[]>([]);
+  const [farmers, setFarmers] = useState<AudienceMember[]>([]);
   const [now, setNow] = useState(() => new Date());
   const [tab, setTab] = useState<AnnouncementTab>('active');
   const [form, setForm] = useState<AnnouncementFormMode | null>(() =>
@@ -73,7 +73,7 @@ export function AnnouncementsManager() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([announcementsService.list(), farmersService.list()]).then(([list, accounts]) => {
+    Promise.all([announcementsService.list(), announcementsService.audience()]).then(([list, accounts]) => {
       if (!active) return;
       setItems(list);
       setFarmers(accounts);

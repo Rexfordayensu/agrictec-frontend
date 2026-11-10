@@ -2,48 +2,115 @@
 
 import { useId, useState } from 'react';
 import { format } from 'date-fns';
-import { ArchiveRestore, DatabaseBackup, Download, FileUp, ShieldAlert, X } from 'lucide-react';
+import {
+  ArchiveRestore,
+  DatabaseBackup,
+  Download,
+  FileUp,
+  LockKeyhole,
+  ShieldAlert,
+  X,
+} from 'lucide-react';
 import { toast } from 'sonner';
 import { SettingsCard, TypeToConfirm } from '@/components/admin/settings/settings-card';
 import { PRIMARY_CLASS, REJECT_CLASS } from '@/components/admin/shared/action-styles';
+import { PasswordInput } from '@/components/auth/password-input';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
 import { downloadFile } from '@/lib/export/csv';
 import {
   IMPORT_CONFIRMATION,
+  PASSPHRASE_MIN_LENGTH,
   backupService,
+  isEncryptedBackup,
   type BackupSummary,
 } from '@/services/admin/backup.service';
 
-const backupName = () => `AgriCtec_Backup_${format(new Date(), 'yyyy-MM-dd')}.json`;
+const backupName = () => `AgriCtec_Backup_${format(new Date(), 'yyyy-MM-dd')}.agrictec.json`;
 
-/** Downloads a full backup (audited). Used on its own and automatically before a restore. */
-async function downloadBackup(): Promise<void> {
-  const json = await backupService.exportAll();
+/** Downloads a full backup encrypted with `passphrase` (audited). Also used before a restore. */
+async function downloadBackup(passphrase: string): Promise<void> {
+  const json = await backupService.exportAll(passphrase);
   downloadFile(json, backupName(), 'application/json');
 }
 
+function PassphraseField({
+  id,
+  label,
+  value,
+  onChange,
+  autoComplete = 'new-password',
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (value: string) => void;
+  autoComplete?: string;
+}) {
+  return (
+    <label htmlFor={id} className="block">
+      <span className="text-text-dim mb-1.5 block text-sm">{label}</span>
+      <PasswordInput
+        id={id}
+        autoComplete={autoComplete}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      />
+    </label>
+  );
+}
+
 /**
- * Backup & restore: download the platform and farmer data as one JSON file, or restore one. A
- * restore is checked by the API first, summarised, needs RESTORE typed, and downloads a backup of
- * the current state before replacing anything.
+ * Backup & restore. A backup holds every farmer's personal data, so it is encrypted on the server
+ * with a passphrase the admin chooses (never stored: without it the file can't be opened). A
+ * restore opens the file with its passphrase, is checked and summarised by the API, needs RESTORE
+ * and the admin's password, and first downloads a backup of the current state (encrypted with
+ * the same passphrase).
  */
 export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
   const fileId = useId();
-  const [busy, setBusy] = useState<'backup' | 'restore' | null>(null);
+  const [busy, setBusy] = useState<'backup' | 'open' | 'restore' | null>(null);
+
+  // Download
+  const [exporting, setExporting] = useState(false);
+  const [newPassphrase, setNewPassphrase] = useState('');
+  const [confirmPassphrase, setConfirmPassphrase] = useState('');
+  const passphraseError =
+    newPassphrase.length > 0 && newPassphrase.length < PASSPHRASE_MIN_LENGTH
+      ? `At least ${PASSPHRASE_MIN_LENGTH} characters.`
+      : confirmPassphrase && confirmPassphrase !== newPassphrase
+        ? 'The passphrases don’t match.'
+        : null;
+  const canExport =
+    newPassphrase.length >= PASSPHRASE_MIN_LENGTH && confirmPassphrase === newPassphrase;
+
+  // Restore
   const [picked, setPicked] = useState<{
     name: string;
     json: string;
-    summary: BackupSummary;
+    encrypted: boolean;
+    summary: BackupSummary | null;
   } | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
+  const [passphrase, setPassphrase] = useState('');
   const [typed, setTyped] = useState('');
+  const [password, setPassword] = useState('');
+
+  function closeExport() {
+    setExporting(false);
+    setNewPassphrase('');
+    setConfirmPassphrase('');
+  }
 
   async function backup() {
+    if (!canExport) return;
     setBusy('backup');
     try {
-      await downloadBackup();
-      toast.success('Backup downloaded', { description: backupName() });
+      await downloadBackup(newPassphrase);
+      toast.success('Encrypted backup downloaded', {
+        description: `${backupName()}. Keep the passphrase safe: it can’t be recovered.`,
+      });
+      closeExport();
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'Could not create the backup');
     } finally {
@@ -54,14 +121,29 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
   async function pick(file: File | undefined) {
     setFileError(null);
     if (!file) return;
-    if (file.size > 20 * 1024 * 1024) return setFileError('This file is too large to be a backup.');
+    if (file.size > 40 * 1024 * 1024) return setFileError('This file is too large to be a backup.');
     try {
       const json = await file.text();
-      // Checked by the API (format, tables, settings) before anything can change.
-      setPicked({ name: file.name, json, summary: await backupService.summarize(json) });
+      setPicked({ name: file.name, json, encrypted: isEncryptedBackup(json), summary: null });
+      setPassphrase('');
       setTyped('');
+      setPassword('');
     } catch (cause) {
       setFileError(cause instanceof Error ? cause.message : 'Could not read this file.');
+    }
+  }
+
+  /** Opens the file with its passphrase; the API checks it and says what it holds. */
+  async function open() {
+    if (!picked) return;
+    setBusy('open');
+    try {
+      const summary = await backupService.summarize(picked.json, passphrase);
+      setPicked({ ...picked, summary });
+    } catch (cause) {
+      toast.error(cause instanceof Error ? cause.message : 'Could not open this backup');
+    } finally {
+      setBusy(null);
     }
   }
 
@@ -69,13 +151,16 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
     if (!picked) return;
     setBusy('restore');
     try {
-      // Safety net first: the current state goes to a file before anything is replaced.
-      await downloadBackup();
-      const { keys } = await backupService.importAll(picked.json, typed);
+      // Safety net first: the current state goes to a file (same passphrase) before anything
+      // is replaced.
+      await downloadBackup(passphrase);
+      const { keys } = await backupService.importAll(picked.json, typed, password, passphrase);
       toast.success('Backup restored', {
-        description: `${keys} items replaced. A backup of the previous state was downloaded first.`,
+        description: `${keys} items replaced. A backup of the previous state was downloaded first, with the same passphrase.`,
       });
       setPicked(null);
+      setPassword('');
+      setPassphrase('');
       onRestored();
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'Could not restore the backup');
@@ -97,26 +182,29 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
         ['Announcements', s.announcements],
       ]
     : [];
+  // The safety backup needs a passphrase too, so even an old unencrypted file asks for one.
+  const passphraseReady = picked?.encrypted
+    ? passphrase.length > 0
+    : passphrase.length >= PASSPHRASE_MIN_LENGTH;
 
   return (
     <SettingsCard
       id="backup"
       icon={DatabaseBackup}
       title="Backup & restore"
-      description="Every platform setting and all farmer data in one JSON file. Passwords, admin sign-ins, the team and the audit log are never included or replaced: farmers keep their current passwords."
+      description="Every platform setting and all farmer data in one encrypted file. Passwords, admin sign-ins, the team and the audit log are never included or replaced: farmers keep their current passwords."
     >
       <div className="grid gap-4 md:grid-cols-2">
         <div className="border-border flex flex-col rounded-2xl border p-4">
           <p className="text-text text-sm font-semibold">Download a full backup</p>
           <p className="text-text-mute mt-1 flex-1 text-xs leading-relaxed">
-            Saves {backupName()} to this device. Keep it somewhere safe: it contains farmers’
-            personal data.
+            Encrypted with a passphrase you choose. Without the passphrase nobody can open it, not
+            even AgriCtec, so store the passphrase separately from the file.
           </p>
           <Button
             icon={Download}
-            loading={busy === 'backup'}
             disabled={busy !== null}
-            onClick={() => void backup()}
+            onClick={() => setExporting(true)}
             className={`${PRIMARY_CLASS} mt-4 self-start`}
           >
             Download backup
@@ -126,7 +214,8 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
         <div className="border-border flex flex-col rounded-2xl border border-dashed p-4">
           <p className="text-text text-sm font-semibold">Restore from a backup</p>
           <p className="text-text-mute mt-1 flex-1 text-xs leading-relaxed">
-            The file is checked before anything changes, and you see what it contains first.
+            The file is opened with its passphrase and checked before anything changes, and you
+            see what it contains first.
           </p>
           <label
             htmlFor={fileId}
@@ -153,6 +242,111 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
         </div>
       </div>
 
+      {exporting && (
+        <Modal
+          open
+          onClose={() => busy === null && closeExport()}
+          title="Encrypt this backup"
+          description="Choose a passphrase for the file. You’ll need it to restore this backup."
+          footer={
+            <>
+              <Button variant="ghost" icon={X} disabled={busy !== null} onClick={closeExport}>
+                Cancel
+              </Button>
+              <Button
+                icon={Download}
+                loading={busy === 'backup'}
+                disabled={!canExport || busy !== null}
+                onClick={() => void backup()}
+                className={PRIMARY_CLASS}
+              >
+                Download encrypted backup
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            <PassphraseField
+              id={`${fileId}-new-passphrase`}
+              label={`Passphrase (${PASSPHRASE_MIN_LENGTH}+ characters)`}
+              value={newPassphrase}
+              onChange={setNewPassphrase}
+            />
+            <PassphraseField
+              id={`${fileId}-confirm-passphrase`}
+              label="Type the passphrase again"
+              value={confirmPassphrase}
+              onChange={setConfirmPassphrase}
+            />
+            {passphraseError && (
+              <p role="alert" className="text-ink-red text-xs font-semibold">
+                {passphraseError}
+              </p>
+            )}
+            <p className="border-gold/40 bg-gold/10 text-ink-gold flex items-start gap-2.5 rounded-xl border p-3.5 text-sm">
+              <LockKeyhole size={17} aria-hidden="true" className="mt-px shrink-0" />
+              The passphrase is never stored. If it is lost, this backup can’t be opened.
+            </p>
+          </div>
+        </Modal>
+      )}
+
+      {picked && !s && (
+        <Modal
+          open
+          onClose={() => busy === null && setPicked(null)}
+          title="Open this backup"
+          description={picked.name}
+          footer={
+            <>
+              <Button
+                variant="ghost"
+                icon={X}
+                disabled={busy !== null}
+                onClick={() => setPicked(null)}
+              >
+                Cancel
+              </Button>
+              <Button
+                icon={LockKeyhole}
+                loading={busy === 'open'}
+                disabled={!passphraseReady || busy !== null}
+                onClick={() => void open()}
+                className={PRIMARY_CLASS}
+              >
+                Open backup
+              </Button>
+            </>
+          }
+        >
+          <div className="space-y-4">
+            {picked.encrypted ? (
+              <PassphraseField
+                id={`${fileId}-passphrase`}
+                label="The passphrase this backup was encrypted with"
+                value={passphrase}
+                onChange={setPassphrase}
+                autoComplete="off"
+              />
+            ) : (
+              <>
+                <p className="border-gold/40 bg-gold/10 text-ink-gold flex items-start gap-2.5 rounded-xl border p-3.5 text-sm">
+                  <ShieldAlert size={17} aria-hidden="true" className="mt-px shrink-0" />
+                  This file was made before backups were encrypted: anyone who has it can read
+                  farmers’ data. Delete every copy once it is restored.
+                </p>
+                <PassphraseField
+                  id={`${fileId}-passphrase`}
+                  label={`A passphrase for the safety backup made first (${PASSPHRASE_MIN_LENGTH}+ characters)`}
+                  value={passphrase}
+                  onChange={setPassphrase}
+                />
+              </>
+            )}
+          </div>
+        </Modal>
+      )}
+
       {picked && s && (
         <Modal
           open
@@ -173,7 +367,7 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
               <Button
                 icon={ArchiveRestore}
                 loading={busy === 'restore'}
-                disabled={typed !== IMPORT_CONFIRMATION || busy !== null}
+                disabled={typed !== IMPORT_CONFIRMATION || !password || busy !== null}
                 onClick={() => void restore()}
                 className={REJECT_CLASS}
               >
@@ -203,13 +397,21 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
             <p className="border-gold/40 bg-gold/10 text-ink-gold flex items-start gap-2.5 rounded-xl border p-3.5 text-sm">
               <ShieldAlert size={17} aria-hidden="true" className="mt-px shrink-0" />
               Everything now in the app (settings, content and farmer data) is replaced. A backup of
-              the current state downloads first, so you can undo this.
+              the current state downloads first, encrypted with the same passphrase, so you can undo
+              this.
             </p>
             <TypeToConfirm
               id={`${fileId}-confirm`}
               word={IMPORT_CONFIRMATION}
               value={typed}
               onChange={setTyped}
+            />
+            <PassphraseField
+              id={`${fileId}-password`}
+              label="Your password"
+              value={password}
+              onChange={setPassword}
+              autoComplete="current-password"
             />
           </div>
         </Modal>

@@ -222,6 +222,3 @@ export const sessionStore = {
 
 /** e.g. userKey(id, 'records') → stored as "agrictec:<userId>:records", so every user's data is separate. */
 export const userKey = (userId: string, name: string) => `${userId}:${name}`;
-
-/** Simulated network latency, so loading states are visible and services behave like a real API. */
-export const delay = (ms = 150) => new Promise<void>((resolve) => setTimeout(resolve, ms));

@@ -16,9 +16,14 @@ import { usePlatformStatus } from '@/hooks/admin/use-platform-status';
 import { byPriority, contextFor, moveItem, newItemId, withOrder } from '@/lib/admin/assistant-kb';
 import { PLATFORM_KEYS } from '@/lib/admin/keys';
 import { contentService } from '@/services/admin/content.service';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
+import { farmersService } from '@/services/admin/farmers.service';
 import type { AssistantReply } from '@/types';
-import type { AssistantKnowledgeItem, ContentMeta, CropContent } from '@/types/admin';
+import type {
+  AssistantKnowledgeItem,
+  ContentMeta,
+  CropContent,
+  FarmerAccount,
+} from '@/types/admin';
 
 type Editing = { item?: AssistantKnowledgeItem } | null;
 
@@ -28,7 +33,15 @@ type Editing = { item?: AssistantKnowledgeItem } | null;
  * use it immediately.
  */
 export function AssistantContent() {
-  const farmers = useAdminDataStore((s) => s.farmers);
+  // A page of farmers to preview replies as (never the whole list).
+  const [farmers, setFarmers] = useState<FarmerAccount[]>([]);
+  useEffect(() => {
+    const controller = new AbortController();
+    farmersService
+      .page({ pageSize: '25', sort: 'farmer', dir: 'asc' }, controller.signal)
+      .then((page) => setFarmers(page.items), () => {});
+    return () => controller.abort();
+  }, []);
   const bands = usePlatformStatus()?.creditConfig.bands;
   const [items, setItems] = useState<AssistantKnowledgeItem[] | null>(null);
   const [crops, setCrops] = useState<CropContent[]>([]);

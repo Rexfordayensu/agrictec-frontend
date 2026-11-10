@@ -3,10 +3,13 @@
 import { Check, Globe, MapPin, Sprout, Users, type LucideIcon } from 'lucide-react';
 import { CROPS } from '@/constants/crops';
 import { REGIONS } from '@/constants/regions';
-import { estimateReach, type AnnouncementAudience } from '@/lib/admin/announcements';
+import {
+  estimateReach,
+  type AnnouncementAudience,
+  type AudienceMember,
+} from '@/lib/admin/announcements';
 import { cn } from '@/lib/utils';
 import type { Crop } from '@/types';
-import type { FarmerAccount } from '@/types/admin';
 
 export type AudienceKind = AnnouncementAudience['kind'];
 
@@ -47,7 +50,7 @@ export function AudiencePicker({
 }: {
   value: AudienceDraft;
   onChange: (value: AudienceDraft) => void;
-  farmers: FarmerAccount[];
+  farmers: AudienceMember[];
   error?: string;
 }) {
   const reach = estimateReach(toAudience(value), farmers);

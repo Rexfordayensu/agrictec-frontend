@@ -2,7 +2,7 @@
 // form, the service and the tests agree on what "scheduled" or "~23 farmers" means.
 
 import type { Profile } from '@/types';
-import type { Announcement, FarmerAccount } from '@/types/admin';
+import type { Announcement } from '@/types/admin';
 
 export type AnnouncementState = 'live' | 'scheduled' | 'ended' | 'off';
 export type AnnouncementAudience = Announcement['audience'];
@@ -53,8 +53,14 @@ export function inAudience(
 }
 
 /** How many registered farmers the audience reaches today ("~23 farmers"). */
-export const estimateReach = (audience: AnnouncementAudience, farmers: FarmerAccount[]) =>
-  farmers.filter((f) => !f.isGuest && inAudience(audience, f.profile)).length;
+export const estimateReach = (audience: AnnouncementAudience, members: AudienceMember[]) =>
+  members.filter((member) => inAudience(audience, member)).length;
+
+/**
+ * One registered farmer as an audience sees them: region and crops only, with no name or
+ * contact detail (GET /admin/announcements/audience).
+ */
+export type AudienceMember = Pick<Profile, 'region' | 'primaryCrops'>;
 
 /** "Everyone", "Northern, Ashanti", "Maize growers". */
 export function audienceLabel(audience: AnnouncementAudience): string {

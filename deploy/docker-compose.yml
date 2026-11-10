@@ -24,7 +24,7 @@ services:
 
   api:
     # The backend repository, cloned beside this one (see deploy/README.md).
-    build: ../../agrictec-backend
+    build: ../../backend
     restart: unless-stopped
     depends_on:
       db:
@@ -73,6 +73,10 @@ services:
     restart: unless-stopped
     environment:
       FRONTEND_PROXY_SECRET: ${FRONTEND_PROXY_SECRET:-}
+      # Caddy is the only way in (the app's port is not published), so the last
+      # X-Forwarded-For entry is the address Caddy saw. Never set this where visitors can reach
+      # the app directly.
+      TRUST_FORWARDED_FOR: "1"
     depends_on:
       api:
         condition: service_healthy

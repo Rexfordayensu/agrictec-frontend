@@ -5,6 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { AlertCircle, ArrowLeft, KeyRound } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+import { newFarmerPassword } from '@/components/auth/auth-schemas';
 import { FormAlert } from '@/components/auth/form-alert';
 import { PasswordInput } from '@/components/auth/password-input';
 import { Button } from '@/components/ui/button';
@@ -15,12 +16,7 @@ import type { Session } from '@/types';
 
 export const newPasswordSchema = z
   .object({
-    password: z
-      .string()
-      .min(
-        FARMER_PASSWORD_MIN_LENGTH,
-        `Password must be at least ${FARMER_PASSWORD_MIN_LENGTH} characters`,
-      ),
+    password: newFarmerPassword,
     confirmPassword: z.string(),
   })
   .refine((d) => d.password === d.confirmPassword, {
@@ -83,7 +79,7 @@ export function NewPasswordForm({
             id="new-password"
             autoComplete="new-password"
             autoFocus
-            placeholder={`At least ${FARMER_PASSWORD_MIN_LENGTH} characters`}
+            placeholder={`${FARMER_PASSWORD_MIN_LENGTH}+ characters, a letter and a number`}
             error={Boolean(errors.password)}
             aria-describedby={errors.password ? fieldErrorId('new-password') : undefined}
             {...register('password')}

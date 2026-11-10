@@ -120,14 +120,14 @@ function Field({
  */
 export function FarmersFilters({
   table,
-  farmers,
+  counts,
   regions,
   crops,
   tags,
 }: {
   table: AdminTableState<FarmerAccount>;
-  /** Everyone in the list, for the counts on the status tabs. */
-  farmers: FarmerAccount[];
+  /** Everyone (guests aside) by status, from the API: the counts on the status tabs. */
+  counts?: Record<'all' | AccountStatus, number>;
   regions: string[];
   crops: string[];
   tags: string[];
@@ -145,8 +145,7 @@ export function FarmersFilters({
   const [panelOpen, setPanelOpen] = useState(panelCount > 0);
   const status = value('status');
   const sortValue = table.sort ? `${table.sort.key}:${table.sort.dir}` : 'joined:desc';
-  const countOf = (s: AccountStatus | 'all') =>
-    s === 'all' ? farmers.length : farmers.filter((f) => f.status === s).length;
+  const countOf = (s: AccountStatus | 'all') => counts?.[s] ?? 0;
 
   return (
     <div className="space-y-4">

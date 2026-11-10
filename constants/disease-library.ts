@@ -1,6 +1,9 @@
 import type { DiagnosisResult } from '@/types';
 
-export const MOCK_DIAGNOSES: DiagnosisResult[] = [
+/** The starting disease library (admin: Content → Diagnoses): treatment and prevention advice
+ * shown in the crop guide. Reference content an admin edits, not scan results. */
+
+export const DISEASE_LIBRARY: DiagnosisResult[] = [
   {
     crop: 'Maize',
     disease: 'Fall Armyworm',

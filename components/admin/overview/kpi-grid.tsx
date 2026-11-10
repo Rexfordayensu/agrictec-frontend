@@ -18,11 +18,10 @@ import {
 import { Sparkline } from '@/components/charts/sparkline';
 import { useAdminRole } from '@/hooks/admin/use-can';
 import { scoreLabel } from '@/lib/calculations/credit-score';
-import { DATE_RANGES, overviewKpis, type DateRange } from '@/lib/admin/overview';
+import { DATE_RANGES, type DateRange, type OverviewKpis } from '@/lib/admin/overview';
 import { can } from '@/lib/admin/permissions';
 import { formatCompactGHS } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import type { CreditConfig, Permission } from '@/types/admin';
 
 interface Kpi {
@@ -73,13 +72,17 @@ function DeltaChip({ delta, lowerIsBetter }: { delta: number; lowerIsBetter?: bo
  * The platform's key figures in one panel, split by hairlines (no card-per-number clutter).
  * Each cell opens the page behind it. Deltas compare the period with the one before it.
  */
-export function KpiGrid({ range, bands }: { range: DateRange; bands?: CreditConfig['bands'] }) {
+export function KpiGrid({
+  range,
+  bands,
+  kpis: k,
+}: {
+  range: DateRange;
+  bands?: CreditConfig['bands'];
+  /** Computed by the API (GET /admin/overview). */
+  kpis: OverviewKpis;
+}) {
   const role = useAdminRole();
-  const farmers = useAdminDataStore((s) => s.farmers);
-  const applications = useAdminDataStore((s) => s.applications);
-  const riskFlags = useAdminDataStore((s) => s.riskFlags);
-  const verifications = useAdminDataStore((s) => s.verifications);
-  const k = overviewKpis(farmers, applications, riskFlags, verifications, range);
   const rangeLabel = DATE_RANGES.find((r) => r.value === range)?.short ?? '';
 
   const kpis: Kpi[] = [

@@ -2,7 +2,7 @@
 
 import { useId, useRef, useState, type KeyboardEvent } from 'react';
 import { Check, ChevronsUpDown, Search } from 'lucide-react';
-import type { ScoringInput } from '@/lib/admin/credit-rules';
+import type { FarmerChoice } from '@/lib/admin/credit-rules';
 import { cn } from '@/lib/utils';
 
 const MAX_SHOWN = 8;
@@ -13,7 +13,7 @@ export function FarmerCombobox({
   value,
   onChange,
 }: {
-  farmers: ScoringInput[];
+  farmers: FarmerChoice[];
   /** The picked farmer's ID. */
   value: string | null;
   onChange: (userId: string) => void;
@@ -30,7 +30,7 @@ export function FarmerCombobox({
     .filter((f) => !needle || `${f.name} ${f.region}`.toLowerCase().includes(needle))
     .slice(0, MAX_SHOWN);
 
-  function choose(farmer: ScoringInput) {
+  function choose(farmer: FarmerChoice) {
     onChange(farmer.userId);
     setQuery('');
     setOpen(false);

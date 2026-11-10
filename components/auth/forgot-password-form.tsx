@@ -167,7 +167,7 @@ function ResetStep({ email, onBack }: { email: string; onBack: () => void }) {
           <PasswordInput
             id="reset-password"
             autoComplete="new-password"
-            placeholder={`At least ${FARMER_PASSWORD_MIN_LENGTH} characters`}
+            placeholder={`${FARMER_PASSWORD_MIN_LENGTH}+ characters, a letter and a number`}
             error={Boolean(errors.password)}
             aria-describedby={errors.password ? fieldErrorId('reset-password') : undefined}
             {...register('password')}

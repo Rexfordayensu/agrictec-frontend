@@ -20,12 +20,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { EmptyState } from '@/components/ui/empty-state';
-import {
-  configChanges,
-  configValues,
-  draftIssues,
-  type ScoringInput,
-} from '@/lib/admin/credit-rules';
+import { configChanges, configValues, draftIssues } from '@/lib/admin/credit-rules';
 import { cn } from '@/lib/utils';
 import { configService } from '@/services/admin/config.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
@@ -40,17 +35,15 @@ type LoadState =
       status: 'ready';
       live: CreditConfig;
       history: CreditConfig[];
-      inputs: ScoringInput[];
     };
 
 async function fetchRules(): Promise<LoadState> {
   try {
-    const [live, history, inputs] = await Promise.all([
+    const [live, history] = await Promise.all([
       configService.getCreditConfig(),
       configService.getCreditHistory(),
-      configService.getScoringInputs(),
     ]);
-    return { status: 'ready', live, history, inputs };
+    return { status: 'ready', live, history };
   } catch (cause) {
     return {
       status: 'error',
@@ -92,12 +85,8 @@ export function CreditRulesPage() {
 
   const ready = state.status === 'ready' && draft !== null;
   const live = state.status === 'ready' ? state.live : null;
-  // Re-scored a few farmers at a time after each edit, so typing stays smooth (phase A15).
-  const { impact, calculating, progress } = useImpact(
-    state.status === 'ready' ? state.inputs : null,
-    live,
-    draft,
-  );
+  // Every farmer re-scored by the API after each pause in typing (no records in this browser).
+  const { impact, calculating, progress, error: impactError } = useImpact(live, draft);
   const changes = ready && live ? configChanges(live, draft) : [];
   const dirty = changes.length > 0;
 
@@ -122,7 +111,9 @@ export function CreditRulesPage() {
     );
   }
 
-  const { history, inputs } = state;
+  const { history } = state;
+  // The farmers the impact covers, to pick one in the simulator (names and regions only).
+  const choices = impact?.farmers ?? [];
   const issues = draftIssues(draft);
   const issueCount = Object.keys(issues).length;
   const liveValues = configValues(live);
@@ -287,7 +278,8 @@ export function CreditRulesPage() {
                       Impact preview
                     </h2>
                     <p className="text-text-mute mt-0.5 text-xs">
-                      All {inputs.length} farmers, live v{live.version} vs your draft
+                      All {impact ? impact.farmers.length : '…'} farmers, live v{live.version} vs
+                      your draft
                     </p>
                   </div>
                   {dirty && (
@@ -302,7 +294,7 @@ export function CreditRulesPage() {
                   progress={progress}
                   liveVersion={live.version}
                   hasChanges={dirty}
-                  error={issues.weights ?? issues.bands}
+                  error={issues.weights ?? issues.bands ?? impactError ?? undefined}
                 />
               </div>
             </aside>
@@ -311,7 +303,7 @@ export function CreditRulesPage() {
 
         {tab === 'simulator' && (
           <ScoreSimulator
-            farmers={inputs}
+            farmers={choices}
             live={liveValues}
             draft={draft}
             liveVersion={live.version}

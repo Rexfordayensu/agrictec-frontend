@@ -1,19 +1,10 @@
 // Admin sign-in through the AgriCtec API. The session is an httpOnly cookie (agrictec_admin),
 // separate from the farmer's, so neither side ever signs the other out. Five failed sign-ins
-// lock an email for five minutes; 30 idle minutes end the session (both enforced by the API).
+// from one address lock that email there for five minutes (the sign-in answers 423 with `until`);
+// 30 idle minutes end the session (both enforced by the API).
 
 import { api, ApiError } from '@/services/api';
 import type { AdminSession, AdminUser } from '@/types/admin';
-
-export const MAX_LOGIN_ATTEMPTS = 5;
-export const LOCKOUT_MINUTES = 5;
-
-export interface LockStatus {
-  locked: boolean;
-  /** When the lock ends, while locked. */
-  until?: string;
-  attemptsLeft: number;
-}
 
 export type SignOutReason = 'manual' | 'timeout';
 
@@ -86,9 +77,4 @@ export const adminAuthService = {
     return session.admin;
   },
 
-  /** The lockout for an email (the API counts failures per email). */
-  async isLocked(email?: string): Promise<LockStatus> {
-    if (!email?.trim()) return { locked: false, attemptsLeft: MAX_LOGIN_ATTEMPTS };
-    return api<LockStatus>('/admin/auth/lockout', { query: { email: email.trim() } });
-  },
 };

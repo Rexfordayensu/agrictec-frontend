@@ -4,7 +4,7 @@
 
 import { imageValidationError } from '@/lib/image/compress';
 import { api } from '@/services/api';
-import type { AssistantReply, Crop, DiagnosisResult } from '@/types';
+import type { AssistantReply, ChatMessage, Crop, Diagnosis, DiagnosisResult } from '@/types';
 
 export interface AiAnswer<T> {
   result: T;
@@ -13,22 +13,32 @@ export interface AiAnswer<T> {
 }
 
 export const aiService = {
-  /** One assistant question (1 credit). */
-  async ask(message: string): Promise<AiAnswer<AssistantReply>> {
-    const { reply, creditsRemaining } = await api<{ reply: AssistantReply; creditsRemaining: number | null }>(
-      '/me/assistant',
-      { method: 'POST', body: { message } },
-    );
-    return { result: reply, creditsRemaining };
+  /** One assistant question (1 credit). The API saves the question and the answer itself. */
+  async ask(message: string): Promise<AiAnswer<AssistantReply> & { messages: ChatMessage[] }> {
+    const { reply, creditsRemaining, messages } = await api<{
+      reply: AssistantReply;
+      creditsRemaining: number | null;
+      messages?: ChatMessage[];
+    }>('/me/assistant', { method: 'POST', body: { message } });
+    return { result: reply, creditsRemaining, messages: messages ?? [] };
   },
 
-  /** One crop scan (5 credits). Images up to 10 MB. */
-  async diagnose(file: File, crop?: Crop): Promise<AiAnswer<DiagnosisResult>> {
+  /**
+   * One crop scan (5 credits). Images up to 10 MB. The API saves the diagnosis to the farmer's
+   * history itself (with a thumbnail it makes) and returns it as `diagnosis`.
+   */
+  async diagnose(
+    file: File,
+    crop?: Crop,
+  ): Promise<AiAnswer<DiagnosisResult> & { diagnosis?: Diagnosis }> {
     const invalid = imageValidationError(file);
     if (invalid) throw new Error(invalid);
     const form = new FormData();
     form.append('image', file, file.name);
     if (crop) form.append('crop', crop);
-    return api<AiAnswer<DiagnosisResult>>('/me/crop-doctor', { method: 'POST', body: form });
+    return api<AiAnswer<DiagnosisResult> & { diagnosis?: Diagnosis }>('/me/crop-doctor', {
+      method: 'POST',
+      body: form,
+    });
   },
 };

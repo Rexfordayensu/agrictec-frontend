@@ -10,12 +10,12 @@ import { Select } from '@/components/ui/select';
 import { REGIONS } from '@/constants/regions';
 import { useLocationWeather } from '@/hooks/use-location-weather';
 import {
+  DEFAULT_WEATHER_LOCATION,
   GHANA_WEATHER_PLACES,
   requestWeatherLocation,
   requestInitialWeatherLocation,
   validWeatherLocation,
 } from '@/lib/market/weather-location';
-import { DEMO_WEATHER_LOCATION } from '@/lib/market/demo-weather';
 import { sessionStore } from '@/services/storage';
 import { useProfileStore } from '@/store/profile-store';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
@@ -69,7 +69,7 @@ function WeatherPanel({
     if (validWeatherLocation(saved)) return saved;
     return initialRegion && REGIONS.includes(initialRegion)
       ? { kind: 'place', region: initialRegion, label: `${initialRegion}, Ghana` }
-      : DEMO_WEATHER_LOCATION;
+      : DEFAULT_WEATHER_LOCATION;
   });
   const [region, setRegion] = useState(location?.region ?? initialRegion ?? '');
   const [city, setCity] = useState(location?.city ?? '');

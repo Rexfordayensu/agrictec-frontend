@@ -1,4 +1,4 @@
-import { isSameMonth, startOfMonth, subMonths } from 'date-fns';
+import { differenceInCalendarDays, isSameMonth, startOfMonth, subMonths } from 'date-fns';
 import { DEFAULT_CREDIT_CONFIG } from '@/lib/admin/defaults';
 import { parseISODate } from '@/lib/format';
 import { profitMargin, totalExpenses, totalIncome } from '@/lib/calculations/finance';
@@ -6,6 +6,20 @@ import type { CreditScoreBreakdown, FarmRecord, MomoTransaction, Profile } from 
 import type { CreditConfig } from '@/types/admin';
 
 const clamp = (value: number, min: number, max: number) => Math.min(max, Math.max(min, value));
+
+/**
+ * How long after the day it describes an entry may be typed in and still build the score
+ * (app/domain/credit.py RECORD_GRACE_DAYS). Back-dated entries are kept and count for income,
+ * but months of "history" can't be made in one sitting.
+ */
+export const RECORD_GRACE_DAYS = 45;
+
+/** Entered within RECORD_GRACE_DAYS of its own date. */
+export function recordedOnTime(item: { date: string; createdAt: string }): boolean {
+  const entered = new Date(item.createdAt);
+  if (Number.isNaN(entered.getTime())) return false;
+  return differenceInCalendarDays(entered, parseISODate(item.date)) <= RECORD_GRACE_DAYS;
+}
 
 /** A profile is complete when name, phone, farm name and acres are all filled in. */
 export function isProfileComplete(profile: Profile | null): boolean {
@@ -51,19 +65,23 @@ export function calculateCreditScore(
 ): CreditScoreBreakdown {
   const { weights, targets } = config;
   const window = Math.max(1, targets.monthsWindow);
-  const paymentHistory = (activeMonths(records, momo, window) / window) * 100;
+  // Only entries typed in on time build history, completeness and MoMo activity.
+  const timelyRecords = records.filter(recordedOnTime);
+  const timelyMomo = momo.filter(recordedOnTime);
+  const paymentHistory = (activeMonths(timelyRecords, timelyMomo, window) / window) * 100;
   const recordCompleteness = Math.min(
     100,
-    ((records.length + momo.length) / targets.recordsForFull) * 100,
+    ((timelyRecords.length + timelyMomo.length) / targets.recordsForFull) * 100,
   );
   const incomeStability = incomeStabilityFactor(records);
-  const momoActivity = Math.min(100, (momo.length / targets.momoForFull) * 100);
+  const momoActivity = Math.min(100, (timelyMomo.length / targets.momoForFull) * 100);
 
   const checks = [
     isProfileComplete(profile),
     profile?.verification.phone ?? false,
-    // A map pin counts for the location; the Ghana Card only once an admin has verified it.
-    Boolean(profile?.gps) || (profile?.verification.location ?? false),
+    // The farm location and the Ghana Card count once an admin has verified them (a bare map
+    // pin doesn't: anyone can drop one).
+    profile?.verification.location ?? false,
     profile?.ghanaCard.status === 'verified',
   ];
   const verification = (checks.filter(Boolean).length / checks.length) * 100;

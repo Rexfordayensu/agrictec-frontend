@@ -8,3 +8,14 @@ export function safeProfilePhoto(value: unknown): string | undefined {
     ? value
     : undefined;
 }
+
+/** A saved diagnosis thumbnail: an inline JPEG made by the API, never a link to another site. */
+export const MAX_THUMB_LENGTH = 200_000;
+
+export function safeImageThumb(value: unknown): string | undefined {
+  return typeof value === 'string' &&
+    value.length <= MAX_THUMB_LENGTH &&
+    /^data:image\/jpeg;base64,[A-Za-z0-9+/]+={0,2}$/.test(value)
+    ? value
+    : undefined;
+}

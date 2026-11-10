@@ -1,6 +1,7 @@
 // The onboarding wizard: a draft saved on every Continue (so a farmer resumes where they stopped)
 // and the final save that opens the app. The API checks the whole profile again.
 
+import { heldGhanaCard } from '@/lib/onboarding-card';
 import { api } from '@/services/api';
 import { profileService } from '@/services/profile.service';
 import type { OnboardingDraft, Profile } from '@/types';
@@ -18,7 +19,7 @@ export function setOnboardedCookie(onboarded: boolean): void {
     : `${ONBOARDED_COOKIE}=; path=/; max-age=0; SameSite=Lax`;
 }
 
-/** Fields a draft may hold: never a raw Ghana Card number (only its mask and fingerprint). */
+/** Fields a draft may hold: never a full Ghana Card number (only its mask, for display). */
 function cleanDraftData(data: Partial<Profile>): Partial<Profile> {
   const { ghanaCard, ...rest } = data;
   return {
@@ -27,7 +28,6 @@ function cleanDraftData(data: Partial<Profile>): Partial<Profile> {
       ghanaCard: {
         status: ghanaCard.status,
         ...(ghanaCard.masked && { masked: ghanaCard.masked }),
-        ...(ghanaCard.hash && { hash: ghanaCard.hash }),
       },
     }),
   };
@@ -63,8 +63,8 @@ export const onboardingService = {
   },
 
   /**
-   * Saves the whole profile and opens the app. The API marks the location verified when a pin
-   * is set, queues a Ghana Card for an admin's review (only its mask and fingerprint are sent)
+   * Saves the whole profile and opens the app. The API queues the farm pin and a Ghana Card for
+   * an admin's review (it masks and fingerprints the card number itself and never stores it)
    * and clears the draft.
    */
   async complete(userId: string, data: Partial<Profile>): Promise<Profile> {
@@ -84,14 +84,20 @@ export const onboardingService = {
       ...profile
     } = merged;
     void [_id, _verification, _done];
-    const sendCard = ghanaCard.status === 'pending' && ghanaCard.masked && ghanaCard.hash;
+    // A card already waiting or verified on the account is not sent again.
+    const newCard =
+      ghanaCard.status === 'pending' &&
+      Boolean(ghanaCard.masked) &&
+      current.ghanaCard.status !== 'pending' &&
+      current.ghanaCard.status !== 'verified';
+    const cardNumber = newCard ? heldGhanaCard.numberFor(ghanaCard.masked) : null;
+    if (newCard && !cardNumber)
+      throw new Error('Enter your Ghana Card number again on the Ghana Card step to finish.');
     await api<Profile>('/me/onboarding/complete', {
       method: 'POST',
-      body: {
-        profile,
-        ...(sendCard && { ghanaCard: { masked: ghanaCard.masked, hash: ghanaCard.hash } }),
-      },
+      body: { profile, ...(cardNumber && { ghanaCard: { cardNumber } }) },
     });
+    heldGhanaCard.clear();
     setOnboardedCookie(true);
     return profileService.get(userId);
   },

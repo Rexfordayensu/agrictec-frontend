@@ -26,16 +26,8 @@ export const momoService = {
     await api(`/me/momo/${encodeURIComponent(id)}`, { method: 'DELETE' });
   },
 
-  /** Replaces every transaction for this farmer (sample data and "clear all"). */
-  async replaceAll(_userId: string, items: MomoTransaction[]): Promise<MomoTransaction[]> {
-    const body = items.map(({ direction, counterparty, amount, reference, network, date }) => ({
-      direction,
-      counterparty,
-      amount,
-      reference,
-      network,
-      date,
-    }));
-    return api<MomoTransaction[]>('/me/momo', { method: 'PUT', body });
+  /** Deletes every transaction for this farmer ("clear all"). */
+  async clear(_userId: string): Promise<void> {
+    await api('/me/momo', { method: 'DELETE' });
   },
 };

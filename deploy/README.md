@@ -25,14 +25,14 @@ This folder runs the whole app on one Linux server with Docker. It starts four c
    ```
 
 2. Get the code onto the server. Clone both repositories into one folder, for example from
-   your private GitHub repositories. The backend's folder must be named `agrictec-backend`,
+   your private GitHub repositories. The backend's folder must be named `backend`,
    because that's where `docker-compose.yml` builds the API from:
 
    ```bash
    mkdir agrictec && cd agrictec
-   git clone https://github.com/YOU/agrictec-frontend.git
-   git clone https://github.com/YOU/agrictec-backend.git
-   cd agrictec-frontend/deploy
+   git clone https://github.com/YOU/agrictec-frontend.git frontend
+   git clone https://github.com/YOU/agrictec-backend.git backend
+   cd frontend/deploy
    ```
 
 3. Create the settings file and fill it in:
@@ -65,8 +65,8 @@ The production database starts empty, with no demo farmers. Every farmer signs u
 
 ```bash
 cd agrictec
-git -C agrictec-backend pull && git -C agrictec-frontend pull
-cd agrictec-frontend/deploy && docker compose up -d --build
+git -C backend pull && git -C frontend pull
+cd frontend/deploy && docker compose up -d --build
 ```
 
 Migrations run automatically when the API restarts.
@@ -88,7 +88,7 @@ docker compose start api web
 To run the backup daily, add it to `crontab -e`:
 
 ```
-0 2 * * * cd /root/agrictec/agrictec-frontend/deploy && docker compose exec -T db pg_dump -U agrictec -Fc agrictec > /root/backups/agrictec-$(date +\%F).dump
+0 2 * * * cd /root/agrictec/frontend/deploy && docker compose exec -T db pg_dump -U agrictec -Fc agrictec > /root/backups/agrictec-$(date +\%F).dump
 ```
 
 Your VPS provider's snapshots are a good second layer, but they aren't a replacement.

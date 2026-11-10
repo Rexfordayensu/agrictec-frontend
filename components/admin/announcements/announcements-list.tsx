@@ -28,7 +28,8 @@ import {
   type AnnouncementTab,
 } from '@/lib/admin/announcements';
 import { cn } from '@/lib/utils';
-import type { Announcement, FarmerAccount } from '@/types/admin';
+import type { AudienceMember } from '@/lib/admin/announcements';
+import type { Announcement } from '@/types/admin';
 
 const AUDIENCE_ICON = { all: Globe, region: MapPin, crop: Sprout } as const;
 
@@ -65,7 +66,7 @@ export function AnnouncementsList({
 }: {
   items: Announcement[];
   tab: AnnouncementTab;
-  farmers: FarmerAccount[];
+  farmers: AudienceMember[];
   now: Date;
   onAction: (action: AnnouncementAction, announcement: Announcement) => void;
   onCreate: () => void;

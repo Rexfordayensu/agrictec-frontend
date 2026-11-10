@@ -19,7 +19,10 @@ interface ProfileState {
   status: StoreStatus;
   load: (userId: string, options?: LoadOptions) => Promise<void>;
   save: (partial: ProfileUpdate) => Promise<Profile>;
-  verifyPhone: (expectedPhone: string) => Promise<Profile>;
+  /** Texts a code to the saved phone number. */
+  sendPhoneCode: () => Promise<{ sentTo: string; expiresInMinutes: number }>;
+  /** The code texted to the saved number: the API checks it and marks the phone verified. */
+  verifyPhone: (expectedPhone: string, code: string) => Promise<Profile>;
 }
 
 export const useProfileStore = create<ProfileState>()((set, get) => {
@@ -79,7 +82,14 @@ export const useProfileStore = create<ProfileState>()((set, get) => {
     },
 
     save: (partial) => persist(partial),
-    verifyPhone: async (phone) => {
+    sendPhoneCode: async () => {
+      if (isReadOnly()) throw new Error(READ_ONLY_MESSAGE);
+      const userId = get().userId;
+      if (!userId) throw new Error('You need to sign in first');
+      await waitForProfileSaves();
+      return platformService.sendPhoneCode(userId);
+    },
+    verifyPhone: async (phone, code) => {
       if (isReadOnly()) throw new Error(READ_ONLY_MESSAGE);
       const userId = get().userId;
       if (!userId) throw new Error('You need to sign in first');
@@ -87,8 +97,8 @@ export const useProfileStore = create<ProfileState>()((set, get) => {
       const current = get().profile;
       if (!current || current.phone !== phone || !ghanaPhone.test(phone))
         throw new Error('Your phone number changed. Send a new code.');
-      // The API verifies the number and records the approved check for the admin.
-      await platformService.logInstantCheck(userId, 'phone', phone);
+      // The API checks the code and records the approved check for the admin.
+      await platformService.verifyPhone(userId, phone, code);
       const profile = await profileService.get(userId);
       if (get().userId === userId) set({ profile });
       return profile;

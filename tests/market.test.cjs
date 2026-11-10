@@ -47,7 +47,6 @@ const {
   validWeatherLocation,
   weatherLocationKey,
 } = require('../lib/market/weather-location.ts');
-const { createDemoWeather } = require('../lib/market/demo-weather.ts');
 const { marketPricesSchema } = require('../lib/admin/schemas.ts');
 const { marketReference } = require('../lib/admin/crop-pricing.ts');
 const { MarketPrices } = require('../components/market/market-prices.tsx');
@@ -493,37 +492,4 @@ test('automatic location detection shares in-flight permission requests and trie
   await assert.rejects(requestInitialWeatherLocation('test-auto-denied', denied), /denied/);
   assert.equal(await requestInitialWeatherLocation('test-auto-denied', denied), null);
   assert.equal(calls, 2, 'Denied permission is not repeatedly requested on navigation');
-});
-
-test('frontend samples use the selected location and show measurements and forecasts as demo data', () => {
-  const now = new Date('2026-10-25T10:00:00Z');
-  const coastal = createDemoWeather(accra, now);
-  const inland = createDemoWeather(kumasi, now);
-  const northern = createDemoWeather(
-    { kind: 'coordinates', label: 'Detected position', latitude: 9.4, longitude: -0.8 },
-    now,
-  );
-  assert.equal(coastal.demo, true);
-  assert.equal(coastal.location.city, 'Accra');
-  assert.equal(inland.location.city, 'Kumasi');
-  assert.notEqual(coastal.current.temp, inland.current.temp);
-  assert.notEqual(northern.current.temp, inland.current.temp);
-  assert.equal(coastal.daily.length, 3);
-  assert.equal(coastal.upcoming.length, 3);
-  assert.deepEqual(createDemoWeather(accra, now), coastal, 'No random measurements on rerender');
-  const html = renderToStaticMarkup(createElement(WeatherReadings, { report: coastal }));
-  for (const text of [
-    'Demo conditions',
-    'Sample data',
-    'Not live measurements',
-    'Humidity',
-    'Rainfall',
-    'Rain probability',
-    'Wind speed',
-    'Daily forecast (demo)',
-    'Upcoming conditions (demo)',
-    'Demo generated',
-  ])
-    assert.ok(html.includes(text), text);
-  assert.doesNotMatch(html, /Last updated/);
 });

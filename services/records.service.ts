@@ -21,16 +21,8 @@ export const recordsService = {
     await api(`/me/records/${encodeURIComponent(id)}`, { method: 'DELETE' });
   },
 
-  /** Replaces every record for this farmer (sample data and "clear all"). */
-  async replaceAll(_userId: string, items: FarmRecord[]): Promise<FarmRecord[]> {
-    const body = items.map(({ type, description, crop, amount, date, notes }) => ({
-      type,
-      description,
-      crop,
-      amount,
-      date,
-      notes,
-    }));
-    return api<FarmRecord[]>('/me/records', { method: 'PUT', body });
+  /** Deletes every record for this farmer ("clear all"). Records are only added one by one. */
+  async clear(_userId: string): Promise<void> {
+    await api('/me/records', { method: 'DELETE' });
   },
 };

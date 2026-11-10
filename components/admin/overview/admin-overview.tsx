@@ -13,6 +13,7 @@ import { SignupsChart } from '@/components/admin/overview/signups-chart';
 import { SystemStatus } from '@/components/admin/overview/system-status';
 import { WeatherCard } from '@/components/market/weather-card';
 import { useCan } from '@/hooks/admin/use-can';
+import { useOverview } from '@/hooks/admin/use-overview';
 import { usePlatformStatus } from '@/hooks/admin/use-platform-status';
 import { DATE_RANGES, type DateRange } from '@/lib/admin/overview';
 import { cn } from '@/lib/utils';
@@ -44,6 +45,8 @@ export function AdminOverview() {
   const canLoans = useCan('loans.view');
   const canAudit = useCan('audit.view');
   const bands = status?.creditConfig.bands;
+  // Every figure is computed by the API: the browser never holds the farmers' own details.
+  const { data, error } = useOverview(range);
 
   return (
     <div className="space-y-6">
@@ -87,40 +90,71 @@ export function AdminOverview() {
         </div>
       </header>
 
-      <KpiGrid range={range} bands={bands} />
+      {!data ? (
+        <div
+          role={error ? 'alert' : 'status'}
+          className="border-border bg-glass text-text-dim flex min-h-40 items-center justify-center rounded-2xl border p-6 text-sm"
+        >
+          {error ?? 'Loading the overview…'}
+        </div>
+      ) : (
+        <KpiGrid range={range} bands={bands} kpis={data.kpis} />
+      )}
       <WeatherCard scope="admin" compact />
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-        {canFarmers && <SignupsChart range={range} className="xl:col-span-2" />}
-        <div className={cn('grid gap-6', !canFarmers && 'xl:col-span-3 xl:grid-cols-2')}>
-          <NeedsAttention flags={status?.flags ?? null} />
-          <SystemStatus status={status} />
-        </div>
-      </div>
+      {data && (
+        <>
+          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+            {canFarmers && (
+              <SignupsChart
+                range={range}
+                series={data.signups}
+                kpis={data.kpis}
+                className="xl:col-span-2"
+              />
+            )}
+            <div className={cn('grid gap-6', !canFarmers && 'xl:col-span-3 xl:grid-cols-2')}>
+              <NeedsAttention items={data.needsAttention} />
+              <SystemStatus status={status} />
+            </div>
+          </div>
 
-      {(canLoans || canFarmers) && (
-        <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-          {canLoans && (
-            <LoanFunnel range={range} className={canFarmers ? 'xl:col-span-2' : 'xl:col-span-3'} />
+          {(canLoans || canFarmers) && (
+            <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+              {canLoans && (
+                <LoanFunnel
+                  range={range}
+                  reach={data.loanStages}
+                  className={canFarmers ? 'xl:col-span-2' : 'xl:col-span-3'}
+                />
+              )}
+              {canFarmers && (
+                <ScoreDistributionChart
+                  bands={bands}
+                  buckets={data.scoreDistribution}
+                  averageScore={data.kpis.averageScore}
+                  className={canLoans ? '' : 'xl:col-span-3'}
+                />
+              )}
+            </div>
           )}
-          {canFarmers && (
-            <ScoreDistributionChart bands={bands} className={canLoans ? '' : 'xl:col-span-3'} />
-          )}
-        </div>
+
+          <div
+            className={cn(
+              'grid grid-cols-1 gap-6 md:grid-cols-2',
+              canFarmers && canAudit && 'xl:grid-cols-3',
+            )}
+          >
+            {canFarmers && <RegionChart regions={data.farmersByRegion} />}
+            {canFarmers && (
+              <CropPopularityChart crops={data.cropPopularity} growers={data.cropGrowers} />
+            )}
+            {canAudit && (
+              <RecentAdminActivity className={canFarmers ? 'md:col-span-2 xl:col-span-1' : ''} />
+            )}
+          </div>
+        </>
       )}
-
-      <div
-        className={cn(
-          'grid grid-cols-1 gap-6 md:grid-cols-2',
-          canFarmers && canAudit && 'xl:grid-cols-3',
-        )}
-      >
-        {canFarmers && <RegionChart />}
-        {canFarmers && <CropPopularityChart />}
-        {canAudit && (
-          <RecentAdminActivity className={canFarmers ? 'md:col-span-2 xl:col-span-1' : ''} />
-        )}
-      </div>
     </div>
   );
 }

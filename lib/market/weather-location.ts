@@ -110,3 +110,11 @@ export function requestInitialWeatherLocation(
   initialRequests.set(key, request);
   return request;
 }
+
+/** Where the weather card starts before the farmer's own place is known (live weather there). */
+export const DEFAULT_WEATHER_LOCATION: WeatherLocation = {
+  kind: 'place',
+  region: 'Greater Accra',
+  city: 'Accra',
+  label: 'Accra, Greater Accra, Ghana',
+};

@@ -23,6 +23,9 @@ export interface BackupSummary {
   announcements: number;
 }
 
+/** The shortest backup passphrase the API accepts (app/core/backup_crypto.py). */
+export const PASSPHRASE_MIN_LENGTH = 12;
+
 function parseFile(json: string): unknown {
   try {
     return JSON.parse(json);
@@ -31,25 +34,48 @@ function parseFile(json: string): unknown {
   }
 }
 
+/** True for a file encrypted with a passphrase (every backup made since encryption). */
+export function isEncryptedBackup(json: string): boolean {
+  try {
+    const file = JSON.parse(json) as { app?: unknown; kind?: unknown };
+    return file.app === 'agrictec' && file.kind === 'platform-backup-encrypted';
+  } catch {
+    return false;
+  }
+}
+
 export const backupService = {
-  /** The whole platform as one JSON file (logged). */
-  async exportAll(): Promise<string> {
-    return JSON.stringify(await api('/admin/system/backup', { method: 'POST' }));
+  /**
+   * The whole platform as one file, encrypted on the server with `passphrase` (AES-256-GCM; the
+   * passphrase is never stored). Logged.
+   */
+  async exportAll(passphrase: string): Promise<string> {
+    return JSON.stringify(
+      await api('/admin/system/backup', { method: 'POST', body: { passphrase } }),
+    );
   },
 
-  /** Checks a backup file on the server and says what it holds. Changes nothing. */
-  async summarize(json: string): Promise<BackupSummary> {
-    return api<BackupSummary>('/admin/system/backup/summary', { method: 'POST', body: parseFile(json) });
+  /** Opens a backup file with its passphrase on the server and says what it holds. */
+  async summarize(json: string, passphrase: string): Promise<BackupSummary> {
+    return api<BackupSummary>('/admin/system/backup/summary', {
+      method: 'POST',
+      body: { backup: parseFile(json), passphrase },
+    });
   },
 
   /**
-   * Replaces all platform and farmer data with the backup ("RESTORE" typed by the admin).
+   * Replaces all platform and farmer data with the backup ("RESTORE" and the admin's password).
    * Sign-ins, the team and the audit trail are never replaced; accounts keep their passwords.
    */
-  async importAll(json: string, confirmation: string): Promise<{ keys: number }> {
+  async importAll(
+    json: string,
+    confirmation: string,
+    password: string,
+    passphrase: string,
+  ): Promise<{ keys: number }> {
     const { rows } = await api<{ rows: number }>('/admin/system/restore', {
       method: 'POST',
-      body: { backup: parseFile(json), confirmation },
+      body: { backup: parseFile(json), confirmation, password, passphrase },
     });
     return { keys: rows };
   },
@@ -62,11 +88,14 @@ export const backupService = {
     });
   },
 
-  /** Rebuilds the seeded demo world. Real accounts, the team and the audit trail are kept. */
-  async resetDemo(confirmation: string): Promise<{ farmers: number }> {
+  /**
+   * Rebuilds the seeded demo world ("RESET" and the admin's password). Real accounts, the team
+   * and the audit trail are kept. Refused on the live platform.
+   */
+  async resetDemo(confirmation: string, password: string): Promise<{ farmers: number }> {
     return api<{ farmers: number }>('/admin/system/reset-demo', {
       method: 'POST',
-      body: { confirmation },
+      body: { confirmation, password },
     });
   },
 
