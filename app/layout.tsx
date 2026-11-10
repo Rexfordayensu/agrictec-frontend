@@ -34,9 +34,13 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
   return (
-    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${outfit.variable}`}>
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${inter.variable} ${outfit.variable} overscroll-none`}
+    >
       {/* Browser extensions (e.g. Grammarly) add attributes to <body> before React hydrates. */}
-      <body suppressHydrationWarning>
+      <body suppressHydrationWarning className="overscroll-none">
         {/* One shared background for every page, including the 404 and maintenance screens. */}
         <PageBackground />
         <AppProviders>{children}</AppProviders>
