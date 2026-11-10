@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, UserPlus } from 'lucide-react';
+import { AlertCircle, LockKeyhole, Mail, ShieldCheck, UserPlus, UserRound } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
@@ -88,54 +88,73 @@ export function SignupForm() {
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="agric-login-formContent">
+      <div className="agric-login-heading">
         <h1 className="font-display text-text text-2xl font-bold">Create your account</h1>
         <p className="text-text-dim mt-1 text-sm">
           Start building your digital financial identity.
         </p>
       </div>
 
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="agric-login-form">
         {formError && <FormAlert icon={AlertCircle}>{formError}</FormAlert>}
 
         <FormField label="Full name" htmlFor="signup-name" error={errors.name?.message}>
-          <Input
-            id="signup-name"
-            autoComplete="name"
-            placeholder="e.g. Ama Owusu"
-            error={Boolean(errors.name)}
-            aria-describedby={describedBy('signup-name', Boolean(errors.name))}
-            {...register('name')}
-          />
+          <div className="agric-login-inputWrap">
+            <UserRound className="agric-login-fieldIcon" size={23} aria-hidden="true" />
+            <Input
+              id="signup-name"
+              autoComplete="name"
+              placeholder="e.g. Ama Owusu"
+              error={Boolean(errors.name)}
+              aria-describedby={describedBy('signup-name', Boolean(errors.name))}
+              {...register('name')}
+            />
+          </div>
         </FormField>
 
         <FormField label="Email" htmlFor="signup-email" error={errors.email?.message}>
-          <Input
-            id="signup-email"
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            placeholder="you@example.com"
-            error={Boolean(errors.email)}
-            aria-describedby={describedBy('signup-email', Boolean(errors.email))}
-            {...register('email')}
-          />
+          <div className="agric-login-inputWrap">
+            <Mail className="agric-login-fieldIcon" size={23} aria-hidden="true" />
+            <Input
+              id="signup-email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="agrictec@example.com"
+              error={Boolean(errors.email)}
+              aria-describedby={describedBy('signup-email', Boolean(errors.email))}
+              {...register('email')}
+            />
+          </div>
         </FormField>
 
-        <FormField label="Password" htmlFor="signup-password" error={errors.password?.message}>
-          <PasswordInput
-            id="signup-password"
-            autoComplete="new-password"
-            placeholder="8+ characters, a letter and a number"
-            error={Boolean(errors.password)}
-            aria-describedby={describedBy(
-              'signup-password',
-              Boolean(errors.password),
-              strength ? fieldHintId('signup-password-strength') : undefined,
-            )}
-            {...register('password')}
-          />
+        <FormField
+          label="Password"
+          htmlFor="signup-password"
+          error={errors.password?.message}
+          hint="At least 8 characters, including a letter and a number."
+        >
+          <div className="agric-login-inputWrap">
+            <LockKeyhole className="agric-login-fieldIcon" size={23} aria-hidden="true" />
+            <PasswordInput
+              id="signup-password"
+              autoComplete="new-password"
+              placeholder="Create a password"
+              error={Boolean(errors.password)}
+              aria-describedby={describedBy(
+                'signup-password',
+                Boolean(errors.password),
+                [
+                  fieldHintId('signup-password'),
+                  strength ? fieldHintId('signup-password-strength') : null,
+                ]
+                  .filter(Boolean)
+                  .join(' '),
+              )}
+              {...register('password')}
+            />
+          </div>
           {strength && (
             <div id={fieldHintId('signup-password-strength')} aria-live="polite" className="mt-1">
               <div className="bg-glass-strong h-1.5 w-full overflow-hidden rounded-full">
@@ -165,17 +184,20 @@ export function SignupForm() {
           htmlFor="signup-confirm"
           error={errors.confirmPassword?.message}
         >
-          <PasswordInput
-            id="signup-confirm"
-            autoComplete="new-password"
-            placeholder="Type your password again"
-            error={Boolean(errors.confirmPassword)}
-            aria-describedby={describedBy('signup-confirm', Boolean(errors.confirmPassword))}
-            {...register('confirmPassword')}
-          />
+          <div className="agric-login-inputWrap">
+            <ShieldCheck className="agric-login-fieldIcon" size={23} aria-hidden="true" />
+            <PasswordInput
+              id="signup-confirm"
+              autoComplete="new-password"
+              placeholder="Type your password again"
+              error={Boolean(errors.confirmPassword)}
+              aria-describedby={describedBy('signup-confirm', Boolean(errors.confirmPassword))}
+              {...register('confirmPassword')}
+            />
+          </div>
         </FormField>
 
-        <Button type="submit" icon={UserPlus} loading={isSubmitting} className="w-full">
+        <Button type="submit" icon={UserPlus} loading={isSubmitting} className="agric-login-submit">
           {isSubmitting ? 'Creating account…' : 'Create account'}
         </Button>
         <p className="text-text-mute text-center text-xs leading-relaxed">
@@ -193,12 +215,16 @@ export function SignupForm() {
 
       {guestMode && (
         <>
-          <AuthDivider />
-          <GuestButton />
+          <div className="agric-login-divider">
+            <AuthDivider />
+          </div>
+          <div className="agric-login-guest">
+            <GuestButton />
+          </div>
         </>
       )}
 
-      <p className="text-text-dim text-center text-sm">
+      <p className="agric-login-signup">
         Already have an account?{' '}
         <Link href="/login" className="text-ink-green font-semibold hover:underline">
           Sign in

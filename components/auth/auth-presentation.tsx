@@ -14,7 +14,7 @@ export function AuthPresentation({
   children: ReactNode;
 }) {
   const pathname = usePathname();
-  if (pathname !== '/login') return children;
+  if (pathname !== '/login' && pathname !== '/signup') return children;
 
   return (
     <main className={'agric-login-screen'} data-theme="dark">
@@ -25,7 +25,10 @@ export function AuthPresentation({
           <BrandLogo subtitle="Digital Identity" className={'agric-login-logo'} />
           <p>Build your digital financial identity</p>
         </header>
-        <section className={'agric-login-panel'} aria-label="Sign in to AgriCtec">
+        <section
+          className="agric-login-panel"
+          aria-label={pathname === '/signup' ? 'Create an AgriCtec account' : 'Sign in to AgriCtec'}
+        >
           {content}
         </section>
         <LegalLinks className={'agric-login-legal'} />
