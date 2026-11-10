@@ -11,6 +11,7 @@ import { can } from '@/lib/admin/permissions';
 import { formatGHS } from '@/lib/format';
 import { normalizePhone } from '@/lib/profile';
 import { cn } from '@/lib/utils';
+import { farmersService } from '@/services/admin/farmers.service';
 import { lendersService } from '@/services/admin/lenders.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import { useAdminUiStore } from '@/store/admin/admin-ui-store';
@@ -140,8 +141,13 @@ export function AdminSearch() {
   const open = useAdminUiStore((s) => s.searchOpen);
   const setOpen = useAdminUiStore((s) => s.setSearchOpen);
   const role = useAdminRole();
-  const farmers = useAdminDataStore((s) => s.farmers);
+  // The farmers behind loaded applications (for their names); matches come from the API.
+  const knownFarmers = useAdminDataStore((s) => s.farmers);
   const applications = useAdminDataStore((s) => s.applications);
+  const [found, setFound] = useState<{ query: string; farmers: FarmerAccount[] }>({
+    query: '',
+    farmers: [],
+  });
   const [lenders, setLenders] = useState<Lender[]>([]);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
@@ -169,6 +175,22 @@ export function AdminSearch() {
   }, [open]);
 
   const debounced = useDebounce(query, 150);
+  // Farmers are searched by the API (name, email, phone, farm name): never a local copy of all.
+  useEffect(() => {
+    const q = debounced.trim();
+    if (!open || q.length < 2 || !can(role, 'farmers.view')) return;
+    const controller = new AbortController();
+    farmersService
+      .page({ q, pageSize: String(MAX_PER_GROUP), sort: 'farmer', dir: 'asc' }, controller.signal)
+      .then(
+        (page) => setFound({ query: q, farmers: page.items }),
+        () => {},
+      );
+    return () => controller.abort();
+  }, [debounced, open, role]);
+  const matches = found.query === debounced.trim() ? found.farmers : [];
+  const seen = new Set(matches.map((f) => f.userId));
+  const farmers = [...matches, ...knownFarmers.filter((f) => !seen.has(f.userId))];
   const results = searchConsole(debounced, { farmers, applications, lenders }, role);
 
   function close() {

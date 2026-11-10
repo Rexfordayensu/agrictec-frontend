@@ -19,9 +19,19 @@ self.addEventListener('push', (event) => {
   );
 });
 
+/** A page of this site only: an alert can never send the admin to another site. */
+function sameSiteUrl(value) {
+  try {
+    const url = new URL(value || '/admin', self.location.origin);
+    return url.origin === self.location.origin ? url.href : new URL('/admin', self.location.origin).href;
+  } catch {
+    return new URL('/admin', self.location.origin).href;
+  }
+}
+
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const url = new URL(event.notification.data?.url || '/admin', self.location.origin).href;
+  const url = sameSiteUrl(event.notification.data?.url);
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windows) => {
       const open = windows.find((w) => w.url.startsWith(self.location.origin));

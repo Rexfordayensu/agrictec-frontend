@@ -12,11 +12,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Panel } from '@/components/admin/overview/panel';
-import { useAdminRole } from '@/hooks/admin/use-can';
-import { needsAttention, type AttentionItem } from '@/lib/admin/overview';
+import type { AttentionItem } from '@/lib/admin/overview';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
-import type { FeatureFlags } from '@/types/admin';
 
 const ICONS: Record<AttentionItem['key'], LucideIcon> = {
   maintenance: Wrench,
@@ -27,16 +24,12 @@ const ICONS: Record<AttentionItem['key'], LucideIcon> = {
 };
 
 /** The to-do list, most urgent first: only what this role can act on (maintenance shows to all). */
-export function NeedsAttention({ flags }: { flags: FeatureFlags | null }) {
-  const role = useAdminRole();
-  const farmers = useAdminDataStore((s) => s.farmers);
-  const apps = useAdminDataStore((s) => s.applications);
-  const riskFlags = useAdminDataStore((s) => s.riskFlags);
-  const verifications = useAdminDataStore((s) => s.verifications);
-  const items = needsAttention(
-    { farmers, apps, flags: riskFlags, verifications, featureFlags: flags },
-    role,
-  );
+export function NeedsAttention({
+  items,
+}: {
+  /** The to-do list for this role, computed by the API (GET /admin/overview). */
+  items: AttentionItem[];
+}) {
 
   return (
     <Panel

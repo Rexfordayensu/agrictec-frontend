@@ -5,20 +5,29 @@ import { BarChart } from '@/components/charts/bar-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
 import { useCan } from '@/hooks/admin/use-can';
-import { DATE_RANGES, overviewKpis, signupSeries, type DateRange } from '@/lib/admin/overview';
+import { DATE_RANGES, type DateRange, type OverviewKpis } from '@/lib/admin/overview';
+import type { OverviewData } from '@/services/admin/overview.service';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
 
 const UNIT_LABEL = { day: 'per day', week: 'per week', month: 'per month' } as const;
 
 /** New farmers over the chosen period, as bars (counts per day, week or month). */
-export function SignupsChart({ range, className }: { range: DateRange; className?: string }) {
-  const farmers = useAdminDataStore((s) => s.farmers);
+export function SignupsChart({
+  range,
+  series,
+  kpis,
+  className,
+}: {
+  range: DateRange;
+  /** Computed by the API (GET /admin/overview). */
+  series: OverviewData['signups'];
+  kpis: OverviewKpis;
+  className?: string;
+}) {
   const canFarmers = useCan('farmers.view');
   const { palette } = useChartTheme();
-  const series = signupSeries(farmers, range);
   const total = series.counts.reduce((a, b) => a + b, 0);
-  const { newDelta, totalFarmers } = overviewKpis(farmers, [], [], [], range);
+  const { newDelta, totalFarmers } = kpis;
   const rangeLabel = DATE_RANGES.find((r) => r.value === range)?.label.toLowerCase() ?? '';
   const peak = Math.max(0, ...series.counts);
   const average = series.counts.length ? total / series.counts.length : 0;

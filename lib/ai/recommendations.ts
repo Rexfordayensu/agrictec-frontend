@@ -9,7 +9,7 @@ import {
   UserRoundCheck,
   type LucideIcon,
 } from 'lucide-react';
-import { FALLBACK_INSIGHTS } from '@/data/mock/insights';
+import { GENERAL_TIPS } from '@/constants/farming-tips';
 import { LOANS_LOCKED_HINT } from '@/lib/calculations/loan';
 import { formatGHS } from '@/lib/format';
 import type { FarmStats } from '@/hooks/use-farm-stats';
@@ -179,7 +179,7 @@ function insightPool(stats: FarmStats): string[] {
     pool.push(`Your credit score is ${stats.credit.score} (${stats.creditLabel}).`);
   }
 
-  return [...pool, ...FALLBACK_INSIGHTS];
+  return [...pool, ...GENERAL_TIPS];
 }
 
 /** How many insights the banner rotates through. */

@@ -16,12 +16,37 @@ export function PhoneVerifyModal({ open, onClose }: { open: boolean; onClose: ()
     </Modal>
   );
 }
+
+/**
+ * A six-digit code is texted to the saved number; the API checks the code (the browser never
+ * knows it), so a phone is verified only by someone who can read its messages.
+ */
 function PhoneVerification({ onClose }: { onClose: () => void }) {
   const phone = useProfileStore((state) => state.profile?.phone ?? '');
   const [sentTo, setSentTo] = useState<string | null>(null);
+  const [sentLabel, setSentLabel] = useState('');
   const [code, setCode] = useState('');
   const [error, setError] = useState('');
+  const [sending, setSending] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  async function sendCode() {
+    if (sending) return;
+    setSending(true);
+    setError('');
+    setCode('');
+    try {
+      const { sentTo: masked, expiresInMinutes } = await useProfileStore.getState().sendPhoneCode();
+      setSentTo(phone);
+      setSentLabel(`Code sent to ${masked}. It expires in ${expiresInMinutes} minutes.`);
+      toast.success('Verification code sent by SMS');
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : 'Could not send the code');
+    } finally {
+      setSending(false);
+    }
+  }
+
   return (
     <form
       className="space-y-4"
@@ -30,11 +55,11 @@ function PhoneVerification({ onClose }: { onClose: () => void }) {
         if (saving) return;
         if (!sentTo || sentTo !== phone)
           return setError('Send a code to your current saved number first.');
-        if (code !== '123456') return setError('Incorrect code. Please try again.');
+        if (!/^\d{6}$/.test(code)) return setError('Enter the six-digit code from the SMS.');
         setSaving(true);
         try {
-          // Verified by the API, which also records the approved check for the admin.
-          await useProfileStore.getState().verifyPhone(sentTo);
+          // The API checks the code and records the approved check for the admin.
+          await useProfileStore.getState().verifyPhone(sentTo, code);
           toast.success('Phone verified');
           onClose();
         } catch (cause) {
@@ -53,16 +78,13 @@ function PhoneVerification({ onClose }: { onClose: () => void }) {
         variant="ghost"
         icon={Send}
         mutates
+        loading={sending}
         disabled={!ghanaPhone.test(phone) || saving}
-        onClick={() => {
-          setSentTo(phone);
-          setCode('');
-          setError('');
-          toast.info('Demo code: 123456');
-        }}
+        onClick={() => void sendCode()}
       >
-        Send code
+        {sentTo ? 'Send a new code' : 'Send code'}
       </Button>
+      {sentLabel && <p className="text-text-mute text-xs">{sentLabel}</p>}
       <div>
         <label htmlFor="phone-code" className="text-text-dim text-xs font-semibold">
           Verification code
@@ -72,7 +94,7 @@ function PhoneVerification({ onClose }: { onClose: () => void }) {
           inputMode="numeric"
           autoComplete="one-time-code"
           maxLength={6}
-          placeholder="123456"
+          placeholder="••••••"
           value={code}
           onChange={(event) => {
             setCode(event.target.value.replace(/\D/g, ''));
@@ -89,7 +111,6 @@ function PhoneVerification({ onClose }: { onClose: () => void }) {
           </p>
         )}
       </div>
-      <p className="text-text-mute text-xs">Demo verification only. No SMS is sent.</p>
       <Button
         type="submit"
         icon={Check}

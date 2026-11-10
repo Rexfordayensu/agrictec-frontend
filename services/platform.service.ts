@@ -75,12 +75,24 @@ export const platformService = {
     });
   },
 
-  /** Phone and location pass at once; the API logs the approved check for the admin. */
-  async logInstantCheck(
-    _userId: string,
-    kind: 'phone' | 'location',
-    value: string,
-  ): Promise<VerificationRequest> {
-    return api<VerificationRequest>('/me/verifications', { method: 'POST', body: { kind, value } });
+  /** Texts a six-digit code to the phone number saved on the profile (valid 10 minutes). */
+  async sendPhoneCode(_userId: string): Promise<{ sentTo: string; expiresInMinutes: number }> {
+    return api('/me/phone/code', { method: 'POST' });
+  },
+
+  /** The phone passes once the code texted to it comes back (the API checks it). */
+  async verifyPhone(_userId: string, phone: string, code: string): Promise<VerificationRequest> {
+    return api<VerificationRequest>('/me/verifications', {
+      method: 'POST',
+      body: { kind: 'phone', value: phone, code },
+    });
+  },
+
+  /** Sends the saved farm pin ("lat, lng") for an admin's review; verified once approved. */
+  async submitLocation(_userId: string, value: string): Promise<VerificationRequest> {
+    return api<VerificationRequest>('/me/verifications', {
+      method: 'POST',
+      body: { kind: 'location', value },
+    });
   },
 };

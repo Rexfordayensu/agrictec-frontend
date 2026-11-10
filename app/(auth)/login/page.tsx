@@ -7,6 +7,6 @@ export const metadata: Metadata = { title: 'Sign in' };
 export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
   const { next, reason } = await searchParams;
   const known: LoginReason | undefined =
-    reason === 'suspended' || reason === 'deleted' ? reason : undefined;
+    reason === 'suspended' || reason === 'deleted' || reason === 'expired' ? reason : undefined;
   return <LoginForm next={safeNextPath(next)} reason={known} />;
 }

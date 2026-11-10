@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowRight, SlidersHorizontal, UserRound } from 'lucide-react';
 import { FarmerCombobox } from '@/components/admin/credit-rules/farmer-combobox';
 import { FACTOR_COLOR } from '@/components/admin/credit-rules/fields';
 import { DeltaBadge } from '@/components/admin/credit-rules/impact-preview';
 import { DEFAULT_CREDIT_CONFIG } from '@/lib/admin/defaults';
-import { FACTORS, type ScoringInput } from '@/lib/admin/credit-rules';
+import { FACTORS, type FarmerChoice, type ScoringInput } from '@/lib/admin/credit-rules';
+import { configService } from '@/services/admin/config.service';
 import { bandTone } from '@/lib/admin/score-tone';
 import {
   calculateCreditScore,
@@ -75,13 +76,26 @@ export function ScoreSimulator({
   draft,
   liveVersion,
 }: {
-  farmers: ScoringInput[];
+  /** The farmers to choose from (names and regions only). */
+  farmers: FarmerChoice[];
   live: CreditConfigInput;
   draft: CreditConfigInput;
   liveVersion: number;
 }) {
   const [mode, setMode] = useState<Mode>('farmer');
-  const [userId, setUserId] = useState<string | null>(farmers[0]?.userId ?? null);
+  const [chosenId, setUserId] = useState<string | null>(null);
+  const userId = chosenId ?? farmers[0]?.userId ?? null;
+  // Only the chosen farmer's records are fetched, when they are chosen.
+  const [loaded, setLoaded] = useState<ScoringInput | null>(null);
+  useEffect(() => {
+    if (!userId || mode !== 'farmer') return;
+    const controller = new AbortController();
+    configService.getScoringInput(userId, controller.signal).then(
+      (input) => setLoaded(input),
+      () => {},
+    );
+    return () => controller.abort();
+  }, [userId, mode]);
   const [counts, setCounts] = useState<ScoreCounts>({
     activeMonths: 4,
     records: 18,
@@ -92,7 +106,7 @@ export function ScoreSimulator({
   });
   const liveConfig = asConfig(live);
   const draftConfig = asConfig(draft);
-  const farmer = farmers.find((f) => f.userId === userId);
+  const farmer = loaded && loaded.userId === userId ? loaded : undefined;
 
   const score = (config: CreditConfig): CreditScoreBreakdown =>
     mode === 'farmer' && farmer

@@ -49,6 +49,10 @@ export function VerificationGrid() {
   const cardRequest = usePlatformStore((state) =>
     state.verifications.find((v) => v.kind === 'ghanaCard'),
   );
+  // The latest farm-pin request: pending until an admin checks it on the map.
+  const locationRequest = usePlatformStore((state) =>
+    state.verifications.find((v) => v.kind === 'location'),
+  );
   const [phoneOpen, setPhoneOpen] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
 
@@ -86,8 +90,20 @@ export function VerificationGrid() {
     {
       title: 'Farm Location',
       icon: MapPin,
-      state: profile?.verification.location ? 'verified' : 'todo',
-      detail: 'Locate your farm on the map.',
+      state: profile?.verification.location
+        ? 'verified'
+        : profile?.gps && locationRequest?.status === 'pending'
+          ? 'review'
+          : locationRequest?.status === 'rejected' && profile?.gps
+            ? 'rejected'
+            : 'todo',
+      detail: profile?.verification.location
+        ? 'Your farm location is verified.'
+        : profile?.gps && locationRequest?.status === 'pending'
+          ? 'Your farm pin is waiting for review.'
+          : locationRequest?.status === 'rejected' && profile?.gps
+            ? rejectionMessage(locationRequest)
+            : 'Locate your farm on the map.',
       action: {
         label: 'Set location',
         run: () => {
@@ -122,7 +138,10 @@ export function VerificationGrid() {
             <BadgeCheck size={18} aria-hidden="true" className="text-ink-green" />
             Identity & verification
           </CardTitle>
-          <CardSub>Build a more complete farmer profile. Identity checks are demo only.</CardSub>
+          <CardSub>
+            Build a more complete farmer profile. Your phone is checked by SMS; your farm location
+            and Ghana Card are reviewed by our team.
+          </CardSub>
         </div>
       </CardHeader>
       <div className="mb-5 grid grid-cols-1 gap-3 @xl:grid-cols-2 @4xl:grid-cols-4">

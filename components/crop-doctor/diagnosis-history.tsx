@@ -13,6 +13,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useFarmStore } from '@/store/farm-store';
+import { safeImageThumb } from '@/lib/profile-photo';
 import type { Diagnosis } from '@/types';
 
 type Filter = 'all' | 'issues' | 'healthy';
@@ -71,7 +72,7 @@ export function DiagnosisHistory() {
             <History size={17} aria-hidden="true" className="text-ink-green" />
             Recent Diagnoses
           </CardTitle>
-          <CardSub>Your last 10 saved scans, stored on this device</CardSub>
+          <CardSub>Your last 10 scans</CardSub>
         </div>
         {recent.length > 0 && (
           <div
@@ -113,9 +114,9 @@ export function DiagnosisHistory() {
               className="group border-border bg-glass overflow-hidden rounded-2xl border transition-transform duration-200 hover:-translate-y-0.5"
             >
               <div className="bg-bg-2 relative h-36">
-                {diagnosis.imageThumb ? (
+                {safeImageThumb(diagnosis.imageThumb) ? (
                   <Image
-                    src={diagnosis.imageThumb}
+                    src={safeImageThumb(diagnosis.imageThumb)!}
                     fill
                     sizes="(max-width: 640px) 100vw, 300px"
                     alt={`Saved ${diagnosis.crop ?? 'crop'} photo`}

@@ -29,19 +29,15 @@ export function GpsField() {
       async ({ coords }) => {
         try {
           if (!active.current || useProfileStore.getState().userId !== userId) return;
-          await useProfileStore.getState().save({
+          const saved = await useProfileStore.getState().save({
             gps: { lat: coords.latitude, lng: coords.longitude },
-            verification: { location: true },
           });
-          // Location checks stay instant; this only records the approved check for the admin.
-          void usePlatformStore
-            .getState()
-            .logInstantCheck(
-              'location',
-              `${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}`,
-            )
-            .catch(() => {});
-          if (active.current) toast.success('Farm location saved and verified');
+          // An admin reviews the pin on the map; it is verified once approved.
+          if (saved.gps)
+            await usePlatformStore
+              .getState()
+              .submitLocation(`${saved.gps.lat.toFixed(4)}, ${saved.gps.lng.toFixed(4)}`);
+          if (active.current) toast.success('Farm location saved and sent for review');
         } catch (error) {
           if (active.current)
             toast.error(error instanceof Error ? error.message : 'Could not save your location');

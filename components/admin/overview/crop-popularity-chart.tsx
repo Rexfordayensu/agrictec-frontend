@@ -3,15 +3,21 @@
 import Link from 'next/link';
 import { MeterBar, Panel } from '@/components/admin/overview/panel';
 import { CROP_TONES, CropIcon, cropFromName } from '@/components/ui/crop-icon';
-import { cropPopularity } from '@/lib/admin/analytics';
+import type { OverviewData } from '@/services/admin/overview.service';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
 
 /** Share of farmers growing each crop (a farmer can list several). Rows open those farmers. */
-export function CropPopularityChart({ className }: { className?: string }) {
-  const farmers = useAdminDataStore((s) => s.farmers);
-  const crops = cropPopularity(farmers);
-  const growers = farmers.filter((f) => !f.isGuest && f.profile.primaryCrops.length > 0).length;
+export function CropPopularityChart({
+  crops,
+  growers,
+  className,
+}: {
+  /** Computed by the API (GET /admin/overview). */
+  crops: OverviewData['cropPopularity'];
+  /** Farmers with at least one crop. */
+  growers: number;
+  className?: string;
+}) {
   const max = Math.max(1, crops[0]?.count ?? 0);
 
   return (

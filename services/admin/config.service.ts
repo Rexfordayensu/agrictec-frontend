@@ -1,7 +1,7 @@
 // Credit rules, feature flags and plans through the API. Reads are open (the farmer app uses
 // them); every save needs the permission, is validated and audited by the API.
 
-import type { ScoringInput } from '@/lib/admin/credit-rules';
+import type { Impact, ScoringInput } from '@/lib/admin/credit-rules';
 import { normalizePlans } from '@/lib/subscriptions/plans';
 import { api } from '@/services/api';
 import type { CreditConfig, CreditConfigInput, FeatureFlags, Plan } from '@/types/admin';
@@ -41,9 +41,16 @@ export const configService = {
     });
   },
 
-  /** What the score needs for every registered farmer, to preview a draft's impact. */
-  async getScoringInputs(): Promise<ScoringInput[]> {
-    return api<ScoringInput[]>('/admin/credit-config/scoring-inputs');
+  /** What the score needs for ONE farmer (the simulator tries the draft on them). */
+  async getScoringInput(userId: string, signal?: AbortSignal): Promise<ScoringInput> {
+    return api<ScoringInput>(`/admin/credit-config/scoring-inputs/${encodeURIComponent(userId)}`, {
+      signal,
+    });
+  },
+
+  /** Every farmer re-scored by the API under the live rules and the draft. Nothing is saved. */
+  async getImpact(draft: CreditConfigInput, signal?: AbortSignal): Promise<Impact> {
+    return api<Impact>('/admin/credit-config/impact', { method: 'POST', body: { draft }, signal });
   },
 
   async getFlags(): Promise<FeatureFlags> {

@@ -57,7 +57,13 @@ export function usePlatformSync(enabled: boolean): void {
 
       // The admin's read-only view has no farmer session of its own; only its data can change.
       if ((changes.account || changes.own) && !impersonation) {
-        const stored = await authService.getSession();
+        const { session: stored, expired } = await authService.sessionState();
+        if (expired) {
+          // Unused for too long: the API ended the session.
+          resetAllStores();
+          window.location.replace('/login?reason=expired');
+          return;
+        }
         if (!stored || stored.userId !== userId) {
           const status = await authService.accountStatus(userId).catch(() => 'deleted' as const);
           if (status === 'suspended' || status === 'deleted') {

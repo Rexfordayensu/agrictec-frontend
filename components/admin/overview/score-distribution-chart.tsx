@@ -3,12 +3,10 @@
 import Link from 'next/link';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
 import { useCan } from '@/hooks/admin/use-can';
-import { scoreDistribution } from '@/lib/admin/analytics';
-import { overviewKpis } from '@/lib/admin/overview';
+import type { OverviewData } from '@/services/admin/overview.service';
 import { bandTone } from '@/lib/admin/score-tone';
 import { scoreLabel } from '@/lib/calculations/credit-score';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import type { CreditConfig } from '@/types/admin';
 
 /**
@@ -17,16 +15,18 @@ import type { CreditConfig } from '@/types/admin';
  */
 export function ScoreDistributionChart({
   bands,
+  buckets,
+  averageScore,
   className,
 }: {
   bands?: CreditConfig['bands'];
+  /** Computed by the API (GET /admin/overview). */
+  buckets: OverviewData['scoreDistribution'];
+  averageScore: number;
   className?: string;
 }) {
-  const farmers = useAdminDataStore((s) => s.farmers);
   const canCredit = useCan('credit.configure');
-  const buckets = scoreDistribution(farmers, bands);
   const total = buckets.reduce((sum, b) => sum + b.count, 0);
-  const { averageScore } = overviewKpis(farmers, [], [], [], 'all');
   const averageBand = scoreLabel(averageScore, bands);
   const share = (count: number) => (total ? Math.round((count / total) * 100) : 0);
 

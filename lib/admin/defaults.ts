@@ -1,9 +1,8 @@
 // Default platform settings, subscription tiers and content used for a new installation.
 
 import { BASE_YIELD_PER_ACRE, CROP_TIPS, PRICE_PER_TONNE } from '@/constants/crops';
-import { LOAN_PARTNERS } from '@/constants/loan-partners';
 import { PLAN_CATALOG } from '@/lib/subscriptions/plans';
-import { MOCK_DIAGNOSES } from '@/data/mock/diagnoses';
+import { DISEASE_LIBRARY } from '@/constants/disease-library';
 import type { MarketPrice } from '@/types';
 import type {
   AssistantKnowledgeItem,
@@ -52,11 +51,8 @@ export const DEFAULT_FLAGS: FeatureFlags = {
 
 export const DEFAULT_PLANS: Plan[] = PLAN_CATALOG;
 
-export const DEFAULT_LENDERS: Lender[] = LOAN_PARTNERS.map((partner) => ({
-  ...partner,
-  active: true,
-  createdAt: BUILT_IN,
-}));
+/** No lenders until the API answers: admins add the real ones, with their real terms. */
+export const DEFAULT_LENDERS: Lender[] = [];
 
 /** No real prices have been sourced yet. Administrators add evidence-backed observations. */
 export const DEFAULT_MARKET_PRICES: MarketPrice[] = [];
@@ -82,7 +78,7 @@ export const DEFAULT_CROP_CONTENT: CropContent[] = (Object.keys(CROP_EMOJI) as K
   }),
 );
 
-export const DEFAULT_DIAGNOSES: DiagnosisContent[] = MOCK_DIAGNOSES.map((diagnosis, index) => ({
+export const DEFAULT_DIAGNOSES: DiagnosisContent[] = DISEASE_LIBRARY.map((diagnosis, index) => ({
   ...diagnosis,
   id: `diagnosis-${String(index + 1).padStart(2, '0')}`,
   active: true,

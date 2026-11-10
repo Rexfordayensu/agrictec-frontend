@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { SettingsCard, TypeToConfirm } from '@/components/admin/settings/settings-card';
 import { Button } from '@/components/ui/button';
 import { Modal } from '@/components/ui/modal';
+import { PasswordInput } from '@/components/auth/password-input';
 import { RESET_CONFIRMATION, backupService } from '@/services/admin/backup.service';
 
 /**
@@ -23,12 +24,13 @@ export function DemoDataCard({
   const id = useId();
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState('');
+  const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
 
   async function reset() {
     setBusy(true);
     try {
-      const { farmers } = await backupService.resetDemo(typed);
+      const { farmers } = await backupService.resetDemo(typed, password);
       toast.success('Demo world reset', {
         description: `${farmers} farmer accounts are in place.`,
       });
@@ -62,6 +64,7 @@ export function DemoDataCard({
           icon={RefreshCcw}
           onClick={() => {
             setTyped('');
+            setPassword('');
             setOpen(true);
           }}
           className="border-border border"
@@ -85,7 +88,7 @@ export function DemoDataCard({
                 variant="danger"
                 icon={RefreshCcw}
                 loading={busy}
-                disabled={typed !== RESET_CONFIRMATION}
+                disabled={typed !== RESET_CONFIRMATION || !password}
                 onClick={() => void reset()}
               >
                 Reset demo world
@@ -93,7 +96,19 @@ export function DemoDataCard({
             </>
           }
         >
-          <TypeToConfirm id={id} word={RESET_CONFIRMATION} value={typed} onChange={setTyped} />
+          <div className="space-y-4">
+            <TypeToConfirm id={id} word={RESET_CONFIRMATION} value={typed} onChange={setTyped} />
+            <label htmlFor={`${id}-password`} className="block">
+              <span className="text-text-dim mb-1.5 block text-sm">Your password</span>
+              <PasswordInput
+                id={`${id}-password`}
+                autoComplete="current-password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </label>
+            <p className="text-text-mute text-xs">Not available on the live platform.</p>
+          </div>
         </Modal>
       )}
     </SettingsCard>

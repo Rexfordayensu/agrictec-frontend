@@ -81,18 +81,15 @@ export function FarmDetailsForm() {
     try {
       const pinChanged =
         'gps' in patch && JSON.stringify(patch.gps) !== JSON.stringify(profile.gps);
-      await save({
-        ...patch,
-        // A pin verifies the farm location; removing it un-verifies it.
-        ...(pinChanged && { verification: { location: Boolean(patch.gps) } }),
-      });
-      if (pinChanged && patch.gps && !isReadOnly()) {
-        void usePlatformStore
+      // A moved or removed pin loses its verification (the API decides that, not this form).
+      const saved = await save(patch);
+      if (pinChanged && saved.gps && !isReadOnly()) {
+        // An admin reviews the new pin on the map; it is verified once approved.
+        await usePlatformStore
           .getState()
-          .logInstantCheck('location', `${patch.gps.lat.toFixed(4)}, ${patch.gps.lng.toFixed(4)}`)
-          .catch(() => {});
-      }
-      toast.success('Farm details updated');
+          .submitLocation(`${saved.gps.lat.toFixed(4)}, ${saved.gps.lng.toFixed(4)}`);
+        toast.success('Farm details updated. Your location was sent for review.');
+      } else toast.success('Farm details updated');
       setEditing(null);
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'Could not update your farm');

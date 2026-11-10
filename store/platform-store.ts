@@ -33,7 +33,8 @@ interface PlatformState extends PlatformSnapshot {
   refresh: () => Promise<void>;
   dismissAnnouncement: (id: string) => Promise<void>;
   submitGhanaCard: (cardNumber: string) => Promise<VerificationRequest>;
-  logInstantCheck: (kind: 'phone' | 'location', value: string) => Promise<void>;
+  /** Sends the saved farm pin for an admin's review (pending until approved). */
+  submitLocation: (value: string) => Promise<void>;
 }
 
 /**
@@ -42,7 +43,7 @@ interface PlatformState extends PlatformSnapshot {
  */
 export const initialPlatformState = (): Omit<
   PlatformState,
-  'loadFlags' | 'load' | 'refresh' | 'dismissAnnouncement' | 'submitGhanaCard' | 'logInstantCheck'
+  'loadFlags' | 'load' | 'refresh' | 'dismissAnnouncement' | 'submitGhanaCard' | 'submitLocation'
 > => ({
   userId: null,
   status: 'idle',
@@ -144,14 +145,16 @@ export const usePlatformStore = create<PlatformState>()((set, get) => ({
     return request;
   },
 
-  logInstantCheck: async (kind, value) => {
+  submitLocation: async (value) => {
     assertWritable();
     const userId = currentUser();
-    const request = await platformService.logInstantCheck(userId, kind, value);
+    const request = await platformService.submitLocation(userId, value);
     if (get().userId === userId) {
-      set((state) => ({ verifications: [request, ...state.verifications] }));
+      // A newer pin replaces the one waiting for review.
+      set((state) => ({
+        verifications: [request, ...state.verifications.filter((v) => v.id !== request.id)],
+      }));
     }
-    // The API marked the check on the profile: show it.
     const profiles = useProfileStore.getState();
     if (profiles.userId === userId) await profiles.load(userId, { silent: true });
   },

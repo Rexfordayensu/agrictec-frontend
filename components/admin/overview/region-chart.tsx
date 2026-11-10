@@ -4,18 +4,22 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { ChevronDown } from 'lucide-react';
 import { MeterBar, Panel } from '@/components/admin/overview/panel';
-import { farmersByRegion } from '@/lib/admin/analytics';
+import type { OverviewData } from '@/services/admin/overview.service';
 import { regionHref } from '@/lib/admin/overview';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
 
 const TOP = 7;
 
 /** Farmers per region, most first. Each row opens the farmers list for that region. */
-export function RegionChart({ className }: { className?: string }) {
-  const farmers = useAdminDataStore((s) => s.farmers);
+export function RegionChart({
+  regions,
+  className,
+}: {
+  /** Computed by the API (GET /admin/overview). */
+  regions: OverviewData['farmersByRegion'];
+  className?: string;
+}) {
   const [showAll, setShowAll] = useState(false);
-  const regions = farmersByRegion(farmers);
   const total = regions.reduce((sum, r) => sum + r.count, 0);
   const max = Math.max(1, regions[0]?.count ?? 0);
   const covered = regions.filter((r) => r.count > 0).length;

@@ -1,5 +1,5 @@
-// To use a real AI later: replace the body of getAssistantReply with a fetch to your API route.
-// Keep the same input/output types so no component needs to change.
+// The admin console's preview of the assistant's knowledge base (the farmer app asks the API,
+// POST /me/assistant, which uses the same rules and Claude). It previews unsaved edits.
 //
 // Replies come from the admin's knowledge items (content.service). The router walks the active
 // items by priority and uses the first whose keywords match, then fills in placeholders with the
@@ -14,7 +14,6 @@ import { LOANS_LOCKED_HINT } from '@/lib/calculations/loan';
 import { formatGHS } from '@/lib/format';
 import { formatMarketAmount, unitLabel } from '@/lib/market/evidence';
 import { marketService } from '@/services/market.service';
-import { delay } from '@/services/storage';
 import type { AssistantReply, CreditScoreBreakdown, GhanaCardStatus } from '@/types';
 import type { AssistantKnowledgeItem, CreditConfig, CropContent } from '@/types/admin';
 
@@ -305,6 +304,5 @@ export async function getAssistantReply(
   ctx: AssistantContext,
   content: AssistantContent = {},
 ): Promise<AssistantReply> {
-  await delay(700);
   return (await resolveAssistantReply(message, ctx, content)).reply;
 }

@@ -28,8 +28,6 @@ import { Select } from '@/components/ui/select';
 import { CROP_TONES, CropIcon } from '@/components/ui/crop-icon';
 import { CROPS } from '@/constants/crops';
 import { aiService } from '@/services/ai.service';
-import { todayISO } from '@/lib/format';
-import { compressImage } from '@/lib/image/compress';
 import { cn } from '@/lib/utils';
 import { useChatStore } from '@/store/chat-store';
 import { useFarmStore } from '@/store/farm-store';
@@ -56,7 +54,7 @@ const CHECKS: { icon: LucideIcon; title: string; text: string }[] = [
 
 export function CropDoctorView() {
   const { snapshot } = useSubscription();
-  // Claude reads the photo when the server has a key; otherwise the demonstration results.
+  // Claude reads the photo; without a key on the server the crop doctor is unavailable.
   const aiOn = usePlatformStore((s) => s.ai.mode === 'claude');
   const noCredits = snapshot?.creditsRemaining !== null && (snapshot?.creditsRemaining ?? 0) < 5;
   const router = useRouter();
@@ -95,12 +93,18 @@ export function CropDoctorView() {
     try {
       // The API checks the plan, scans, and spends the credits only when it succeeds.
       useSubscriptionStore.getState().assertFeature('cropDoctor');
-      const { result: diagnosis, creditsRemaining } = await aiService.diagnose(
-        image,
-        selectedCrop || undefined,
-      );
+      const {
+        result: diagnosis,
+        creditsRemaining,
+        diagnosis: stored,
+      } = await aiService.diagnose(image, selectedCrop || undefined);
       useSubscriptionStore.getState().applyCredits(creditsRemaining);
-      if (request.current === version) setResult(diagnosis);
+      // The API saved it to the history (with a thumbnail it made itself).
+      if (stored) useFarmStore.getState().receiveDiagnosis(stored);
+      if (request.current === version) {
+        setResult(diagnosis);
+        setSaved(Boolean(stored));
+      }
     } catch (error) {
       if (request.current === version)
         toast.error(
@@ -113,6 +117,7 @@ export function CropDoctorView() {
     }
   }
 
+  /** Scans are saved by the API as they are made; this only reloads the history if needed. */
   async function save() {
     if (!file || !result || saved || saveLock.current) return;
     saveLock.current = true;
@@ -120,10 +125,8 @@ export function CropDoctorView() {
     const version = request.current;
     const userId = useFarmStore.getState().userId;
     try {
-      const imageThumb = await compressImage(file);
-      if (request.current !== version || !userId || useFarmStore.getState().userId !== userId)
-        return;
-      await useFarmStore.getState().addDiagnosis({ ...result, date: todayISO(), imageThumb });
+      if (!userId) return;
+      await useFarmStore.getState().load(userId, { silent: true });
       if (request.current === version) {
         setSaved(true);
         toast.success('Diagnosis saved');
@@ -133,7 +136,7 @@ export function CropDoctorView() {
         toast.error(
           error instanceof Error
             ? error.message
-            : 'Could not save the diagnosis. Please try again.',
+            : 'Could not load your saved diagnoses. Please try again.',
         );
     } finally {
       saveLock.current = false;
@@ -234,7 +237,7 @@ export function CropDoctorView() {
           ) : (
             <UploadZone
               onFile={(image) => void analyze(image, crop)}
-              disabled={saving || noCredits}
+              disabled={saving || noCredits || !aiOn}
             />
           )}
 
@@ -243,12 +246,10 @@ export function CropDoctorView() {
               <ShieldCheck size={13} aria-hidden="true" className="text-ink-green shrink-0" />
               {aiOn
                 ? 'Your photo is sent securely for analysis and is not kept there.'
-                : 'Your photo stays on this device.'}
+                : 'The crop doctor is not available right now. Please check back later.'}
             </p>
             <p>
-              {aiOn
-                ? 'AI can be wrong. Confirm with your extension officer.'
-                : 'Results are simulated. Confirm with your extension officer.'}
+              AI can be wrong. Confirm with your extension officer.
             </p>
           </div>
         </Card>
@@ -266,7 +267,7 @@ export function CropDoctorView() {
           </CardHeader>
           <div aria-live="polite">
             {analyzing ? (
-              <AnalyzingState ai={aiOn} />
+              <AnalyzingState />
             ) : result ? (
               <DiagnosisCard
                 result={result}

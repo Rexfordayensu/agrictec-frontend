@@ -1,7 +1,7 @@
 // Announcements through the API (announcements.send; every change audited). The pure helpers
 // below are what the farmer's dashboard banner uses on GET /platform's live announcements.
 
-import { inAudience } from '@/lib/admin/announcements';
+import { inAudience, type AudienceMember } from '@/lib/admin/announcements';
 import { api } from '@/services/api';
 import type { Profile } from '@/types';
 import type { Announcement } from '@/types/admin';
@@ -39,6 +39,14 @@ export const announcementsService = {
   /** Newest first. */
   async list(): Promise<Announcement[]> {
     return api<Announcement[]>('/admin/announcements');
+  },
+
+  /**
+   * Every registered farmer's region and crops (no names or contact details), to show how many
+   * farmers an audience reaches.
+   */
+  async audience(): Promise<AudienceMember[]> {
+    return api<AudienceMember[]>('/admin/announcements/audience');
   },
 
   /** A critical announcement to every farmer needs confirmedCritical (the form asks first). */

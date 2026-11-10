@@ -19,33 +19,61 @@ const ONBOARDING = '/onboarding';
 
 const isAdminPath = (pathname: string) => pathname === '/admin' || pathname.startsWith('/admin/');
 
-// The API rate-limits per visitor. Behind Vercel it sees Vercel's shared address, and the
-// visitor's own X-Forwarded-For entries can be made up, so this app vouches for the address it
-// served, with a secret only it and the API know (FRONTEND_PROXY_SECRET on both).
+// The API rate-limits per visitor (and locks admin sign-ins per visitor). Behind Vercel it sees
+// Vercel's shared address, and a visitor's own X-Forwarded-For entries can be made up, so this
+// app vouches for the address it served, with a secret only it and the API know
+// (FRONTEND_PROXY_SECRET on both).
 const CLIENT_IP_HEADER = 'x-agrictec-client-ip';
 const PROXY_SECRET_HEADER = 'x-agrictec-proxy-secret';
+
+/**
+ * Where the visitor's real address comes from:
+ * - "vercel": Vercel's edge sets x-real-ip itself, overwriting whatever the visitor sent.
+ * - "forwarded-for": only behind a proxy that appends the address it saw to X-Forwarded-For
+ *   (deploy/: Caddy). Opt in with TRUST_FORWARDED_FOR=1, and only when that proxy is the ONLY way
+ *   in: if visitors can reach this app directly, they write that header themselves.
+ * - "none": nothing trustworthy, so nothing is vouched for (the API then uses what it sees).
+ */
+export type AddressSource = 'vercel' | 'forwarded-for' | 'none';
+
+export function addressSource(env: Record<string, string | undefined> = process.env): AddressSource {
+  if (env.VERCEL) return 'vercel';
+  return env.TRUST_FORWARDED_FOR === '1' ? 'forwarded-for' : 'none';
+}
+
+/** A plain IPv4 or IPv6 address, or null (never vouch for anything else). */
+export function plainAddress(value: string | null | undefined): string | null {
+  const text = value?.trim() ?? '';
+  if (/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/.test(text)) return text;
+  if (text.length <= 45 && text.includes(':') && /^[0-9a-f:.]+$/i.test(text)) return text;
+  return null;
+}
 
 /** Exported for tests. */
 export function apiRequestHeaders(
   incoming: Headers,
   secret = process.env.FRONTEND_PROXY_SECRET,
-  onVercel = Boolean(process.env.VERCEL),
+  source: AddressSource = addressSource(),
 ): Headers {
   const headers = new Headers(incoming);
   // Never pass on a visitor's attempt to vouch for themselves.
   headers.delete(CLIENT_IP_HEADER);
   headers.delete(PROXY_SECRET_HEADER);
-  // Vercel sets x-real-ip to the address it served. Elsewhere (deploy/: Caddy in front) the
-  // last X-Forwarded-For entry is the one the proxy appended; a visitor's x-real-ip isn't.
-  const visitor = onVercel
-    ? incoming.get('x-real-ip')?.trim()
-    : incoming.get('x-forwarded-for')?.split(',').at(-1)?.trim();
+  const visitor =
+    source === 'vercel'
+      ? plainAddress(incoming.get('x-real-ip'))
+      : source === 'forwarded-for'
+        ? plainAddress(incoming.get('x-forwarded-for')?.split(',').at(-1))
+        : null;
   if (secret && visitor) {
     headers.set(CLIENT_IP_HEADER, visitor);
     headers.set(PROXY_SECRET_HEADER, secret);
   }
   return headers;
 }
+
+/** A "View as farmer" link carries a one-time token: only an admin's browser may use it. */
+const IMPERSONATE_PARAM = 'impersonate';
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -81,11 +109,19 @@ export function proxy(request: NextRequest) {
   }
 
   // ---- Farmer app ----
+  // A "View as farmer" token in anyone else's link is dropped before the page runs, so a crafted
+  // link can't disturb a farmer's tab (the API would refuse the token anyway).
+  if (!hasAdmin && request.nextUrl.searchParams.has(IMPERSONATE_PARAM)) {
+    const url = request.nextUrl.clone();
+    url.searchParams.delete(IMPERSONATE_PARAM);
+    return NextResponse.redirect(url);
+  }
   // An admin viewing as a farmer has no farmer session: let the read-only view through. The
   // first request carries the one-time ?impersonate= token; later ones carry the cookie.
   const viewingAsFarmer =
     hasAdmin &&
-    (request.cookies.has(IMPERSONATION_COOKIE) || request.nextUrl.searchParams.has('impersonate'));
+    (request.cookies.has(IMPERSONATION_COOKIE) ||
+      request.nextUrl.searchParams.has(IMPERSONATE_PARAM));
   const hasFarmerSession = request.cookies.has(SESSION_COOKIE);
   const hasSession = hasFarmerSession || viewingAsFarmer;
   const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));

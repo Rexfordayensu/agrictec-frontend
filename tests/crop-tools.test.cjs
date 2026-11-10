@@ -32,7 +32,7 @@ for (const extension of ['.ts', '.tsx']) {
 
 const { createElement } = require('react');
 const { renderToStaticMarkup } = require('react-dom/server');
-const { diagnoseCrop } = require('../lib/ai/crop-diagnosis.ts');
+const { aiService } = require('../services/ai.service.ts');
 const { captureCameraFrame, openCropCamera, stopCameraStream } = require('../lib/image/camera.ts');
 const {
   compressImage,
@@ -75,11 +75,12 @@ test('upload validation rejects PDFs, unsupported images and 15MB photos with ex
   for (const type of ['image/png', 'image/jpeg', 'image/webp']) {
     assert.equal(imageValidationError({ type, size: MAX_IMAGE_BYTES }), null);
   }
-  await assert.rejects(diagnoseCrop(new File(['pdf'], 'leaf.pdf', { type: 'application/pdf' })), {
+  // Refused before anything is sent to the API.
+  await assert.rejects(aiService.diagnose(new File(['pdf'], 'leaf.pdf', { type: 'application/pdf' })), {
     message: unsupported,
   });
   await assert.rejects(
-    diagnoseCrop({ name: 'large.jpg', type: 'image/jpeg', size: 15 * 1024 * 1024 }),
+    aiService.diagnose({ name: 'large.jpg', type: 'image/jpeg', size: 15 * 1024 * 1024 }),
     { message: oversized },
   );
 });
@@ -183,27 +184,6 @@ test('camera capture rejects missing frames, unavailable canvas, and failed enco
     );
   } finally {
     global.document = original;
-  }
-});
-
-test('repeat photos yield identical mock diagnoses and selected crops get relevant samples', async () => {
-  const [first, second, maize, cassava, cocoa] = await Promise.all([
-    diagnoseCrop(leaf()),
-    diagnoseCrop(leaf()),
-    diagnoseCrop(leaf(), 'Maize'),
-    diagnoseCrop(leaf(), 'Cassava'),
-    diagnoseCrop(leaf(), 'Cocoa'),
-  ]);
-  assert.deepEqual(first, second);
-  for (const [result, crop, diseases] of [
-    [maize, 'Maize', ['Fall Armyworm', 'Maize Lethal Necrosis', 'Healthy']],
-    [cassava, 'Cassava', ['Cassava Mosaic Disease', 'Healthy']],
-    [cocoa, 'Cocoa', ['Cocoa Black Pod', 'Healthy']],
-  ]) {
-    assert.equal(result.crop, crop);
-    assert.ok(diseases.includes(result.disease));
-    assert.ok(result.confidence >= 0 && result.confidence <= 100);
-    assert.ok(result.treatment.length > 0);
   }
 });
 

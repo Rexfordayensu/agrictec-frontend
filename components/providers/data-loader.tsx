@@ -76,7 +76,10 @@ export function DataLoader({ children }: { children: ReactNode }) {
 
       const session = await useAuthStore.getState().init();
       if (!session) {
-        return { redirect: `/login?next=${encodeURIComponent(window.location.pathname)}` };
+        const next = encodeURIComponent(window.location.pathname);
+        // Unused for a week: say so on the sign-in page.
+        const reason = useAuthStore.getState().sessionExpired ? 'reason=expired&' : '';
+        return { redirect: `/login?${reason}next=${next}` };
       }
       // An admin may have suspended or deleted the account since this session started.
       const status = await authService.checkAccount(session.userId);

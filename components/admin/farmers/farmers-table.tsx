@@ -36,21 +36,16 @@ import { TagEditor } from '@/components/admin/farmers/tag-editor';
 import { useViewAsFarmer } from '@/components/admin/farmers/use-view-as-farmer';
 import { Button } from '@/components/ui/button';
 import { CropIcon, cropFromName } from '@/components/ui/crop-icon';
-import { useAdminTable } from '@/hooks/admin/use-admin-table';
+import { useServerTable } from '@/hooks/admin/use-server-table';
 import { useAdminRole } from '@/hooks/admin/use-can';
 import { usePlatformStatus } from '@/hooks/admin/use-platform-status';
-import {
-  farmerAbilities,
-  farmerFilterFns,
-  FARMER_SEARCH_KEYS,
-  FARMER_SORT,
-} from '@/lib/admin/farmer-list';
+import { farmerAbilities, FARMER_FILTERS } from '@/lib/admin/farmer-list';
 import { bandTone, MAX_SCORE } from '@/lib/admin/score-tone';
 import { scoreLabel } from '@/lib/calculations/credit-score';
 import { downloadFile } from '@/lib/export/csv';
 import { formatCompactGHS, formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { farmersService } from '@/services/admin/farmers.service';
+import { farmersService, type FarmerPage } from '@/services/admin/farmers.service';
 import { riskService } from '@/services/admin/risk.service';
 import { RiskTag } from '@/components/admin/risk/risk-tag';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
@@ -194,9 +189,10 @@ export function FarmersTable() {
   const router = useRouter();
   const role = useAdminRole();
   const abilities = farmerAbilities(role);
-  const farmers = useAdminDataStore((s) => s.farmers);
-  const status = useAdminDataStore((s) => s.status);
   const refresh = useAdminDataStore((s) => s.refresh);
+  const syncVersion = useAdminDataStore((s) => s.syncVersion);
+  // Reloads the page on screen after a change made here.
+  const [edits, setEdits] = useState(0);
   const viewAsFarmer = useViewAsFarmer();
   const bands = usePlatformStatus()?.creditConfig.bands;
   const [quickView, setQuickView] = useState<FarmerAccount | null>(null);
@@ -204,24 +200,25 @@ export function FarmersTable() {
   const [scanning, setScanning] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  // Guests are a shared demo account, not farmers, so the list leaves them out.
-  const people = farmers.filter((f) => !f.isGuest);
-  const table = useAdminTable(people, {
+  // The API searches, filters, sorts and pages (guests left out): this browser only ever holds
+  // the page on screen, never every farmer's details.
+  const { table, data, loading, error, request } = useServerTable<FarmerAccount, FarmerPage>({
     getRowId: (f) => f.userId,
-    searchKeys: FARMER_SEARCH_KEYS,
-    filters: farmerFilterFns(bands),
-    sortAccessors: FARMER_SORT,
+    filterNames: FARMER_FILTERS,
+    fetchPage: (params, signal) => farmersService.page(params, signal),
     initialSort: { key: 'joined', dir: 'desc' },
+    reloadKey: `${syncVersion}:${edits}`,
   });
 
-  const regions = [...new Set(people.map((f) => f.profile.region))].sort();
-  const crops = [...new Set(people.flatMap((f) => f.profile.primaryCrops))].sort();
-  const tags = [...new Set(people.flatMap((f) => f.tags))].sort();
+  const regions = data?.facets.regions ?? [];
+  const crops = data?.facets.crops ?? [];
+  const tags = data?.facets.tags ?? [];
 
   async function afterChange() {
     setDialog(null);
     setQuickView(null);
     table.clearSelection();
+    setEdits((n) => n + 1);
     await refresh();
   }
 
@@ -234,6 +231,7 @@ export function FarmersTable() {
           ? `${found.length} new risk flag${found.length === 1 ? '' : 's'} found`
           : 'No new risks found',
       );
+      setEdits((n) => n + 1);
       await refresh();
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'Could not run the scan');
@@ -245,7 +243,10 @@ export function FarmersTable() {
   async function exportFiltered() {
     setExporting(true);
     try {
-      const ids = table.filteredRows.map((f) => f.userId);
+      // Every farmer matching the search and filters, not just this page.
+      const { page: _page, pageSize: _size, ...filters } = request;
+      void [_page, _size];
+      const ids = (await farmersService.page({ ...filters, ids: '1', pageSize: '1' })).ids ?? [];
       downloadFile(await farmersService.exportCSV(ids), csvFileName('filtered'));
       toast.success(`Exported ${ids.length} farmer${ids.length === 1 ? '' : 's'}`);
     } catch (cause) {
@@ -424,7 +425,18 @@ export function FarmersTable() {
         }
       />
 
-      <FarmersFilters table={table} farmers={people} regions={regions} crops={crops} tags={tags} />
+      <FarmersFilters
+        table={table}
+        counts={data?.summary}
+        regions={regions}
+        crops={crops}
+        tags={tags}
+      />
+      {error && (
+        <p role="alert" className="text-ink-red text-sm font-semibold">
+          {error}
+        </p>
+      )}
 
       <AdminTable
         table={table}
@@ -434,7 +446,7 @@ export function FarmersTable() {
         selectable={abilities.select}
         rowLabel={nameOf}
         onRowClick={setQuickView}
-        loading={status === 'loading' && people.length === 0}
+        loading={loading && !data}
         mobileCard={mobileCard}
       />
 

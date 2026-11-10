@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Clock, IdCard, LockKeyhole, ShieldCheck, TriangleAlert } from 'lucide-react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
@@ -13,8 +12,8 @@ import { RadioCards } from '@/components/onboarding/radio-cards';
 import { StepHeader, type StepProps } from '@/components/onboarding/wizard-nav';
 import { FormField, fieldErrorId, fieldHintId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { hashGhanaCard } from '@/lib/admin/card-hash';
-import { formatGhanaCard, maskFullGhanaCard } from '@/lib/profile';
+import { heldGhanaCard } from '@/lib/onboarding-card';
+import { formatGhanaCard } from '@/lib/profile';
 import type { GhanaCardInfo } from '@/types';
 
 /** The "later" warning, also shown on the review screen. */
@@ -34,8 +33,9 @@ export function GhanaCardLaterWarning() {
 }
 
 /**
- * Step 6 (optional): a Ghana Card, or "later". Only the masked number and a SHA-256 hash leave
- * this step; the full number stays in this form's memory and is never saved.
+ * Step 6 (optional): a Ghana Card, or "later". Only the masked number goes into the draft; the
+ * full number stays in this tab's memory until the setup is sent, and the API masks and
+ * fingerprints it (it is never stored).
  */
 export function StepGhanaCard({
   formId,
@@ -55,7 +55,6 @@ export function StepGhanaCard({
   });
   const choice = useWatch({ control, name: 'choice' });
   const savedMasked = useWatch({ control, name: 'savedMasked' });
-  const [hashing, setHashing] = useState(false);
 
   async function submit(values: GhanaCardStepValues) {
     if (values.choice === 'later') {
@@ -66,23 +65,13 @@ export function StepGhanaCard({
       await onSubmit({ ghanaCard: data.ghanaCard as GhanaCardInfo });
       return;
     }
-    setHashing(true);
-    try {
-      // The admin console exists, so a new card is "pending" until an admin approves it.
-      await onSubmit({
-        ghanaCard: {
-          status: 'pending',
-          masked: maskFullGhanaCard(values.cardNumber),
-          hash: await hashGhanaCard(values.cardNumber),
-        },
-      });
-    } finally {
-      setHashing(false);
-    }
+    // A new card is "pending" until an admin approves it.
+    const masked = heldGhanaCard.hold(values.cardNumber);
+    await onSubmit({ ghanaCard: { status: 'pending', masked } });
   }
 
   return (
-    <form id={formId} noValidate aria-busy={hashing} onSubmit={handleSubmit(submit)}>
+    <form id={formId} noValidate onSubmit={handleSubmit(submit)}>
       <StepHeader
         icon={IdCard}
         title="Verify your Ghana Card"

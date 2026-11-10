@@ -9,8 +9,8 @@ Clone the two repositories side by side. The deployment in `deploy/` expects thi
 
 ```
 agrictec/
-  agrictec-frontend/   this repository: the Next.js app and deploy/
-  agrictec-backend/    the API
+  frontend/   this repository: the Next.js app and deploy/
+  backend/    the API
 ```
 
 ## Getting started
@@ -18,7 +18,7 @@ agrictec/
 Start the API first (the backend repository's README has the details):
 
 ```bash
-cd ../agrictec-backend
+cd ../backend
 python -m venv .venv && .venv\Scripts\activate   # macOS/Linux: source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
 copy .env.example .env      # set DATABASE_URL (your PostgreSQL), and SEED_DEMO_DATA=true for the demo
@@ -149,7 +149,9 @@ backend's `.env`. Until then:
 - plans use demo payments
 - notifications appear only in the app
 - the assistant answers from the knowledge base
-- the crop doctor shows demonstration results
+- the crop doctor is unavailable (it never makes up a diagnosis)
+- phones can't be verified (the code is texted by SMS; while developing, the API logs it)
+- there are no lenders until an admin adds the real ones (Lenders page)
 
 Password-reset codes and scheduled email reports need email, and SMS for codes by phone. See "Outside services" in the backend's README.
 

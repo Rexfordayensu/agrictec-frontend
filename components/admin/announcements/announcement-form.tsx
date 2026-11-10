@@ -28,7 +28,8 @@ import {
 import { cn } from '@/lib/utils';
 import type { AnnouncementInput } from '@/services/admin/announcements.service';
 import type { Crop } from '@/types';
-import type { Announcement, FarmerAccount } from '@/types/admin';
+import type { AudienceMember } from '@/lib/admin/announcements';
+import type { Announcement } from '@/types/admin';
 
 /** What the form opens with: a new announcement (optionally pre-filled), an edit or a copy. */
 export type AnnouncementFormMode =
@@ -216,7 +217,7 @@ export function AnnouncementForm({
   onSubmit,
 }: {
   mode: AnnouncementFormMode | null;
-  farmers: FarmerAccount[];
+  farmers: AudienceMember[];
   onClose: () => void;
   /** Resolves true when saved (the form then closes). */
   onSubmit: (input: AnnouncementInput, confirmedCritical: boolean) => Promise<boolean>;
@@ -233,7 +234,7 @@ function Form({
   onSubmit,
 }: {
   mode: AnnouncementFormMode;
-  farmers: FarmerAccount[];
+  farmers: AudienceMember[];
   onClose: () => void;
   onSubmit: (input: AnnouncementInput, confirmedCritical: boolean) => Promise<boolean>;
 }) {

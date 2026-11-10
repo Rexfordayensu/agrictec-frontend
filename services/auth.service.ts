@@ -88,10 +88,16 @@ export const authService = {
 
   /** The signed-in farmer, or null (signed out, suspended or deleted). */
   async getSession(): Promise<Session | null> {
+    return (await authService.sessionState()).session;
+  },
+
+  /** The session, and whether it just ended because it went unused for too long. */
+  async sessionState(): Promise<{ session: Session | null; expired: boolean }> {
     try {
-      return await api<Session>('/auth/session');
+      return { session: await api<Session>('/auth/session'), expired: false };
     } catch (error) {
-      if (error instanceof ApiError && (error.status === 401 || error.status === 403)) return null;
+      if (error instanceof ApiError && (error.status === 401 || error.status === 403))
+        return { session: null, expired: error.code === 'session_expired' };
       throw error;
     }
   },

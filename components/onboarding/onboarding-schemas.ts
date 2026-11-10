@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { CROPS } from '@/constants/crops';
 import { isConstituencyOf } from '@/constants/constituencies';
 import { REGIONS } from '@/constants/regions';
+import { heldGhanaCard } from '@/lib/onboarding-card';
 import { FARM_TYPES, SIZE_UNITS, fromAcres, ghanaCard, toAcres } from '@/lib/profile';
 import type { Crop, FarmType, Profile, SizeUnit } from '@/types';
 
@@ -234,17 +235,25 @@ export const farmTypePatch = (v: FarmTypeValues): Data => ({
     v.farmType === 'Out-grower' ? v.outgrowerCompany.trim() || undefined : undefined,
 });
 
-export const ghanaCardDefaults = (data: Data): GhanaCardStepValues => ({
-  choice:
-    data.ghanaCard?.status === 'not_provided'
-      ? 'later'
-      : data.ghanaCard?.masked
-        ? 'have'
-        : ('' as GhanaCardStepValues['choice']),
-  cardNumber: '',
-  confirmOwner: false,
-  savedMasked: data.ghanaCard?.status === 'not_provided' ? '' : (data.ghanaCard?.masked ?? ''),
-});
+/**
+ * A masked card from the draft is kept only while its full number is still in this tab's memory
+ * (lib/onboarding-card.ts): after a reload the number must be typed again, since only the API
+ * may fingerprint it.
+ */
+export const ghanaCardDefaults = (data: Data): GhanaCardStepValues => {
+  const masked = data.ghanaCard?.status === 'not_provided' ? '' : (data.ghanaCard?.masked ?? '');
+  return {
+    choice:
+      data.ghanaCard?.status === 'not_provided'
+        ? 'later'
+        : masked
+          ? 'have'
+          : ('' as GhanaCardStepValues['choice']),
+    cardNumber: '',
+    confirmOwner: false,
+    savedMasked: heldGhanaCard.numberFor(masked) ? masked : '',
+  };
+};
 
 export const STEPS = [
   { id: 'farm-name', label: 'Farm name' },

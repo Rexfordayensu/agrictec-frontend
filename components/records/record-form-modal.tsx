@@ -204,7 +204,12 @@ function RecordForm({
         </FormField>
       </div>
 
-      <FormField label="Date" htmlFor="record-date" error={errors.date?.message}>
+      <FormField
+        label="Date"
+        htmlFor="record-date"
+        error={errors.date?.message}
+        hint="Entries added within 45 days of their date build your credit score."
+      >
         <Input
           id="record-date"
           type="date"

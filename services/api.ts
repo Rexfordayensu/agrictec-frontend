@@ -20,12 +20,15 @@ export const impersonationToken = {
 export class ApiError extends Error {
   readonly status: number;
   readonly code: string | null;
+  /** Any other fields of the error (e.g. `until` on a sign-in lockout). */
+  readonly data: Record<string, unknown>;
 
-  constructor(message: string, status: number, code: string | null) {
+  constructor(message: string, status: number, code: string | null, data: Record<string, unknown> = {}) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
     this.code = code;
+    this.data = data;
   }
 }
 
@@ -70,14 +73,16 @@ async function send({ method = 'GET', body, query, signal }: RequestOptions, pat
   if (!response.ok) {
     let detail = `Something went wrong (${response.status}). Please try again.`;
     let code: string | null = null;
+    let extra: Record<string, unknown> = {};
     try {
       const data = (await response.json()) as { detail?: unknown; code?: string | null };
       if (typeof data.detail === 'string') detail = data.detail;
       code = data.code ?? null;
+      if (data && typeof data === 'object') extra = data as Record<string, unknown>;
     } catch {
       // Not JSON (a proxy error page): keep the generic message.
     }
-    throw new ApiError(detail, response.status, code);
+    throw new ApiError(detail, response.status, code, extra);
   }
   return response;
 }

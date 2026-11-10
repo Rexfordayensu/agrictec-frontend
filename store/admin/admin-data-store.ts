@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { getCurrentAdmin } from '@/lib/admin/admin-session';
+import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
 import { can } from '@/lib/admin/permissions';
 import { announcementsService } from '@/services/admin/announcements.service';
 import { farmersService } from '@/services/admin/farmers.service';
@@ -23,6 +24,10 @@ export interface BadgeCounts {
 }
 
 interface AdminDataState {
+  /**
+   * Only the farmers named by the loaded applications, verifications and risk flags (for their
+   * names and regions): never the whole list.
+   */
   farmers: FarmerAccount[];
   applications: LoanApplication[];
   verifications: VerificationRequest[];
@@ -42,6 +47,8 @@ interface AdminDataState {
   refresh: () => Promise<void>;
   /** After another tab's change: reloads the store, then tells the pages (syncVersion). */
   syncFromOtherTab: () => Promise<void>;
+  /** Adds (or updates) one farmer the console is showing, e.g. on their own page. */
+  rememberFarmer: (farmer: FarmerAccount) => void;
   reset: () => void;
 }
 
@@ -83,13 +90,21 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
     const load = <T>(permission: Permission, fn: () => Promise<T[]>): Promise<T[]> =>
       can(role, permission) ? fn() : Promise.resolve([]);
     try {
-      const [farmers, applications, verifications, riskFlags, announcements] = await Promise.all([
-        load('farmers.view', () => farmersService.list()),
+      const [applications, verifications, riskFlags, announcements] = await Promise.all([
         load('loans.view', () => loanApplicationsService.list()),
         load('verifications.review', () => verificationsService.list()),
         load('risk.review', () => riskService.list()),
         load('announcements.send', () => announcementsService.list()),
       ]);
+      // Never every farmer: only the ones these queues name (for their names and regions). The
+      // farmers page, the overview and search ask the API for exactly what they show.
+      const farmers = can(role, 'farmers.view')
+        ? await farmersService.lookup([
+            ...applications.map((a) => a.userId),
+            ...verifications.map((v) => v.userId),
+            ...riskFlags.map((f) => f.userId),
+          ])
+        : [];
       if (token !== latestRefresh) return;
       set({
         farmers,
@@ -110,6 +125,11 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
     }
   },
 
+  rememberFarmer: (farmer) =>
+    set((state) => ({
+      farmers: [...state.farmers.filter((f) => f.userId !== farmer.userId), farmer],
+    })),
+
   syncFromOtherTab: async () => {
     await get().refresh();
     set((state) => ({ syncVersion: state.syncVersion + 1 }));
@@ -120,3 +140,11 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
     set(EMPTY);
   },
 }));
+
+// Signed out, timed out, or a different admin signed in on this tab: nothing the previous
+// session loaded (every farmer's details) stays in memory.
+useAdminAuthStore.subscribe((state, previous) => {
+  if (previous.admin && (!state.admin || state.admin.id !== previous.admin.id)) {
+    useAdminDataStore.getState().reset();
+  }
+});

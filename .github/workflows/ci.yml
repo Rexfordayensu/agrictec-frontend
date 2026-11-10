@@ -36,7 +36,7 @@ jobs:
       - name: Needs the backend deploy key
         if: env.HAS_KEY != 'true'
         run: echo "::notice::Skipped. Add BACKEND_DEPLOY_KEY (a read-only deploy key on agrictec-backend) to run it."
-      # The compose file builds the API from ../../agrictec-backend, so both repositories are
+      # The compose file builds the API from ../../backend, so both repositories are
       # checked out side by side. The backend is private: BACKEND_DEPLOY_KEY is a read-only
       # deploy key on that repository.
       - uses: actions/checkout@v5
@@ -48,7 +48,7 @@ jobs:
         with:
           repository: Rexfordayensu/agrictec-backend
           ssh-key: ${{ secrets.BACKEND_DEPLOY_KEY }}
-          path: agrictec-backend
+          path: backend
       - name: Write deploy/.env (throwaway secrets for this run)
         if: env.HAS_KEY == 'true'
         working-directory: app/deploy

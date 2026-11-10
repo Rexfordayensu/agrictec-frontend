@@ -127,7 +127,7 @@ export function SignupForm() {
           <PasswordInput
             id="signup-password"
             autoComplete="new-password"
-            placeholder="At least 8 characters"
+            placeholder="8+ characters, a letter and a number"
             error={Boolean(errors.password)}
             aria-describedby={describedBy(
               'signup-password',

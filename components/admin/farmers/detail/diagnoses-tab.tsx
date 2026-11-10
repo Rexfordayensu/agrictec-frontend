@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge';
 import { CropTile, cropFromName } from '@/components/ui/crop-icon';
 import { EmptyState } from '@/components/ui/empty-state';
 import { formatDate } from '@/lib/format';
+import { safeImageThumb } from '@/lib/profile-photo';
 
 /** The farmer's saved crop diagnoses, with their photo thumbnails where saved. */
 export function DiagnosesTab({ data }: TabProps) {
@@ -20,9 +21,9 @@ export function DiagnosesTab({ data }: TabProps) {
       {diagnoses.map((d) => (
         <li key={d.id} className="border-border bg-glass overflow-hidden rounded-2xl border">
           <div className="bg-bg-2 relative flex h-36 items-center justify-center">
-            {d.imageThumb ? (
+            {safeImageThumb(d.imageThumb) ? (
               <Image
-                src={d.imageThumb}
+                src={safeImageThumb(d.imageThumb)!}
                 fill
                 sizes="(max-width: 640px) 100vw, 320px"
                 alt={`${d.crop ?? 'Crop'} photo for ${d.disease}`}

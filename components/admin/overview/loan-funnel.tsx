@@ -5,9 +5,9 @@ import Link from 'next/link';
 import { Ban, CircleAlert } from 'lucide-react';
 import { MeterBar, Panel, PanelLink } from '@/components/admin/overview/panel';
 import { useCan } from '@/hooks/admin/use-can';
-import { DATE_RANGES, loanStageReach, type DateRange } from '@/lib/admin/overview';
+import { DATE_RANGES, type DateRange } from '@/lib/admin/overview';
+import type { OverviewData } from '@/services/admin/overview.service';
 import { cn } from '@/lib/utils';
-import { useAdminDataStore } from '@/store/admin/admin-data-store';
 
 /** Each stage's bar steps down in strength, so the drop-off reads at a glance (flat colours). */
 const STAGE_BAR = ['bg-purple', 'bg-purple/85', 'bg-purple/70', 'bg-purple/55', 'bg-purple/40'];
@@ -17,10 +17,18 @@ const STAGE_BAR = ['bg-purple', 'bg-purple/85', 'bg-purple/70', 'bg-purple/55', 
  * Disbursed → Repaid (from each application's history), with the conversion between steps.
  * Rejected and defaulted are counted beside the path. Each row opens the filtered list.
  */
-export function LoanFunnel({ range, className }: { range: DateRange; className?: string }) {
-  const apps = useAdminDataStore((s) => s.applications);
+export function LoanFunnel({
+  range,
+  reach,
+  className,
+}: {
+  range: DateRange;
+  /** Computed by the API (GET /admin/overview). */
+  reach: OverviewData['loanStages'];
+  className?: string;
+}) {
   const canLoans = useCan('loans.view');
-  const { stages, rejected, defaulted, total } = loanStageReach(apps, range);
+  const { stages, rejected, defaulted, total } = reach;
   const max = Math.max(1, stages[0]?.reached ?? 0);
   const rangeLabel = DATE_RANGES.find((r) => r.value === range)?.label.toLowerCase() ?? '';
   const completion = total ? Math.round(((stages.at(-1)?.reached ?? 0) / total) * 100) : 0;
