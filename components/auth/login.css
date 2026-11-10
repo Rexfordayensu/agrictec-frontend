@@ -1,0 +1,371 @@
+.agric-login-screen {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  justify-content: center;
+  min-height: 100svh;
+  overflow: hidden;
+  padding: 24px 24px 32px;
+  color: #f6f8fc;
+  background:
+    radial-gradient(ellipse at 3% 0%, #0b47494d, transparent 42%),
+    radial-gradient(ellipse at 91% 95%, #006e6233, transparent 32%),
+    radial-gradient(ellipse at 4% 100%, #30214b38, transparent 40%), #060c1b;
+  --text: #f6f8fc;
+  --text-dim: #b9c9de;
+  --text-mute: #aebed2;
+  --ink-green: #00f0cd;
+  --accent: #00e5bb;
+}
+
+.agric-login-content {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 708px;
+}
+.agric-login-brand {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 32px;
+  text-align: center;
+}
+.agric-login-logo {
+  gap: 14px;
+}
+.agric-login-logo > svg {
+  width: 104px;
+  height: 88px;
+}
+.agric-login-logo > div > p:first-child {
+  font-size: 50px;
+  font-weight: 650;
+  letter-spacing: -2px;
+}
+.agric-login-logo > div > p:last-child {
+  font-size: 17px;
+  letter-spacing: 4px;
+}
+.agric-login-brand > p {
+  margin-top: 18px;
+  color: #bdcadc;
+  font-size: 24px;
+  letter-spacing: -0.5px;
+}
+
+.agric-login-panel {
+  position: relative;
+  padding: 42px 56px 48px;
+  border: 1px solid transparent;
+  border-radius: 38px;
+  background:
+    linear-gradient(135deg, #16343fe8, #091621f5 38%, #0b1526f5 79%, #194750ed) padding-box,
+    linear-gradient(135deg, #5ddde8, #53617666 35%, #35445b 80%, #36babc) border-box;
+  box-shadow:
+    0 28px 80px #0006,
+    inset 0 1px 0 #bcfaff25;
+}
+.agric-login-panel::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: 32px;
+  width: 46%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #00f7b9, #98ffda, transparent);
+  box-shadow: 0 0 17px 2px #00e8a76b;
+  pointer-events: none;
+}
+.agric-login-formContent {
+  display: flex;
+  flex-direction: column;
+}
+.agric-login-heading h1 {
+  font-family: var(--font-inter), sans-serif;
+  font-size: 46px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -1.6px;
+}
+.agric-login-heading p {
+  margin-top: 8px;
+  color: #bdcadc;
+  font-size: 23px;
+  line-height: 1.5;
+}
+.agric-login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  margin-top: 34px;
+}
+.agric-login-form label {
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.agric-login-inputWrap {
+  position: relative;
+}
+.agric-login-inputWrap::after {
+  content: '';
+  position: absolute;
+  left: 72px;
+  top: 18px;
+  height: 28px;
+  width: 1px;
+  background: #708fa342;
+  pointer-events: none;
+}
+.agric-login-inputWrap input {
+  min-height: 64px;
+  padding: 14px 52px 14px 96px;
+  border: 1px solid #7a93ad;
+  border-radius: 16px;
+  background: linear-gradient(110deg, #081521c4, #111e2d8c);
+  box-shadow:
+    inset 0 1px 3px #0005,
+    0 1px 0 #d9f4ff14;
+  color: #f6f8fc;
+  font-size: 19px;
+}
+.agric-login-inputWrap input[aria-invalid='true'] {
+  border-color: #f87171;
+}
+.agric-login-inputWrap input::placeholder {
+  color: #b9c9de;
+  opacity: 1;
+}
+.agric-login-inputWrap input:focus {
+  border-color: #00ebcc;
+  box-shadow: 0 0 0 3px #00ebcc20;
+}
+.agric-login-inputWrap button {
+  right: 12px;
+}
+.agric-login-inputWrap button svg {
+  width: 24px;
+  height: 24px;
+}
+.agric-login-fieldIcon {
+  position: absolute;
+  top: 20px;
+  left: 23px;
+  z-index: 1;
+  color: #c0d3e4;
+  pointer-events: none;
+}
+.agric-login-forgot {
+  margin-top: -8px;
+  text-align: right;
+  font-size: 18px;
+}
+.agric-login-submit {
+  width: calc(100% + 20px);
+  min-height: 72px;
+  align-self: center;
+  gap: 18px;
+  border: 1px solid #71ffdf;
+  border-radius: 20px;
+  color: #002b2a;
+  background: linear-gradient(163deg, #a3ffd0 0%, #00e0ad 45%, #009d96 100%);
+  box-shadow:
+    inset 0 1px 2px #e2fffcb3,
+    0 0 34px #00e4b525;
+  font-size: 23px;
+  font-weight: 700;
+}
+.agric-login-submit svg {
+  width: 29px;
+  height: 29px;
+}
+.agric-login-divider {
+  margin: 32px 0 28px;
+}
+.agric-login-divider > div {
+  gap: 28px;
+  font-size: 16px;
+  font-weight: 600;
+}
+.agric-login-divider span {
+  background: #697a9070;
+}
+.agric-login-guest button {
+  min-height: 66px;
+  border: 1px solid #879fb5;
+  border-radius: 19px;
+  background: linear-gradient(180deg, #61778d61, #24374961);
+  box-shadow:
+    inset 0 1px 3px #e3f3ff40,
+    inset 0 -8px 16px #71b7bf13;
+  font-size: 21px;
+  gap: 20px;
+}
+.agric-login-guest button svg {
+  width: 28px;
+  height: 28px;
+}
+.agric-login-guest p {
+  margin-top: 14px;
+  font-size: 17px;
+  color: #bdcadc;
+  line-height: 1.5;
+}
+.agric-login-signup {
+  margin-top: 34px;
+  color: #bdcadc;
+  text-align: center;
+  font-size: 21px;
+}
+.agric-login-legal {
+  margin-top: 20px;
+}
+
+.agric-login-ribbonTop,
+.agric-login-ribbonBottom {
+  position: absolute;
+  z-index: 0;
+  width: 780px;
+  height: 300px;
+  border: 1px solid #00ddb290;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #00675e12, #00d1aa30);
+  box-shadow:
+    0 0 45px #00e6b418,
+    inset 0 -3px 18px #00e6b43d;
+  pointer-events: none;
+}
+.agric-login-ribbonTop {
+  top: -215px;
+  left: -445px;
+  transform: rotate(-37deg);
+}
+.agric-login-ribbonBottom {
+  bottom: -140px;
+  right: -380px;
+  transform: rotate(-33deg);
+}
+.agric-login-ribbonBottom::after {
+  content: '';
+  position: absolute;
+  inset: 70px -60px -70px;
+  border-top: 1px solid #00e9bc99;
+  border-radius: 50%;
+  background: #00ab9412;
+  box-shadow: 0 -10px 40px #00d5ae26;
+  transform: rotate(13deg);
+}
+
+@media (max-width: 600px) {
+  .agric-login-screen {
+    padding: 28px 18px 24px;
+  }
+  .agric-login-brand {
+    margin-bottom: 28px;
+  }
+  .agric-login-logo {
+    gap: 6px;
+  }
+  .agric-login-logo > svg {
+    width: 70px;
+    height: 68px;
+  }
+  .agric-login-logo > div > p:first-child {
+    font-size: 36px;
+    letter-spacing: -1px;
+  }
+  .agric-login-logo > div > p:last-child {
+    font-size: 11px;
+    letter-spacing: 3px;
+  }
+  .agric-login-brand > p {
+    margin-top: 12px;
+    font-size: 15px;
+    letter-spacing: 0;
+  }
+  .agric-login-panel {
+    border-radius: 26px;
+    padding: 30px 22px 32px;
+  }
+  .agric-login-heading h1 {
+    font-size: 32px;
+    letter-spacing: -1px;
+  }
+  .agric-login-heading p {
+    font-size: 15px;
+  }
+  .agric-login-form {
+    margin-top: 28px;
+    gap: 22px;
+  }
+  .agric-login-form label {
+    font-size: 12px;
+  }
+  .agric-login-inputWrap input {
+    min-height: 56px;
+    padding-left: 68px;
+    font-size: 15px;
+  }
+  .agric-login-inputWrap::after {
+    left: 51px;
+    top: 15px;
+    height: 26px;
+  }
+  .agric-login-fieldIcon {
+    left: 17px;
+    top: 18px;
+    width: 20px;
+    height: 20px;
+  }
+  .agric-login-inputWrap button {
+    right: 5px;
+  }
+  .agric-login-inputWrap button svg {
+    width: 20px;
+    height: 20px;
+  }
+  .agric-login-forgot {
+    font-size: 14px;
+  }
+  .agric-login-submit {
+    width: 100%;
+    min-height: 58px;
+    font-size: 18px;
+    border-radius: 15px;
+  }
+  .agric-login-submit svg {
+    width: 23px;
+    height: 23px;
+  }
+  .agric-login-divider {
+    margin: 26px 0 22px;
+  }
+  .agric-login-divider > div {
+    font-size: 12px;
+    gap: 20px;
+  }
+  .agric-login-guest button {
+    min-height: 56px;
+    font-size: 15px;
+    gap: 10px;
+    border-radius: 15px;
+  }
+  .agric-login-guest button svg {
+    width: 23px;
+    height: 23px;
+  }
+  .agric-login-guest p {
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  .agric-login-signup {
+    margin-top: 26px;
+    font-size: 15px;
+  }
+  .agric-login-ribbonTop {
+    left: -575px;
+  }
+  .agric-login-ribbonBottom {
+    right: -580px;
+  }
+}

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react';
+import { AuthPresentation } from '@/components/auth/auth-presentation';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { LegalLinks } from '@/components/legal/legal-document';
 import { MaintenanceGate } from '@/components/shared/maintenance-gate';
@@ -28,19 +29,21 @@ export default function AuthLayout({ children }: { children: ReactNode }) {
     <>
       {/* Farmers can't sign in or sign up during maintenance. */}
       <MaintenanceGate>
-        <main className="flex min-h-screen items-center justify-center px-4 py-10">
-          <div className="animate-fade-in w-full max-w-[440px]">
-            <div className="mb-6 flex flex-col items-center text-center">
-              <BrandLogo subtitle="Digital Identity" />
-              <p className="text-text-dim mt-3 text-sm">Build your digital financial identity</p>
+        <AuthPresentation content={children}>
+          <main className="flex min-h-screen items-center justify-center px-4 py-10">
+            <div className="animate-fade-in w-full max-w-[440px]">
+              <div className="mb-6 flex flex-col items-center text-center">
+                <BrandLogo subtitle="Digital Identity" />
+                <p className="text-text-dim mt-3 text-sm">Build your digital financial identity</p>
+              </div>
+              <Card padding="lg">{children}</Card>
+              <p className="text-text-mute mt-6 flex items-center justify-center gap-1.5 text-xs">
+                Built for Ghana&apos;s smallholder farmers <GhanaFlag />
+              </p>
+              <LegalLinks className="mt-3" />
             </div>
-            <Card padding="lg">{children}</Card>
-            <p className="text-text-mute mt-6 flex items-center justify-center gap-1.5 text-xs">
-              Built for Ghana&apos;s smallholder farmers <GhanaFlag />
-            </p>
-            <LegalLinks className="mt-3" />
-          </div>
-        </main>
+          </main>
+        </AuthPresentation>
       </MaintenanceGate>
     </>
   );
