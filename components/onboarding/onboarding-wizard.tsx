@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { CheckCheck, LogOut, Sprout } from 'lucide-react';
+import { AlertCircle, CheckCheck, LogOut, RefreshCw, Sprout } from 'lucide-react';
 import { toast } from 'sonner';
 import { REVIEW_STEP } from '@/components/onboarding/onboarding-schemas';
 import { StepCrops } from '@/components/onboarding/step-crops';
@@ -15,6 +15,7 @@ import { StepProgress } from '@/components/onboarding/step-progress';
 import { StepReview } from '@/components/onboarding/step-review';
 import { WizardNav, type StepProps } from '@/components/onboarding/wizard-nav';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import { authService } from '@/services/auth.service';
 import { onboardingService } from '@/services/onboarding.service';
@@ -42,7 +43,7 @@ const DEMO_DETAILS: Partial<Profile> = {
   ghanaCard: { status: 'not_provided' },
 };
 
-type Gate = 'checking' | 'ready';
+type Gate = 'checking' | 'ready' | 'error';
 
 /**
  * The onboarding wizard (6 steps and a review). Checks the session itself: no session → login,
@@ -53,7 +54,11 @@ export function OnboardingWizard() {
   const [gate, setGate] = useState<Gate>('checking');
   const [isGuest, setIsGuest] = useState(false);
   const [busy, setBusy] = useState(false);
-  const { data, step, reached, status } = useOnboardingStore();
+  const [loadError, setLoadError] = useState('');
+  const [attempt, setAttempt] = useState(0);
+  const contentRef = useRef<HTMLDivElement>(null);
+  const previousStep = useRef<number | null>(null);
+  const { data, step, reached, status, returnToReview } = useOnboardingStore();
   const store = useOnboardingStore.getState;
 
   useEffect(() => {
@@ -71,15 +76,29 @@ export function OnboardingWizard() {
       if (cancelled) return;
       setIsGuest(session.isGuest);
       setGate('ready');
-    })().catch(() => {
-      if (!cancelled) toast.error('Could not load your details. Refresh to try again.');
+    })().catch((error) => {
+      if (!cancelled) {
+        setLoadError(
+          error instanceof Error ? error.message : 'Please check your connection and try again.',
+        );
+        setGate('error');
+      }
     });
     return () => {
       cancelled = true;
     };
-  }, [router]);
+  }, [router, attempt]);
+
+  useEffect(() => {
+    if (gate !== 'ready') return;
+    if (previousStep.current !== null && previousStep.current !== step) {
+      contentRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    }
+    previousStep.current = step;
+  }, [step, gate]);
 
   async function run(task: () => Promise<void>) {
+    if (busy) return;
     setBusy(true);
     try {
       await task();
@@ -93,6 +112,7 @@ export function OnboardingWizard() {
   const onSubmit = (patch: Partial<Profile>) => run(() => store().submitStep(patch));
 
   async function complete() {
+    if (busy) return;
     setBusy(true);
     try {
       const profile = await store().complete();
@@ -107,9 +127,33 @@ export function OnboardingWizard() {
     }
   }
 
+  if (gate === 'error') {
+    return (
+      <Card padding="lg" className="onboarding-load-error">
+        <AlertCircle size={28} aria-hidden="true" className="text-ink-gold" />
+        <div role="alert">
+          <h2>We couldn&apos;t load your farm setup</h2>
+          <p>{loadError}</p>
+        </div>
+        <Button
+          icon={RefreshCw}
+          onClick={() => {
+            setGate('checking');
+            setAttempt((value) => value + 1);
+          }}
+        >
+          Try again
+        </Button>
+      </Card>
+    );
+  }
+
   if (gate === 'checking' || status !== 'ready') {
     return (
-      <Card padding="lg" className="space-y-5" aria-busy="true">
+      <Card padding="lg" className="onboarding-loading space-y-5" aria-busy="true">
+        <span role="status" className="sr-only">
+          Loading your farm setup
+        </span>
         <Skeleton className="h-5 w-32" />
         <Skeleton className="h-1.5 w-full" />
         <Skeleton className="h-11 w-3/4" />
@@ -142,33 +186,49 @@ export function OnboardingWizard() {
   ][step];
 
   return (
-    <Card padding="lg">
-      <StepProgress step={step} reached={reached} onJump={(target) => store().goTo(target)} />
-      <div key={step} className="animate-step-in mt-7">
-        {review ? (
-          <StepReview
-            formId={FORM_ID}
-            data={data}
-            onEdit={(target) => store().goTo(target, true)}
-            onSubmit={complete}
-          />
-        ) : (
-          content
-        )}
-      </div>
-      <WizardNav
-        formId={FORM_ID}
-        busy={busy}
-        onBack={step > 0 ? () => store().back() : undefined}
-        onSkip={
-          step === 5
-            ? () => void run(() => store().submitStep({ ghanaCard: { status: 'not_provided' } }))
-            : undefined
-        }
-        continueLabel={review ? 'Complete setup' : 'Continue'}
-        continueIcon={review ? CheckCheck : undefined}
+    <div className="onboarding-workspace">
+      <StepProgress
+        step={step}
+        reached={reached}
+        disabled={busy}
+        onJump={(target) => store().goTo(target, reached >= REVIEW_STEP)}
       />
-    </Card>
+      <Card padding="none" className="onboarding-panel" aria-busy={busy}>
+        <div key={step} ref={contentRef} className="onboarding-step-content animate-step-in">
+          <fieldset disabled={busy} className="min-w-0">
+            {review ? (
+              <StepReview
+                formId={FORM_ID}
+                data={data}
+                onEdit={(target) => store().goTo(target, true)}
+                onSubmit={complete}
+              />
+            ) : (
+              content
+            )}
+          </fieldset>
+        </div>
+        <WizardNav
+          formId={FORM_ID}
+          busy={busy}
+          onBack={step > 0 ? () => store().back() : undefined}
+          onSkip={
+            step === 5
+              ? () => void run(() => store().submitStep({ ghanaCard: { status: 'not_provided' } }))
+              : undefined
+          }
+          continueLabel={
+            review
+              ? 'Complete setup'
+              : returnToReview
+                ? 'Save & return to review'
+                : 'Save & continue'
+          }
+          continueIcon={review ? CheckCheck : undefined}
+          finalStep={review}
+        />
+      </Card>
+    </div>
   );
 }
 
@@ -182,8 +242,13 @@ export function OnboardingSignOut() {
       disabled={busy}
       onClick={async () => {
         setBusy(true);
-        await signOutAndReset();
-        router.replace('/login');
+        try {
+          await signOutAndReset();
+          router.replace('/login');
+        } catch (error) {
+          toast.error(error instanceof Error ? error.message : 'Could not sign out. Try again.');
+          setBusy(false);
+        }
       }}
       className="text-text-dim hover:text-text hover:bg-glass inline-flex min-h-11 items-center gap-2 rounded-xl px-3 text-sm font-semibold transition-colors disabled:opacity-60"
     >

@@ -64,6 +64,7 @@ export function WizardNav({
   busy,
   continueLabel = 'Continue',
   continueIcon = ArrowRight,
+  finalStep = false,
 }: {
   formId: string;
   onBack?: () => void;
@@ -71,9 +72,10 @@ export function WizardNav({
   busy: boolean;
   continueLabel?: string;
   continueIcon?: LucideIcon;
+  finalStep?: boolean;
 }) {
   return (
-    <div className="border-border mt-8 flex flex-col-reverse gap-3 border-t pt-5 sm:flex-row sm:items-center">
+    <div className="onboarding-actions" role="group" aria-label="Step navigation">
       {onBack ? (
         <Button
           type="button"
@@ -81,21 +83,40 @@ export function WizardNav({
           icon={ArrowLeft}
           onClick={onBack}
           disabled={busy}
-          className="sm:mr-auto"
+          className="onboarding-back"
         >
           Back
         </Button>
       ) : (
-        <span className="hidden sm:mr-auto sm:block" />
+        <span className="onboarding-nav-spacer" />
       )}
       {onSkip && (
-        <Button type="button" variant="ghost" onClick={onSkip} disabled={busy}>
+        <Button
+          type="button"
+          variant="ghost"
+          onClick={onSkip}
+          disabled={busy}
+          className="onboarding-skip"
+        >
           Skip for now
         </Button>
       )}
-      <Button type="submit" form={formId} icon={continueIcon} loading={busy}>
+      <Button
+        type="submit"
+        form={formId}
+        icon={continueIcon}
+        loading={busy}
+        className="onboarding-next"
+      >
         {continueLabel}
       </Button>
+      <p className="onboarding-action-hint" role="status">
+        {busy
+          ? 'Saving your details…'
+          : finalStep
+            ? 'Review and confirm your details before finishing.'
+            : 'Your answers save when you continue.'}
+      </p>
     </div>
   );
 }
