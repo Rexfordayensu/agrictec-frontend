@@ -100,7 +100,7 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
               type="email"
               autoComplete="email"
               inputMode="email"
-              placeholder="you@example.com"
+              placeholder="agrictec@example.com"
               error={Boolean(errors.email)}
               aria-describedby={errors.email ? fieldErrorId('login-email') : undefined}
               {...register('email')}

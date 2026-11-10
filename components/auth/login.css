@@ -5,7 +5,7 @@
   justify-content: center;
   min-height: 100svh;
   overflow: hidden;
-  padding: 24px 24px 32px;
+  padding: 20px 20px 24px;
   color: #f6f8fc;
   background:
     radial-gradient(ellipse at 3% 0%, #0b47494d, transparent 42%),
@@ -22,43 +22,43 @@
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 708px;
+  max-width: 460px;
 }
 .agric-login-brand {
   display: flex;
   align-items: center;
   flex-direction: column;
-  margin-bottom: 32px;
+  margin-bottom: 22px;
   text-align: center;
 }
 .agric-login-logo {
-  gap: 14px;
+  gap: 8px;
 }
 .agric-login-logo > svg {
-  width: 104px;
-  height: 88px;
+  width: 72px;
+  height: 64px;
 }
 .agric-login-logo > div > p:first-child {
-  font-size: 50px;
+  font-size: 36px;
   font-weight: 650;
-  letter-spacing: -2px;
+  letter-spacing: -1px;
 }
 .agric-login-logo > div > p:last-child {
-  font-size: 17px;
-  letter-spacing: 4px;
+  font-size: 11px;
+  letter-spacing: 3px;
 }
 .agric-login-brand > p {
-  margin-top: 18px;
+  margin-top: 10px;
   color: #bdcadc;
-  font-size: 24px;
-  letter-spacing: -0.5px;
+  font-size: 15px;
+  letter-spacing: 0;
 }
 
 .agric-login-panel {
   position: relative;
-  padding: 42px 56px 48px;
+  padding: 28px 30px 30px;
   border: 1px solid transparent;
-  border-radius: 38px;
+  border-radius: 26px;
   background:
     linear-gradient(135deg, #16343fe8, #091621f5 38%, #0b1526f5 79%, #194750ed) padding-box,
     linear-gradient(135deg, #5ddde8, #53617666 35%, #35445b 80%, #36babc) border-box;
@@ -83,25 +83,25 @@
 }
 .agric-login-heading h1 {
   font-family: var(--font-inter), sans-serif;
-  font-size: 46px;
+  font-size: 30px;
   line-height: 1.2;
   font-weight: 750;
-  letter-spacing: -1.6px;
+  letter-spacing: -1px;
 }
 .agric-login-heading p {
-  margin-top: 8px;
+  margin-top: 6px;
   color: #bdcadc;
-  font-size: 23px;
+  font-size: 15px;
   line-height: 1.5;
 }
 .agric-login-form {
   display: flex;
   flex-direction: column;
-  gap: 26px;
-  margin-top: 34px;
+  gap: 18px;
+  margin-top: 24px;
 }
 .agric-login-form label {
-  font-size: 16px;
+  font-size: 12px;
   letter-spacing: 0;
 }
 .agric-login-inputWrap {
@@ -110,24 +110,24 @@
 .agric-login-inputWrap::after {
   content: '';
   position: absolute;
-  left: 72px;
-  top: 18px;
-  height: 28px;
+  left: 50px;
+  top: 13px;
+  height: 22px;
   width: 1px;
   background: #708fa342;
   pointer-events: none;
 }
 .agric-login-inputWrap input {
-  min-height: 64px;
-  padding: 14px 52px 14px 96px;
+  min-height: 48px;
+  padding: 11px 44px 11px 66px;
   border: 1px solid #7a93ad;
-  border-radius: 16px;
+  border-radius: 12px;
   background: linear-gradient(110deg, #081521c4, #111e2d8c);
   box-shadow:
     inset 0 1px 3px #0005,
     0 1px 0 #d9f4ff14;
   color: #f6f8fc;
-  font-size: 19px;
+  font-size: 15px;
 }
 .agric-login-inputWrap input[aria-invalid='true'] {
   border-color: #f87171;
@@ -141,84 +141,84 @@
   box-shadow: 0 0 0 3px #00ebcc20;
 }
 .agric-login-inputWrap button {
-  right: 12px;
+  right: 4px;
 }
 .agric-login-inputWrap button svg {
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
 }
 .agric-login-fieldIcon {
   position: absolute;
-  top: 20px;
-  left: 23px;
+  top: 13px;
+  left: 16px;
   z-index: 1;
   color: #c0d3e4;
   pointer-events: none;
 }
 .agric-login-forgot {
-  margin-top: -8px;
+  margin-top: -6px;
   text-align: right;
-  font-size: 18px;
+  font-size: 13px;
 }
 .agric-login-submit {
-  width: calc(100% + 20px);
-  min-height: 72px;
+  width: 100%;
+  min-height: 50px;
   align-self: center;
-  gap: 18px;
+  gap: 12px;
   border: 1px solid #71ffdf;
-  border-radius: 20px;
+  border-radius: 14px;
   color: #002b2a;
   background: linear-gradient(163deg, #a3ffd0 0%, #00e0ad 45%, #009d96 100%);
   box-shadow:
     inset 0 1px 2px #e2fffcb3,
     0 0 34px #00e4b525;
-  font-size: 23px;
+  font-size: 17px;
   font-weight: 700;
 }
 .agric-login-submit svg {
-  width: 29px;
-  height: 29px;
+  width: 22px;
+  height: 22px;
 }
 .agric-login-divider {
-  margin: 32px 0 28px;
+  margin: 22px 0 20px;
 }
 .agric-login-divider > div {
-  gap: 28px;
-  font-size: 16px;
+  gap: 20px;
+  font-size: 12px;
   font-weight: 600;
 }
 .agric-login-divider span {
   background: #697a9070;
 }
 .agric-login-guest button {
-  min-height: 66px;
+  min-height: 48px;
   border: 1px solid #879fb5;
-  border-radius: 19px;
+  border-radius: 13px;
   background: linear-gradient(180deg, #61778d61, #24374961);
   box-shadow:
     inset 0 1px 3px #e3f3ff40,
     inset 0 -8px 16px #71b7bf13;
-  font-size: 21px;
-  gap: 20px;
+  font-size: 15px;
+  gap: 12px;
 }
 .agric-login-guest button svg {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
 }
 .agric-login-guest p {
-  margin-top: 14px;
-  font-size: 17px;
+  margin-top: 10px;
+  font-size: 12px;
   color: #bdcadc;
   line-height: 1.5;
 }
 .agric-login-signup {
-  margin-top: 34px;
+  margin-top: 24px;
   color: #bdcadc;
   text-align: center;
-  font-size: 21px;
+  font-size: 14px;
 }
 .agric-login-legal {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .agric-login-ribbonTop,
@@ -256,111 +256,15 @@
   transform: rotate(13deg);
 }
 
-@media (max-width: 600px) {
+@media (max-width: 480px) {
   .agric-login-screen {
-    padding: 28px 18px 24px;
-  }
-  .agric-login-brand {
-    margin-bottom: 28px;
-  }
-  .agric-login-logo {
-    gap: 6px;
-  }
-  .agric-login-logo > svg {
-    width: 70px;
-    height: 68px;
-  }
-  .agric-login-logo > div > p:first-child {
-    font-size: 36px;
-    letter-spacing: -1px;
-  }
-  .agric-login-logo > div > p:last-child {
-    font-size: 11px;
-    letter-spacing: 3px;
-  }
-  .agric-login-brand > p {
-    margin-top: 12px;
-    font-size: 15px;
-    letter-spacing: 0;
+    padding: 20px 16px 24px;
   }
   .agric-login-panel {
-    border-radius: 26px;
-    padding: 30px 22px 32px;
+    padding: 26px 22px 28px;
   }
   .agric-login-heading h1 {
-    font-size: 32px;
-    letter-spacing: -1px;
-  }
-  .agric-login-heading p {
-    font-size: 15px;
-  }
-  .agric-login-form {
-    margin-top: 28px;
-    gap: 22px;
-  }
-  .agric-login-form label {
-    font-size: 12px;
-  }
-  .agric-login-inputWrap input {
-    min-height: 56px;
-    padding-left: 68px;
-    font-size: 15px;
-  }
-  .agric-login-inputWrap::after {
-    left: 51px;
-    top: 15px;
-    height: 26px;
-  }
-  .agric-login-fieldIcon {
-    left: 17px;
-    top: 18px;
-    width: 20px;
-    height: 20px;
-  }
-  .agric-login-inputWrap button {
-    right: 5px;
-  }
-  .agric-login-inputWrap button svg {
-    width: 20px;
-    height: 20px;
-  }
-  .agric-login-forgot {
-    font-size: 14px;
-  }
-  .agric-login-submit {
-    width: 100%;
-    min-height: 58px;
-    font-size: 18px;
-    border-radius: 15px;
-  }
-  .agric-login-submit svg {
-    width: 23px;
-    height: 23px;
-  }
-  .agric-login-divider {
-    margin: 26px 0 22px;
-  }
-  .agric-login-divider > div {
-    font-size: 12px;
-    gap: 20px;
-  }
-  .agric-login-guest button {
-    min-height: 56px;
-    font-size: 15px;
-    gap: 10px;
-    border-radius: 15px;
-  }
-  .agric-login-guest button svg {
-    width: 23px;
-    height: 23px;
-  }
-  .agric-login-guest p {
-    font-size: 12px;
-    margin-top: 12px;
-  }
-  .agric-login-signup {
-    margin-top: 26px;
-    font-size: 15px;
+    font-size: 28px;
   }
   .agric-login-ribbonTop {
     left: -575px;
