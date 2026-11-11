@@ -52,7 +52,7 @@ const { marketReference } = require('../lib/admin/crop-pricing.ts');
 const { MarketPrices } = require('../components/market/market-prices.tsx');
 const { WeatherCard, WeatherReadings } = require('../components/market/weather-card.tsx');
 const { MarketResearchPanel } = require('../components/admin/content/market-research-panel.tsx');
-const { DemoDataNotice } = require('../components/market/demo-data-notice.tsx');
+const { MarketCoverageNotice } = require('../components/market/market-coverage-notice.tsx');
 const values = new Map();
 const sessionValues = new Map();
 global.window = {
@@ -436,7 +436,7 @@ test('shared weather UI loads live weather and retains full location controls', 
   assert.match(research, /No recommendation/);
   assert.match(research, /Approve/);
   assert.match(research, /Reject recommendation/);
-  assert.match(renderToStaticMarkup(createElement(DemoDataNotice)), /not connected yet/);
+  assert.match(renderToStaticMarkup(createElement(MarketCoverageNotice)), /not connected yet/);
 });
 
 test('market UI escapes supplied source text and hides all unreviewed observations', () => {

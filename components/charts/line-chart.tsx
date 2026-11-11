@@ -44,6 +44,10 @@ export function LineChart({
   const { baseOptions } = useChartTheme();
   // Money charts that are never negative should start at 0 (an all-zero chart would otherwise span −1…1).
   const allNonNegative = datasets.every((ds) => ds.data.every((value) => value >= 0));
+  // Nothing recorded yet: an empty 0-100 axis rather than 0.1 steps up to 1.
+  const allZero = datasets.every((ds) => ds.data.every((value) => value === 0));
+  // One or two points (a farmer who just started) sit in from the edges, not against them.
+  const few = labels.length < 3;
 
   const data: ChartData<'line'> = {
     labels,
@@ -58,7 +62,7 @@ export function LineChart({
       // Smooth, but never overshoots: the curve can't dip below 0 between two zero-ish months.
       cubicInterpolationMode: 'monotone',
       borderWidth: 2,
-      pointRadius: 3,
+      pointRadius: labels.length === 1 ? 5 : 3,
       pointHoverRadius: 5,
     })),
   };
@@ -80,9 +84,10 @@ export function LineChart({
     },
     scales: {
       ...baseOptions.scales,
+      x: { ...baseOptions.scales.x, offset: few },
       y: {
         ...baseOptions.scales.y,
-        ...(allNonNegative && { min: 0, suggestedMax: 1 }),
+        ...(allNonNegative && { min: 0, suggestedMax: allZero ? 100 : 1 }),
         ...(formatValue && {
           ticks: { ...baseOptions.scales.y.ticks, callback: (value) => formatValue(Number(value)) },
         }),

@@ -380,7 +380,8 @@ export interface CropContent {
   /** Tonnes per acre under baseline conditions. */
   yieldPerAcre: number;
   /** Farm-gate price in GHS per tonne. */
-  pricePerTonne: number;
+  /** No longer used: yield revenue comes from published market prices only. */
+  pricePerTonne?: number;
   tips: string[];
 }
 

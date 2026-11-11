@@ -143,7 +143,7 @@ export function AuditLogView() {
       <p className="text-text-dim text-xs font-semibold" aria-live="polite">
         {data
           ? `${data.total.toLocaleString()} entr${data.total === 1 ? 'y' : 'ies'} · newest first`
-          : 'Loading…'}
+          : null}
       </p>
 
       {!data ? (

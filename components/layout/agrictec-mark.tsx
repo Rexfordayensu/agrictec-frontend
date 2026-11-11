@@ -5,8 +5,8 @@ import { useId } from 'react';
 // "The Growth Leaf": a leaf (the farm) with a rising line cut out of it (money and growth) that
 // starts at a gold seed (a farmer's first record). The same drawing as public/icons and app/icon.svg.
 
-const LEAF = 'M18 102C18 52 52 18 102 18C102 68 68 102 18 102Z';
-const LINE = '34.5,85.5 45.2,65 66.4,63.5 85.5,28.9';
+export const LEAF = 'M18 102C18 52 52 18 102 18C102 68 68 102 18 102Z';
+export const LINE = '34.5,85.5 45.2,65 66.4,63.5 85.5,28.9';
 /** Below this size the seed is left out and the line drawn thicker, so the mark stays crisp. */
 const SMALL = 32;
 

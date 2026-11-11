@@ -3,15 +3,19 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { SYSTEM_SETTINGS_SECTIONS } from '@/constants/admin-settings';
+import { useDemoDataAllowed } from '@/hooks/admin/use-demo-data';
 import { cn } from '@/lib/utils';
 
 export function SystemSettingsNav() {
   const pathname = usePathname();
+  // "Demo data" is listed only in local development.
+  const demo = useDemoDataAllowed();
 
   return (
     <nav aria-label="System settings pages" className="min-w-0 lg:sticky lg:top-24">
       <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-1">
-        {SYSTEM_SETTINGS_SECTIONS.map(({ id, href, label, icon: Icon }) => {
+        {SYSTEM_SETTINGS_SECTIONS.filter((s) => s.id !== 'demo' || demo).map(
+          ({ id, href, label, icon: Icon }) => {
           const active = pathname === href;
           const danger = id === 'danger';
           return (
@@ -36,7 +40,8 @@ export function SystemSettingsNav() {
               </Link>
             </li>
           );
-        })}
+          },
+        )}
       </ul>
     </nav>
   );

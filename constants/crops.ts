@@ -43,18 +43,6 @@ export const BASE_YIELD_PER_ACRE: Record<KnownCrop, number> = {
   Tomato: 15,
 };
 
-/** Farm-gate price in GHS per tonne. */
-export const PRICE_PER_TONNE: Record<KnownCrop, number> = {
-  Maize: 3200,
-  Cassava: 900,
-  Rice: 5500,
-  Cocoa: 24000,
-  Yam: 4500,
-  Plantain: 2000,
-  Groundnut: 6000,
-  Tomato: 3500,
-};
-
 export const CROP_TIPS: Record<KnownCrop, string[]> = {
   Maize: [
     'Plant at the start of the rains with 75cm × 40cm spacing for the best stand.',

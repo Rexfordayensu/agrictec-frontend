@@ -7,7 +7,7 @@ import { usePlatformSync } from '@/components/providers/use-platform-sync';
 import { MaintenanceScreen } from '@/components/shared/maintenance-screen';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import {
   activeImpersonation,
   claimImpersonation,
@@ -147,7 +147,7 @@ export function DataLoader({ children }: { children: ReactNode }) {
   return <>{children}</>;
 }
 
-/** Full-page placeholder shaped like the app shell. */
+/** The whole screen while the farmer's data loads: the animated AgriCtec mark. */
 function AppSkeleton() {
   const [slow, setSlow] = useState(false);
   useEffect(() => {
@@ -155,31 +155,14 @@ function AppSkeleton() {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <div role="status" aria-label="Loading AgriCtec" className="flex min-h-screen">
-      <div className="glass fixed inset-y-3 left-3 hidden w-[260px] space-y-3 rounded-3xl p-5 min-[900px]:block">
-        <Skeleton className="mb-6 h-11 w-40" />
-        {Array.from({ length: 9 }, (_, i) => (
-          <Skeleton key={i} className="h-10 w-full" />
-        ))}
-      </div>
-      <div className="min-w-0 flex-1 px-5 py-6 min-[768px]:px-8 min-[900px]:ml-[272px] min-[900px]:pt-3">
-        <div className="glass min-[900px]:h-header mb-6 flex h-16 items-center gap-3 rounded-2xl px-3">
-          <Skeleton className="size-10" />
-          <Skeleton className="h-5 w-48" />
-        </div>
-        <p className="text-text-dim mb-4 text-sm" role="status">
-          {slow
-            ? 'Waiting for the server. You can retry if it does not respond.'
-            : 'Loading your farm dashboard…'}
+    <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
+      <LogoLoader size="lg" label="Loading AgriCtec" />
+      {/* Only after 8 seconds: a slow server is worth saying, a normal load is not. */}
+      {slow && (
+        <p className="text-text-dim max-w-xs text-center text-sm" role="status">
+          Waiting for the server. You can retry if it does not respond.
         </p>
-        <Skeleton className="mb-6 h-56 w-full rounded-3xl" />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {Array.from({ length: 4 }, (_, i) => (
-            <Skeleton key={i} className="h-32" />
-          ))}
-        </div>
-        <Skeleton className="mt-6 h-72 w-full" />
-      </div>
+      )}
     </div>
   );
 }

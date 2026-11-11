@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { AlertTriangle, Loader2 } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { AdminSessionGate } from '@/components/admin/auth/admin-session-gate';
-import { AdminBrand } from '@/components/admin/layout/admin-brand';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
@@ -107,12 +107,8 @@ function PlatformLoader({ children }: { children: ReactNode }) {
 
   if (state !== 'ready') {
     return (
-      <div role="status" className="flex min-h-screen flex-col items-center justify-center gap-4">
-        <AdminBrand />
-        <p className="text-text-dim flex items-center gap-2 text-sm">
-          <Loader2 size={16} aria-hidden="true" className="text-ink-purple animate-spin" />
-          Loading the console…
-        </p>
+      <div className="flex min-h-screen items-center justify-center">
+        <LogoLoader size="lg" label="Loading the console" />
       </div>
     );
   }

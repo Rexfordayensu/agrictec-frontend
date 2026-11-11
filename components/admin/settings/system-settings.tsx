@@ -17,7 +17,12 @@ import { configService } from '@/services/admin/config.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import type { FeatureFlags, Plan } from '@/types/admin';
 
-type SettingsData = { flags?: FeatureFlags; plans?: Plan[]; seeded?: string | null };
+type SettingsData = {
+  flags?: FeatureFlags;
+  plans?: Plan[];
+  seeded?: string | null;
+  demoData?: boolean;
+};
 
 /** One route renders only its selected editor; services retain their permission checks. */
 export function SystemSettings({ section }: { section: SystemSettingsSection }) {
@@ -35,7 +40,9 @@ export function SystemSettings({ section }: { section: SystemSettingsSection }) 
         : section === 'plans'
           ? configService.getPlans().then((plans) => ({ plans }))
           : section === 'demo'
-            ? backupService.seededAt().then((seeded) => ({ seeded }))
+            ? backupService
+                .systemStatus()
+                .then(({ seededAt, demoData }) => ({ seeded: seededAt, demoData }))
             : Promise.resolve({ seeded: null });
     void load
       .then((next) => {
@@ -110,7 +117,14 @@ export function SystemSettings({ section }: { section: SystemSettingsSection }) 
     case 'backup':
       return <BackupRestoreCard onRestored={reloadAll} />;
     case 'demo':
-      return <DemoDataCard seededAt={data.seeded ?? null} onReset={reloadAll} />;
+      // The demo world exists only in local development, never on the live platform.
+      return data.demoData ? (
+        <DemoDataCard seededAt={data.seeded ?? null} onReset={reloadAll} />
+      ) : (
+        <p className="border-border text-text-dim rounded-2xl border p-5 text-sm">
+          Demo data is not available on the live platform.
+        </p>
+      );
     case 'danger':
       return <DangerZoneCard onDeleted={reloadAll} />;
   }

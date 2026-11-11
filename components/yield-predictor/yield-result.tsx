@@ -5,20 +5,17 @@ import {
   Banknote,
   CircleAlert,
   Lightbulb,
-  NotebookPen,
   TrendingUp,
   Wheat,
 } from 'lucide-react';
 import { perAcreBenchmarks } from '@/components/yield-predictor/yield-options';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CropLabel } from '@/components/ui/crop-icon';
 import { yieldInsight } from '@/lib/calculations/yield';
 import { usePlatformStore } from '@/store/platform-store';
-import { formatGHS, todayISO } from '@/lib/format';
+import { formatGHS } from '@/lib/format';
 import { cn } from '@/lib/utils';
-import { useModalStore } from '@/store/modal-store';
 import type { YieldInput, YieldResult as Prediction } from '@/types';
 
 const quantity = (value: number) => value.toLocaleString('en-GH', { maximumFractionDigits: 2 });
@@ -54,7 +51,6 @@ export function YieldResult({
   result: Prediction;
   stale?: boolean;
 }) {
-  const openRecord = useModalStore((state) => state.openRecordWithDefaults);
   const crops = usePlatformStore((s) => s.crops);
   const benchmarks = input.crop === 'Other' ? null : perAcreBenchmarks(input.crop, crops);
   const rows = benchmarks
@@ -135,31 +131,44 @@ export function YieldResult({
             <Banknote size={13} aria-hidden="true" className="text-ink-green" />
             Your revenue potential
           </p>
-          <dl className="mt-3 space-y-3 text-sm">
-            <div>
-              <dt className="text-text-dim text-xs">Expected Revenue</dt>
-              <dd className="text-ink-green mt-0.5 flex items-center gap-1 text-2xl font-bold tabular-nums">
-                {formatGHS(result.revenue)}
-                <ArrowUpRight size={18} aria-hidden="true" />
-              </dd>
-            </div>
-            <div className="border-border flex flex-wrap justify-between gap-2 border-t pt-3 text-xs">
-              <dt className="text-text-mute">Revenue Range</dt>
-              <dd className="text-text font-semibold tabular-nums">
-                {formatGHS(result.low * result.pricePerTonne)} –{' '}
-                {formatGHS(result.high * result.pricePerTonne)}
-              </dd>
-            </div>
-            <div className="flex flex-wrap justify-between gap-2 text-xs">
-              <dt className="text-text-mute">Market Price</dt>
-              <dd className="text-text font-semibold tabular-nums">
-                {formatGHS(result.pricePerTonne)}/tonne
-              </dd>
-            </div>
-          </dl>
-          <p className="text-text-mute mt-3 text-[10px]">
-            Indicative prices from the app’s sample data.
-          </p>
+          {result.revenue !== null && result.pricePerTonne !== null ? (
+            <>
+              <dl className="mt-3 space-y-3 text-sm">
+                <div>
+                  <dt className="text-text-dim text-xs">Expected Revenue</dt>
+                  <dd className="text-ink-green mt-0.5 flex items-center gap-1 text-2xl font-bold tabular-nums">
+                    {formatGHS(result.revenue)}
+                    <ArrowUpRight size={18} aria-hidden="true" />
+                  </dd>
+                </div>
+                <div className="border-border flex flex-wrap justify-between gap-2 border-t pt-3 text-xs">
+                  <dt className="text-text-mute">Revenue Range</dt>
+                  <dd className="text-text font-semibold tabular-nums">
+                    {formatGHS(result.low * result.pricePerTonne)} –{' '}
+                    {formatGHS(result.high * result.pricePerTonne)}
+                  </dd>
+                </div>
+                <div className="flex flex-wrap justify-between gap-2 text-xs">
+                  <dt className="text-text-mute">Market Price</dt>
+                  <dd className="text-text font-semibold tabular-nums">
+                    {formatGHS(result.pricePerTonne)}/tonne
+                  </dd>
+                </div>
+              </dl>
+              <p className="text-text-mute mt-3 text-[10px]">
+                Published market price
+                {result.priceSource
+                  ? ` · ${result.priceSource.where}${result.priceSource.observedAt ? `, observed ${result.priceSource.observedAt}` : ''}`
+                  : ''}
+                . Prices change; this is not a guaranteed sale.
+              </p>
+            </>
+          ) : (
+            <p className="text-text-dim mt-3 text-sm leading-relaxed">
+              No published market price for {input.crop} yet, so no revenue is estimated. Prices
+              appear here once AgriCtec publishes a reviewed, source-backed price.
+            </p>
+          )}
         </div>
 
         {benchmarks && (
@@ -203,26 +212,8 @@ export function YieldResult({
         <Lightbulb size={16} aria-hidden="true" className="text-ink-blue mt-0.5 shrink-0" />
         <p>{yieldInsight(input, result, crops)}</p>
       </div>
-      <Button
-        variant="ghost"
-        icon={NotebookPen}
-        className="mt-5 w-full whitespace-normal"
-        disabled={stale}
-        onClick={() =>
-          openRecord({
-            type: 'income',
-            crop: input.crop,
-            amount: result.revenue,
-            description: 'Expected harvest (prediction)',
-            date: todayISO(),
-            notes: `Planning estimate only, not a completed sale. Predicted ${quantity(result.expected)} tonnes from ${quantity(input.acres)} acres. Replace with actual harvest income when known.`,
-          })
-        }
-      >
-        Add to records as expected income
-      </Button>
-      <p className="text-text-mute mt-2 text-center text-[10px] leading-relaxed">
-        Review before saving. Expected income is a planning estimate.
+      <p className="text-text-mute mt-4 text-center text-[10px] leading-relaxed">
+        A planning estimate, not a harvest or a sale. Record income when you actually sell.
       </p>
     </Card>
   );

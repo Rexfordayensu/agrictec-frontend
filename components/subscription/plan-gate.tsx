@@ -4,13 +4,14 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { LockKeyhole } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import { useSubscription } from '@/hooks/use-subscription';
 import { FEATURE_NAMES } from '@/lib/subscriptions/plans';
 import type { PlanFeature } from '@/types/subscription';
 
 export function PlanGate({ feature, children }: { feature: PlanFeature; children: ReactNode }) {
   const { plan, ready, allows } = useSubscription();
-  if (!ready) return <Card role="status">Loading your plan…</Card>;
+  if (!ready) return <LogoLoader center size="lg" label="Loading your plan" />;
   if (allows(feature)) return <>{children}</>;
   return (
     <Card className="mx-auto max-w-xl rounded-3xl text-center">

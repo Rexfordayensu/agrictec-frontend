@@ -128,8 +128,16 @@ export function TransactionsView() {
       )}
       <Card className="space-y-4">
         <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          <label className="text-xs">History period
-            <Select value={allHistory ? 'all' : 'reporting'} onChange={event => { setAllHistory(event.target.value === 'all'); setPage(1); setLoading(true); }}>
+          <label className="text-xs">
+            History period
+            <Select
+              value={allHistory ? 'all' : 'reporting'}
+              onChange={(event) => {
+                setAllHistory(event.target.value === 'all');
+                setPage(1);
+                setLoading(true);
+              }}
+            >
               <option value="reporting">Selected reporting period</option>
               <option value="all">Entire history</option>
             </Select>

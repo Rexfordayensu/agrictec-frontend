@@ -17,6 +17,7 @@ import { amountRange, rateText } from '@/lib/loan-products';
 import { loanProductsService } from '@/services/admin/loan-products.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import type { AdminProduct, ProductStatus } from '@/types/products';
+import { LogoLoader } from '@/components/ui/logo-loader';
 
 const STATUS: Record<ProductStatus, { label: string; color: BadgeColor }> = {
   draft: { label: 'Draft', color: 'blue' },
@@ -92,7 +93,7 @@ export function LenderProducts({
           {error}
         </p>
       ) : products === null ? (
-        <p className="text-text-mute mt-4 text-sm">Loading…</p>
+        <LogoLoader size="sm" label="Loading products" className="mt-4" />
       ) : products.length === 0 ? (
         <p className="text-text-dim mt-4 flex items-center gap-2 text-sm">
           <Package size={16} aria-hidden="true" /> No products yet.

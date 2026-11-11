@@ -202,7 +202,7 @@ export const cropContentSchema = z.array(
     crop: knownCrop,
     emoji: z.string().trim().min(1).max(8),
     yieldPerAcre: z.number().positive().max(1000),
-    pricePerTonne: z.number().positive().max(1_000_000),
+    pricePerTonne: z.number().positive().max(1_000_000).optional(),
     tips: z.array(text(240)).max(10),
   }),
 );

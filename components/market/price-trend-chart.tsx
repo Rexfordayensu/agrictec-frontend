@@ -91,8 +91,8 @@ export function PriceTrendChart({
         yAxisTitle={percentage ? '% change from first month' : 'GHS per listed market unit'}
         ariaLabel={
           percentage
-            ? 'Six-month demo crop price changes in percent, from the first month'
-            : 'Six-month demo crop prices in GHS per listed market unit'
+            ? 'Crop price changes in percent, from the first month'
+            : 'Crop prices in GHS per listed market unit'
         }
       />
       <details className="border-border text-text-mute mt-4 border-t pt-3 text-xs">

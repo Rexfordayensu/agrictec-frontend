@@ -209,8 +209,11 @@ export interface YieldResult {
   expected: number;
   high: number;
   perAcre: number;
-  revenue: number;
-  pricePerTonne: number;
+  /** Only from a single published market price for the crop; null when there isn't one. */
+  revenue: number | null;
+  pricePerTonne: number | null;
+  /** Where and when that published price was observed. */
+  priceSource: { where: string; observedAt: string | null } | null;
 }
 
 export type EligibilityIssueCode =

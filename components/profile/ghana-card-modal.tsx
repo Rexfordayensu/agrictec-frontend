@@ -98,7 +98,8 @@ function GhanaCardForm({ onClose }: { onClose: () => void }) {
         duplicate checks. Our team reviews each card, usually within one working day.
       </p>
       <p className="bg-gold/10 text-ink-gold rounded-xl p-3 text-xs">
-        Demo only. No real NIA verification is performed.
+        An AgriCtec reviewer checks the details you submit. This is not a check against the NIA
+        database.
       </p>
       <Button mutates type="submit" icon={Send} loading={saving} className="w-full">
         Submit for review

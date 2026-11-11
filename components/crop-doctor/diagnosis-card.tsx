@@ -87,10 +87,10 @@ export function DiagnosisCard({
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Badge color="purple">
             <Stethoscope size={11} aria-hidden="true" />
-            Mock result
+            {result.source === 'demo' ? 'Demonstration result' : 'AI diagnosis'}
           </Badge>
           <Badge color={SEVERITY_COLORS[result.severity]}>
-            {result.severity === 'None' ? 'No issue in sample' : `${result.severity} severity`}
+            {result.severity === 'None' ? 'No issue found' : `${result.severity} severity`}
           </Badge>
           {result.crop && <Badge color="blue">{result.crop}</Badge>}
         </div>

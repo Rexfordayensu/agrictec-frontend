@@ -19,6 +19,7 @@ import { fromFinancialSummary, type DashboardRange } from '@/lib/dashboard-summa
 import { formatGHS, formatGhanaDate } from '@/lib/format';
 import { useFarmStore } from '@/store/farm-store';
 import './dashboard.css';
+import { LogoLoader } from '@/components/ui/logo-loader';
 
 export function FarmerDashboard() {
   const records = useFarmStore((state) => state.records);
@@ -43,7 +44,11 @@ export function FarmerDashboard() {
           <div className="farmer-dashboard-section-heading">
             <div>
               <h2 id="farm-summary-title">Your farm at a glance</h2>
-              <p>{summary ? `${summary.periodLabel} · through today` : 'Loading your figures…'}</p>
+              {summary ? (
+                <p>{`${summary.periodLabel} · through today`}</p>
+              ) : (
+                <LogoLoader size="sm" label="Loading your figures" />
+              )}
             </div>
             <div
               role="group"

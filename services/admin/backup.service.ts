@@ -99,8 +99,14 @@ export const backupService = {
     });
   },
 
-  /** When the demo world was seeded (null if never). */
-  async seededAt(): Promise<string | null> {
-    return (await api<{ seededAt: string | null }>('/admin/system/status')).seededAt;
+  /**
+   * When the demo world was seeded (null if never), and whether it exists at all: only in local
+   * development. On the live platform `demoData` is false and the console shows nothing of it.
+   */
+  async systemStatus(): Promise<{ seededAt: string | null; demoData: boolean }> {
+    const status = await api<{ seededAt: string | null; demoData?: boolean }>(
+      '/admin/system/status',
+    );
+    return { seededAt: status.seededAt, demoData: status.demoData === true };
   },
 };

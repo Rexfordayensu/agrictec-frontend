@@ -47,6 +47,8 @@ export interface FinancialSummary {
     verificationStatus: string;
   }[];
   monthsWithRecords: number;
+  /** The farmer's first entry (any farm record or MoMo), or null: the chart starts that month. */
+  firstRecordedOn?: string | null;
   /** Fewer months of records than the period asks for: nothing is projected. */
   insufficient: boolean;
 }

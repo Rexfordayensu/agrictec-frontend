@@ -31,8 +31,11 @@ export function PlanManager() {
   const { plan: current, snapshot, ready } = useSubscription();
   const checkout = useSubscriptionStore((s) => s.checkoutMock);
   const startCheckout = useSubscriptionStore((s) => s.startCheckout);
-  // "paystack": real payments; "demo": simulated (development only).
-  const live = usePlatformStore((s) => s.payments.mode === 'paystack');
+  // "paystack": Paystack (test or live key); "demo": simulated, local development only;
+  // "off": the live platform has no payment provider yet, so paid plans can't be bought.
+  const mode = usePlatformStore((s) => s.payments.mode);
+  const live = mode === 'paystack';
+  const off = mode === 'off';
   const readOnly = useReadOnly();
   const [selectedId, setSelectedId] = useState<Plan['id'] | null>(null);
   const [method, setMethod] = useState<MockPaymentMethod>('mobile-money');
@@ -106,6 +109,13 @@ export function PlanManager() {
             renew automatically.
           </p>
         </div>
+      ) : off ? (
+        <div className="border-border bg-glass text-text-dim rounded-2xl border p-4 text-sm">
+          <p className="text-text font-semibold">Paid plans aren&apos;t available yet</p>
+          <p className="mt-1">
+            Online payments are not switched on. Your farm records and the Free plan work as usual.
+          </p>
+        </div>
       ) : (
         <div className="border-gold/30 bg-gold/10 text-text-dim rounded-2xl border p-4 text-sm">
           <p className="text-text font-semibold">Demo payments · no money is charged</p>
@@ -129,7 +139,11 @@ export function PlanManager() {
             )}
           </div>
           <Badge color={snapshot?.subscription.mode === 'paystack' ? 'green' : 'gold'} className="max-w-full whitespace-normal">
-            {snapshot?.subscription.mode === 'paystack' ? 'Paid subscription' : 'Demo subscription'}
+            {snapshot?.subscription.mode === 'paystack'
+              ? 'Paid subscription'
+              : current.id === 'free'
+                ? 'Free plan'
+                : 'Demo subscription'}
           </Badge>
         </div>
         <div className="border-border mt-4 border-t pt-4">
@@ -237,7 +251,9 @@ export function PlanManager() {
                   variant={plan.id === 'premium' ? 'primary' : 'ghost'}
                   className="mt-5 w-full min-w-0 px-3 leading-snug whitespace-normal sm:px-4"
                   mutates
-                  disabled={!ready || readOnly || isCurrent || !plan.active}
+                  disabled={
+                    !ready || readOnly || isCurrent || !plan.active || (off && plan.id !== 'free')
+                  }
                   onClick={() => choose(plan)}
                 >
                   <span className="min-w-0 break-words">
@@ -245,7 +261,9 @@ export function PlanManager() {
                       ? 'Your current plan'
                       : plan.id === 'free'
                         ? 'Switch to Free'
-                        : `Choose ${plan.name}`}
+                        : off
+                          ? 'Not available yet'
+                          : `Choose ${plan.name}`}
                   </span>
                 </Button>
               </article>

@@ -19,7 +19,8 @@ interface Upgrade {
   from: string;
   to: string;
   extraTonnes: number;
-  extraRevenue: number;
+  /** Null when the crop has no published market price. */
+  extraRevenue: number | null;
 }
 
 const quantity = (value: number) => value.toLocaleString('en-GH', { maximumFractionDigits: 2 });
@@ -29,6 +30,7 @@ const labelOf = <T extends string>(options: { value: T; label: string }[], value
 /** "What if" upgrades: each input switched to its best option, with the extra harvest it adds. */
 export function YieldBoosts({ input, result }: { input: YieldInput; result: YieldResult }) {
   const crops = usePlatformStore((s) => s.crops);
+  const prices = usePlatformStore((s) => s.marketPrices);
   const candidates: (Omit<Upgrade, 'extraTonnes' | 'extraRevenue'> & { next: YieldInput })[] = [];
   if (input.irrigation !== 'drip') {
     candidates.push({
@@ -63,18 +65,22 @@ export function YieldBoosts({ input, result }: { input: YieldInput; result: Yiel
 
   const upgrades: Upgrade[] = candidates
     .map(({ next, ...rest }) => {
-      const better = predictYield(next, crops);
+      const better = predictYield(next, crops, prices);
       return {
         ...rest,
         extraTonnes: better.expected - result.expected,
-        extraRevenue: better.revenue - result.revenue,
+        extraRevenue:
+          better.revenue !== null && result.revenue !== null
+            ? better.revenue - result.revenue
+            : null,
       };
     })
-    .sort((a, b) => b.extraRevenue - a.extraRevenue);
+    .sort((a, b) => b.extraTonnes - a.extraTonnes);
 
   const all = predictYield(
     { ...input, irrigation: 'drip', fertilizer: 'both', season: 'major' },
     crops,
+    prices,
   );
 
   return (
@@ -123,7 +129,11 @@ export function YieldBoosts({ input, result }: { input: YieldInput; result: Yiel
                   <p className="text-ink-green text-sm font-bold tabular-nums">
                     +{quantity(extraTonnes)} t
                   </p>
-                  <p className="text-text-mute text-xs tabular-nums">+{formatGHS(extraRevenue)}</p>
+                  {extraRevenue !== null && (
+                    <p className="text-text-mute text-xs tabular-nums">
+                      +{formatGHS(extraRevenue)}
+                    </p>
+                  )}
                 </div>
               </li>
             ))}
@@ -131,8 +141,14 @@ export function YieldBoosts({ input, result }: { input: YieldInput; result: Yiel
           {upgrades.length > 1 && (
             <p className="border-border text-text-dim mt-4 border-t pt-4 text-xs leading-relaxed">
               With all {upgrades.length} changes you could harvest about{' '}
-              <span className="text-text font-semibold">{quantity(all.expected)} t</span>, worth{' '}
-              <span className="text-ink-green font-semibold">{formatGHS(all.revenue)}</span>.
+              <span className="text-text font-semibold">{quantity(all.expected)} t</span>
+              {all.revenue !== null && (
+                <>
+                  , worth{' '}
+                  <span className="text-ink-green font-semibold">{formatGHS(all.revenue)}</span>
+                </>
+              )}
+              .
             </p>
           )}
         </>

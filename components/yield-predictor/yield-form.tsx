@@ -134,6 +134,7 @@ function OptionCards<T extends string>({
 export function YieldForm() {
   const profile = useProfileStore((state) => state.profile);
   const crops = usePlatformStore((s) => s.crops);
+  const prices = usePlatformStore((s) => s.marketPrices);
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const resultRef = useRef<HTMLHeadingElement>(null);
 
@@ -198,7 +199,7 @@ export function YieldForm() {
               try {
                 useSubscriptionStore.getState().assertFeature('yieldPredictor');
                 // Await also supports a future API-backed implementation of predictYield.
-                const result = await predictYield(input, crops);
+                const result = await predictYield(input, crops, prices);
                 setEstimate({ input, result });
               } catch {
                 toast.error('Could not predict your yield. Please try again.');
@@ -443,7 +444,7 @@ export function YieldForm() {
                 <ul className="mt-6 grid w-full max-w-sm gap-2 text-left">
                   {[
                     { icon: Wheat, text: 'Harvest range in tonnes' },
-                    { icon: Banknote, text: 'Expected revenue at market price' },
+                    { icon: Banknote, text: 'Revenue at the published market price' },
                     { icon: Sparkles, text: 'Which inputs would raise it most' },
                   ].map(({ icon: Icon, text }) => (
                     <li
