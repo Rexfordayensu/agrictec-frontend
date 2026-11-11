@@ -7,6 +7,7 @@ import { DangerZoneCard } from '@/components/admin/settings/danger-zone';
 import { DemoDataCard } from '@/components/admin/settings/demo-data';
 import { ErrorAlertsCard } from '@/components/admin/settings/error-alerts';
 import { FeatureFlagsCard } from '@/components/admin/settings/feature-flags';
+import { IdentityRequirementsCard } from '@/components/admin/settings/identity-requirements';
 import { MaintenanceModeCard } from '@/components/admin/settings/maintenance-mode';
 import { PlansEditor } from '@/components/admin/settings/plans-editor';
 import { Button } from '@/components/ui/button';
@@ -114,6 +115,8 @@ export function SystemSettings({ section }: { section: SystemSettingsSection }) 
       ) : null;
     case 'alerts':
       return <ErrorAlertsCard />;
+    case 'identity':
+      return <IdentityRequirementsCard />;
     case 'backup':
       return <BackupRestoreCard onRestored={reloadAll} />;
     case 'demo':

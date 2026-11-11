@@ -59,7 +59,7 @@ export function LoansHeader() {
         : 'We will notify you when a lender updates one of them.';
     action = { label: 'Track application', run: 'applications' };
   } else if (credit.ready) {
-    eyebrow = 'Ghana Card verified';
+    eyebrow = 'Ghana Card reviewed';
     headline = 'See what lenders ask for';
     detail = lenderCount
       ? 'Each lender sets its own requirements, shown with its loan products. Your AgriCtec score does not decide a loan.'

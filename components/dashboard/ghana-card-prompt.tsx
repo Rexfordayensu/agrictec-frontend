@@ -43,8 +43,8 @@ export function GhanaCardPrompt() {
           Add your Ghana Card to unlock loans
         </h2>
         <p className="text-text-dim mt-0.5 text-sm">
-          Everything else works without it, but lenders need a verified Ghana Card before you can
-          apply.
+          Everything else works without it, but your Ghana Card must be reviewed by AgriCtec
+          before you can apply.
         </p>
       </div>
       <Button icon={ShieldCheck} mutates onClick={() => setOpen(true)} className="shrink-0">

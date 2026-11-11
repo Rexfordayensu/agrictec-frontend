@@ -75,7 +75,7 @@ export function StepGhanaCard({
       <StepHeader
         icon={IdCard}
         title="Verify your Ghana Card"
-        description="Optional. A verified Ghana Card is needed to apply for loans."
+        description="Optional. Your Ghana Card must be reviewed by AgriCtec before you can apply for loans."
         autoFocus={autoFocusHeading}
       />
 

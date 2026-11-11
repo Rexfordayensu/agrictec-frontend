@@ -15,6 +15,7 @@ import {
   type ReminderState,
 } from '@/lib/ghana-card-reminder';
 import { useReadOnly } from '@/lib/read-only';
+import { identityService } from '@/services/identity.service';
 import { sessionStore, userKey } from '@/services/storage';
 import { useAuthStore } from '@/store/auth-store';
 import { useModalStore } from '@/store/modal-store';
@@ -60,15 +61,27 @@ export function GhanaCardReminder() {
     const wait = msUntilDue(schedule, Date.now());
     if (wait === null) return;
     let timer: ReturnType<typeof setTimeout>;
+    let cancelled = false;
     const attempt = () => {
       if (formOpen || document.visibilityState !== 'visible') {
         timer = setTimeout(attempt, BUSY_RETRY_MS);
         return;
       }
-      setShowing(true);
+      // Identity verified with NIA already meets what an AgriCtec review would: no reminder.
+      identityService.status().then(
+        (identity) => {
+          if (cancelled) return;
+          if (identity.level === 'nia_verified') setSchedule((s) => (s ? dismissForVisit(s) : s));
+          else setShowing(true);
+        },
+        () => !cancelled && setShowing(true),
+      );
     };
     timer = setTimeout(attempt, wait);
-    return () => clearTimeout(timer);
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
   }, [active, schedule, showing, verifying, formOpen]);
 
   function save(next: ReminderState) {
@@ -100,7 +113,7 @@ export function GhanaCardReminder() {
         open={showing}
         // Closing it any other way (Esc, the X, the backdrop) counts as "Remind me later".
         onClose={later}
-        title={rejected ? 'Submit your Ghana Card again' : 'Verify your Ghana Card'}
+        title={rejected ? 'Submit your Ghana Card again' : 'Add your Ghana Card'}
         size="md"
         footer={
           <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center sm:justify-between">
@@ -131,9 +144,9 @@ export function GhanaCardReminder() {
               </p>
             ) : (
               <p>
-                Lenders need a verified Ghana Card before you can apply for a loan. It takes about
-                a minute: enter your card number, and an AgriCtec reviewer checks it, usually within
-                one working day.
+                Your Ghana Card must be reviewed by AgriCtec before you can apply for a loan. It
+                takes about a minute: enter your card number, and an AgriCtec reviewer checks it,
+                usually within one working day.
               </p>
             )}
             <p className="text-text-mute text-xs">

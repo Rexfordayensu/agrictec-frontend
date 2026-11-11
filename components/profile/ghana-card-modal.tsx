@@ -13,7 +13,7 @@ import { useProfileStore } from '@/store/profile-store';
 /** Add or resubmit a Ghana Card (Profile → Verification, and "Verify now" on /loans). */
 export function GhanaCardModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
-    <Modal open={open} title="Verify Ghana Card" onClose={onClose}>
+    <Modal open={open} title="Submit your Ghana Card for review" onClose={onClose}>
       <GhanaCardForm onClose={onClose} />
     </Modal>
   );
