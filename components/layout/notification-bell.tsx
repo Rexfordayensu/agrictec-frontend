@@ -2,7 +2,7 @@
 
 import { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
-import { Bell, BadgeCheck, Landmark, ShieldAlert } from 'lucide-react';
+import { Bell, BadgeCheck, CloudRain, Landmark, ShieldAlert, TrendingUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { useReadOnly } from '@/lib/read-only';
 import { cn } from '@/lib/utils';
@@ -11,7 +11,13 @@ import { notificationsService, type Inbox } from '@/services/notifications.servi
 /** How often the inbox is re-read while the app is open (live events also refresh the app). */
 const POLL_MS = 60_000;
 
-const ICONS = { verification: BadgeCheck, loan: Landmark, account: ShieldAlert } as const;
+const ICONS = {
+  verification: BadgeCheck,
+  loan: Landmark,
+  account: ShieldAlert,
+  weather: CloudRain,
+  price: TrendingUp,
+} as const;
 
 /**
  * The top bar's bell: notices about the farmer's account, newest first. Opening it marks them
@@ -100,7 +106,8 @@ export function NotificationBell({ buttonClassName }: { buttonClassName: string 
           </p>
           {!inbox || inbox.items.length === 0 ? (
             <p className="text-text-dim px-3 py-6 text-center text-sm">
-              Nothing yet. Decisions on your verifications and loans will appear here.
+              Nothing yet. Weather and price alerts, and decisions on your verifications and loans,
+              will appear here.
             </p>
           ) : (
             <ul className="max-h-96 overflow-y-auto py-1">
@@ -110,7 +117,9 @@ export function NotificationBell({ buttonClassName }: { buttonClassName: string 
                   <>
                     <Icon size={16} aria-hidden="true" className="text-ink-green mt-0.5 shrink-0" />
                     <span className="min-w-0">
-                      <span className="text-text block text-sm font-semibold break-words">{n.title}</span>
+                      <span className="text-text block text-sm font-semibold break-words">
+                        {n.title}
+                      </span>
                       <span className="text-text-dim block text-xs break-words">{n.body}</span>
                       <span className="text-text-mute mt-1 block text-[11px]">
                         {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}

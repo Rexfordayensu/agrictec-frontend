@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
+import { FinancialPanel } from '@/components/admin/farmers/detail/financial-panel';
 import type { TabProps } from '@/components/admin/farmers/detail/types';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { ScoreRing } from '@/components/ui/score-ring';
@@ -34,7 +35,7 @@ export function CreditTab({ data }: TabProps) {
   return (
     <div className="grid grid-cols-1 gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
       <Card className="flex flex-col items-center text-center">
-        <ScoreRing value={credit.score} max={850} label="Credit score" size={150} />
+        <ScoreRing value={credit.score} max={850} label="AgriCtec score" size={150} />
         <p className="text-text mt-3 font-semibold">
           {scoreLabel(credit.score, creditConfig.bands)}
         </p>
@@ -112,6 +113,9 @@ export function CreditTab({ data }: TabProps) {
           })}
         </ul>
       </Card>
+      <div className="xl:col-span-2">
+        <FinancialPanel userId={data.detail.account.userId} />
+      </div>
     </div>
   );
 }

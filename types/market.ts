@@ -53,14 +53,16 @@ export interface DailyWeather {
   description: string;
   minTemp: number;
   maxTemp: number;
-  rainMm: number;
+  /** null when the provider gave no amount for the day: unknown, never 0 (never "dry"). */
+  rainMm: number | null;
   /** null when the provider publishes no probability (MET Norway, for Ghana). */
   rainChance: number | null;
-  windKph: number;
+  /** null when the provider gave no wind speed. */
+  windKph: number | null;
+  /** A thunderstorm is forecast that day (missing from older API answers: treated as none). */
+  storm?: boolean;
 }
 export interface WeatherReport {
-  /** Local sample measurements, never an observation from a live provider. */
-  demo?: boolean;
   location: WeatherLocation;
   provider: string;
   updatedAt: string;
@@ -68,9 +70,10 @@ export interface WeatherReport {
     temp: number;
     description: string;
     humidity: number;
-    rainMm: number;
+    /** Rain this hour; null when the provider gave none (unknown, never 0). */
+    rainMm: number | null;
     rainChance: number | null;
-    windKph: number;
+    windKph: number | null;
   };
   daily: DailyWeather[];
   upcoming: { time: string; description: string; temp: number; rainChance: number | null }[];

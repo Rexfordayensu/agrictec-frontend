@@ -5,7 +5,6 @@ import {
   Ban,
   BadgeCheck,
   Banknote,
-  Calculator,
   ChevronDown,
   CircleAlert,
   CircleCheck,
@@ -17,10 +16,11 @@ import {
 } from 'lucide-react';
 import { Badge, type BadgeColor } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { loanUi } from '@/components/loans/loan-ui';
+import { LenderLogo } from '@/components/shared/lender-logo';
 import { EmptyState } from '@/components/ui/empty-state';
 import { LOAN_STATUS_LABELS } from '@/lib/admin/loan-status';
-import { formatDate, formatGHS } from '@/lib/format';
+import { formatDate, formatGHS, formatGhanaDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useLoanStore } from '@/store/loan-store';
 import { usePlatformStore } from '@/store/platform-store';
@@ -35,7 +35,7 @@ const STATUS_STYLE: Record<LoanStatus, { color: BadgeColor; icon: LucideIcon; hi
     hint: 'The lender is checking your records. They may call you.',
   },
   approved: { color: 'green', icon: BadgeCheck, hint: 'Approved. The lender will send the funds.' },
-  rejected: { color: 'red', icon: Ban, hint: 'Not approved this time. See the note for why.' },
+  rejected: { color: 'red', icon: Ban, hint: 'Not approved this time.' },
   disbursed: {
     color: 'purple',
     icon: Banknote,
@@ -50,28 +50,31 @@ const STATUS_STYLE: Record<LoanStatus, { color: BadgeColor; icon: LucideIcon; hi
 };
 
 function ApplicationItem({ app }: { app: LoanApplication }) {
-  const lender = usePlatformStore((s) => s.allLenders.find((l) => l.id === app.partnerId));
+  // The name comes with the application; the logo only while the lender is still listed.
+  const listed = usePlatformStore((s) => s.lenders.find((l) => l.id === app.partnerId));
+  const name = app.partnerName ?? listed?.name ?? 'Lender';
   const [open, setOpen] = useState(false);
   const timelineId = useId();
   const style = STATUS_STYLE[app.status];
   const StatusIcon = style.icon;
   // Newest step first, so the latest news is at the top of the timeline.
   const steps = [...app.history].reverse();
+  // The latest note (e.g. why it was not approved) is shown without opening the timeline.
+  const latestNote = steps.find((step) => step.note)?.note;
 
   return (
-    <li className="border-border bg-glass rounded-2xl border p-4">
+    <li className="border-border bg-glass rounded-card border p-4 sm:p-5">
       <div className="flex items-start gap-3">
-        <span
-          aria-hidden="true"
-          className="inline-flex size-10 shrink-0 items-center justify-center rounded-xl text-white"
-          style={{ backgroundColor: lender?.color ?? 'var(--accent)' }}
-        >
-          <Landmark size={18} />
-        </span>
+        <LenderLogo
+          name={name}
+          color={listed?.color ?? '#64748b'}
+          logoPath={listed?.logoPath}
+          size={40}
+        />
         <div className="min-w-0 flex-1">
-          <p className="text-text truncate text-sm font-semibold">{lender?.name ?? 'Lender'}</p>
+          <p className="text-text text-sm font-semibold wrap-break-word">{name}</p>
           <p className="text-text-mute text-xs">
-            {app.purpose} · sent {formatDate(new Date(app.createdAt))}
+            {app.purpose} · sent {formatGhanaDate(app.createdAt)}
           </p>
         </div>
         <Badge color={style.color} className="shrink-0">
@@ -91,11 +94,27 @@ function ApplicationItem({ app }: { app: LoanApplication }) {
         </div>
         <div>
           <dt className="text-text-mute">Term</dt>
-          <dd className="text-text text-sm font-bold">{app.months} months</dd>
+          <dd className="text-text text-sm font-bold">
+            {app.months} months
+            <span className="text-text-mute block text-[11px] font-normal">{app.rate}% a year</span>
+          </dd>
         </div>
       </dl>
 
       <p className="text-text-dim mt-3 text-xs">{style.hint}</p>
+      {latestNote && (
+        <p
+          className={cn(
+            'mt-2 rounded-xl border px-3 py-2 text-xs',
+            app.status === 'rejected' || app.status === 'defaulted'
+              ? 'border-danger/30 bg-danger/5 text-text'
+              : 'border-border bg-glass-strong text-text',
+          )}
+        >
+          <span className="text-text-mute font-semibold">Latest note: </span>
+          {latestNote}
+        </p>
+      )}
 
       <div className="mt-3 flex items-center justify-between gap-2">
         <p className="text-text-mute font-mono text-[11px]">Ref {app.reference}</p>
@@ -142,7 +161,7 @@ function ApplicationItem({ app }: { app: LoanApplication }) {
                     {LOAN_STATUS_LABELS[step.status]}
                     <span className="text-text-mute font-normal">
                       {' '}
-                      · {formatDate(new Date(step.at))}
+                      · {formatGhanaDate(step.at)}
                     </span>
                   </p>
                   {step.note && <p className="text-text-dim mt-0.5 text-xs">{step.note}</p>}
@@ -169,29 +188,29 @@ export function MyApplications({ className }: { className?: string }) {
   const total = applications.reduce((sum, app) => sum + app.amount, 0);
 
   return (
-    <Card className={cn('@container rounded-3xl', className)}>
-      <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <Inbox size={17} aria-hidden="true" className="text-ink-green" />
-            My applications
-          </CardTitle>
-          <CardSub>
-            {applications.length > 0
-              ? `${applications.length} sent · ${formatGHS(total)} requested in total`
-              : 'Track what you have sent to lenders'}
-          </CardSub>
-        </div>
-      </CardHeader>
+    <section
+      aria-labelledby="applications-title"
+      className={cn(loanUi.panel, '@container', className)}
+    >
+      <div className="mb-5">
+        <h3 id="applications-title" className={loanUi.title}>
+          My applications
+        </h3>
+        <p className={loanUi.sub}>
+          {applications.length > 0
+            ? `${applications.length} sent · ${formatGHS(total)} requested in total`
+            : 'Track what you have sent to lenders'}
+        </p>
+      </div>
 
       {applications.length === 0 ? (
         <EmptyState
           icon={Inbox}
           title="No applications yet"
-          description="Build a loan, check your eligibility and apply. Your applications will appear here."
+          description="Applications you make through AgriCtec, and their status, appear here."
           action={
-            <Button icon={Calculator} onClick={() => setTab('apply')}>
-              Build my loan
+            <Button icon={Landmark} onClick={() => setTab('lenders')}>
+              See lenders
             </Button>
           }
         />
@@ -202,6 +221,6 @@ export function MyApplications({ className }: { className?: string }) {
           ))}
         </ul>
       )}
-    </Card>
+    </section>
   );
 }

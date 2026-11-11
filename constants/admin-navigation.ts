@@ -22,7 +22,7 @@ import {
 import { can } from '@/lib/admin/permissions';
 import type { Permission, Role } from '@/types/admin';
 
-export type AdminBadgeKey = 'pendingVerifications' | 'openRisk' | 'newApplications';
+export type AdminBadgeKey = 'pendingTransactions' | 'pendingVerifications' | 'openRisk' | 'newApplications';
 
 export interface AdminNavItem {
   label: string;
@@ -60,6 +60,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
     title: 'Farmers',
     items: [
+      { label: 'Transactions review', href: '/admin/transactions', icon: ClipboardList, permission: 'transactions.review', badgeKey: 'pendingTransactions' },
       { label: 'All Farmers', href: '/admin/farmers', icon: Users, permission: 'farmers.view' },
       {
         label: 'Verifications',
@@ -175,6 +176,7 @@ export const ADMIN_PAGE_META: Record<string, { title: string; subtitle: string }
     title: 'All Farmers',
     subtitle: 'Search, filter and manage every farmer account.',
   },
+  '/admin/transactions': { title: 'Transactions review', subtitle: 'Review submitted financial evidence and disputes.' },
   '/admin/verifications': {
     title: 'Verifications',
     subtitle: 'Approve or reject phone, location and Ghana Card checks.',
@@ -193,7 +195,7 @@ export const ADMIN_PAGE_META: Record<string, { title: string; subtitle: string }
   },
   '/admin/credit-rules': {
     title: 'Credit Rules',
-    subtitle: 'Tune credit score weights, bands and loan eligibility.',
+    subtitle: 'Tune the AgriCtec score: weights, bands and the records guidance.',
   },
   '/admin/content/market': {
     title: 'Market Price Management',

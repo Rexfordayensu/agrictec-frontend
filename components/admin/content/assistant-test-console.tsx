@@ -17,7 +17,7 @@ import type {
 
 const SAMPLES = [
   'When should I plant maize?',
-  'How do I improve my credit score?',
+  'How do I improve my AgriCtec score?',
   'Tell me about irrigation',
 ];
 

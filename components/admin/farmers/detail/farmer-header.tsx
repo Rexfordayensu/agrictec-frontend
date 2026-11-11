@@ -77,7 +77,7 @@ export function FarmerHeader({
         </div>
 
         <div className="flex flex-wrap items-center gap-4">
-          <ScoreRing value={farmer.stats.score} max={850} label="Credit score" size={84} />
+          <ScoreRing value={farmer.stats.score} max={850} label="AgriCtec score" size={84} />
           <div className="flex flex-wrap items-center gap-2">
             {abilities.impersonate && (
               <Button size="sm" variant="ghost" icon={Eye} onClick={actions.onViewAs}>

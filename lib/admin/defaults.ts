@@ -11,7 +11,6 @@ import type {
   DiagnosisContent,
   FeatureFlags,
   KnownCrop,
-  Lender,
   Plan,
 } from '@/types/admin';
 
@@ -30,7 +29,7 @@ export const DEFAULT_CREDIT_CONFIG: CreditConfig = {
   },
   targets: { recordsForFull: 30, momoForFull: 20, monthsWindow: 6 },
   bands: { fair: 500, good: 650, excellent: 750 },
-  eligibility: { minRecords: 5, minScore: 550, maxProfitMultiplier: 3 },
+  eligibility: { minRecords: 5 },
   updatedAt: BUILT_IN,
   updatedBy: 'System',
 };
@@ -50,9 +49,6 @@ export const DEFAULT_FLAGS: FeatureFlags = {
 };
 
 export const DEFAULT_PLANS: Plan[] = PLAN_CATALOG;
-
-/** No lenders until the API answers: admins add the real ones, with their real terms. */
-export const DEFAULT_LENDERS: Lender[] = [];
 
 /** No real prices have been sourced yet. Administrators add evidence-backed observations. */
 export const DEFAULT_MARKET_PRICES: MarketPrice[] = [];
@@ -134,7 +130,7 @@ export const DEFAULT_ASSISTANT_KB: AssistantKnowledgeItem[] = [
     priority: 80,
     active: true,
     reply: {
-      title: 'Improve Your Credit Score',
+      title: 'Improve Your AgriCtec Score',
       intro: 'Your score is {score} ({scoreLabel}). {creditFocus}',
       bullets: ['{creditSteps}'],
       tip: 'This is your AgriCtec farm score. Lenders make their own decisions; improving it does not guarantee a loan.',
@@ -270,7 +266,7 @@ export const DEFAULT_ASSISTANT_KB: AssistantKnowledgeItem[] = [
         'Maize planting seasons and cassava tips.',
         'Fall armyworm, pests and fertilizer guidance.',
         'Weather information and indicative cocoa prices.',
-        'Your credit score, farm income, expenses and profit.',
+        'Your AgriCtec score, farm income, expenses and profit.',
       ],
       tip: 'Tell me the crop and the issue, or choose a quick prompt below.',
     },

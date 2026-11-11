@@ -1,6 +1,7 @@
 'use client';
 
 import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { TransactionTools } from '@/components/transactions/transaction-tools';
 import { useState } from 'react';
 import { isToday, isYesterday } from 'date-fns';
 import { ClipboardList, FilterX, Pencil, Plus, SearchX, Trash2 } from 'lucide-react';
@@ -25,6 +26,7 @@ const TYPE_BADGE: Record<RecordType, { label: string; color: BadgeColor }> = {
   income: { label: 'Income', color: 'green' },
   expense: { label: 'Expense', color: 'red' },
   activity: { label: 'Activity', color: 'blue' },
+  financing: { label: 'Financing', color: 'purple' },
 };
 
 function friendlyDate(iso: string): string {
@@ -39,7 +41,7 @@ function Amount({ record }: { record: FarmRecord }) {
   if (record.type === 'activity') {
     return <span className="text-text-mute text-xs">No amount</span>;
   }
-  const income = record.type === 'income';
+  const income = record.type === 'income' || (record.type === 'financing' && record.direction === 'in');
   return (
     <span
       className={cn(
@@ -65,7 +67,7 @@ function RecordRow({
   onEdit: (record: FarmRecord) => void;
   onDelete: (record: FarmRecord) => void;
 }) {
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || record.verificationStatus === 'verified';
   const badge = TYPE_BADGE[record.type];
   return (
     <li className="group hover:bg-glass focus-within:bg-glass flex items-start gap-3 rounded-2xl px-3 py-3 transition-colors sm:items-center">
@@ -81,6 +83,7 @@ function RecordRow({
         <p className="text-text-mute mt-0.5 text-xs">
           {record.crop} · {friendlyDate(record.date)}
         </p>
+        <TransactionTools kind="farm" id={record.id} entry={record} />
         {record.notes && (
           <p className="text-text-dim mt-1 line-clamp-2 text-xs break-words">{record.notes}</p>
         )}

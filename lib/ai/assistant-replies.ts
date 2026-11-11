@@ -31,7 +31,7 @@ export interface AssistantContext {
   bands?: CreditConfig['bands'];
   /**
    * The farmer's Ghana Card status. Unless it is 'verified', a reply about loans never says the
-   * farmer can get one: its tip becomes "Verify your Ghana Card to unlock loan offers."
+   * farmer can get one: its tip becomes "Verify your Ghana Card before you apply to a lender."
    */
   ghanaCard?: GhanaCardStatus;
 }
@@ -48,7 +48,7 @@ export const ASSISTANT_PLACEHOLDERS: { token: string; description: string }[] = 
   { token: '{name}', description: 'The farmer’s name (or “Farmer”)' },
   { token: '{region}', description: 'The farmer’s region' },
   { token: '{crops}', description: 'The farmer’s primary crops' },
-  { token: '{score}', description: 'Credit score, e.g. 612' },
+  { token: '{score}', description: 'AgriCtec score, e.g. 612' },
   { token: '{scoreLabel}', description: 'Score band: Building, Fair, Good or Excellent' },
   { token: '{creditFocus}', description: 'A sentence naming the weakest credit factor' },
   { token: '{creditSteps}', description: 'As a whole bullet: five steps, weakest factor first' },
@@ -75,7 +75,7 @@ const FALLBACK: AssistantReply = {
     'Maize planting seasons and cassava tips.',
     'Fall armyworm, pests and fertilizer guidance.',
     'Weather information and indicative cocoa prices.',
-    'Your credit score, farm income, expenses and profit.',
+    'Your AgriCtec score, farm income, expenses and profit.',
   ],
   tip: 'Tell me the crop and the issue, or choose a quick prompt below.',
 };

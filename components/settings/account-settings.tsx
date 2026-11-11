@@ -1,26 +1,19 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
-import { CreditCard, LogOut, Sparkles, UserPlus } from 'lucide-react';
+import { ArrowRight, CreditCard, LogOut, UserPlus } from 'lucide-react';
 import { useSignOut } from '@/components/layout/use-sign-out';
-import { UpgradeModal } from '@/components/settings/upgrade-modal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { useAuthStore } from '@/store/auth-store';
-import { usePlatformStore } from '@/store/platform-store';
 import { useSubscription } from '@/hooks/use-subscription';
 
+/** Who is signed in, the plan in one line (managed on its own page) and sign-out. */
 export function AccountSettings() {
   const session = useAuthStore((state) => state.session);
   const { signOut, signingOut } = useSignOut();
-  const [upgradeOpen, setUpgradeOpen] = useState(false);
-  const plans = usePlatformStore((state) => state.plans);
-  const { plan: currentPlan } = useSubscription();
-  const freeName = currentPlan.name;
-  // The upgrade offer only shows while the admin has the Premium plan switched on.
-  const premiumOffered = plans.some((plan) => plan.id !== 'free' && plan.active);
+  const { plan } = useSubscription();
   return (
     <Card className="flex h-full flex-col rounded-3xl">
       <CardHeader>
@@ -29,21 +22,10 @@ export function AccountSettings() {
             <CreditCard size={18} aria-hidden="true" className="text-ink-green" />
             Account
           </CardTitle>
-          <CardSub>Your plan and sign-in details</CardSub>
+          <CardSub>Your sign-in details</CardSub>
         </div>
       </CardHeader>
-      <div className="border-border flex flex-wrap items-center justify-between gap-2 border-b pb-4">
-        <div>
-          <p className="text-text-mute text-xs">Plan</p>
-          <Badge className="mt-2">{freeName}</Badge>
-        </div>
-        {premiumOffered && (
-          <Button size="sm" variant="ghost" icon={Sparkles} onClick={() => setUpgradeOpen(true)}>
-            View plans
-          </Button>
-        )}
-      </div>
-      <div className="py-4">
+      <div className="border-border border-b pb-4">
         <p className="text-text-mute text-xs">Signed in as</p>
         <p className="text-text mt-1 text-sm font-semibold break-all">
           {session?.isGuest ? 'Guest' : session?.email}
@@ -63,6 +45,19 @@ export function AccountSettings() {
           </>
         )}
       </div>
+      <div className="flex flex-wrap items-center justify-between gap-2 py-4">
+        <div>
+          <p className="text-text-mute text-xs">Plan</p>
+          <Badge className="mt-2">{plan.name}</Badge>
+        </div>
+        <Link
+          href="/settings/plans"
+          className="text-ink-green inline-flex min-h-9 items-center gap-1 text-xs font-semibold hover:underline"
+        >
+          Manage plan
+          <ArrowRight size={13} aria-hidden="true" />
+        </Link>
+      </div>
       <Button
         variant="danger"
         icon={LogOut}
@@ -72,7 +67,6 @@ export function AccountSettings() {
       >
         Sign Out
       </Button>
-      <UpgradeModal open={upgradeOpen} onClose={() => setUpgradeOpen(false)} />
     </Card>
   );
 }

@@ -285,7 +285,7 @@ export function ReviewModal({
             </div>
             {farmer && (
               <div className="sm:w-36">
-                <p className="text-text-mute text-xs">Credit score</p>
+                <p className="text-text-mute text-xs">AgriCtec score</p>
                 <p className="mt-0.5 flex items-baseline gap-1.5">
                   <span className="font-display text-text text-2xl font-bold tabular-nums">
                     {score}

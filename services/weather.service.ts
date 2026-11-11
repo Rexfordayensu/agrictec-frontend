@@ -21,9 +21,9 @@ const reportSchema = z.object({
     temp,
     description,
     humidity: percent,
-    rainMm: z.number().min(0),
+    rainMm: z.number().min(0).nullable(),
     rainChance: chance,
-    windKph: z.number().min(0),
+    windKph: z.number().min(0).nullable(),
   }),
   daily: z
     .array(
@@ -32,9 +32,10 @@ const reportSchema = z.object({
         description,
         minTemp: temp,
         maxTemp: temp,
-        rainMm: z.number().min(0),
+        rainMm: z.number().min(0).nullable(),
         rainChance: chance,
-        windKph: z.number().min(0),
+        windKph: z.number().min(0).nullable(),
+        storm: z.boolean().optional(),
       }),
     )
     .max(16),
@@ -50,6 +51,12 @@ class Unavailable extends Error {
   }
 }
 
+/**
+ * The live forecast providers the API uses (app/integrations/weather.py). A report naming any
+ * other source is refused: the app never shows weather that didn't come from one of them.
+ */
+export const LIVE_WEATHER_PROVIDERS = ['Open-Meteo', 'OpenWeather', 'MET Norway'] as const;
+
 /** Live weather from the API (Open-Meteo behind it, cached 15 minutes per place). */
 const apiWeatherProvider: WeatherProvider = {
   async getForecast(location, signal) {
@@ -59,6 +66,12 @@ const apiWeatherProvider: WeatherProvider = {
       signal,
     });
     if (result.status !== 'ready') throw new Unavailable(result);
+    if (!(LIVE_WEATHER_PROVIDERS as readonly string[]).includes(result.data?.provider))
+      throw new Unavailable({
+        status: 'unavailable',
+        message: 'Weather data unavailable',
+        reason: 'The forecast did not come from a recognised live weather provider.',
+      });
     return result.data;
   },
 };

@@ -322,7 +322,7 @@ export function FarmersTable() {
     },
     {
       key: 'score',
-      header: 'Credit score',
+      header: 'AgriCtec score',
       sortable: true,
       cell: (f) => <ScoreCell farmer={f} bands={bands} />,
     },

@@ -50,7 +50,7 @@ function inPeriod(t: MomoTransaction, period: MomoPeriod, now: Date): boolean {
 function matchesQuery(t: MomoTransaction, query: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
-  return [t.counterparty, t.reference, t.network ?? ''].some((field) =>
+  return [t.counterparty, t.reference ?? '', t.network ?? ''].some((field) =>
     field.toLowerCase().includes(q),
   );
 }

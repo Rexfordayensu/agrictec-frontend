@@ -9,7 +9,6 @@ import {
   annualizedNetProfit,
   currentYearNetByMonth,
   expenseByCategory,
-  financialHealth,
   incomeByCrop,
   momoMonthlySeries,
   momoTotals,
@@ -81,7 +80,6 @@ export function useFarmStats() {
     creditConfig,
     /** Minimum records, minimum score and the profit multiple lenders allow. */
     loanRules,
-    health: financialHealth(records),
     annualizedProfit: annualizedNetProfit(records),
     /** The most the farmer can borrow under the admin's rules. */
     borrowingPower: borrowingLimit(annualizedNetProfit(records), loanRules),

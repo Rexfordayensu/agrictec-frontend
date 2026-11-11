@@ -138,7 +138,7 @@ export function ReportBuilder() {
         <div className="space-y-6">
           <Step n={1} title="Dataset">
             <div role="radiogroup" aria-label="Dataset" className="grid grid-cols-2 gap-2">
-              {DATASETS.map((d) => {
+              {DATASETS.filter(d => d.id !== 'records' && d.id !== 'momo').map((d) => {
                 const Icon = DATASET_ICONS[d.id];
                 const on = d.id === spec.dataset;
                 return (

@@ -12,8 +12,11 @@ import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { StatsRow } from '@/components/dashboard/stats-row';
 import { WeatherCard } from '@/components/market/weather-card';
-import { dashboardSummary, type DashboardRange } from '@/lib/dashboard-summary';
-import { formatGHS } from '@/lib/format';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
+import { useFinancialSummary } from '@/hooks/use-financial-summary';
+import { fromFinancialSummary, type DashboardRange } from '@/lib/dashboard-summary';
+import { formatGHS, formatGhanaDate } from '@/lib/format';
 import { useFarmStore } from '@/store/farm-store';
 import './dashboard.css';
 
@@ -21,7 +24,12 @@ export function FarmerDashboard() {
   const records = useFarmStore((state) => state.records);
   const momo = useFarmStore((state) => state.momo);
   const [range, setRange] = useState<DashboardRange>(6);
-  const summary = dashboardSummary(records, momo, range);
+  // The server's exact figures for the period; nothing is added up in the browser.
+  const figures = useFinancialSummary(range);
+  const summary =
+    figures.summary && figures.summary.period.months === range
+      ? fromFinancialSummary(figures.summary)
+      : null;
   const hasRecords = records.length > 0;
   const hasActivity = hasRecords || momo.length > 0;
   return (
@@ -35,14 +43,14 @@ export function FarmerDashboard() {
           <div className="farmer-dashboard-section-heading">
             <div>
               <h2 id="farm-summary-title">Your farm at a glance</h2>
-              <p>{summary.periodLabel} · through today</p>
+              <p>{summary ? `${summary.periodLabel} · through today` : 'Loading your figures…'}</p>
             </div>
             <div
               role="group"
               aria-label="Financial reporting period"
               className="farmer-dashboard-period"
             >
-              {([6, 12] as const).map((months) => (
+              {([3, 6, 12] as const).map((months) => (
                 <button
                   key={months}
                   type="button"
@@ -54,22 +62,39 @@ export function FarmerDashboard() {
               ))}
             </div>
           </div>
-          <div aria-live="polite" aria-atomic="true">
-            <StatsRow summary={summary} />
-          </div>
-          <div className="farmer-dashboard-finance-footer">
-            <p>
-              {summary.recordCount} farm record{summary.recordCount === 1 ? '' : 's'} in this period
-            </p>
-            <Link href="/momo">
-              MoMo net: <strong>{formatGHS(summary.momoNet)}</strong>
-              <ArrowRight size={14} aria-hidden="true" />
-              <span className="sr-only">View mobile money transactions</span>
-            </Link>
-          </div>
-          <p className="farmer-dashboard-footnote">
-            MoMo is tracked separately and is not added to farm income.
-          </p>
+          {figures.status === 'error' && !summary ? (
+            <div role="alert" className="farmer-dashboard-footnote">
+              <p>{figures.error}</p>
+              <Button size="sm" variant="ghost" className="mt-2" onClick={figures.retry}>
+                Try again
+              </Button>
+            </div>
+          ) : !summary ? (
+            <Skeleton className="h-28 w-full rounded-2xl" />
+          ) : (
+            <>
+              <div aria-live="polite" aria-atomic="true">
+                <StatsRow summary={summary} />
+              </div>
+              <div className="farmer-dashboard-finance-footer">
+                <p>
+                  {summary.recordCount} farm record{summary.recordCount === 1 ? '' : 's'} in this
+                  period · {summary.verifiedShare.entries}% verified
+                </p>
+                <Link href="/momo">
+                  MoMo net: <strong>{formatGHS(summary.momoNet)}</strong>
+                  <ArrowRight size={14} aria-hidden="true" />
+                  <span className="sr-only">View mobile money transactions</span>
+                </Link>
+              </div>
+              <p className="farmer-dashboard-footnote">
+                MoMo is tracked separately and is not added to farm income.
+                {summary.insufficient &&
+                  ` Your records cover ${summary.monthsWithRecords} of these ${summary.months} months; nothing is projected.`}
+                {summary.dataAsOf && ` Updated ${formatGhanaDate(summary.dataAsOf)}.`}
+              </p>
+            </>
+          )}
         </section>
       ) : (
         <section className="farmer-dashboard-welcome" aria-labelledby="first-record-title">
@@ -95,6 +120,7 @@ export function FarmerDashboard() {
         <RecentActivity className="farmer-dashboard-activity farmer-dashboard-panel" limit={4} />
         {hasActivity && <AiRecommendations />}
         {hasRecords &&
+          summary &&
           (summary.financialRecordCount ? (
             <IncomeExpenseChart summary={summary} />
           ) : (

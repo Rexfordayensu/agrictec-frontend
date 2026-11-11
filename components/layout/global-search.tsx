@@ -26,6 +26,7 @@ const RECORD_BADGES: Record<FarmRecord['type'], { text: string; color: BadgeColo
   income: { text: 'Income', color: 'green' },
   expense: { text: 'Expense', color: 'red' },
   activity: { text: 'Activity', color: 'blue' },
+  financing: { text: 'Financing', color: 'purple' },
 };
 
 function searchAll(query: string, records: FarmRecord[], momo: MomoTransaction[]): SearchResult[] {
@@ -48,13 +49,13 @@ function searchAll(query: string, records: FarmRecord[], momo: MomoTransaction[]
 
   const momoHits: SearchResult[] = momo
     .filter(
-      (t) => t.counterparty.toLowerCase().includes(q) || t.reference.toLowerCase().includes(q),
+      (t) => t.counterparty.toLowerCase().includes(q) || (t.reference ?? '').toLowerCase().includes(q),
     )
     .map((t) => ({
       id: t.id,
       href: '/momo',
       badge: { text: 'MoMo', color: 'purple' },
-      label: `${t.counterparty} · ${t.reference}`,
+      label: `${t.counterparty} · ${t.reference ?? 'Not provided'}`,
       date: t.date,
       amount: `${t.direction === 'in' ? '+' : '−'}${formatGHS(t.amount)}`,
       positive: t.direction === 'in',

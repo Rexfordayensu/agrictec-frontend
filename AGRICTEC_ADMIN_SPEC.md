@@ -43,6 +43,7 @@ You are a senior frontend engineer. Add a **Super Admin Console** to the existin
 export type Permission =
   | 'overview.view'
   | 'farmers.view' | 'farmers.edit' | 'farmers.suspend' | 'farmers.delete' | 'farmers.impersonate'
+  | 'transactions.review'
   | 'verifications.review'
   | 'loans.view' | 'loans.manage'
   | 'lenders.manage'
@@ -65,6 +66,7 @@ export type Permission =
 | farmers.suspend | | | ✅ | ✅ |
 | farmers.delete | | | | ✅ |
 | farmers.impersonate | | ✅ | ✅ | ✅ |
+| transactions.review | | | ✅ | ✅ |
 | verifications.review | | ✅ | ✅ | ✅ |
 | loans.view | ✅ | ✅ | ✅ | ✅ |
 | loans.manage | | | ✅ | ✅ |

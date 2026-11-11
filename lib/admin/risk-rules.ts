@@ -131,7 +131,7 @@ export const RISK_RULES: RiskRule[] = [
           return t;
         }),
       );
-      return [...groupBy(all, (t) => t.reference.trim().toUpperCase()).entries()]
+      return [...groupBy(all, (t) => (t.reference ?? '').trim().toUpperCase()).entries()]
         .filter(([, group]) => group.length > 1)
         .flatMap(([reference, group]) => {
           const accounts = [...new Set(group.map((t) => owner.get(t.id)!.userId))];

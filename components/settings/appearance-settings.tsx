@@ -10,8 +10,9 @@ import { Select } from '@/components/ui/select';
 import { useSettingsStore } from '@/store/settings-store';
 import type { Language } from '@/types';
 
-const languages: { value: Language; label: string }[] = [
-  { value: 'en', label: 'English' },
+/** Only English is translated today; the others are listed (disabled) so farmers know they're coming. */
+const languages: { value: Language; label: string; available?: boolean }[] = [
+  { value: 'en', label: 'English', available: true },
   { value: 'tw', label: 'Twi' },
   { value: 'ga', label: 'Ga' },
   { value: 'ee', label: 'Ewe' },
@@ -50,7 +51,7 @@ export function AppearanceSettings() {
         </label>
         <Select
           id="settings-language"
-          value={language}
+          value={languages.some((l) => l.value === language && l.available) ? language : 'en'}
           disabled={saving || status !== 'ready' || readOnly}
           title={readOnly ? READ_ONLY_MESSAGE : undefined}
           className="mt-3"
@@ -59,10 +60,6 @@ export function AppearanceSettings() {
             setSaving(true);
             try {
               await useSettingsStore.getState().setLanguage(next);
-              if (next !== 'en')
-                toast.info(
-                  `${languages.find((item) => item.value === next)?.label} translation coming soon — showing English for now`,
-                );
             } catch {
               toast.error('Could not save your language preference');
             } finally {
@@ -71,13 +68,13 @@ export function AppearanceSettings() {
           }}
         >
           {languages.map((item) => (
-            <option key={item.value} value={item.value}>
-              {item.label}
+            <option key={item.value} value={item.value} disabled={!item.available}>
+              {item.available ? item.label : `${item.label} (coming soon)`}
             </option>
           ))}
         </Select>
         <p className="text-text-mute mt-2 text-xs leading-relaxed">
-          English is available now. Your language preference is saved for future translations.
+          AgriCtec is in English for now. Twi, Ga, Ewe and Hausa are coming.
         </p>
       </div>
     </Card>

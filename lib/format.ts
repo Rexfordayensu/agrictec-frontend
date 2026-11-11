@@ -24,6 +24,19 @@ export function parseISODate(value: string): Date {
 }
 
 /** formatDate('2026-10-18') → "18 Oct 2026" */
+/** Ghana's time zone (GMT all year, no daylight saving). */
+export const GHANA_TIME_ZONE = 'Africa/Accra';
+
+/** A moment (an ISO timestamp) as its date in Ghana: "10 Nov 2026", whatever the device's zone. */
+export function formatGhanaDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    timeZone: GHANA_TIME_ZONE,
+  });
+}
+
 export function formatDate(value: string | Date): string {
   const date = typeof value === 'string' ? parseISODate(value) : value;
   return format(date, 'd MMM yyyy');

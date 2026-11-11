@@ -1,5 +1,7 @@
 'use client';
 
+import { Tabs } from '@/components/ui/tabs';
+import { TransactionsView } from '@/components/transactions/transactions-view';
 import { useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -26,10 +28,12 @@ const TYPE_LABEL: Record<FarmRecord['type'], string> = {
   income: 'Income',
   expense: 'Expense',
   activity: 'Activity',
+  financing: 'Financing',
 };
 
 /** Owns the filter state shared by the summary, toolbar and list. */
 export function RecordsView() {
+  const [view, setView] = useState<'records' | 'transactions'>('records');
   const records = useFarmStore((s) => s.records);
   const openModal = useModalStore((s) => s.openModal);
   const [filters, setFilters] = useState<RecordFilters>(DEFAULT_FILTERS);
@@ -48,6 +52,7 @@ export function RecordsView() {
     income: base.filter((r) => r.type === 'income').length,
     expense: base.filter((r) => r.type === 'expense').length,
     activity: base.filter((r) => r.type === 'activity').length,
+    financing: base.filter((r) => r.type === 'financing').length,
   };
   const cropsInUse = CROPS.filter((crop) => records.some((r) => r.crop === crop));
   const activeFilters = activeFilterCount(filters);
@@ -65,7 +70,12 @@ export function RecordsView() {
       {
         // Signed so the column sums to net profit; activities have no amount.
         header: 'Amount (GHS)',
-        value: (r) => (r.type === 'activity' ? '' : r.type === 'income' ? r.amount : -r.amount),
+        value: (r) =>
+          r.type === 'activity'
+            ? ''
+            : r.type === 'income' || (r.type === 'financing' && r.direction === 'in')
+              ? r.amount
+              : -r.amount,
       },
       { header: 'Notes', value: (r) => r.notes ?? '' },
     ]);
@@ -75,46 +85,62 @@ export function RecordsView() {
 
   return (
     <div className="space-y-5">
-      <RecordsSummary rows={rows} filtered={activeFilters > 0} />
+      <Tabs
+        tabs={[
+          { value: 'records', label: 'Farm records' },
+          { value: 'transactions', label: 'All transactions' },
+        ]}
+        value={view}
+        onChange={setView}
+        label="Record views"
+      />
+      {view === 'transactions' ? (
+        <TransactionsView />
+      ) : (
+        <>
+          <RecordsSummary rows={rows} filtered={activeFilters > 0} />
 
-      <Card className="@container" padding="none">
-        <div className="border-border border-b p-4 sm:p-5">
-          <RecordsToolbar
-            filters={filters}
-            onChange={update}
-            counts={counts}
-            crops={cropsInUse}
-            onExport={exportCsv}
-            onNew={() => openModal('record')}
-          />
-        </div>
+          <Card className="@container" padding="none">
+            <div className="border-border border-b p-4 sm:p-5">
+              <RecordsToolbar
+                filters={filters}
+                onChange={update}
+                counts={counts}
+                crops={cropsInUse}
+                onExport={exportCsv}
+                onNew={() => openModal('record')}
+              />
+            </div>
 
-        <div className="text-text-mute flex items-center justify-between gap-3 px-4 pt-4 text-xs sm:px-5">
-          <span aria-live="polite">
-            Showing <strong className="text-text">{rows.length}</strong> of {records.length} record
-            {records.length === 1 ? '' : 's'}
-          </span>
-          {activeFilters > 0 && (
-            <button
-              type="button"
-              onClick={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
-              className="text-ink-green min-h-9 font-semibold hover:underline"
-            >
-              Clear {activeFilters} filter{activeFilters === 1 ? '' : 's'}
-            </button>
-          )}
-        </div>
+            <div className="text-text-mute flex items-center justify-between gap-3 px-4 pt-4 text-xs sm:px-5">
+              <span aria-live="polite">
+                Showing <strong className="text-text">{rows.length}</strong> of {records.length}{' '}
+                record
+                {records.length === 1 ? '' : 's'}
+              </span>
+              {activeFilters > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
+                  className="text-ink-green min-h-9 font-semibold hover:underline"
+                >
+                  Clear {activeFilters} filter{activeFilters === 1 ? '' : 's'}
+                </button>
+              )}
+            </div>
 
-        <div className="p-2 sm:p-3">
-          <RecordsList
-            rows={rows}
-            sort={filters.sort}
-            hasAnyRecords={records.length > 0}
-            hasActiveFilters={activeFilters > 0}
-            onClearFilters={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
-          />
-        </div>
-      </Card>
+            <div className="p-2 sm:p-3">
+              <RecordsList
+                rows={rows}
+                sort={filters.sort}
+                hasAnyRecords={records.length > 0}
+                hasActiveFilters={activeFilters > 0}
+                onClearFilters={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
+              />
+            </div>
+          </Card>
+        </>
+      )}
     </div>
   );
 }

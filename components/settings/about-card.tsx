@@ -1,10 +1,15 @@
+'use client';
+
 import { Database, Flag, Info, Sparkles } from 'lucide-react';
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { LegalLinks } from '@/components/legal/legal-document';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { usePlatformStore } from '@/store/platform-store';
 
 export function AboutCard() {
+  // Only claimed while Claude actually powers the assistant and the crop doctor.
+  const aiOn = usePlatformStore((s) => s.ai.mode === 'claude');
   return (
     <Card className="rounded-3xl">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -19,15 +24,16 @@ export function AboutCard() {
         income, build credit readiness and access finance.
       </p>
       <div className="mt-4 flex flex-wrap gap-2">
-        <Badge color="blue">Version 3.0.0 (Next.js 16)</Badge>
         <Badge>
           <Flag size={11} aria-hidden="true" />
           Built for Ghana
         </Badge>
-        <Badge color="purple">
-          <Sparkles size={11} aria-hidden="true" />
-          AI-Powered
-        </Badge>
+        {aiOn && (
+          <Badge color="purple">
+            <Sparkles size={11} aria-hidden="true" />
+            AI assistant &amp; crop doctor
+          </Badge>
+        )}
         <Badge color="gold">
           <Database size={11} aria-hidden="true" />
           Data saved to your account

@@ -4,13 +4,15 @@ import Link from 'next/link';
 import { ArrowRight, ShieldCheck } from 'lucide-react';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { useFarmStats } from '@/hooks/use-farm-stats';
+import { useCreditStore } from '@/store/credit-store';
 import { usePlatformStore } from '@/store/platform-store';
 
+/** The API's credit summary (GET /me/credit): the same score and checklist as /loans. */
 export function LoanReadinessCard() {
-  const { credit, creditLabel, readiness } = useFarmStats();
+  const summary = useCreditStore((state) => state.summary);
   const enabled = usePlatformStore((state) => state.flags.loans);
-  if (!enabled) return null;
+  if (!enabled || !summary) return null;
+  const { credit, band, readiness } = summary;
   const done = readiness.filter((item) => item.done).length;
   const next = readiness.find((item) => !item.done);
   return (
@@ -27,7 +29,7 @@ export function LoanReadinessCard() {
           {credit.score}
           <span> / 850</span>
         </p>
-        <span>{creditLabel}</span>
+        <span>{band}</span>
       </div>
       <Progress
         value={readiness.length ? (done / readiness.length) * 100 : 0}
@@ -38,7 +40,7 @@ export function LoanReadinessCard() {
           ? next.description
           : 'Your preparation checklist is complete. Explore your credit details.'}
       </p>
-      <Link href="/loans" className="farmer-dashboard-text-link">
+      <Link href="/loans?tab=credit" className="farmer-dashboard-text-link">
         View readiness details <ArrowRight size={16} aria-hidden="true" />
       </Link>
       <p className="farmer-dashboard-footnote">This score does not guarantee loan approval.</p>

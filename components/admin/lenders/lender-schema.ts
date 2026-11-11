@@ -1,100 +1,136 @@
 import { z } from 'zod';
-import type { Lender, LenderInput } from '@/types/admin';
+import { REGIONS } from '@/constants/regions';
+import type { AdminLender, InstitutionType, LenderInput, PartnershipStatus } from '@/types/admin';
 
-/** Brand colours offered in the picker (any hex colour can still be typed). */
+/** Colours for a lender without a logo (its initials sit on it). */
 export const LENDER_COLORS = [
-  '#10b981',
-  '#3b82f6',
-  '#a855f7',
-  '#f5c451',
-  '#ef4444',
-  '#f97316',
-  '#14b8a6',
-  '#ec4899',
+  '#0f766e',
+  '#1d4ed8',
+  '#7c3aed',
+  '#b45309',
+  '#be123c',
+  '#15803d',
+  '#334155',
+  '#0e7490',
 ] as const;
 
-/** Same name, ignoring case and extra spaces (the service applies the same rule). */
+/** Same name, ignoring case and extra spaces (the API applies the same rule). */
 export const sameLenderName = (a: string, b: string) =>
   a.trim().replace(/\s+/g, ' ').toLowerCase() === b.trim().replace(/\s+/g, ' ').toLowerCase();
 
-const whole = (label: string, min: number, max: number, unit = '') =>
-  z
-    .number({ error: `Enter the ${label}.` })
-    .int(`Use a whole number for the ${label}.`)
-    .min(min, `The ${label} must be ${min}${unit} to ${max}${unit}.`)
-    .max(max, `The ${label} must be ${min}${unit} to ${max}${unit}.`);
+const optional = (max: number, label: string) =>
+  z.string().trim().max(max, `Keep the ${label} under ${max} characters.`);
 
 /**
- * The lender form's rules. `otherNames` are the names of every other lender, so a duplicate
- * name is caught before saving (the service checks again).
+ * The lender form: the institution's own official information. Empty fields stay empty (they
+ * show as "Not provided"); nothing is filled in for the admin.
  */
 export function lenderFormSchema(otherNames: string[]) {
-  return z
-    .object({
-      name: z
-        .string()
-        .trim()
-        .min(2, 'Enter the lender’s name.')
-        .max(80, 'Keep the name under 80 characters.')
-        .refine((name) => !otherNames.some((other) => sameLenderName(other, name)), {
-          message: 'A lender with this name already exists.',
-        }),
-      rate: z
-        .number({ error: 'Enter the yearly rate.' })
-        .min(1, 'The rate must be 1% to 60%.')
-        .max(60, 'The rate must be 1% to 60%.'),
-      maxAmount: z
-        .number({ error: 'Enter the maximum amount.' })
-        .min(500, 'The maximum amount must be at least GHS 500.')
-        .max(10_000_000, 'The maximum amount must be under GHS 10,000,000.'),
-      minMonths: whole('minimum term', 1, 60, ' months'),
-      maxMonths: whole('maximum term', 1, 60, ' months'),
-      minScore: whole('minimum score', 300, 850),
-      color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Use a hex colour such as #10b981.'),
-      description: z.string().trim().max(200, 'Keep the description under 200 characters.'),
-      active: z.boolean(),
-    })
-    .refine((v) => v.minMonths <= v.maxMonths, {
-      path: ['maxMonths'],
-      message: 'The maximum term must be at least the minimum.',
-    });
+  return z.object({
+    name: z
+      .string()
+      .trim()
+      .min(2, 'Enter the institution’s official name.')
+      .max(160, 'Keep the name under 160 characters.')
+      .refine((name) => !otherNames.some((other) => sameLenderName(other, name)), {
+        message: 'A lender with this name already exists.',
+      }),
+    institutionType: z.enum([
+      'universal_bank',
+      'rural_community_bank',
+      'savings_and_loans',
+      'microfinance',
+      'finance_house',
+      'credit_union',
+      'development_finance',
+      'other',
+    ]),
+    registeredName: optional(200, 'registered name'),
+    description: optional(2000, 'description'),
+    color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Pick a colour.'),
+    regulator: optional(120, 'regulator'),
+    licenceRef: optional(120, 'licence reference'),
+    website: z
+      .string()
+      .trim()
+      .max(300)
+      .refine(
+        (v) => !v || /^https?:\/\/\S+\.\S+/.test(v),
+        'Enter the full address, e.g. https://…',
+      ),
+    email: z
+      .string()
+      .trim()
+      .max(160)
+      .refine((v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address.'),
+    phone: z
+      .string()
+      .trim()
+      .max(40)
+      .refine((v) => !v || /^\+?[0-9][0-9 ()-]{5,38}$/.test(v), 'Enter a valid phone number.'),
+    address: optional(500, 'address'),
+    region: z.string().refine((v) => !v || REGIONS.includes(v), 'Choose a region.'),
+    offersAgriLoans: z.enum(['unknown', 'yes', 'no']),
+    supportedRegions: z.array(z.string()),
+    partnershipStatus: z.enum(['none', 'in_discussion', 'partner']),
+  });
 }
 
 export type LenderFormValues = z.infer<ReturnType<typeof lenderFormSchema>>;
 
 export const emptyLenderForm = (): LenderFormValues => ({
   name: '',
-  rate: 18,
-  maxAmount: 50_000,
-  minMonths: 6,
-  maxMonths: 24,
-  minScore: 550,
-  color: LENDER_COLORS[0],
+  institutionType: 'other',
+  registeredName: '',
   description: '',
-  active: true,
+  color: LENDER_COLORS[0],
+  regulator: '',
+  licenceRef: '',
+  website: '',
+  email: '',
+  phone: '',
+  address: '',
+  region: '',
+  offersAgriLoans: 'unknown',
+  supportedRegions: [],
+  partnershipStatus: 'none',
 });
 
-export const lenderToForm = (lender: Lender): LenderFormValues => ({
-  name: lender.name,
-  rate: lender.rate,
-  maxAmount: lender.maxAmount,
-  minMonths: lender.minMonths,
-  maxMonths: lender.maxMonths,
-  minScore: lender.minScore,
-  color: lender.color,
-  description: lender.description ?? '',
-  active: lender.active,
+export const lenderToForm = (l: AdminLender): LenderFormValues => ({
+  name: l.name,
+  institutionType: l.institutionType,
+  registeredName: l.registeredName ?? '',
+  description: l.description ?? '',
+  color: l.color,
+  regulator: l.regulator ?? '',
+  licenceRef: l.licenceRef ?? '',
+  website: l.website ?? '',
+  email: l.email ?? '',
+  phone: l.phone ?? '',
+  address: l.address ?? '',
+  region: l.region ?? '',
+  offersAgriLoans:
+    l.offersAgriLoans === true ? 'yes' : l.offersAgriLoans === false ? 'no' : 'unknown',
+  supportedRegions: l.supportedRegions,
+  partnershipStatus: l.partnershipStatus,
 });
 
-export const formToLenderInput = (values: LenderFormValues): LenderInput => ({
-  name: values.name.trim().replace(/\s+/g, ' '),
-  rate: values.rate,
-  maxAmount: values.maxAmount,
-  minMonths: values.minMonths,
-  maxMonths: values.maxMonths,
-  minScore: values.minScore,
-  color: values.color.toLowerCase(),
-  active: values.active,
-  // Undefined (not omitted), so clearing the description in an edit removes it.
-  description: values.description.trim() || undefined,
+const orNull = (v: string) => v.trim() || null;
+
+export const formToLenderInput = (f: LenderFormValues): LenderInput => ({
+  name: f.name.trim(),
+  institutionType: f.institutionType as InstitutionType,
+  registeredName: orNull(f.registeredName),
+  description: orNull(f.description),
+  color: f.color,
+  regulator: orNull(f.regulator),
+  licenceRef: orNull(f.licenceRef),
+  website: orNull(f.website),
+  email: orNull(f.email),
+  phone: orNull(f.phone),
+  address: orNull(f.address),
+  region: orNull(f.region),
+  offersAgriLoans: f.offersAgriLoans === 'unknown' ? null : f.offersAgriLoans === 'yes',
+  supportedRegions: f.supportedRegions,
+  partnershipStatus: f.partnershipStatus as PartnershipStatus,
 });

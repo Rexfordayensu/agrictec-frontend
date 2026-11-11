@@ -22,6 +22,7 @@ const TAB_LABELS: Record<RecordTab, string> = {
   income: 'Income',
   expense: 'Expenses',
   activity: 'Activities',
+  financing: 'Financing',
 };
 
 export interface RecordsToolbarProps {

@@ -1,76 +1,56 @@
-import type { FarmRecord, MomoTransaction } from '@/types';
+import type { FinancialSummary, ReportMonths } from '@/types/financial';
 
-export type DashboardRange = 6 | 12;
+export type DashboardRange = ReportMonths;
 
-/** Ghana's reporting day is UTC. All dashboard financial figures use this same window. */
-export function dashboardSummary(
-  records: FarmRecord[],
-  momo: MomoTransaction[],
-  months: DashboardRange,
-  now = new Date(),
-) {
-  const year = now.getUTCFullYear();
-  const month = now.getUTCMonth();
-  const buckets = Array.from(
-    { length: months },
-    (_, index) => new Date(Date.UTC(year, month - months + index + 1, 1)),
-  );
-  const start = buckets[0].toISOString().slice(0, 10);
-  const end = now.toISOString().slice(0, 10);
-  const within = (date: string) => date.slice(0, 10) >= start && date.slice(0, 10) <= end;
-  const periodRecords = records.filter((record) => within(record.date));
-  const periodMomo = momo.filter((transaction) => within(transaction.date));
-  const sum = (type: FarmRecord['type']) =>
-    periodRecords.reduce((total, record) => total + (record.type === type ? record.amount : 0), 0);
-  const income = sum('income');
-  const expenses = sum('expense');
-  const profit = income - expenses;
-  const monthKey = (date: Date) => date.toISOString().slice(0, 7);
-  const monthLabel = (date: Date) =>
-    date.toLocaleDateString('en-GH', { month: 'short', timeZone: 'UTC' });
-  const monthly = (type: FarmRecord['type']) =>
-    buckets.map((bucket) =>
-      periodRecords.reduce(
-        (total, record) =>
-          total +
-          (record.type === type && record.date.slice(0, 7) === monthKey(bucket)
-            ? record.amount
-            : 0),
-        0,
-      ),
-    );
-  const first = buckets[0].toLocaleDateString('en-GH', {
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
-  const last = now.toLocaleDateString('en-GH', {
-    month: 'short',
-    year: 'numeric',
-    timeZone: 'UTC',
-  });
+const UTC_MONTH: Intl.DateTimeFormatOptions = { month: 'short', timeZone: 'UTC' };
+const UTC_MONTH_YEAR: Intl.DateTimeFormatOptions = {
+  month: 'short',
+  year: 'numeric',
+  timeZone: 'UTC',
+};
+const at = (isoDate: string) => new Date(`${isoDate.slice(0, 10)}T00:00:00Z`);
+
+/**
+ * The server's financial summary (GET /me/financial-summary, exact decimals) in the shape the
+ * dashboard tiles and chart display. Nothing is added up here: every total is the server's.
+ * Strings become numbers only to be drawn and formatted.
+ */
+export function fromFinancialSummary(summary: FinancialSummary) {
+  const { farm, momo, counts, period } = summary;
+  const income = Number(farm.income.total);
+  const expenses = Number(farm.expenses.total);
+  const profit = Number(farm.net);
   return {
     income,
     expenses,
     profit,
     margin: income > 0 ? Math.round((profit / income) * 1000) / 10 : null,
-    recordCount: periodRecords.length,
-    financialRecordCount: periodRecords.filter((record) => record.type !== 'activity').length,
-    momoCount: periodMomo.length,
-    momoNet: periodMomo.reduce(
-      (total, transaction) =>
-        total + (transaction.direction === 'in' ? transaction.amount : -transaction.amount),
-      0,
-    ),
-    periodLabel: `${first} – ${last}`,
-    start,
-    end,
+    verifiedShare: {
+      income: Number(farm.income.verifiedShare),
+      expenses: Number(farm.expenses.verifiedShare),
+      entries: Number(summary.verifiedShare.byCount),
+    },
+    recordCount: counts.farmRecords,
+    financialRecordCount: counts.financialRecords,
+    momoCount: counts.momo,
+    momoNet: Number(momo.net),
+    periodLabel: `${at(period.from).toLocaleDateString('en-GH', UTC_MONTH_YEAR)} – ${at(
+      period.to,
+    ).toLocaleDateString('en-GH', UTC_MONTH_YEAR)}`,
+    start: period.from,
+    end: period.to,
+    dataAsOf: summary.dataAsOf,
+    insufficient: summary.insufficient,
+    monthsWithRecords: summary.monthsWithRecords,
+    months: period.months,
     series: {
-      labels: buckets.map(monthLabel),
-      income: monthly('income'),
-      expense: monthly('expense'),
+      labels: summary.monthly.map((m) =>
+        at(`${m.month}-01`).toLocaleDateString('en-GH', UTC_MONTH),
+      ),
+      income: summary.monthly.map((m) => Number(m.income)),
+      expense: summary.monthly.map((m) => Number(m.expenses)),
     },
   };
 }
 
-export type DashboardSummary = ReturnType<typeof dashboardSummary>;
+export type DashboardSummary = ReturnType<typeof fromFinancialSummary>;

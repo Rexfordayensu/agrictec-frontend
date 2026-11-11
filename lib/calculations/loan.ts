@@ -1,23 +1,23 @@
 import { DEFAULT_CREDIT_CONFIG } from '@/lib/admin/defaults';
-import { annualizedNetProfit } from '@/lib/calculations/finance';
-import { formatGHS } from '@/lib/format';
 import type {
   EligibilityIssue,
   EligibilityResult,
   FarmRecord,
   GhanaCardStatus,
-  LoanPartner,
   RepaymentResult,
 } from '@/types';
 import type { CreditConfig } from '@/types/admin';
 
 export type EligibilityRules = CreditConfig['eligibility'];
 
-/** The most a farmer can borrow: the admin's multiple of their annualized profit. */
+/**
+ * No longer set by AgriCtec (lenders' loan products state their own amounts). Kept for older
+ * rule versions that still carry a multiple; 0 when there is none.
+ */
 export const borrowingLimit = (
   annualizedProfit: number,
   rules: EligibilityRules = DEFAULT_CREDIT_CONFIG.eligibility,
-) => Math.max(0, rules.maxProfitMultiplier * annualizedProfit);
+) => Math.max(0, (rules.maxProfitMultiplier ?? 0) * annualizedProfit);
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
 
@@ -46,72 +46,26 @@ export const ghanaCardLoanMessage = (status: GhanaCardStatus) =>
     : 'Verify your Ghana Card to apply for loans.';
 
 /** The line the assistant and recommendations use instead of promising a loan. */
-export const LOANS_LOCKED_HINT = 'Verify your Ghana Card to unlock loan offers.';
+export const LOANS_LOCKED_HINT = 'Verify your Ghana Card before you apply to a lender.';
 
 /**
- * Checks every eligibility rule and collects ALL failing reasons, not just the first.
- * `rules` come from the admin's credit config. A chosen lender's own minimum score replaces
- * the platform minimum, as before; the platform minimum applies when no lender is chosen.
+ * AgriCtec's own check before an application, as on the server (app/domain/loans.py): a verified
+ * Ghana Card. The AgriCtec score and AgriCtec limits never decide a loan; each lender's product
+ * requirements do. The other arguments are accepted for older callers and ignored.
  */
 export function checkEligibility({
-  amount,
-  records,
-  score,
-  partner,
-  rules = DEFAULT_CREDIT_CONFIG.eligibility,
   ghanaCard = 'verified',
 }: {
-  amount: number;
-  records: FarmRecord[];
-  score: number;
-  partner?: LoanPartner;
+  amount?: number;
+  records?: FarmRecord[];
+  score?: number;
   rules?: EligibilityRules;
-  /** The farmer's Ghana Card status: loans need a verified card. */
+  /** The farmer's Ghana Card status: applying needs a verified card. */
   ghanaCard?: GhanaCardStatus;
 }): EligibilityResult {
-  const issues: EligibilityIssue[] = [];
-  const maxAffordable = borrowingLimit(annualizedNetProfit(records), rules);
-  const minScore = partner?.minScore ?? rules.minScore;
-
-  if (ghanaCard !== 'verified') {
-    issues.push({ code: 'ghana-card', message: ghanaCardLoanMessage(ghanaCard) });
-  }
-
-  if (records.length < rules.minRecords) {
-    issues.push({
-      code: 'records',
-      message: `You need at least ${rules.minRecords} farm records (you have ${records.length}).`,
-    });
-  }
-  if (amount > maxAffordable) {
-    issues.push({
-      code: 'affordability',
-      message: `Requested amount is above ${rules.maxProfitMultiplier}× your yearly profit (max ${formatGHS(maxAffordable)}).`,
-    });
-  }
-  if (score < minScore) {
-    issues.push({
-      code: 'score',
-      message: `Credit score must be at least ${minScore} (yours is ${score}).`,
-    });
-  }
-  if (partner && amount > partner.maxAmount) {
-    issues.push({
-      code: 'lender-max',
-      message: `Above this lender's maximum of ${formatGHS(partner.maxAmount)}.`,
-    });
-  }
-
-  return {
-    eligible: issues.length === 0,
-    reasons: issues.map((issue) => issue.message),
-    issues,
-    maxAffordable,
-  };
-}
-
-/** How well the user's score matches a lender, from 40% to 98%. */
-export function matchPercentage(score: number, partner: LoanPartner): number {
-  const raw = 70 + (score - partner.minScore) / 5;
-  return Math.round(Math.min(98, Math.max(40, raw)));
+  const issues: EligibilityIssue[] =
+    ghanaCard === 'verified'
+      ? []
+      : [{ code: 'ghana-card', message: ghanaCardLoanMessage(ghanaCard) }];
+  return { eligible: issues.length === 0, reasons: issues.map((i) => i.message), issues };
 }

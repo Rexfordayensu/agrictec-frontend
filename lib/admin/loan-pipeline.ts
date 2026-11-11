@@ -11,11 +11,9 @@ import {
   LOAN_STATUS_LABELS,
   noteRequired,
 } from '@/lib/admin/loan-status';
-import { borrowingLimit, type EligibilityRules } from '@/lib/calculations/loan';
-import { annualizedNetProfit } from '@/lib/calculations/finance';
-import { formatGHS } from '@/lib/format';
+import type { EligibilityRules } from '@/lib/calculations/loan';
 import type { FarmRecord } from '@/types';
-import type { FarmerAccount, Lender, LoanApplication, LoanStatus } from '@/types/admin';
+import type { FarmerAccount, LoanApplication, LoanStatus } from '@/types/admin';
 
 // ---------- Stats ----------
 
@@ -40,19 +38,6 @@ export function loanStats(apps: LoanApplication[]): LoanStats {
     disbursedAmount: sum(DISBURSED_LOAN_STATUSES),
     defaultRate: closed ? defaulted / closed : null,
     closed,
-  };
-}
-
-/** Per lender: applications, how many are under review, and the approval rate of decided ones. */
-export function lenderStats(apps: LoanApplication[], lenderId: string) {
-  const mine = apps.filter((a) => a.partnerId === lenderId);
-  const approved = mine.filter((a) => APPROVED_LOAN_STATUSES.includes(a.status)).length;
-  const rejected = mine.filter((a) => a.status === 'rejected').length;
-  return {
-    applications: mine.length,
-    underReview: mine.filter((a) => a.status === 'under_review').length,
-    /** approved ÷ (approved + rejected); null before any decision. */
-    approvalRate: approved + rejected ? approved / (approved + rejected) : null,
   };
 }
 
@@ -177,84 +162,39 @@ export function loanFilterFns(
 // ---------- Eligibility, re-run with today's rules ----------
 
 export interface EligibilityCheck {
-  key: 'records' | 'affordability' | 'score' | 'lender-max' | 'term';
+  key: 'ghana-card' | 'records';
   label: string;
   pass: boolean;
   detail: string;
 }
 
-/** Every rule the farmer app applies, as ✓/✗ lines (with the current credit rules and lender). */
+/**
+ * What AgriCtec itself checks, with today's data (the same lines as app/domain/loans.py): the
+ * Ghana Card, and its record-keeping guidance. The score is shown on its own, never as a gate.
+ */
 export function eligibilityChecks({
-  app,
   records,
-  score,
-  lender,
+  ghanaCard,
   rules,
 }: {
-  app: Pick<LoanApplication, 'amount' | 'months'>;
   records: FarmRecord[];
-  score: number;
-  lender?: Lender;
+  ghanaCard: string;
   rules: EligibilityRules;
 }): EligibilityCheck[] {
-  const limit = borrowingLimit(annualizedNetProfit(records), rules);
-  const minScore = lender?.minScore ?? rules.minScore;
-  const checks: EligibilityCheck[] = [
+  return [
+    {
+      key: 'ghana-card',
+      label: 'Ghana Card verified',
+      pass: ghanaCard === 'verified',
+      detail: ghanaCard.replace('_', ' '),
+    },
     {
       key: 'records',
-      label: `At least ${rules.minRecords} farm records`,
+      label: `AgriCtec guidance: ${rules.minRecords}+ farm records`,
       pass: records.length >= rules.minRecords,
       detail: `${records.length} on file`,
     },
-    {
-      key: 'affordability',
-      label: `Within ${rules.maxProfitMultiplier}× yearly profit`,
-      pass: app.amount <= limit,
-      detail: `Limit ${formatGHS(limit)}`,
-    },
-    {
-      key: 'score',
-      label: `Credit score ${minScore}+`,
-      pass: score >= minScore,
-      detail: `Now ${score}`,
-    },
   ];
-  if (lender) {
-    checks.push(
-      {
-        key: 'lender-max',
-        label: `${lender.name} lends up to ${formatGHS(lender.maxAmount)}`,
-        pass: app.amount <= lender.maxAmount,
-        detail: `Asked ${formatGHS(app.amount)}`,
-      },
-      {
-        key: 'term',
-        label: `Term of ${lender.minMonths}–${lender.maxMonths} months`,
-        pass: app.months >= lender.minMonths && app.months <= lender.maxMonths,
-        detail: `${app.months} months`,
-      },
-    );
-  }
-  return checks;
-}
-
-// ---------- Lenders ----------
-
-/** Why a lender can't be switched off right now (null = it can). */
-export function deactivateBlock(lender: Lender, apps: LoanApplication[]): string | null {
-  if (!lender.active) return null;
-  const reviewing = lenderStats(apps, lender.id).underReview;
-  return reviewing
-    ? `${lender.name} has ${reviewing} application${reviewing === 1 ? '' : 's'} under review. Approve or reject ${reviewing === 1 ? 'it' : 'them'} first, so no farmer is left waiting on a hidden lender.`
-    : null;
-}
-
-/** Why a lender can't be deleted (null = it can): any application keeps its history. */
-export function deleteBlock(lender: Lender, apps: LoanApplication[]): string | null {
-  const count = lenderStats(apps, lender.id).applications;
-  return count
-    ? `${lender.name} has ${count} application${count === 1 ? '' : 's'} on record, and deleting it would break their history. Deactivate it instead.`
-    : null;
 }
 
 /** For the region filter and the farmer card. */

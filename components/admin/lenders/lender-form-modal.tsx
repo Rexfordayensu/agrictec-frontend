@@ -1,9 +1,9 @@
 'use client';
 
-import { useId } from 'react';
+import { useId, type ReactNode } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Controller, useForm, useWatch } from 'react-hook-form';
-import { Check, Landmark, Save } from 'lucide-react';
+import { Check, Save } from 'lucide-react';
 import { toast } from 'sonner';
 import { PRIMARY_CLASS } from '@/components/admin/shared/action-styles';
 import {
@@ -14,19 +14,20 @@ import {
   lenderToForm,
   type LenderFormValues,
 } from '@/components/admin/lenders/lender-schema';
+import { LenderLogo } from '@/components/shared/lender-logo';
 import { Button } from '@/components/ui/button';
 import { FormField } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
-import { Switch } from '@/components/ui/switch';
+import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { monthlyRepayment } from '@/lib/calculations/loan';
-import { formatGHS } from '@/lib/format';
+import { REGIONS } from '@/constants/regions';
+import { INSTITUTION_TYPE_LABELS, PARTNERSHIP_LABELS } from '@/lib/lenders';
 import { cn } from '@/lib/utils';
 import { lendersService } from '@/services/admin/lenders.service';
-import type { Lender } from '@/types/admin';
+import type { AdminLender } from '@/types/admin';
 
-/** "Add lender" or "Edit <name>" (null = closed). Mounted per opening. */
+/** "Add lender" or "Edit <name>". Mounted per opening. */
 export function LenderFormModal({
   lender,
   open,
@@ -35,12 +36,12 @@ export function LenderFormModal({
   onSaved,
 }: {
   /** The lender being edited; undefined adds a new one. */
-  lender?: Lender;
+  lender?: AdminLender;
   open: boolean;
   /** Every lender, for the unique-name check. */
-  lenders: Lender[];
+  lenders: AdminLender[];
   onClose: () => void;
-  onSaved: (saved: Lender) => void;
+  onSaved: (saved: AdminLender) => void;
 }) {
   if (!open) return null;
   return (
@@ -54,16 +55,26 @@ export function LenderFormModal({
   );
 }
 
+function Section({ title, hint, children }: { title: string; hint?: string; children: ReactNode }) {
+  return (
+    <fieldset className="border-border space-y-4 border-t pt-4 first:border-t-0 first:pt-0">
+      <legend className="text-text text-sm font-semibold">{title}</legend>
+      {hint && <p className="text-text-mute -mt-2 text-xs">{hint}</p>}
+      {children}
+    </fieldset>
+  );
+}
+
 function LenderForm({
   lender,
   lenders,
   onClose,
   onSaved,
 }: {
-  lender?: Lender;
-  lenders: Lender[];
+  lender?: AdminLender;
+  lenders: AdminLender[];
   onClose: () => void;
-  onSaved: (saved: Lender) => void;
+  onSaved: (saved: AdminLender) => void;
 }) {
   const id = useId();
   const others = lenders.filter((l) => l.id !== lender?.id).map((l) => l.name);
@@ -78,7 +89,7 @@ function LenderForm({
     defaultValues: lender ? lenderToForm(lender) : emptyLenderForm(),
     mode: 'onTouched',
   });
-  const values = useWatch({ control });
+  const [name, color] = useWatch({ control, name: ['name', 'color'] });
 
   async function save(form: LenderFormValues) {
     try {
@@ -86,7 +97,9 @@ function LenderForm({
       const saved = lender
         ? await lendersService.update(lender.id, input)
         : await lendersService.create(input);
-      toast.success(lender ? `${saved.name} updated` : `${saved.name} added`);
+      if (lender && lender.licenceStatus !== 'unverified' && saved.licenceStatus === 'unverified')
+        toast.warning(`${saved.name}: identity details changed, so check its licence again`);
+      else toast.success(lender ? `${saved.name} updated` : `${saved.name} added as a draft`);
       onSaved(saved);
     } catch (cause) {
       const message = cause instanceof Error ? cause.message : 'Could not save the lender';
@@ -95,19 +108,15 @@ function LenderForm({
     }
   }
 
-  // The offer as a farmer would see it, for a GHS 10,000 loan over the shortest term.
-  const rate = Number(values.rate) || 0;
-  const months = Number(values.minMonths) || 0;
-  const sample = monthlyRepayment(10_000, rate, months);
-  const color = /^#[0-9a-fA-F]{6}$/.test(values.color ?? '') ? values.color : LENDER_COLORS[0];
+  const field = (key: keyof LenderFormValues) => `${id}-${key}`;
 
   return (
     <Modal
       open
       onClose={onClose}
-      size="md"
+      size="lg"
       title={lender ? `Edit ${lender.name}` : 'Add lender'}
-      description="Farmers see the change on their loans page straight away."
+      description="Enter only what the institution publishes officially. Leave anything unknown empty: farmers see “Not provided”."
       dirty={isDirty && !isSubmitting}
       footer={
         <>
@@ -121,201 +130,221 @@ function LenderForm({
             loading={isSubmitting}
             className={PRIMARY_CLASS}
           >
-            {lender ? 'Save changes' : 'Add lender'}
+            {lender ? 'Save changes' : 'Add as draft'}
           </Button>
         </>
       }
     >
       <form id={id} noValidate className="space-y-5" onSubmit={handleSubmit(save)}>
-        {/* Live preview */}
-        <div className="border-border bg-bg-2/60 flex items-center gap-3 rounded-2xl border p-3.5">
-          <span
-            aria-hidden="true"
-            className="inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-white"
-            style={{ backgroundColor: color }}
-          >
-            <Landmark size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <p className="text-text truncate text-sm font-semibold">
-              {values.name?.trim() || 'Lender name'}
-            </p>
+        <Section title="Institution">
+          <div className="flex items-center gap-3">
+            <LenderLogo
+              name={name || 'Lender'}
+              color={color}
+              logoPath={lender?.logoPath}
+              size={44}
+            />
             <p className="text-text-mute text-xs">
-              {rate}% a year · up to {formatGHS(Number(values.maxAmount) || 0)} · {values.minMonths}
-              –{values.maxMonths} months
+              {lender
+                ? 'Upload the official logo on the lender’s page. Without one, its initials show on this colour.'
+                : 'After saving, you can upload the official logo on the lender’s page.'}
             </p>
           </div>
-          <p className="text-right text-xs">
-            <span className="text-text-mute block">GHS 10k over {months || '—'} mo</span>
-            <span className="text-text font-semibold tabular-nums">
-              {months ? `${formatGHS(sample.monthly)}/mo` : '—'}
-            </span>
-          </p>
-        </div>
-
-        <FormField label="Name" htmlFor={`${id}-name`} error={errors.name?.message}>
-          <Input
-            id={`${id}-name`}
-            autoComplete="off"
-            error={Boolean(errors.name)}
-            {...register('name')}
+          <FormField label="Official name" htmlFor={field('name')} error={errors.name?.message}>
+            <Input
+              id={field('name')}
+              autoComplete="off"
+              error={Boolean(errors.name)}
+              {...register('name')}
+            />
+          </FormField>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Institution type" htmlFor={field('institutionType')}>
+              <Select id={field('institutionType')} {...register('institutionType')}>
+                {Object.entries(INSTITUTION_TYPE_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+            <FormField
+              label="Registered business name"
+              htmlFor={field('registeredName')}
+              error={errors.registeredName?.message}
+            >
+              <Input id={field('registeredName')} {...register('registeredName')} />
+            </FormField>
+          </div>
+          <FormField
+            label="Description"
+            htmlFor={field('description')}
+            error={errors.description?.message}
+            hint="What the institution says about itself and its farm lending."
+          >
+            <Textarea id={field('description')} rows={3} {...register('description')} />
+          </FormField>
+          <Controller
+            control={control}
+            name="color"
+            render={({ field: colour }) => (
+              <fieldset>
+                <legend className="text-text-dim mb-2 text-xs font-semibold">
+                  Colour (shown behind its initials when there is no logo)
+                </legend>
+                <div className="flex flex-wrap gap-2">
+                  {LENDER_COLORS.map((swatch) => {
+                    const selected = colour.value.toLowerCase() === swatch;
+                    return (
+                      <button
+                        key={swatch}
+                        type="button"
+                        aria-label={`Colour ${swatch}`}
+                        aria-pressed={selected}
+                        onClick={() => colour.onChange(swatch)}
+                        className={cn(
+                          'ring-offset-bg-2 inline-flex size-9 items-center justify-center rounded-full ring-offset-2',
+                          selected ? 'ring-text ring-2' : 'hover:ring-border hover:ring-2',
+                        )}
+                        style={{ backgroundColor: swatch }}
+                      >
+                        {selected && <Check size={16} aria-hidden="true" className="text-white" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
           />
-        </FormField>
+        </Section>
 
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-          <FormField label="Rate (% a year)" htmlFor={`${id}-rate`} error={errors.rate?.message}>
-            <Input
-              id={`${id}-rate`}
-              type="number"
-              step="0.5"
-              min={1}
-              max={60}
-              inputMode="decimal"
-              error={Boolean(errors.rate)}
-              {...register('rate', { valueAsNumber: true })}
-            />
-          </FormField>
-          <FormField
-            label="Max amount (GHS)"
-            htmlFor={`${id}-max`}
-            error={errors.maxAmount?.message}
-          >
-            <Input
-              id={`${id}-max`}
-              type="number"
-              step="500"
-              min={500}
-              inputMode="numeric"
-              error={Boolean(errors.maxAmount)}
-              {...register('maxAmount', { valueAsNumber: true })}
-            />
-          </FormField>
-          <FormField label="Min score" htmlFor={`${id}-score`} error={errors.minScore?.message}>
-            <Input
-              id={`${id}-score`}
-              type="number"
-              min={300}
-              max={850}
-              inputMode="numeric"
-              error={Boolean(errors.minScore)}
-              {...register('minScore', { valueAsNumber: true })}
-            />
-          </FormField>
-          <FormField
-            label="Min term (months)"
-            htmlFor={`${id}-min-months`}
-            error={errors.minMonths?.message}
-          >
-            <Input
-              id={`${id}-min-months`}
-              type="number"
-              min={1}
-              max={60}
-              inputMode="numeric"
-              error={Boolean(errors.minMonths)}
-              {...register('minMonths', { valueAsNumber: true })}
-            />
-          </FormField>
-          <FormField
-            label="Max term (months)"
-            htmlFor={`${id}-max-months`}
-            error={errors.maxMonths?.message}
-          >
-            <Input
-              id={`${id}-max-months`}
-              type="number"
-              min={1}
-              max={60}
-              inputMode="numeric"
-              error={Boolean(errors.maxMonths)}
-              {...register('maxMonths', { valueAsNumber: true })}
-            />
-          </FormField>
-        </div>
-
-        <Controller
-          control={control}
-          name="color"
-          render={({ field }) => (
-            <fieldset>
-              <legend className="text-text-dim mb-2 text-xs font-semibold">Colour</legend>
-              <div className="flex flex-wrap items-center gap-2">
-                {LENDER_COLORS.map((swatch) => {
-                  const selected = field.value.toLowerCase() === swatch;
-                  return (
-                    <button
-                      key={swatch}
-                      type="button"
-                      aria-label={`Colour ${swatch}`}
-                      aria-pressed={selected}
-                      onClick={() => field.onChange(swatch)}
-                      className={cn(
-                        'inline-flex size-9 items-center justify-center rounded-full ring-offset-2 ring-offset-[var(--bg-2)] transition-shadow',
-                        selected ? 'ring-text ring-2' : 'hover:ring-border hover:ring-2',
-                      )}
-                      style={{ backgroundColor: swatch }}
-                    >
-                      {selected && <Check size={16} aria-hidden="true" className="text-white" />}
-                    </button>
-                  );
-                })}
-                <label className="border-border inline-flex min-h-9 items-center gap-2 rounded-xl border px-2">
-                  <span className="sr-only">Custom colour</span>
-                  <input
-                    type="color"
-                    value={/^#[0-9a-fA-F]{6}$/.test(field.value) ? field.value : '#10b981'}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    className="size-6 cursor-pointer rounded border-0 bg-transparent p-0"
-                  />
-                  <input
-                    aria-label="Colour hex code"
-                    value={field.value}
-                    onChange={(e) => field.onChange(e.target.value.trim())}
-                    onBlur={field.onBlur}
-                    maxLength={7}
-                    className="text-text w-20 bg-transparent font-mono text-xs uppercase outline-none"
-                  />
-                </label>
-              </div>
-              {errors.color && (
-                <p role="alert" className="text-ink-red mt-1.5 text-xs">
-                  {errors.color.message}
-                </p>
-              )}
-            </fieldset>
-          )}
-        />
-
-        <FormField
-          label="Description (optional)"
-          htmlFor={`${id}-description`}
-          error={errors.description?.message}
-          hint="One line about the lender, e.g. who it serves best."
+        <Section
+          title="Regulation"
+          hint="Changing the name, type, regulator or licence reference later clears the licence check."
         >
-          <Textarea
-            id={`${id}-description`}
-            rows={2}
-            maxLength={200}
-            error={Boolean(errors.description)}
-            {...register('description')}
-          />
-        </FormField>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              label="Regulator"
+              htmlFor={field('regulator')}
+              error={errors.regulator?.message}
+              hint="e.g. Bank of Ghana"
+            >
+              <Input id={field('regulator')} {...register('regulator')} />
+            </FormField>
+            <FormField
+              label="Licence or registration reference"
+              htmlFor={field('licenceRef')}
+              error={errors.licenceRef?.message}
+            >
+              <Input id={field('licenceRef')} {...register('licenceRef')} />
+            </FormField>
+          </div>
+        </Section>
 
-        <Controller
-          control={control}
-          name="active"
-          render={({ field }) => (
-            <div className="border-border flex items-center justify-between gap-4 rounded-xl border px-4 py-2">
-              <div>
-                <p className="text-text text-sm font-semibold">Offered to farmers</p>
-                <p className="text-text-mute text-xs">
-                  Inactive lenders are hidden from farmers but keep their applications.
-                </p>
-              </div>
-              <Switch checked={field.value} onChange={field.onChange} label="Offered to farmers" />
-            </div>
-          )}
-        />
+        <Section title="Official contact">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Website" htmlFor={field('website')} error={errors.website?.message}>
+              <Input
+                id={field('website')}
+                type="url"
+                inputMode="url"
+                placeholder="https://"
+                error={Boolean(errors.website)}
+                {...register('website')}
+              />
+            </FormField>
+            <FormField label="Email" htmlFor={field('email')} error={errors.email?.message}>
+              <Input
+                id={field('email')}
+                type="email"
+                error={Boolean(errors.email)}
+                {...register('email')}
+              />
+            </FormField>
+            <FormField label="Telephone" htmlFor={field('phone')} error={errors.phone?.message}>
+              <Input
+                id={field('phone')}
+                type="tel"
+                error={Boolean(errors.phone)}
+                {...register('phone')}
+              />
+            </FormField>
+            <FormField label="Head office region" htmlFor={field('region')}>
+              <Select id={field('region')} {...register('region')}>
+                <option value="">Not provided</option>
+                {REGIONS.map((region) => (
+                  <option key={region} value={region}>
+                    {region}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+          </div>
+          <FormField label="Physical address" htmlFor={field('address')}>
+            <Textarea id={field('address')} rows={2} {...register('address')} />
+          </FormField>
+        </Section>
+
+        <Section title="Agricultural lending and partnership">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField label="Offers agricultural loans" htmlFor={field('offersAgriLoans')}>
+              <Select id={field('offersAgriLoans')} {...register('offersAgriLoans')}>
+                <option value="unknown">Not provided</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+              </Select>
+            </FormField>
+            <FormField
+              label="Partnership with AgriCtec"
+              htmlFor={field('partnershipStatus')}
+              hint="Separate from the licence: a licensed lender is not a partner unless it agreed."
+            >
+              <Select id={field('partnershipStatus')} {...register('partnershipStatus')}>
+                {Object.entries(PARTNERSHIP_LABELS).map(([value, label]) => (
+                  <option key={value} value={value}>
+                    {label}
+                  </option>
+                ))}
+              </Select>
+            </FormField>
+          </div>
+          <Controller
+            control={control}
+            name="supportedRegions"
+            render={({ field: regions }) => (
+              <fieldset>
+                <legend className="text-text-dim mb-2 text-xs font-semibold">
+                  Regions it serves (leave all unticked if not provided)
+                </legend>
+                <div className="grid grid-cols-2 gap-1.5 sm:grid-cols-4">
+                  {REGIONS.map((region) => {
+                    const on = regions.value.includes(region);
+                    return (
+                      <label
+                        key={region}
+                        className="text-text flex min-h-9 cursor-pointer items-center gap-2 text-xs"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={on}
+                          onChange={() =>
+                            regions.onChange(
+                              on
+                                ? regions.value.filter((r) => r !== region)
+                                : [...regions.value, region],
+                            )
+                          }
+                          className="accent-accent size-4"
+                        />
+                        {region}
+                      </label>
+                    );
+                  })}
+                </div>
+              </fieldset>
+            )}
+          />
+        </Section>
 
         {errors.root && (
           <p role="alert" className="text-ink-red text-sm">

@@ -32,7 +32,7 @@ export default function TermsPage() {
 
       <LegalSection id="service" title="1. What AgriCtec does">
         <p>
-          AgriCtec helps farmers keep farm and Mobile Money records, build a credit score from them,
+          AgriCtec helps farmers keep farm and Mobile Money records, build an AgriCtec score from them,
           verify their identity, apply to partner lenders, and get weather, market prices and crop
           advice. Some features need a paid plan.
         </p>
@@ -42,7 +42,7 @@ export default function TermsPage() {
         <LegalList>
           <li>You must be 18 or older to use AgriCtec.</li>
           <li>
-            Give true and complete information, and keep it up to date. Your credit score and loan
+            Give true and complete information, and keep it up to date. Your AgriCtec score and loan
             applications depend on it.
           </li>
           <li>
@@ -53,14 +53,14 @@ export default function TermsPage() {
         </LegalList>
       </LegalSection>
 
-      <LegalSection id="loans" title="3. Credit scores and loans">
+      <LegalSection id="loans" title="3. The AgriCtec score and loans">
         <LegalList>
           <li>
             <Term>AgriCtec is not a lender.</Term> We do not lend money or decide who gets a loan.
             We pass your application to the lender you choose, and that lender alone decides.
           </li>
           <li>
-            Your AgriCtec credit score is an estimate worked out from what you have entered. It is
+            Your AgriCtec score is an estimate worked out from what you have entered. It is
             not a credit bureau report and does not guarantee you a loan.
           </li>
           <li>

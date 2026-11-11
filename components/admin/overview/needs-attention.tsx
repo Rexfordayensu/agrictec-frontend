@@ -30,7 +30,6 @@ export function NeedsAttention({
   /** The to-do list for this role, computed by the API (GET /admin/overview). */
   items: AttentionItem[];
 }) {
-
   return (
     <Panel
       title="Needs attention"

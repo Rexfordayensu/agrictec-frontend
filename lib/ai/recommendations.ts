@@ -60,7 +60,7 @@ export function getRecommendations(stats: FarmStats): Recommendation[] {
       cta: { label: 'Add records', href: '/records' },
       icon: ClipboardList,
       title: 'Build Financial History',
-      text: `Add ${missing} more record${missing === 1 ? '' : 's'} to unlock loan offers from our partners${stats.ghanaCard === 'verified' ? '' : ', and verify your Ghana Card'}.`,
+      text: `Add ${missing} more record${missing === 1 ? '' : 's'} to give lenders a fuller picture of your farm${stats.ghanaCard === 'verified' ? '' : ', and verify your Ghana Card'}.`,
     });
   }
 
@@ -87,7 +87,7 @@ export function getRecommendations(stats: FarmStats): Recommendation[] {
       cta: { label: 'Log MoMo', href: '/momo' },
       icon: Smartphone,
       title: 'Connect Mobile Money',
-      text: `Log your MoMo payments. A strong MoMo history can raise your credit score by up to ${momoMaxPoints} points.`,
+      text: `Log your MoMo payments. A strong MoMo history can raise your AgriCtec score by up to ${momoMaxPoints} points.`,
     });
   }
 
@@ -112,7 +112,6 @@ export function getRecommendations(stats: FarmStats): Recommendation[] {
     });
   }
 
-  const maxLoan = stats.borrowingPower;
   // Never tell a farmer without a verified Ghana Card that they can get a loan.
   if (stats.ghanaCard !== 'verified') {
     items.push({
@@ -122,19 +121,20 @@ export function getRecommendations(stats: FarmStats): Recommendation[] {
         href: '/settings/verification',
       },
       icon: IdCard,
-      title: stats.ghanaCard === 'pending' ? 'Ghana Card Under Review' : 'Unlock Loans',
+      title: stats.ghanaCard === 'pending' ? 'Ghana Card Under Review' : 'Verify Your Ghana Card',
       text:
         stats.ghanaCard === 'pending'
-          ? 'Your Ghana Card is being reviewed. Loan offers unlock once it is verified.'
+          ? 'Your Ghana Card is being reviewed. You can apply to lenders once it is verified.'
           : LOANS_LOCKED_HINT,
     });
-  } else if (stats.credit.score >= loanReadyScore && maxLoan > 0) {
+  } else if (stats.credit.score >= loanReadyScore) {
+    // A good score is about records, not a loan: point to what lenders themselves ask for.
     items.push({
       id: 'loan-ready',
-      cta: { label: 'See loan offers', href: '/loans' },
+      cta: { label: 'See lenders', href: '/loans?tab=lenders' },
       icon: BadgeCheck,
-      title: 'Loan Ready',
-      text: `With a score of ${stats.credit.score}, you may qualify for loans up to ${formatGHS(maxLoan)}.`,
+      title: 'Records In Good Shape',
+      text: `Your AgriCtec score is ${stats.credit.score}. See what each lender asks for in its loan products; the lender makes every decision.`,
     });
   }
 
@@ -176,7 +176,7 @@ function insightPool(stats: FarmStats): string[] {
   }
 
   if (stats.hasData) {
-    pool.push(`Your credit score is ${stats.credit.score} (${stats.creditLabel}).`);
+    pool.push(`Your AgriCtec score is ${stats.credit.score} (${stats.creditLabel}).`);
   }
 
   return [...pool, ...GENERAL_TIPS];

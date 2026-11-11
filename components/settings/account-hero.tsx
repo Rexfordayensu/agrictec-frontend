@@ -4,6 +4,7 @@ import {
   ArrowRight,
   BadgeCheck,
   Check,
+  Circle,
   Hourglass,
   MapPin,
   PencilLine,
@@ -20,40 +21,91 @@ import { profileCompleteness } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { useAuthStore } from '@/store/auth-store';
 import { useProfileStore } from '@/store/profile-store';
+import { usePlatformStore } from '@/store/platform-store';
 import type { Profile } from '@/types';
 import { useSubscription } from '@/hooks/use-subscription';
 
+type CheckState = 'verified' | 'review' | 'todo';
+
+/** Each check's state, as the Verification page shows it (an admin reviews pins and cards). */
+function checkStates(
+  profile: Profile | null,
+  locationPending: boolean,
+): Record<'phone' | 'location' | 'ghanaCard', CheckState> {
+  const card = profile?.ghanaCard.status;
+  return {
+    phone: profile?.verification.phone ? 'verified' : 'todo',
+    location: profile?.verification.location
+      ? 'verified'
+      : profile?.gps && locationPending
+        ? 'review'
+        : 'todo',
+    ghanaCard: card === 'verified' ? 'verified' : card === 'pending' ? 'review' : 'todo',
+  };
+}
+
 /** The single most useful thing to do next, with the section it lives in. */
-function nextStep(profile: Profile | null): { text: string; href: string } | null {
+function nextStep(
+  profile: Profile | null,
+  states: ReturnType<typeof checkStates>,
+): { text: string; href: string } | null {
   if (!profile) return { text: 'Add your name and phone number', href: '/settings/profile' };
   if (!profile.name.trim() || !profile.phone || !profile.email)
     return { text: 'Finish your personal details', href: '#personal-info' };
   if (!profile.farmName.trim() || profile.acres <= 0 || profile.primaryCrops.length === 0)
     return { text: 'Add your farm name, size and crops', href: '#farm-details' };
-  if (!profile.verification.phone)
+  if (states.phone === 'todo')
     return { text: 'Verify your phone number', href: '/settings/verification' };
-  if (!profile.verification.location)
-    return { text: 'Save your farm location', href: '/settings/verification' };
-  if (!profile.verification.ghanaCard)
-    return { text: 'Verify your Ghana Card', href: '/settings/verification' };
+  if (states.location === 'todo')
+    return { text: 'Pin your farm on the map for review', href: '#farm-location' };
+  if (states.ghanaCard === 'todo')
+    return { text: 'Add your Ghana Card', href: '/settings/verification' };
+  if (states.location === 'review' || states.ghanaCard === 'review')
+    return { text: 'Waiting for our team to review your details', href: '/settings/verification' };
   return null;
 }
+
+const STATE_STYLE: Record<CheckState, { className: string; icon: LucideIcon; text: string }> = {
+  verified: {
+    className: 'border-accent/30 bg-accent/10 text-ink-green',
+    icon: Check,
+    text: 'verified',
+  },
+  review: {
+    className: 'border-gold/30 bg-gold/10 text-ink-gold',
+    icon: Hourglass,
+    text: 'waiting for review',
+  },
+  todo: {
+    className: 'border-border bg-glass text-text-dim hover:text-text',
+    icon: Circle,
+    text: 'not started',
+  },
+};
 
 export function AccountHero() {
   const { plan } = useSubscription();
   const profile = useProfileStore((s) => s.profile);
   const session = useAuthStore((s) => s.session);
   const complete = profileCompleteness(profile);
-  const step = nextStep(profile);
+  const locationPending = usePlatformStore((s) =>
+    s.verifications.some((v) => v.kind === 'location' && v.status === 'pending'),
+  );
+  const states = checkStates(profile, locationPending);
+  const step = nextStep(profile, states);
+  // What the verification part of the score is worth under the admin's live rules (550 points
+  // between the lowest and highest score).
+  const verificationWeight = usePlatformStore((s) => s.creditConfig.weights.verification);
+  const verificationPoints = Math.round((550 * verificationWeight) / 100);
 
   const name = profile?.name.trim() || 'New Farmer';
   const place = [profile?.farmName.trim(), profile?.region].filter(Boolean).join(' · ');
-  const checks: { label: string; icon: LucideIcon; done: boolean }[] = [
-    { label: 'Phone', icon: Smartphone, done: Boolean(profile?.verification.phone) },
-    { label: 'Location', icon: MapPin, done: Boolean(profile?.verification.location) },
-    { label: 'Ghana Card', icon: BadgeCheck, done: Boolean(profile?.verification.ghanaCard) },
+  const checks: { label: string; icon: LucideIcon; state: CheckState }[] = [
+    { label: 'Phone', icon: Smartphone, state: states.phone },
+    { label: 'Farm location', icon: MapPin, state: states.location },
+    { label: 'Ghana Card', icon: BadgeCheck, state: states.ghanaCard },
   ];
-  const fullyVerified = checks.every((c) => c.done);
+  const fullyVerified = checks.every((c) => c.state === 'verified');
 
   return (
     <section
@@ -73,7 +125,7 @@ export function AccountHero() {
               className="size-20 rounded-3xl text-3xl"
             />
             {fullyVerified && (
-              <span className="ring-bg-2 absolute -right-1.5 -bottom-1.5 inline-flex size-7 items-center justify-center rounded-full bg-[#10b981] text-white ring-4">
+              <span className="ring-bg-2 bg-accent absolute -right-1.5 -bottom-1.5 inline-flex size-7 items-center justify-center rounded-full text-white ring-4">
                 <Check size={15} strokeWidth={3} />
               </span>
             )}
@@ -131,36 +183,35 @@ export function AccountHero() {
               <p className="text-ink-green mt-1 text-xs font-semibold">Your profile is complete</p>
             )}
             <p className="text-text-mute mt-1 text-[11px] leading-snug">
-              A complete profile can add up to 55 points to your credit score.
+              Verifying your phone, farm location and Ghana Card, with a complete profile, can add
+              up to {verificationPoints} points to your AgriCtec score.
             </p>
           </div>
         </div>
       </div>
 
       <ul className="relative mt-5 flex flex-wrap gap-2" aria-label="Verification status">
-        {checks.map(({ label, icon: Icon, done }) => (
-          <li key={label}>
-            <Link
-              href="/settings/verification"
-              className={cn(
-                'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors',
-                done
-                  ? 'border-accent/30 bg-accent/10 text-ink-green'
-                  : 'border-gold/30 bg-gold/10 text-ink-gold hover:border-gold/60',
-              )}
-            >
-              <Icon size={13} aria-hidden="true" />
-              {label}
-              {done ? (
-                <Check size={12} aria-hidden="true" />
-              ) : (
-                <Hourglass size={12} aria-hidden="true" />
-              )}
-              <span className="sr-only">{done ? 'verified' : 'pending'}</span>
-            </Link>
-          </li>
-        ))}
-        <li className="ml-auto hidden @md:block">
+        {checks.map(({ label, icon: Icon, state }) => {
+          const style = STATE_STYLE[state];
+          const StateIcon = style.icon;
+          return (
+            <li key={label}>
+              <Link
+                href="/settings/verification"
+                className={cn(
+                  'inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors',
+                  style.className,
+                )}
+              >
+                <Icon size={13} aria-hidden="true" />
+                {label}
+                <StateIcon size={12} aria-hidden="true" />
+                <span className="sr-only">{style.text}</span>
+              </Link>
+            </li>
+          );
+        })}
+        <li className="ml-auto">
           <Link
             href="#personal-info"
             className="border-border bg-glass text-text hover:bg-glass-strong inline-flex min-h-9 items-center gap-1.5 rounded-full border px-3 text-xs font-semibold transition-colors"

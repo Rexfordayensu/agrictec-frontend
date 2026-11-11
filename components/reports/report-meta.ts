@@ -39,7 +39,7 @@ export const REPORT_META: Record<ReportType, ReportMeta> = {
   },
   loan: {
     icon: Landmark,
-    description: 'Credit score, factors and an AI assessment for lenders.',
+    description: 'Credit score, its factors and an assessment for lenders.',
     audience: 'Banks & MFIs',
     tone: 'bg-linear-to-br from-[#9333ea] to-[#c084fc] text-white shadow-purple/40',
     wash: 'from-purple/20 to-purple/5',

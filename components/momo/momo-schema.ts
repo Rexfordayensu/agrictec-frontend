@@ -17,17 +17,13 @@ export const momoSchema = z.object({
     .max(80),
   amount: z.coerce.number({ error: 'Enter a number' }).gt(0, 'Enter an amount greater than 0'),
   reference: z.string().trim().max(30, 'Reference is too long').optional(),
-  network: z.enum(MOMO_NETWORKS),
+  network: z.enum(MOMO_NETWORKS).optional(),
+  category: z.string().optional(),
+  paymentMethod: z.string().max(80).optional(),
+  externalReference: z.string().max(120).optional(),
   date: pastOrTodayDate,
 });
 
 export type MomoFormInput = z.input<typeof momoSchema>;
 export type MomoFormValues = z.output<typeof momoSchema>;
 
-/** "MOMO" + 6 random digits, used when the farmer leaves the reference blank. */
-export function generateMomoReference(): string {
-  const digits = (crypto.getRandomValues(new Uint32Array(1))[0] % 1_000_000)
-    .toString()
-    .padStart(6, '0');
-  return `MOMO${digits}`;
-}

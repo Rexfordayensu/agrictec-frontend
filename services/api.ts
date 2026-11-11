@@ -8,6 +8,9 @@ import { sessionStore } from '@/services/storage';
 
 const BASE = (process.env.NEXT_PUBLIC_API_URL ?? '/api/v1').replace(/\/$/, '');
 
+/** A full URL for an API path (e.g. an image the API serves: <img src={apiUrl(path)} />). */
+export const apiUrl = (path: string) => `${BASE}${path.startsWith('/') ? path : `/${path}`}`;
+
 /** This tab's read-only "View as farmer" token (sent on every request from that tab only). */
 const IMPERSONATION_TOKEN_KEY = 'impersonation-token';
 
@@ -144,12 +147,14 @@ const MEANINGFUL_NULLS = new Set([
   'creditsRemaining',
   'startsAt',
   'expiresAt',
-  'weatherOverride',
   'approvalRate',
   'defaultRate',
   'seededAt',
-  // "Not given by this source" (MET Norway publishes no probability of rain for Ghana).
+  // "Not given by this source" (MET Norway publishes no probability of rain for Ghana), and a
+  // rain amount or wind speed a provider left out: unknown, never 0.
   'rainChance',
+  'rainMm',
+  'windKph',
 ]);
 
 const reviver = (key: string, value: unknown) =>
@@ -184,3 +189,32 @@ export async function apiFile(
 /** True for a "you are not signed in (any more)" answer. */
 export const isSignedOut = (error: unknown) =>
   error instanceof ApiError && (error.status === 401 || error.code === 'account_suspended');
+
+
+/** Binary evidence, authenticated exactly like JSON calls. */
+export async function apiBlob(path: string): Promise<Blob> {
+  return withReadTimeout({}, async options => (await send(options, path)).blob());
+}
+
+/** Evidence upload with real byte progress, preserving credentials and read-only context. */
+export function apiUpload<T>(path: string, form: FormData, onProgress: (value: number) => void): Promise<T> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', apiUrl(path));
+    xhr.withCredentials = true;
+    const token = impersonationToken.get();
+    if (token) xhr.setRequestHeader('X-Impersonation-Token', token);
+    xhr.upload.onprogress = event => { if (event.lengthComputable) onProgress(Math.round(event.loaded / event.total * 100)); };
+    xhr.onerror = () => reject(new ApiError('Upload failed. Check your connection and try again.', 0, 'network'));
+    xhr.timeout = 120_000;
+    xhr.ontimeout = () => reject(new ApiError('Upload timed out. Please try again.', 0, 'timeout'));
+    xhr.onload = () => {
+      try {
+        const data = JSON.parse(xhr.responseText, reviver);
+        if (xhr.status >= 200 && xhr.status < 300) resolve(data as T);
+        else reject(new ApiError(data.detail ?? 'Upload failed.', xhr.status, data.code ?? null));
+      } catch { reject(new ApiError('The server could not accept the file. Try again.', xhr.status, null)); }
+    };
+    xhr.send(form);
+  });
+}

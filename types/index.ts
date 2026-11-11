@@ -1,10 +1,12 @@
 // ---------- Core domain types (spec Section 4) ----------
 
+import type { TransactionMetadata } from '@/types/transactions';
+
 import type { AccountStatus, Role } from '@/types/admin';
 
 export type { AccountStatus, Role } from '@/types/admin';
 
-export type RecordType = 'income' | 'expense' | 'activity';
+export type RecordType = 'income' | 'expense' | 'activity' | 'financing';
 /** Crops with yield data (base yield, price, tips): the ones the yield predictor offers. */
 export type YieldCrop =
   'Maize' | 'Cassava' | 'Rice' | 'Cocoa' | 'Yam' | 'Plantain' | 'Groundnut' | 'Tomato';
@@ -21,7 +23,8 @@ export type Crop =
   | 'Vegetables'
   | 'Other';
 
-export interface FarmRecord {
+export interface FarmRecord extends TransactionMetadata {
+  direction?: 'in' | 'out' | null;
   id: string; // crypto.randomUUID(), never Date.now()
   userId: string;
   type: RecordType;
@@ -33,13 +36,14 @@ export interface FarmRecord {
   createdAt: string;
 }
 
-export interface MomoTransaction {
+export interface MomoTransaction extends TransactionMetadata {
+  referenceDuplicate?: boolean;
   id: string;
   userId: string;
   direction: 'in' | 'out';
   counterparty: string;
   amount: number;
-  reference: string;
+  reference?: string;
   network?: MomoNetwork;
   date: string;
   createdAt: string;
@@ -160,17 +164,6 @@ export interface Session {
   startedAt: string;
 }
 
-export interface LoanPartner {
-  id: string;
-  name: string;
-  rate: number; // annual %
-  maxAmount: number;
-  minMonths: number;
-  maxMonths: number;
-  minScore: number;
-  color: string;
-}
-
 export interface MarketPrice {
   crop: Crop | string;
   unit: string;
@@ -233,7 +226,8 @@ export interface EligibilityResult {
   reasons: string[];
   /** The same reasons with a machine-readable code, so the UI can offer the right fix. */
   issues: EligibilityIssue[];
-  maxAffordable: number;
+  /** No longer calculated: AgriCtec sets no borrowing limit (lenders' products do). */
+  maxAffordable?: number;
 }
 
 export interface RepaymentResult {

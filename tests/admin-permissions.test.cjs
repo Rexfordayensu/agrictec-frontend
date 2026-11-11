@@ -153,6 +153,7 @@ test('admin navigation follows spec Section 7 and hides what a role cannot use',
   const expected = {
     Dashboard: 'overview.view',
     'All Farmers': 'farmers.view',
+    'Transactions review': 'transactions.review',
     Verifications: 'verifications.review',
     'Risk & Fraud': 'risk.review',
     'Loan Applications': 'loans.view',

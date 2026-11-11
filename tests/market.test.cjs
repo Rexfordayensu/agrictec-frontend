@@ -377,12 +377,44 @@ test('a forecast without a rain probability (MET Norway) survives the API client
   }
 });
 
+test('missing rain and wind stay unknown (never 0), and only live providers are accepted', async () => {
+  const realFetch = globalThis.fetch;
+  const answer = (data) => {
+    globalThis.fetch = async () =>
+      new Response(JSON.stringify({ status: 'ready', data }), { status: 200 });
+  };
+  try {
+    const gaps = forecast();
+    gaps.provider = 'MET Norway';
+    gaps.current.rainMm = null;
+    gaps.current.windKph = null;
+    gaps.daily[0].rainMm = null;
+    gaps.daily[0].windKph = null;
+    answer(gaps);
+    const result = await weatherService.getForecast(accra);
+    assert.equal(result.status, 'ready');
+    assert.equal(result.data.current.rainMm, null);
+    assert.equal(result.data.current.windKph, null);
+    assert.equal(result.data.daily[0].rainMm, null);
+    assert.equal(result.data.daily[0].windKph, null);
+
+    for (const provider of ['Frontend demo · sample measurements', 'Test provider only', '']) {
+      answer({ ...forecast(), provider });
+      const refused = await weatherService.getForecast(accra);
+      assert.equal(refused.status, 'unavailable', provider);
+    }
+  } finally {
+    globalThis.fetch = realFetch;
+  }
+});
+
 test('shared weather UI loads live weather and retains full location controls', () => {
   for (const scope of ['farmer', 'admin']) {
     const html = renderToStaticMarkup(createElement(WeatherCard, { scope }));
     assert.match(html, /Use my current location/);
     assert.match(html, /Loading weather for this location/);
-    assert.match(html, /Detecting your location/);
+    // The browser is only asked for a location when the farmer taps the button.
+    assert.doesNotMatch(html, /Detecting your location/);
     // Live by default: the demo label belongs to demo reports only.
     assert.doesNotMatch(html, /Demo weather|demo measurements|Update demo weather/);
     assert.match(html, /Ashanti/);
@@ -391,12 +423,12 @@ test('shared weather UI loads live weather and retains full location controls', 
   const reading = renderToStaticMarkup(createElement(WeatherReadings, { report: forecast() }));
   for (const label of [
     'Humidity',
-    'Rainfall',
-    'Rain probability',
-    'Wind speed',
-    'Daily forecast',
-    'Upcoming conditions',
+    'Rain this hour',
+    'Rain chance now',
+    'Wind',
+    'Next 24 hours',
     'Last updated',
+    'Ghana time',
   ])
     assert.ok(reading.includes(label), label);
   const research = renderToStaticMarkup(createElement(MarketResearchPanel, { onApprove() {} }));
