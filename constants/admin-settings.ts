@@ -3,6 +3,7 @@ import {
   BellRing,
   Construction,
   DatabaseBackup,
+  Fingerprint,
   Skull,
   Sparkles,
   ToggleRight,
@@ -36,6 +37,13 @@ export const SYSTEM_SETTINGS_SECTIONS = [
     label: 'Error alerts',
     icon: BellRing,
     description: 'Get a notification on your phone when something breaks.',
+  },
+  {
+    id: 'identity',
+    href: '/admin/settings/identity',
+    label: 'Identity requirements',
+    icon: Fingerprint,
+    description: 'Choose which features need a reviewed or NIA-verified Ghana Card.',
   },
   {
     id: 'backup',

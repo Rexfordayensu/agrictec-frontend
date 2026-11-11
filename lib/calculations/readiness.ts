@@ -55,7 +55,7 @@ export function buildReadiness({
       key: 'ghanaCard',
       label: 'Ghana Card',
       description: profile?.verification.ghanaCard
-        ? 'Your Ghana Card is verified.'
+        ? 'Your Ghana Card is reviewed by AgriCtec.'
         : cardUnderReview
           ? 'Your Ghana Card is under review.'
           : 'Verify your Ghana Card in your profile.',

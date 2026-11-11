@@ -1,6 +1,7 @@
 import { Suspense } from 'react';
 import type { Metadata } from 'next';
 import { RequirePermission } from '@/components/admin/layout/require-permission';
+import { IdentityReviewQueue } from '@/components/admin/verifications/identity-review-queue';
 import { VerificationTable } from '@/components/admin/verifications/verification-table';
 import AdminLoading from '@/app/(admin)/admin/loading';
 
@@ -13,6 +14,7 @@ export const metadata: Metadata = { title: 'Verifications' };
 export default function VerificationsPage() {
   return (
     <RequirePermission permission="verifications.review">
+      <IdentityReviewQueue />
       <Suspense fallback={<AdminLoading />}>
         <VerificationTable />
       </Suspense>

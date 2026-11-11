@@ -67,7 +67,8 @@ export function VerificationGrid() {
           ? 'rejected'
           : 'todo';
   const cardDetail: Record<CheckState, string> = {
-    verified: card?.masked ?? 'Verified',
+    // An AgriCtec review of the typed-in number: not an identity check against NIA.
+    verified: `${card?.masked ? `${card.masked}. ` : ''}Reviewed by AgriCtec, not an NIA identity check.`,
     review: `${card?.masked ?? cardRequest?.submittedValue ?? 'Your card'} is waiting for review. This usually takes one working day.`,
     rejected: card?.rejectedReason ?? rejectionMessage(cardRequest ?? {}),
     todo: 'Not provided. Add your Ghana Card to unlock loans.',
@@ -118,13 +119,14 @@ export function VerificationGrid() {
       },
     },
     {
-      title: 'Ghana Card',
+      title: 'Ghana Card (AgriCtec review)',
       icon: BadgeCheck,
       state: cardState,
       ...(cardState === 'todo' && { badgeLabel: 'Not provided' }),
+      ...(cardState === 'verified' && { badgeLabel: 'Reviewed' }),
       detail: cardDetail[cardState],
       action: {
-        label: cardState === 'rejected' ? 'Try again' : 'Verify',
+        label: cardState === 'rejected' ? 'Submit again' : 'Submit for review',
         run: () => setCardOpen(true),
       },
     },
@@ -140,7 +142,8 @@ export function VerificationGrid() {
           </CardTitle>
           <CardSub>
             Build a more complete farmer profile. Your phone is checked by SMS; your farm location
-            and Ghana Card are reviewed by our team.
+            and the Ghana Card number you enter are reviewed by our team (not an NIA identity
+            check).
           </CardSub>
         </div>
       </CardHeader>
