@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -12,6 +12,7 @@ import { AuthDivider, FormAlert } from '@/components/auth/form-alert';
 import { GuestButton } from '@/components/auth/guest-button';
 import { NewPasswordForm } from '@/components/auth/new-password-form';
 import { PasswordInput } from '@/components/auth/password-input';
+import { lockedUntil as lockEnd, SignInLockAlert, useSignInLock } from '@/components/auth/sign-in-lock';
 import { Button } from '@/components/ui/button';
 import { FormField, fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -37,6 +38,14 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
   const [formError, setFormError] = useState<string | null>(
     reason ? REASON_MESSAGES[reason] : null,
   );
+  // Five wrong passwords lock this email here for five minutes: when the lock ends.
+  const [lockedUntil, setLockedUntil] = useState<string | null>(null);
+  const unlock = useCallback(() => {
+    setLockedUntil(null);
+    setFormError(null);
+  }, []);
+  const remaining = useSignInLock(lockedUntil, unlock);
+  const locked = remaining !== null;
   // Signed in with a temporary password from support: choose a new one first.
   const [temporary, setTemporary] = useState<{ email: string; password: string } | null>(null);
   // The admin can close sign-ups and guest mode.
@@ -52,6 +61,7 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
   });
 
   async function onSubmit(values: LoginValues) {
+    if (locked) return;
     setFormError(null);
     try {
       await enter(await signIn(values.email, values.password));
@@ -60,7 +70,9 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
         setTemporary({ email: values.email, password: values.password });
         return;
       }
-      setFormError(error instanceof Error ? error.message : 'Could not sign in');
+      const until = lockEnd(error);
+      if (until) setLockedUntil(until);
+      else setFormError(error instanceof Error ? error.message : 'Could not sign in');
     }
   }
 
@@ -90,7 +102,11 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
       </div>
 
       <form noValidate onSubmit={handleSubmit(onSubmit)} className={'agric-login-form'}>
-        {formError && <FormAlert icon={AlertCircle}>{formError}</FormAlert>}
+        {locked && lockedUntil ? (
+          <SignInLockAlert until={lockedUntil} remaining={remaining} />
+        ) : (
+          formError && <FormAlert icon={AlertCircle}>{formError}</FormAlert>
+        )}
 
         <FormField label="Email" htmlFor="login-email" error={errors.email?.message}>
           <div className={'agric-login-inputWrap'}>
@@ -131,6 +147,7 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
           type="submit"
           icon={ArrowRight}
           loading={isSubmitting}
+          disabled={locked}
           className={'agric-login-submit'}
         >
           {isSubmitting ? 'Signing in…' : 'Sign in'}

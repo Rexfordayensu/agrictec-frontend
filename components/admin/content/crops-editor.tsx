@@ -2,11 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import {
-  ArrowDownRight,
-  ArrowRight,
-  ArrowUpRight,
   CircleAlert,
-  Coins,
   Lightbulb,
   RotateCcw,
   Save,
@@ -34,7 +30,6 @@ const TIPS_MAX = 6;
 
 interface CropIssues {
   yieldPerAcre?: string;
-  pricePerTonne?: string;
   tips?: string;
 }
 
@@ -43,8 +38,6 @@ function issuesOf(crop: CropContent): CropIssues {
   const issues: CropIssues = {};
   if (!(crop.yieldPerAcre > 0) || crop.yieldPerAcre > 1000)
     issues.yieldPerAcre = 'Enter a yield above 0 (up to 1,000 t/acre).';
-  if (!(crop.pricePerTonne > 0) || crop.pricePerTonne > 1_000_000)
-    issues.pricePerTonne = 'Enter a price above GHS 0 (up to 1,000,000).';
   const tips = crop.tips.map((t) => t.trim()).filter(Boolean);
   if (tips.length === 0) issues.tips = 'Add at least one tip.';
   else if (tips.some((t) => t.length > 240)) issues.tips = 'Keep each tip under 240 characters.';
@@ -57,10 +50,8 @@ const clean = (crop: CropContent): CropContent => ({
   tips: crop.tips.map((t) => t.trim()).filter(Boolean),
 });
 const same = (a: CropContent, b: CropContent) => JSON.stringify(a) === JSON.stringify(b);
-const revenueOf = (crop: CropContent) =>
-  Number.isFinite(crop.yieldPerAcre * crop.pricePerTonne)
-    ? crop.yieldPerAcre * crop.pricePerTonne
-    : 0;
+const yieldOf = (crop: CropContent) =>
+  Number.isFinite(crop.yieldPerAcre) ? crop.yieldPerAcre : 0;
 const toDrafts = (crops: CropContent[]) =>
   Object.fromEntries(crops.map((c) => [c.crop, c])) as Record<CropName, CropContent>;
 
@@ -81,7 +72,7 @@ function CropBadge({ crop, large = false }: { crop: CropName; large?: boolean })
 }
 
 /**
- * The crop list: a column with each crop's revenue per acre on wide screens, a sideways-scrolling
+ * The crop list: a column with each crop's base yield per acre on wide screens, a sideways-scrolling
  * row of chips on phones. A gold dot marks unsaved edits, a red one a value that can't be saved.
  */
 function CropRail({
@@ -97,11 +88,11 @@ function CropRail({
   selected: CropName;
   onSelect: (crop: CropName) => void;
 }) {
-  const top = Math.max(1, ...crops.map((c) => revenueOf(drafts[c])));
+  const top = Math.max(0.1, ...crops.map((c) => yieldOf(drafts[c])));
   return (
     <nav aria-label="Crops" className="lg:border-border lg:bg-glass lg:rounded-2xl lg:border">
       <p className="text-text-mute hidden px-4 pt-4 pb-2 text-[11px] font-semibold tracking-wider uppercase lg:block">
-        Revenue per acre
+        Base yield per acre
       </p>
       <ul className="-mx-4 flex scrollbar-none gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:p-2 lg:pt-0 [&::-webkit-scrollbar]:hidden">
         {crops.map((name) => {
@@ -109,7 +100,7 @@ function CropRail({
           const active = name === selected;
           const dirty = !same(clean(draft), saved[name]);
           const invalid = hasIssues(draft);
-          const share = Math.max(4, Math.round((revenueOf(draft) / top) * 100));
+          const share = Math.max(4, Math.round((yieldOf(draft) / top) * 100));
           return (
             <li key={name} className="shrink-0">
               <button
@@ -118,7 +109,7 @@ function CropRail({
                 onClick={() => onSelect(name)}
                 className={cn(
                   'group relative flex w-full items-center gap-3 rounded-xl text-left transition-colors',
-                  // Phones: a chip. Wide screens: a row with the revenue bar.
+                  // Phones: a chip. Wide screens: a row with the yield bar.
                   'border-border min-h-11 border px-3 py-1.5 lg:border-transparent lg:px-2.5 lg:py-2',
                   active
                     ? 'bg-purple/12 border-purple/40 lg:border-purple/25'
@@ -151,7 +142,7 @@ function CropRail({
                       </span>
                     )}
                     <span className="text-text-mute ml-auto hidden text-xs tabular-nums lg:inline">
-                      {formatGHS(revenueOf(draft))}
+                      {yieldOf(draft)} t
                     </span>
                   </span>
                   <span
@@ -231,7 +222,7 @@ function NumberField({
   );
 }
 
-/** The selected crop: figures, the market price next to them, and the tips farmers read. */
+/** The selected crop: its yield, the published price farmers see, and the tips they read. */
 function CropEditorPanel({
   draft,
   saved,
@@ -245,11 +236,7 @@ function CropEditorPanel({
 }) {
   const issues = issuesOf(draft);
   const dirty = !same(clean(draft), saved);
-  const revenue = revenueOf(draft);
-  const before = revenueOf(saved);
-  const change = before > 0 && revenue !== before ? ((revenue - before) / before) * 100 : 0;
   const reference = marketReference(draft.crop, market);
-  const matchesMarket = reference?.perTonne === draft.pricePerTonne;
 
   return (
     <section
@@ -287,7 +274,7 @@ function CropEditorPanel({
       </header>
 
       <div className="space-y-6 p-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <NumberField
             label="Base yield"
             hint={
@@ -301,55 +288,9 @@ function CropEditorPanel({
             error={issues.yieldPerAcre}
             onChange={(yieldPerAcre) => onChange({ ...draft, yieldPerAcre })}
           />
-          <NumberField
-            label="Farm-gate price"
-            hint={
-              draft.pricePerTonne === saved.pricePerTonne
-                ? 'What farmers are paid per tonne at the farm gate.'
-                : `Was ${formatGHS(saved.pricePerTonne)} per tonne.`
-            }
-            unit="GHS / t"
-            step="10"
-            value={draft.pricePerTonne}
-            error={issues.pricePerTonne}
-            onChange={(pricePerTonne) => onChange({ ...draft, pricePerTonne })}
-          />
-          {/* The result: what a farmer sees as average revenue per acre. */}
-          <div className="bg-purple/10 border-purple/25 rounded-2xl border p-4 sm:col-span-2 xl:col-span-1">
-            <p className="text-ink-purple flex items-center gap-1.5 text-xs font-semibold">
-              <Coins size={14} aria-hidden="true" />
-              Revenue per acre
-            </p>
-            <p className="font-display text-text mt-2.5 text-2xl font-bold tabular-nums">
-              {formatGHS(revenue)}
-            </p>
-            <p className="text-text-mute mt-1.5 flex items-center gap-1 text-xs">
-              {change === 0 ? (
-                'Yield × price, at baseline.'
-              ) : (
-                <>
-                  {change > 0 ? (
-                    <ArrowUpRight size={13} aria-hidden="true" className="text-ink-green" />
-                  ) : (
-                    <ArrowDownRight size={13} aria-hidden="true" className="text-ink-red" />
-                  )}
-                  <span
-                    className={cn(
-                      'font-semibold tabular-nums',
-                      change > 0 ? 'text-ink-green' : 'text-ink-red',
-                    )}
-                  >
-                    {change > 0 ? '+' : ''}
-                    {change.toFixed(1)}%
-                  </span>
-                  from {formatGHS(before)}
-                </>
-              )}
-            </p>
-          </div>
         </div>
 
-        {/* The market page's price for the same crop, so the two never drift apart unnoticed. */}
+        {/* Farmers' revenue estimates use only this published price; there is no built-in one. */}
         <div className="border-border flex flex-col gap-3 rounded-2xl border border-dashed p-4 sm:flex-row sm:items-center">
           <span className="bg-info/12 text-ink-blue inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
             <Store size={17} aria-hidden="true" />
@@ -358,15 +299,13 @@ function CropEditorPanel({
             {reference ? (
               <>
                 <p className="text-text font-semibold">
-                  Market page: {formatMarketAmount(reference.row.price)}{' '}
+                  Published price: {formatMarketAmount(reference.row.price)}{' '}
                   <span className="text-text-mute font-normal">per {unitLabel(reference.row)}</span>
                 </p>
                 <p className="text-text-mute text-xs">
                   {reference.perTonne === null
-                    ? 'This observation is a range or has no documented unit weight. No single per-tonne price can be copied.'
-                    : matchesMarket
-                      ? `Same as ${formatGHS(reference.perTonne)} per tonne. The two pages agree.`
-                      : `That is ${formatGHS(reference.perTonne)} per tonne.`}
+                    ? 'This observation is a range or has no documented unit weight, so farmers see no revenue estimate.'
+                    : `Farmers' yield estimates use ${formatGHS(reference.perTonne)} per tonne.`}
                 </p>
                 <p className="text-text-mute mt-1 text-xs">
                   {[reference.row.market, reference.row.region].filter(Boolean).join(', ') ||
@@ -376,25 +315,15 @@ function CropEditorPanel({
               </>
             ) : (
               <>
-                <p className="text-text font-semibold">No single source-reviewed reference</p>
+                <p className="text-text font-semibold">No single published price</p>
                 <p className="text-text-mute text-xs">
-                  Review {draft.crop} under Market Price Management. Multiple regional prices are
-                  not reduced to one national price.
+                  Farmers see the predicted harvest without a revenue estimate. Publish a reviewed
+                  {` ${draft.crop} `}price under Market Price Management; several regional prices
+                  are not reduced to one.
                 </p>
               </>
             )}
           </div>
-          {reference?.perTonne != null && !matchesMarket && (
-            <Button
-              size="sm"
-              variant="ghost"
-              icon={ArrowRight}
-              onClick={() => onChange({ ...draft, pricePerTonne: reference.perTonne ?? 0 })}
-              className="border-border shrink-0 border"
-            >
-              Use market price
-            </Button>
-          )}
         </div>
 
         <div>
@@ -505,8 +434,8 @@ export function CropsEditor() {
   }
 
   const crops = saved.map((c) => c.crop);
-  const top = saved.reduce((best, c) => (revenueOf(c) > revenueOf(best) ? c : best), saved[0]);
-  const average = saved.reduce((sum, c) => sum + revenueOf(c), 0) / Math.max(1, saved.length);
+  const top = saved.reduce((best, c) => (yieldOf(c) > yieldOf(best) ? c : best), saved[0]);
+  const average = saved.reduce((sum, c) => sum + yieldOf(c), 0) / Math.max(1, saved.length);
 
   return (
     <div className="space-y-5">
@@ -519,12 +448,14 @@ export function CropsEditor() {
             <dd className="text-text font-semibold tabular-nums">{saved.length}</dd>
           </div>
           <div className="flex items-center gap-1.5">
-            <dt>Average revenue</dt>
-            <dd className="text-text font-semibold tabular-nums">{formatGHS(average)}/acre</dd>
+            <dt>Average base yield</dt>
+            <dd className="text-text font-semibold tabular-nums">
+              {Math.round(average * 100) / 100} t/acre
+            </dd>
           </div>
           {top && (
             <div className="flex items-center gap-1.5">
-              <dt>Top earner</dt>
+              <dt>Highest yield</dt>
               <dd className="text-text font-semibold">{top.crop}</dd>
             </div>
           )}

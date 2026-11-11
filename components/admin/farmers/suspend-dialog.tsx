@@ -58,7 +58,6 @@ function SuspendForm({
 }) {
   const [reason, setReason] = useState('');
   const [note, setNote] = useState('');
-  const [notify, setNotify] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const targets = farmers.filter((f) => f.status !== 'suspended');
@@ -82,7 +81,6 @@ function SuspendForm({
     setBusy(false);
     if (done) {
       toast.success(done === 1 ? `${nameOf(targets[0])} suspended` : `${done} farmers suspended`);
-      if (notify) toast.info('Farmers notified (demo: no message is sent)');
     }
     if (failed.length) toast.error(`Not suspended: ${failed.join(', ')}`);
     onDone();
@@ -156,16 +154,10 @@ function SuspendForm({
           />
         </FormField>
 
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            checked={notify}
-            onChange={(e) => setNotify(e.target.checked)}
-            className="size-4 accent-[#a855f7]"
-          />
-          <span className="text-text">Notify farmer</span>
-          <span className="text-text-mute text-xs">(demo: no message is sent)</span>
-        </label>
+        <p className="text-text-mute text-xs">
+          The farmer gets a notice with this reason in the app, and by SMS or email when those are
+          set up.
+        </p>
 
         {error && (
           <p role="alert" className="text-ink-red text-sm">

@@ -1,6 +1,7 @@
 import { YIELD_MULTIPLIERS } from '@/constants/crops';
+import { marketReference } from '@/lib/admin/crop-pricing';
 import { DEFAULT_CROP_CONTENT } from '@/lib/admin/defaults';
-import type { YieldInput, YieldResult } from '@/types';
+import type { MarketPrice, YieldInput, YieldResult } from '@/types';
 import type { CropContent } from '@/types/admin';
 
 const round2 = (value: number) => Math.round(value * 100) / 100;
@@ -13,15 +14,31 @@ export const findCrop = (crop: YieldInput['crop'], crops: CropContent[] = DEFAUL
 export const baseYield = (crop: YieldInput['crop'], crops?: CropContent[]) =>
   findCrop(crop, crops)?.yieldPerAcre ?? 0;
 
-/** Farm-gate price in GHS per tonne (0 when unknown). */
-export const pricePerTonne = (crop: YieldInput['crop'], crops?: CropContent[]) =>
-  findCrop(crop, crops)?.pricePerTonne ?? 0;
+/**
+ * The published market price per tonne for a crop, with where and when it was observed: only
+ * from a single published observation priced by weight (null otherwise). Never a built-in price.
+ */
+export function cropMarketPrice(crop: YieldInput['crop'], prices: MarketPrice[] = []) {
+  const reference = marketReference(crop, prices);
+  if (!reference || reference.perTonne === null) return null;
+  const { row } = reference;
+  return {
+    perTonne: reference.perTonne,
+    where: [row.market, row.region].filter(Boolean).join(', ') || 'Nationwide',
+    observedAt: row.observedAt ?? null,
+  };
+}
 
 /**
  * Deterministic yield prediction: the same input always gives the same output.
- * Yields and prices come from the admin's crop content (defaults: constants/crops.ts).
+ * Yields come from the admin's crop content (defaults: constants/crops.ts). Revenue only from a
+ * published market price; without one there is no revenue figure.
  */
-export function predictYield(input: YieldInput, crops?: CropContent[]): YieldResult {
+export function predictYield(
+  input: YieldInput,
+  crops?: CropContent[],
+  prices: MarketPrice[] = [],
+): YieldResult {
   const { fertilizer, irrigation, season } = YIELD_MULTIPLIERS;
   const perAcre =
     baseYield(input.crop, crops) *
@@ -29,15 +46,16 @@ export function predictYield(input: YieldInput, crops?: CropContent[]): YieldRes
     irrigation[input.irrigation] *
     season[input.season];
   const expected = perAcre * input.acres;
-  const price = pricePerTonne(input.crop, crops);
+  const market = cropMarketPrice(input.crop, prices);
 
   return {
     low: round2(expected * 0.9),
     expected: round2(expected),
     high: round2(expected * 1.1),
     perAcre: round2(perAcre),
-    revenue: Math.round(expected * price),
-    pricePerTonne: price,
+    revenue: market ? Math.round(expected * market.perTonne) : null,
+    pricePerTonne: market?.perTonne ?? null,
+    priceSource: market ? { where: market.where, observedAt: market.observedAt } : null,
   };
 }
 

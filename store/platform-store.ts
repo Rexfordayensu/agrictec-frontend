@@ -57,7 +57,8 @@ export const initialPlatformState = (): Omit<
   knowledge: DEFAULT_ASSISTANT_KB,
   diagnoses: DEFAULT_DIAGNOSES,
   announcements: [],
-  payments: { mode: 'demo' },
+  // Until the API says otherwise nothing can be bought ("demo" exists only in development).
+  payments: { mode: 'off' },
   ai: { mode: 'off' },
   dismissed: [],
   verifications: [],

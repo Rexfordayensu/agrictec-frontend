@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { financialReportError } from '@/lib/financial-report-state';
 import { financialService } from '@/services/financial.service';
 import { useFarmStore } from '@/store/farm-store';
 import type { FinancialSummary, ReportMonths } from '@/types/financial';
@@ -23,13 +24,15 @@ export function useFinancialSummary(months: ReportMonths) {
   useEffect(() => {
     const controller = new AbortController();
     financialService.summary(months, controller.signal).then(
-      (summary) => setState({ status: 'ready', summary }),
+      (summary) => {
+        if (!controller.signal.aborted) setState({ status: 'ready', summary });
+      },
       (cause: unknown) => {
         if (controller.signal.aborted) return;
         setState((current) => ({
           status: 'error',
           summary: current.summary,
-          error: cause instanceof Error ? cause.message : 'Could not load your figures.',
+          error: financialReportError(cause),
         }));
       },
     );

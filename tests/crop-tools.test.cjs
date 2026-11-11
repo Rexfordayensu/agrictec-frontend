@@ -289,23 +289,62 @@ test('yield schema coerces acreage, rejects zero and invalid inputs, and exclude
   assert.equal(YIELD_CROPS.length, 8);
 });
 
-test('yield and revenue are repeatable, scale by acreage and use shared crop baselines', () => {
+// One reviewed, published observation: GHS 400 per 100 kg bag of maize in Ashanti.
+const maizePrice = {
+  id: 'maize-1',
+  country: 'GH',
+  currency: 'GHS',
+  crop: 'Maize (white)',
+  unit: 'bag',
+  quantity: 1,
+  packageWeightKg: 100,
+  price: 400,
+  change: 0,
+  status: 'published',
+  scope: 'region',
+  region: 'Ashanti',
+  observedAt: '2026-10-01',
+  source: {
+    title: 'Weekly prices',
+    publisher: 'MoFA SRID',
+    url: 'https://mofa.gov.gh/prices',
+    publishedAt: '2026-10-01',
+    kind: 'official',
+  },
+  reviewedAt: '2026-10-02T10:00:00.000Z',
+  reviewedBy: 'Super Admin',
+};
+
+test('yield is repeatable and scales by acreage; revenue only from a published price', () => {
   const result = predictYield(yieldInput);
   assert.deepEqual(result, predictYield({ ...yieldInput }));
+  // No built-in price: without a published one there is no revenue figure.
   assert.deepEqual(result, {
     low: 9.36,
     expected: 10.4,
     high: 11.43,
     perAcre: 5.2,
-    revenue: 33264,
-    pricePerTonne: 3200,
+    revenue: null,
+    pricePerTonne: null,
+    priceSource: null,
   });
-  const doubled = predictYield({ ...yieldInput, acres: 4 });
-  assert.equal(doubled.revenue, result.revenue * 2);
+  const priced = predictYield(yieldInput, undefined, [maizePrice]);
+  assert.equal(priced.pricePerTonne, 4000);
+  assert.equal(priced.revenue, 41580);
+  assert.deepEqual(priced.priceSource, { where: 'Ashanti', observedAt: '2026-10-01' });
+  const doubled = predictYield({ ...yieldInput, acres: 4 }, undefined, [maizePrice]);
+  assert.equal(doubled.revenue, priced.revenue * 2);
+  // Two observations are not reduced to one price; a range gives none either.
+  assert.equal(
+    predictYield(yieldInput, undefined, [maizePrice, { ...maizePrice, id: 'maize-2', price: 420 }])
+      .revenue,
+    null,
+  );
+  assert.equal(predictYield(yieldInput, undefined, [{ ...maizePrice, priceMax: 450 }]).revenue, null);
   for (const crop of YIELD_CROPS) {
     const estimate = predictYield({ ...yieldInput, crop });
     assert.ok(estimate.low <= estimate.expected && estimate.expected <= estimate.high);
-    assert.ok(estimate.revenue > 0);
+    assert.equal(estimate.revenue, null);
     assert.ok(yieldInsight({ ...yieldInput, crop }, estimate).length > 0);
   }
 });
@@ -316,6 +355,7 @@ test('yield tips change per crop, show all four tips, and results identify their
   assert.match(cocoa, /Growing tips for Cocoa/);
   assert.match(cocoa, /Prune regularly/);
   assert.match(maize, /Scout weekly/);
+  assert.match(maize, /Not published/); // no built-in market price
   assert.equal((cocoa.match(/<li\b/g) ?? []).length, 4);
   assert.notEqual(cocoa, maize);
   const rendered = renderToStaticMarkup(
@@ -327,17 +367,27 @@ test('yield tips change per crop, show all four tips, and results identify their
   );
   assert.match(rendered, /Maize/);
   assert.match(rendered, /Update my estimate/);
-  assert.match(rendered, /Expected Revenue/);
-  assert.match(rendered, /GHS 33,264/);
-  assert.match(rendered, /Add to records as expected income/);
+  assert.match(rendered, /No published market price for Maize yet/);
+  assert.doesNotMatch(rendered, /Expected Revenue/);
+  // A prediction is never saved as income.
+  assert.doesNotMatch(rendered, /Add to records/);
+  const priced = renderToStaticMarkup(
+    createElement(YieldResult, {
+      input: yieldInput,
+      result: predictYield(yieldInput, undefined, [maizePrice]),
+    }),
+  );
+  assert.match(priced, /Expected Revenue/);
+  assert.match(priced, /GHS 41,580/);
+  assert.match(priced, /Published market price · Ashanti, observed 2026-10-01/);
 });
 
 test('prediction record drafts prefill the modal without saving and clear between openings', () => {
   const defaults = {
     type: 'income',
     crop: 'Maize',
-    amount: predictYield(yieldInput).revenue,
-    description: 'Expected harvest (prediction)',
+    amount: 2400,
+    description: 'Maize sale',
   };
   const before = useFarmStore.getState().records.length;
   useModalStore.getState().openRecordWithDefaults(defaults);
@@ -385,6 +435,7 @@ test('upload markup exposes keyboard-accessible controls and diagnosis content s
   assert.match(diagnosis, /border-l-danger/);
   assert.match(diagnosis, /aria-valuenow="92"/);
   assert.match(diagnosis, /MoFA extension officer/);
-  assert.match(diagnosis, /Mock result/);
+  assert.match(diagnosis, /AI diagnosis/);
+  assert.doesNotMatch(diagnosis, /Mock/);
   assert.doesNotMatch(diagnosis, /<script>|<b>/);
 });

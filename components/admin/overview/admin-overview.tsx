@@ -18,6 +18,7 @@ import { usePlatformStatus } from '@/hooks/admin/use-platform-status';
 import { DATE_RANGES, type DateRange } from '@/lib/admin/overview';
 import { cn } from '@/lib/utils';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
+import { LogoLoader } from '@/components/ui/logo-loader';
 
 /** Short labels for the period switch (the full label is read out). */
 const RANGE_SHORT: Record<DateRange, string> = {
@@ -92,10 +93,10 @@ export function AdminOverview() {
 
       {!data ? (
         <div
-          role={error ? 'alert' : 'status'}
+          role={error ? 'alert' : undefined}
           className="border-border bg-glass text-text-dim flex min-h-40 items-center justify-center rounded-2xl border p-6 text-sm"
         >
-          {error ?? 'Loading the overview…'}
+          {error ?? <LogoLoader label="Loading the overview" />}
         </div>
       ) : (
         <KpiGrid range={range} bands={bands} kpis={data.kpis} />

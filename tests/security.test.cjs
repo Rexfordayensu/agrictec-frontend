@@ -81,3 +81,41 @@ test('diagnosis thumbnails are inline JPEGs only, never links to another site', 
   ])
     assert.equal(safeImageThumb(bad), undefined);
 });
+
+const signInLock = require('../components/auth/sign-in-lock.tsx');
+const { ApiError } = require('../services/api.ts');
+
+test('a sign-in lock names the Ghana time it ends, never earlier, and only for a 423 lock', () => {
+  const until = '2026-11-11T14:35:20.000Z';
+  const locked = new ApiError('Too many attempts.', 423, 'locked', { until });
+  assert.equal(signInLock.lockedUntil(locked), until);
+  assert.equal(signInLock.lockedUntil(new ApiError('Incorrect email or password', 401, 'bad_credentials')), null);
+  assert.equal(signInLock.lockedUntil(new ApiError('x', 423, 'locked', { until: 'not a date' })), null);
+  // 14:35:20 GMT rounds up to 14:36: the time shown is never before the lock really ends.
+  assert.match(signInLock.signInAgainAt(until), /^2:36\s?(pm|PM)$/);
+  assert.match(signInLock.signInAgainAt('2026-11-11T09:05:00.000Z'), /^9:05\s?(am|AM)$/);
+});
+
+const reminder = require('../lib/ghana-card-reminder.ts');
+
+test('the Ghana Card reminder: a minute after opening, every 10 minutes on "later", none after "not now"', () => {
+  const who = { isGuest: false, readOnly: false };
+  assert.equal(reminder.needsReminder('not_provided', who), true);
+  assert.equal(reminder.needsReminder('rejected', who), true);
+  // Nothing to do while a card is under review or verified, and never for guests or admins.
+  assert.equal(reminder.needsReminder('pending', who), false);
+  assert.equal(reminder.needsReminder('verified', who), false);
+  assert.equal(reminder.needsReminder('not_provided', { isGuest: true, readOnly: false }), false);
+  assert.equal(reminder.needsReminder('not_provided', { isGuest: false, readOnly: true }), false);
+
+  const opened = 1_000_000;
+  const first = reminder.startReminder(null, opened);
+  assert.equal(reminder.msUntilDue(first, opened), 60_000);
+  // Moving between pages or reloading keeps the schedule rather than restarting the minute.
+  assert.deepEqual(reminder.startReminder(first, opened + 30_000), first);
+  assert.equal(reminder.msUntilDue(first, opened + 90_000), 0);
+
+  const later = reminder.remindLater(opened + 90_000);
+  assert.equal(reminder.msUntilDue(later, opened + 90_000), 10 * 60_000);
+  assert.equal(reminder.msUntilDue(reminder.dismissForVisit(later), opened + 2 * 3_600_000), null);
+});

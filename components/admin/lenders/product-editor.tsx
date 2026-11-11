@@ -48,6 +48,7 @@ import type {
   ProductVersion,
   Requirement,
 } from '@/types/products';
+import { LogoLoader } from '@/components/ui/logo-loader';
 
 type Dialog =
   | { type: 'requirement'; index: number | null }
@@ -875,7 +876,7 @@ function VersionHistory({
       </button>
       {open &&
         (versions === null ? (
-          <p className="text-text-mute mt-3 text-sm">Loading…</p>
+          <LogoLoader size="sm" label="Loading versions" className="mt-3" />
         ) : versions.length === 0 ? (
           <p className="text-text-dim mt-3 text-sm">Not published yet.</p>
         ) : (

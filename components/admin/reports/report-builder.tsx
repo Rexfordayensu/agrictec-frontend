@@ -276,7 +276,7 @@ export function ReportBuilder() {
             <p className="text-text-mute text-xs" aria-live="polite">
               {result
                 ? `${result.total.toLocaleString()} row${result.total === 1 ? '' : 's'} match · showing the first ${Math.min(PREVIEW_ROWS, result.total)}`
-                : 'Loading…'}
+                : null}
             </p>
           </div>
           {!result ? (

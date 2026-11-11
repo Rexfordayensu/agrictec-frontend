@@ -17,7 +17,7 @@ export interface MockPayment {
 }
 
 /** How plans are paid for: "paystack" (real money) or "demo" (simulated, development only). */
-export type PaymentMode = 'paystack' | 'demo';
+export type PaymentMode = 'paystack' | 'demo' | 'off';
 
 export interface Subscription {
   userId: string;

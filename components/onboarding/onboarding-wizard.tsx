@@ -16,7 +16,7 @@ import { StepReview } from '@/components/onboarding/step-review';
 import { WizardNav, type StepProps } from '@/components/onboarding/wizard-nav';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
+import { LogoLoader } from '@/components/ui/logo-loader';
 import { authService } from '@/services/auth.service';
 import { onboardingService } from '@/services/onboarding.service';
 import { signOutAndReset, useAuthStore } from '@/store';
@@ -150,14 +150,8 @@ export function OnboardingWizard() {
 
   if (gate === 'checking' || status !== 'ready') {
     return (
-      <Card padding="lg" className="onboarding-loading space-y-5" aria-busy="true">
-        <span role="status" className="sr-only">
-          Loading your farm setup
-        </span>
-        <Skeleton className="h-5 w-32" />
-        <Skeleton className="h-1.5 w-full" />
-        <Skeleton className="h-11 w-3/4" />
-        <Skeleton className="h-44 w-full" />
+      <Card padding="lg" className="onboarding-loading" aria-busy="true">
+        <LogoLoader center label="Loading your farm setup" />
       </Card>
     );
   }

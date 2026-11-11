@@ -81,7 +81,12 @@ export function SystemStatus({ status }: { status: PlatformStatus | null }) {
             })}
           </ul>
 
-          <dl className="border-border grid grid-cols-3 gap-3 border-t pt-3 text-xs">
+          <dl
+            className={cn(
+              'border-border grid gap-3 border-t pt-3 text-xs',
+              status.demoData ? 'grid-cols-3' : 'grid-cols-2',
+            )}
+          >
             <div className="min-w-0">
               <dt className="text-text-mute">Credit rules</dt>
               <dd className="text-text mt-0.5 font-semibold">v{status.creditConfig.version}</dd>
@@ -89,12 +94,14 @@ export function SystemStatus({ status }: { status: PlatformStatus | null }) {
                 {ago(status.creditConfig.updatedAt)}
               </dd>
             </div>
-            <div className="min-w-0">
-              <dt className="text-text-mute">Demo data</dt>
-              <dd className="text-text mt-0.5 truncate font-semibold">
-                {status.seededAt ? ago(status.seededAt) : 'Not seeded'}
-              </dd>
-            </div>
+            {status.demoData && (
+              <div className="min-w-0">
+                <dt className="text-text-mute">Demo data</dt>
+                <dd className="text-text mt-0.5 truncate font-semibold">
+                  {status.seededAt ? ago(status.seededAt) : 'Not seeded'}
+                </dd>
+              </div>
+            )}
             <div className="min-w-0">
               <dt className="text-text-mute">Storage</dt>
               <dd className="text-text mt-0.5 font-semibold">PostgreSQL</dd>

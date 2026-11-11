@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Clock, Info, LogIn, ShieldAlert } from 'lucide-react';
+import { AlertCircle, Clock, Info, LogIn } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
@@ -14,33 +14,17 @@ import {
 import { ChangePasswordForm } from '@/components/admin/auth/change-password-form';
 import { FormAlert } from '@/components/auth/form-alert';
 import { PasswordInput } from '@/components/auth/password-input';
+import { lockedUntil as lockEnd, SignInLockAlert, useSignInLock } from '@/components/auth/sign-in-lock';
 import { Button } from '@/components/ui/button';
 import { FormField, fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { ADMIN_IDLE_MINUTES } from '@/lib/admin/admin-session';
-import { formatCountdown } from '@/lib/format';
-import { ApiError } from '@/services/api';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
 
 const REASON_NOTICE: Record<AdminLoginReason, string> = {
   timeout: `Signed out after ${ADMIN_IDLE_MINUTES} minutes of inactivity.`,
   'signed-out': 'You have been signed out.',
 };
-
-/** Seconds left on the lockout, ticking every second; null when not locked. */
-function useLockCountdown(until: string | null, onEnd: () => void): number | null {
-  const [now, setNow] = useState(() => Date.now());
-  useEffect(() => {
-    if (!until) return;
-    const timer = setInterval(() => {
-      setNow(Date.now());
-      if (Date.parse(until) <= Date.now()) onEnd();
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [until, onEnd]);
-  if (!until) return null;
-  return Math.max(0, Date.parse(until) - now);
-}
 
 export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminLoginReason }) {
   const router = useRouter();
@@ -59,11 +43,12 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
     defaultValues: { email: '', password: '' },
   });
 
-  const remaining = useLockCountdown(lockedUntil, () => {
+  const unlock = useCallback(() => {
     setLockedUntil(null);
     setFormError(null);
-  });
-  const locked = remaining !== null && remaining > 0;
+  }, []);
+  const remaining = useSignInLock(lockedUntil, unlock);
+  const locked = remaining !== null;
 
   function enterConsole() {
     toast.success('Welcome back');
@@ -78,10 +63,10 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
       if (admin.mustChangePassword) setForcedChange(values.password);
       else enterConsole();
     } catch (error) {
-      // Five failures from this address lock the email here for five minutes (423, with when it
-      // ends). The lock is on the server, so it survives reloads.
-      const until = error instanceof ApiError && error.code === 'locked' ? error.data.until : null;
-      if (typeof until === 'string' && !Number.isNaN(Date.parse(until))) setLockedUntil(until);
+      // Five wrong passwords from this address lock the email here for five minutes (423, with
+      // when it ends). The lock is on the server, so it survives reloads.
+      const until = lockEnd(error);
+      if (until) setLockedUntil(until);
       else setFormError(error instanceof Error ? error.message : 'Could not sign in');
     }
   }
@@ -111,12 +96,7 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
             <span>{REASON_NOTICE[reason]}</span>
           </div>
         )}
-        {locked && (
-          <FormAlert icon={ShieldAlert}>
-            Too many attempts. Try again in{' '}
-            <span className="font-semibold tabular-nums">{formatCountdown(remaining)}</span>
-          </FormAlert>
-        )}
+        {locked && lockedUntil && <SignInLockAlert until={lockedUntil} remaining={remaining} />}
         {formError && !locked && <FormAlert icon={AlertCircle}>{formError}</FormAlert>}
 
         <fieldset disabled={locked || isSubmitting} className="space-y-4">

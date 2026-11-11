@@ -3,7 +3,7 @@
 import { Lightbulb } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { CropTile } from '@/components/ui/crop-icon';
-import { findCrop } from '@/lib/calculations/yield';
+import { cropMarketPrice, findCrop } from '@/lib/calculations/yield';
 import { formatGHS } from '@/lib/format';
 import { usePlatformStore } from '@/store/platform-store';
 import type { YieldCrop } from '@/types';
@@ -13,13 +13,17 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
   const crops = usePlatformStore((s) => s.crops);
   const data = findCrop(crop, crops) ?? findCrop(crop);
   const yieldPerAcre = data?.yieldPerAcre ?? 0;
-  const price = data?.pricePerTonne ?? 0;
+  // Only a published market price, never a built-in one.
+  const price = cropMarketPrice(
+    crop,
+    usePlatformStore((s) => s.marketPrices),
+  )?.perTonne;
   const facts = [
     { label: 'Average yield', value: `${yieldPerAcre} t/acre` },
-    { label: 'Farm-gate price', value: `${formatGHS(price)}/t` },
+    { label: 'Market price', value: price ? `${formatGHS(price)}/t` : 'Not published' },
     {
       label: 'Average revenue',
-      value: `${formatGHS(yieldPerAcre * price)}/acre`,
+      value: price ? `${formatGHS(yieldPerAcre * price)}/acre` : 'No price yet',
     },
   ];
 

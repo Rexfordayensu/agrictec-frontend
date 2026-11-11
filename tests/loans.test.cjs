@@ -246,15 +246,12 @@ test('requirements read in plain words and keep the lender’s order within each
 });
 
 test('no farmer-facing text calls the score a credit score or promises a loan', () => {
-  // The screens that are still in use (old browser-built report files are no longer rendered).
-  const skip =
-    /components[\\/]reports[\\/](?!financial-reports-view)|lib[\\/]reports[\\/]|lib[\\/]pdf[\\/]generate-report/;
   const offenders = [];
   const walk = (dir) => {
     for (const name of fs.readdirSync(dir)) {
       const file = path.join(dir, name);
       if (fs.statSync(file).isDirectory()) walk(file);
-      else if (/\.tsx?$/.test(name) && !skip.test(file)) {
+      else if (/\.tsx?$/.test(name)) {
         // Strings only: comments may still use the internal name.
         const code = fs.readFileSync(file, 'utf8').replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, '');
         if (/credit score|you may qualify|loans up to|borrow up to|unlock loan offers/i.test(code))
@@ -263,5 +260,22 @@ test('no farmer-facing text calls the score a credit score or promises a loan', 
     }
   };
   for (const dir of ['app', 'components', 'lib', 'constants', 'hooks']) walk(path.join(root, dir));
+  assert.deepEqual(offenders, []);
+});
+
+test('no store selector builds a new array or object (it would re-render forever)', () => {
+  // useXStore((s) => s.a ?? []) returns a fresh [] on every read until `a` loads: React then
+  // sees a change on every render ("Maximum update depth exceeded"). Fall back outside instead.
+  const fresh = /use\w*Store\(\s*\(\w+\)\s*=>[^;]*?(\?\?\s*(\[\]|\{\})|=>\s*\(\{)/;
+  const offenders = [];
+  const walk = (dir) => {
+    for (const name of fs.readdirSync(dir)) {
+      const file = path.join(dir, name);
+      if (fs.statSync(file).isDirectory()) walk(file);
+      else if (/\.tsx?$/.test(name) && fresh.test(fs.readFileSync(file, 'utf8')))
+        offenders.push(path.relative(root, file));
+    }
+  };
+  for (const dir of ['app', 'components', 'hooks', 'lib']) walk(path.join(root, dir));
   assert.deepEqual(offenders, []);
 });

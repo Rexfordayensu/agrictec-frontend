@@ -10,6 +10,8 @@ export interface PlatformStatus {
   flags: FeatureFlags;
   creditConfig: CreditConfig;
   seededAt: string | null;
+  /** False on the live platform: the demo world doesn't exist there and isn't shown. */
+  demoData: boolean;
 }
 
 /** Feature flags, credit rules version and seed date. Reloads with the admin data. */
@@ -22,11 +24,11 @@ export function usePlatformStatus(): PlatformStatus | null {
     Promise.all([
       configService.getFlags(),
       configService.getCreditConfig(),
-      backupService.seededAt().catch(() => null),
+      backupService.systemStatus().catch(() => ({ seededAt: null, demoData: false })),
     ]).then(
-      ([flags, creditConfig, seededAt]) => {
+      ([flags, creditConfig, system]) => {
         if (!active) return;
-        setStatus({ flags, creditConfig, seededAt });
+        setStatus({ flags, creditConfig, ...system });
       },
       () => {
         // The panel stays in its loading state; the console's loader reports connection errors.

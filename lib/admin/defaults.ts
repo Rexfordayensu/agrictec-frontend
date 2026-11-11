@@ -1,6 +1,6 @@
 // Default platform settings, subscription tiers and content used for a new installation.
 
-import { BASE_YIELD_PER_ACRE, CROP_TIPS, PRICE_PER_TONNE } from '@/constants/crops';
+import { BASE_YIELD_PER_ACRE, CROP_TIPS } from '@/constants/crops';
 import { PLAN_CATALOG } from '@/lib/subscriptions/plans';
 import { DISEASE_LIBRARY } from '@/constants/disease-library';
 import type { MarketPrice } from '@/types';
@@ -69,7 +69,6 @@ export const DEFAULT_CROP_CONTENT: CropContent[] = (Object.keys(CROP_EMOJI) as K
     crop,
     emoji: CROP_EMOJI[crop],
     yieldPerAcre: BASE_YIELD_PER_ACRE[crop],
-    pricePerTonne: PRICE_PER_TONNE[crop],
     tips: [...CROP_TIPS[crop]],
   }),
 );
