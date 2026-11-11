@@ -23,9 +23,37 @@ require.extensions['.ts'] = (module, filename) => {
   });
   module._compile(outputText, filename);
 };
-const { addressSource, apiRequestHeaders, plainAddress } = require('../proxy.ts');
+const { addressSource, apiRequestHeaders, plainAddress, proxy } = require('../proxy.ts');
+const { NextRequest } = require('next/server');
 
 const SECRET = 's3cret-shared-with-the-api';
+
+test('an expired farmer cookie cannot bounce sign-in back to a protected page', () => {
+  for (const target of [
+    '/login',
+    '/login?next=%2Fdashboard',
+    '/login?reason=expired',
+    '/forgot-password',
+    '/signup',
+  ]) {
+    const response = proxy(
+      new NextRequest('https://app.example.test' + target, {
+        headers: { cookie: 'agrictec_session=expired; agrictec_onboarded=1' },
+      }),
+    );
+    assert.equal(response.status, 200, target);
+    assert.equal(response.headers.get('location'), null, target);
+  }
+  const protectedPage = proxy(new NextRequest('https://app.example.test/dashboard'));
+  assert.equal(protectedPage.status, 307);
+  assert.equal(new URL(protectedPage.headers.get('location')).pathname, '/login');
+  const adminPage = proxy(
+    new NextRequest('https://app.example.test/admin', {
+      headers: { cookie: 'agrictec_session=expired' },
+    }),
+  );
+  assert.equal(new URL(adminPage.headers.get('location')).pathname, '/admin-login');
+});
 
 test('the app vouches for the visitor it served, and visitors cannot vouch for themselves', () => {
   const incoming = new Headers({
@@ -60,7 +88,11 @@ test('the app vouches for the visitor it served, and visitors cannot vouch for t
   assert.equal(direct.get('x-agrictec-proxy-secret'), null);
 
   // Only a plain address is vouched for.
-  const junk = apiRequestHeaders(new Headers({ 'x-real-ip': '1.2.3.4, 5.6.7.8' }), SECRET, 'vercel');
+  const junk = apiRequestHeaders(
+    new Headers({ 'x-real-ip': '1.2.3.4, 5.6.7.8' }),
+    SECRET,
+    'vercel',
+  );
   assert.equal(junk.get('x-agrictec-client-ip'), null);
 
   // Without the secret configured nothing is vouched for, and a visitor's attempt is dropped.

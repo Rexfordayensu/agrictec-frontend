@@ -23,7 +23,12 @@ export class ApiError extends Error {
   /** Any other fields of the error (e.g. `until` on a sign-in lockout). */
   readonly data: Record<string, unknown>;
 
-  constructor(message: string, status: number, code: string | null, data: Record<string, unknown> = {}) {
+  constructor(
+    message: string,
+    status: number,
+    code: string | null,
+    data: Record<string, unknown> = {},
+  ) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
@@ -51,6 +56,44 @@ function url(path: string, query?: Query): string {
   return `${BASE}${path}${qs ? `?${qs}` : ''}`;
 }
 
+/** Bound reads through body consumption. Writes keep their existing long-running behavior. */
+async function withReadTimeout<T>(
+  options: RequestOptions,
+  task: (options: RequestOptions) => Promise<T>,
+): Promise<T> {
+  if (options.method && options.method !== 'GET') return task(options);
+  const controller = new AbortController();
+  let timedOut = false;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const cancel = () => controller.abort(options.signal?.reason);
+  if (options.signal?.aborted) cancel();
+  else options.signal?.addEventListener('abort', cancel, { once: true });
+  const timeoutError = () =>
+    new ApiError(
+      'The server took too long to respond. Please try again in a moment.',
+      0,
+      'timeout',
+    );
+  try {
+    return await Promise.race([
+      task({ ...options, signal: controller.signal }),
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(() => {
+          timedOut = true;
+          controller.abort();
+          reject(timeoutError());
+        }, 30_000);
+      }),
+    ]);
+  } catch (error) {
+    if (timedOut && !options.signal?.aborted) throw timeoutError();
+    throw error;
+  } finally {
+    clearTimeout(timer);
+    options.signal?.removeEventListener('abort', cancel);
+  }
+}
+
 async function send({ method = 'GET', body, query, signal }: RequestOptions, path: string) {
   const headers: Record<string, string> = { Accept: 'application/json' };
   const token = typeof window === 'undefined' ? null : impersonationToken.get();
@@ -68,7 +111,11 @@ async function send({ method = 'GET', body, query, signal }: RequestOptions, pat
     });
   } catch (error) {
     if (error instanceof DOMException && error.name === 'AbortError') throw error;
-    throw new ApiError('Can’t reach AgriCtec right now. Check your connection and try again.', 0, 'network');
+    throw new ApiError(
+      'Can’t reach AgriCtec right now. Check your connection and try again.',
+      0,
+      'network',
+    );
   }
   if (!response.ok) {
     let detail = `Something went wrong (${response.status}). Please try again.`;
@@ -110,10 +157,12 @@ const reviver = (key: string, value: unknown) =>
 
 /** A JSON request. 204 responses resolve to undefined. */
 export async function api<T>(path: string, options: RequestOptions = {}): Promise<T> {
-  const response = await send(options, path);
-  if (response.status === 204) return undefined as T;
-  const text = await response.text();
-  return (text ? JSON.parse(text, reviver) : undefined) as T;
+  return withReadTimeout(options, async (request) => {
+    const response = await send(request, path);
+    if (response.status === 204) return undefined as T;
+    const text = await response.text();
+    return (text ? JSON.parse(text, reviver) : undefined) as T;
+  });
 }
 
 /** A file download (CSV): the text and the name the server gave it. */
@@ -121,13 +170,15 @@ export async function apiFile(
   path: string,
   options: RequestOptions = {},
 ): Promise<{ filename: string; content: string; headers: Headers }> {
-  const response = await send(options, path);
-  const disposition = response.headers.get('Content-Disposition') ?? '';
-  const filename = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? 'AgriCtec_Export.csv';
-  const text = await response.text();
-  // text() drops the UTF-8 byte-order mark; Excel needs it to read ₵ and accents correctly.
-  const content = filename.endsWith('.csv') && !text.startsWith('﻿') ? `﻿${text}` : text;
-  return { filename, content, headers: response.headers };
+  return withReadTimeout(options, async (request) => {
+    const response = await send(request, path);
+    const disposition = response.headers.get('Content-Disposition') ?? '';
+    const filename = /filename="?([^";]+)"?/.exec(disposition)?.[1] ?? 'AgriCtec_Export.csv';
+    const text = await response.text();
+    // text() drops the UTF-8 byte-order mark; Excel needs it to read ₵ and accents correctly.
+    const content = filename.endsWith('.csv') && !text.startsWith('﻿') ? `﻿${text}` : text;
+    return { filename, content, headers: response.headers };
+  });
 }
 
 /** True for a "you are not signed in (any more)" answer. */

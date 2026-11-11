@@ -73,20 +73,26 @@ function combine(records: FarmRecord[], momo: MomoTransaction[]): ActivityItem[]
     .slice(0, MAX_ITEMS);
 }
 
-export function RecentActivity({ className }: { className?: string }) {
+export function RecentActivity({
+  className,
+  limit = MAX_ITEMS,
+}: {
+  className?: string;
+  limit?: number;
+}) {
   const records = useFarmStore((s) => s.records);
   const momo = useFarmStore((s) => s.momo);
-  const items = combine(records, momo);
+  const items = combine(records, momo).slice(0, limit);
 
   return (
     <Card className={cn('flex flex-col', className)}>
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle>Recent activity</CardTitle>
         <Link
           href="/records"
           className="group text-ink-green -my-2 inline-flex min-h-11 items-center gap-1 text-sm font-semibold"
         >
-          View all
+          Farm records
           <ArrowRight
             size={14}
             aria-hidden="true"
@@ -120,7 +126,7 @@ export function RecentActivity({ className }: { className?: string }) {
                   <Icon size={18} aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <p className="text-text truncate text-sm font-medium">{item.label}</p>
+                  <p className="text-text text-sm font-medium wrap-anywhere">{item.label}</p>
                   <p className="text-text-mute truncate text-xs">
                     {item.crop ? <CropLabel crop={item.crop} /> : item.meta} ·{' '}
                     {friendlyDate(item.date)}

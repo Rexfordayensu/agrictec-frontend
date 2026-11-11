@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, LogIn } from 'lucide-react';
+import { AlertCircle, ArrowRight, LockKeyhole, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { loginSchema, type LoginValues } from '@/components/auth/auth-schemas';
@@ -20,6 +20,7 @@ import { onboardingService } from '@/services/onboarding.service';
 import { useAuthStore } from '@/store/auth-store';
 import { usePlatformStore } from '@/store/platform-store';
 import type { Session } from '@/types';
+import './login.css';
 
 /** Why the app sent the farmer back here (set by DataLoader). */
 export type LoginReason = 'suspended' | 'deleted' | 'expired';
@@ -82,58 +83,73 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
   }
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className={'agric-login-formContent'}>
+      <div className={'agric-login-heading'}>
         <h1 className="font-display text-text text-2xl font-bold">Welcome back</h1>
         <p className="text-text-dim mt-1 text-sm">Sign in to your AgriCtec account.</p>
       </div>
 
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className={'agric-login-form'}>
         {formError && <FormAlert icon={AlertCircle}>{formError}</FormAlert>}
 
         <FormField label="Email" htmlFor="login-email" error={errors.email?.message}>
-          <Input
-            id="login-email"
-            type="email"
-            autoComplete="email"
-            inputMode="email"
-            placeholder="you@example.com"
-            error={Boolean(errors.email)}
-            aria-describedby={errors.email ? fieldErrorId('login-email') : undefined}
-            {...register('email')}
-          />
+          <div className={'agric-login-inputWrap'}>
+            <Mail className={'agric-login-fieldIcon'} size={23} aria-hidden="true" />
+            <Input
+              id="login-email"
+              type="email"
+              autoComplete="email"
+              inputMode="email"
+              placeholder="agrictec@example.com"
+              error={Boolean(errors.email)}
+              aria-describedby={errors.email ? fieldErrorId('login-email') : undefined}
+              {...register('email')}
+            />
+          </div>
         </FormField>
 
         <FormField label="Password" htmlFor="login-password" error={errors.password?.message}>
-          <PasswordInput
-            id="login-password"
-            autoComplete="current-password"
-            placeholder="At least 8 characters"
-            error={Boolean(errors.password)}
-            aria-describedby={errors.password ? fieldErrorId('login-password') : undefined}
-            {...register('password')}
-          />
+          <div className={'agric-login-inputWrap'}>
+            <LockKeyhole className={'agric-login-fieldIcon'} size={23} aria-hidden="true" />
+            <PasswordInput
+              id="login-password"
+              autoComplete="current-password"
+              placeholder="At least 8 characters"
+              error={Boolean(errors.password)}
+              aria-describedby={errors.password ? fieldErrorId('login-password') : undefined}
+              {...register('password')}
+            />
+          </div>
         </FormField>
-        <p className="-mt-2 text-right text-sm">
+        <p className={'agric-login-forgot'}>
           <Link href="/forgot-password" className="text-ink-green font-semibold hover:underline">
             Forgot password?
           </Link>
         </p>
 
-        <Button type="submit" icon={LogIn} loading={isSubmitting} className="w-full">
+        <Button
+          type="submit"
+          icon={ArrowRight}
+          loading={isSubmitting}
+          className={'agric-login-submit'}
+        >
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>
       </form>
 
       {guestMode && (
         <>
-          <AuthDivider />
-          <GuestButton next={next} />
+          <div className={'agric-login-divider'}>
+            <AuthDivider />
+          </div>
+          <div className={'agric-login-guest'}>
+            <GuestButton next={next} />
+          </div>
         </>
       )}
 
       {signupOpen && (
-        <p className="text-text-dim text-center text-sm">
+        <p className={'agric-login-signup'}>
           Don&apos;t have an account?{' '}
           <Link href="/signup" className="text-ink-green font-semibold hover:underline">
             Create one

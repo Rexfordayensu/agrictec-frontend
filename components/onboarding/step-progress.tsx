@@ -1,103 +1,118 @@
 'use client';
 
-import { Check } from 'lucide-react';
+import { useId, useState } from 'react';
+import { Check, ChevronDown, CloudUpload } from 'lucide-react';
 import { REVIEW_STEP, STEPS } from '@/components/onboarding/onboarding-schemas';
 import { cn } from '@/lib/utils';
 
-/**
- * "Step 2 of 6" with a bar, then a dot per step (labels from 640px). Dots of steps already
- * reached are buttons that jump back to them.
- */
+const STEP_HELP = [
+  'Give your farm a name',
+  'Region and community',
+  'Acres or hectares',
+  'What you grow',
+  'How your farm is run',
+  'Optional · add it later',
+  'Check and finish',
+];
+const ALL_STEPS = [...STEPS, { id: 'review', label: 'Review details' }];
+
 export function StepProgress({
   step,
   reached,
   onJump,
+  disabled = false,
 }: {
   step: number;
   reached: number;
   onJump: (step: number) => void;
+  disabled?: boolean;
 }) {
-  const review = step >= REVIEW_STEP;
-  const percent = review ? 100 : Math.round((step / STEPS.length) * 100);
+  const [expanded, setExpanded] = useState(false);
+  const listId = useId();
+  const percent = Math.round((Math.min(reached, REVIEW_STEP) / REVIEW_STEP) * 100);
   return (
-    <div>
-      <div className="flex items-baseline justify-between gap-3">
-        <p className="text-text text-sm font-semibold" aria-live="polite">
-          {review ? 'Review and submit' : `Step ${step + 1} of ${STEPS.length}`}
+    <aside className="onboarding-guide" aria-label="Farm setup progress">
+      <div className="onboarding-progress-heading">
+        <p className="onboarding-eyebrow">YOUR FARM PROFILE</p>
+        <p className="onboarding-step-count" aria-live="polite">
+          Step {step + 1} of {ALL_STEPS.length}
         </p>
-        <p className="text-text-mute text-xs">{review ? 'Almost done' : STEPS[step]?.label}</p>
       </div>
       <div
         role="progressbar"
-        aria-label="Onboarding progress"
+        aria-label="Farm details saved"
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={percent}
-        className="bg-glass-strong mt-2.5 h-1.5 overflow-hidden rounded-full"
+        aria-valuetext={`${Math.min(reached, REVIEW_STEP)} of ${REVIEW_STEP} farm details steps saved`}
+        className="onboarding-progress-track"
       >
-        <div
-          className="bg-accent h-full rounded-full transition-[width] duration-500"
-          style={{ width: `${Math.max(percent, 4)}%` }}
-        />
+        <div style={{ width: `${percent}%` }} />
       </div>
-      <ol className="mt-4 flex items-start justify-between gap-1">
-        {STEPS.map((s, index) => {
-          const done = index < step || review;
-          const current = index === step;
-          const reachable = index <= reached && !current;
-          const dot = (
-            <span
-              className={cn(
-                'inline-flex size-7 items-center justify-center rounded-full border text-[11px] font-bold tabular-nums transition-colors',
-                current
-                  ? 'border-accent bg-accent text-[#022c22]'
-                  : done
-                    ? 'border-accent/50 bg-accent/15 text-ink-green'
-                    : 'border-border text-text-mute',
-              )}
-            >
-              {done && !current ? <Check size={13} aria-hidden="true" /> : index + 1}
-            </span>
-          );
-          const label = (
-            <span
-              className={cn(
-                'mt-1.5 hidden text-center text-[11px] leading-tight font-semibold sm:block',
-                current ? 'text-text' : 'text-text-mute',
-              )}
-            >
-              {s.label}
-            </span>
-          );
-          return (
-            <li key={s.id} className="flex min-w-0 flex-1 flex-col items-center">
-              {reachable ? (
+      <button
+        type="button"
+        className="onboarding-step-toggle"
+        aria-expanded={expanded}
+        aria-controls={listId}
+        onClick={() => setExpanded((value) => !value)}
+      >
+        <span>
+          {ALL_STEPS[step]?.label}
+          {step === 5 ? ' · Optional' : ''}
+        </span>
+        <span>
+          {expanded ? 'Hide steps' : 'View steps'}{' '}
+          <ChevronDown size={16} aria-hidden="true" className={expanded ? 'rotate-180' : ''} />
+        </span>
+      </button>
+      <nav
+        id={listId}
+        className="onboarding-step-list"
+        data-expanded={expanded}
+        aria-label="Setup steps"
+      >
+        <ol>
+          {ALL_STEPS.map((item, index) => {
+            const current = index === step;
+            const done = index < reached;
+            return (
+              <li key={item.id}>
                 <button
                   type="button"
-                  onClick={() => onJump(index)}
-                  aria-label={`Go back to step ${index + 1}: ${s.label}`}
-                  className="flex min-h-11 min-w-11 flex-col items-center rounded-lg"
-                >
-                  {dot}
-                  {label}
-                </button>
-              ) : (
-                <span
+                  disabled={disabled || index > reached}
                   aria-current={current ? 'step' : undefined}
-                  className="flex min-h-11 flex-col items-center"
+                  className={cn('onboarding-step-link', current && 'is-current', done && 'is-done')}
+                  onClick={() => {
+                    if (!current) onJump(index);
+                    setExpanded(false);
+                  }}
                 >
-                  {dot}
-                  <span className="sr-only">
-                    Step {index + 1}: {s.label}
-                    {done ? ' (done)' : ''}
+                  <span className="onboarding-step-number" aria-hidden="true">
+                    {done && !current ? <Check size={16} /> : index + 1}
                   </span>
-                  {label}
-                </span>
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </div>
+                  <span>
+                    <span className="onboarding-step-label">{item.label}</span>
+                    <span className="onboarding-step-help">{STEP_HELP[index]}</span>
+                  </span>
+                  <span className="sr-only">
+                    {current
+                      ? 'Current step'
+                      : done
+                        ? 'Completed step'
+                        : index > reached
+                          ? 'Not yet available'
+                          : ''}
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+      <p className="onboarding-save-note">
+        <CloudUpload size={17} aria-hidden="true" />
+        <span>Each step is saved when you continue. You can return to saved steps.</span>
+      </p>
+    </aside>
   );
 }

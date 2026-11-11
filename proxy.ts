@@ -36,7 +36,9 @@ const PROXY_SECRET_HEADER = 'x-agrictec-proxy-secret';
  */
 export type AddressSource = 'vercel' | 'forwarded-for' | 'none';
 
-export function addressSource(env: Record<string, string | undefined> = process.env): AddressSource {
+export function addressSource(
+  env: Record<string, string | undefined> = process.env,
+): AddressSource {
   if (env.VERCEL) return 'vercel';
   return env.TRUST_FORWARDED_FOR === '1' ? 'forwarded-for' : 'none';
 }
@@ -44,7 +46,8 @@ export function addressSource(env: Record<string, string | undefined> = process.
 /** A plain IPv4 or IPv6 address, or null (never vouch for anything else). */
 export function plainAddress(value: string | null | undefined): string | null {
   const text = value?.trim() ?? '';
-  if (/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/.test(text)) return text;
+  if (/^(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}$/.test(text))
+    return text;
   if (text.length <= 45 && text.includes(':') && /^[0-9a-f:.]+$/i.test(text)) return text;
   return null;
 }
@@ -128,7 +131,6 @@ export function proxy(request: NextRequest) {
 
   const onboarded = request.cookies.has(ONBOARDED_COOKIE);
   const isOnboarding = pathname === ONBOARDING || pathname.startsWith(`${ONBOARDING}/`);
-  const home = onboarded ? '/dashboard' : ONBOARDING;
 
   if (!hasSession && !isAuthPage) {
     const url = new URL('/login', request.url);
@@ -136,11 +138,8 @@ export function proxy(request: NextRequest) {
     if (!isOnboarding) url.searchParams.set('next', pathname);
     return NextResponse.redirect(url);
   }
-  // Registration remains accessible so a guest can create a full account.
-  // Only a real farmer session skips /login (a leftover view-as-farmer cookie must not loop).
-  if (hasFarmerSession && isAuthPage && !pathname.startsWith('/signup')) {
-    return NextResponse.redirect(new URL(home, request.url));
-  }
+  // Keep farmer sign-in accessible even when a cookie remains from an expired session.
+  // Cookie presence alone cannot establish that the API still accepts the session.
 
   // ---- Onboarding: the app stays closed until the farm setup is finished ----
   // The DataLoader checks the profile itself; this cookie is only a redirect hint.

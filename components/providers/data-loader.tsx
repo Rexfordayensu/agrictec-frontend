@@ -14,7 +14,7 @@ import {
   endImpersonation,
   impersonatedSession,
 } from '@/lib/admin/impersonation';
-import { isSignedOut } from '@/services/api';
+import { ApiError, isSignedOut } from '@/services/api';
 import { authService } from '@/services/auth.service';
 import { onboardingService } from '@/services/onboarding.service';
 import { loadAllStores, signOutAndReset, useAuthStore, usePlatformStore } from '@/store';
@@ -32,6 +32,7 @@ type HydrateResult = 'ready' | 'maintenance' | { redirect: string };
 export function DataLoader({ children }: { children: ReactNode }) {
   const [state, setState] = useState<LoadState>('loading');
   const [attempt, setAttempt] = useState(0);
+  const [errorMessage, setErrorMessage] = useState('Check your connection and try again.');
   const maintenanceMessage = usePlatformStore((s) => s.flags.maintenanceMessage);
   // Admin changes made in another tab (lenders, rates, loan decisions…) show up here at once.
   usePlatformSync(state === 'ready');
@@ -102,7 +103,14 @@ export function DataLoader({ children }: { children: ReactNode }) {
       },
       (error: unknown) => {
         console.error('[DataLoader] Failed to load data', error);
-        if (!cancelled) setState('error');
+        if (!cancelled) {
+          setErrorMessage(
+            error instanceof ApiError && error.code === 'timeout'
+              ? error.message
+              : 'Check your connection and try again.',
+          );
+          setState('error');
+        }
       },
     );
 
@@ -117,9 +125,7 @@ export function DataLoader({ children }: { children: ReactNode }) {
         <Card className="max-w-sm text-center">
           <AlertTriangle size={32} aria-hidden="true" className="text-ink-gold mx-auto mb-3" />
           <p className="text-text font-semibold">We couldn&apos;t load your data</p>
-          <p className="text-text-dim mt-1 text-sm">
-            Check your connection and try again.
-          </p>
+          <p className="text-text-dim mt-1 text-sm">{errorMessage}</p>
           <Button
             className="mt-5"
             onClick={() => {
@@ -143,6 +149,11 @@ export function DataLoader({ children }: { children: ReactNode }) {
 
 /** Full-page placeholder shaped like the app shell. */
 function AppSkeleton() {
+  const [slow, setSlow] = useState(false);
+  useEffect(() => {
+    const timer = setTimeout(() => setSlow(true), 8_000);
+    return () => clearTimeout(timer);
+  }, []);
   return (
     <div role="status" aria-label="Loading AgriCtec" className="flex min-h-screen">
       <div className="glass fixed inset-y-3 left-3 hidden w-[260px] space-y-3 rounded-3xl p-5 min-[900px]:block">
@@ -156,6 +167,11 @@ function AppSkeleton() {
           <Skeleton className="size-10" />
           <Skeleton className="h-5 w-48" />
         </div>
+        <p className="text-text-dim mb-4 text-sm" role="status">
+          {slow
+            ? 'Waiting for the server. You can retry if it does not respond.'
+            : 'Loading your farm dashboard…'}
+        </p>
         <Skeleton className="mb-6 h-56 w-full rounded-3xl" />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {Array.from({ length: 4 }, (_, i) => (
