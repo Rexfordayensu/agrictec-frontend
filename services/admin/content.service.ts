@@ -2,7 +2,7 @@
 // published content in GET /platform; every save here needs content.manage and is audited.
 
 import { api } from '@/services/api';
-import type { MarketPrice, Weather } from '@/types';
+import type { MarketPrice } from '@/types';
 import type {
   AssistantKnowledgeItem,
   ContentMeta,
@@ -23,18 +23,6 @@ export const contentService = {
 
   async saveMarketPrices(prices: MarketPrice[]): Promise<MarketPrice[]> {
     return api<MarketPrice[]>('/admin/content/market', { method: 'PUT', body: prices });
-  },
-
-  /** Kept for compatibility: farmers never see an override as live weather. */
-  async getWeatherOverride(): Promise<Weather | null> {
-    return (await api<{ weatherOverride: Weather | null }>('/platform')).weatherOverride ?? null;
-  },
-
-  async saveWeatherOverride(weather: Weather | null): Promise<Weather | null> {
-    return (
-      (await api<Weather | null>('/admin/content/weather-override', { method: 'PUT', body: weather })) ??
-      null
-    );
   },
 
   async getCrops(): Promise<CropContent[]> {

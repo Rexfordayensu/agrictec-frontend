@@ -1,8 +1,9 @@
 // Farmer administration through the API. The API checks the admin's permission on every call
 // and writes the audit entry in the same transaction as the change.
 
-import { api, apiFile } from '@/services/api';
+import { api, apiBlob, apiFile } from '@/services/api';
 import type { FarmerAccount, FarmerDetail } from '@/types/admin';
+import type { FinancialReport, FinancialSummary, ReportMonths } from '@/types/financial';
 
 const farmer = (id: string) => `/admin/farmers/${encodeURIComponent(id)}`;
 
@@ -47,6 +48,20 @@ export const farmersService = {
   /** Records, MoMo, diagnoses, the score breakdown and the live rules it was calculated with. */
   async getDetail(id: string): Promise<FarmerDetail> {
     return api<FarmerDetail>(`${farmer(id)}/detail`);
+  },
+
+  /** The farmer's own figures (farmers.view). Each look is written to the audit log. */
+  async financialSummary(id: string, months: ReportMonths): Promise<FinancialSummary> {
+    return api<FinancialSummary>(`${farmer(id)}/financial-summary`, { query: { months } });
+  },
+
+  async reports(id: string): Promise<FinancialReport[]> {
+    return api<FinancialReport[]>(`${farmer(id)}/reports`);
+  },
+
+  /** A report the farmer generated (each download is audited). */
+  async reportFile(id: string, reportId: string): Promise<Blob> {
+    return apiBlob(`${farmer(id)}/reports/${encodeURIComponent(reportId)}/file`);
   },
 
   async get(id: string): Promise<FarmerAccount> {

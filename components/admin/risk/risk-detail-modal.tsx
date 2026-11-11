@@ -70,7 +70,7 @@ function Evidence({ related }: { related: RiskRelated }) {
                 ['Location', locationLabel(account.profile) || account.profile.region || '—'],
                 ['Joined', formatDate(new Date(account.createdAt))],
                 ['Records', String(account.stats.records)],
-                ['Credit score', String(account.stats.score)],
+                ['AgriCtec score', String(account.stats.score)],
               ].map(([term, detail]) => (
                 <div key={term} className="flex justify-between gap-3">
                   <dt className="text-text-mute">{term}</dt>
@@ -150,7 +150,7 @@ function Evidence({ related }: { related: RiskRelated }) {
                   {row.related && <span className="sr-only">Flagged: </span>}
                   {formatDate(row.date)}
                 </td>
-                {'reference' in row ? (
+                {'counterparty' in row ? (
                   <>
                     <td className="text-text px-3 py-2 font-mono">{row.reference}</td>
                     <td className="text-text-dim px-3 py-2">

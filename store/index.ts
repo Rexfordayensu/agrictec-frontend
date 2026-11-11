@@ -1,6 +1,7 @@
 import { DEFAULT_SETTINGS } from '@/services/settings.service';
 import { useAuthStore } from '@/store/auth-store';
 import { useChatStore } from '@/store/chat-store';
+import { resetCreditStore, useCreditStore } from '@/store/credit-store';
 import { useFarmStore } from '@/store/farm-store';
 import { useLoanStore } from '@/store/loan-store';
 import { useProfileStore } from '@/store/profile-store';
@@ -8,7 +9,6 @@ import { useSettingsStore } from '@/store/settings-store';
 import { useUiStore } from '@/store/ui-store';
 import { useModalStore } from '@/store/modal-store';
 import { initialPlatformState, usePlatformStore } from '@/store/platform-store';
-import { useReportStore } from '@/store/report-store';
 import { useSubscriptionStore } from '@/store/subscription-store';
 
 export {
@@ -28,6 +28,7 @@ export async function loadAllStores(userId: string): Promise<void> {
     useChatStore.getState().load(userId),
     useSettingsStore.getState().load(userId),
     useLoanStore.getState().load(userId),
+    useCreditStore.getState().load(userId),
     usePlatformStore.getState().load(userId),
     useSubscriptionStore.getState().load(userId),
   ]);
@@ -45,6 +46,7 @@ export async function refreshUserStores(userId: string): Promise<void> {
     useChatStore.getState().load(userId, silent),
     useSettingsStore.getState().load(userId, silent),
     useLoanStore.getState().load(userId, silent),
+    useCreditStore.getState().load(userId, silent),
     useSubscriptionStore.getState().load(userId, silent),
   ]);
 }
@@ -52,7 +54,6 @@ export async function refreshUserStores(userId: string): Promise<void> {
 /** Empties every in-memory store, so no data from the previous user is left behind. */
 export function resetAllStores(): void {
   useModalStore.getState().closeModal();
-  useReportStore.getState().closePreview();
   useFarmStore.setState({ userId: null, records: [], momo: [], diagnoses: [], status: 'idle' });
   useProfileStore.setState({ userId: null, profile: null, status: 'idle' });
   useSubscriptionStore.setState({ userId: null, snapshot: null, status: 'idle' });
@@ -69,9 +70,11 @@ export function resetAllStores(): void {
     userId: null,
     applications: [],
     status: 'idle',
-    tab: 'apply',
+    tab: null,
     confirm: null,
+    ghanaCardOpen: false,
   });
+  resetCreditStore();
 }
 
 /** Ends the session (clears it and the proxy cookie), then wipes the in-memory stores. */

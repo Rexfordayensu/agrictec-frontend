@@ -87,7 +87,7 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/reports': {
     title: 'Financial Reports',
-    subtitle: 'Generate income, expense, loan and tax reports you can share with lenders.',
+    subtitle: 'Your recorded figures, and PDF summaries you choose whether to share.',
   },
   '/assistant': {
     title: 'AI Assistant',
@@ -103,7 +103,7 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/loans': {
     title: 'Loans & Credit',
-    subtitle: 'Check your credit score, compare lenders and apply for farm loans.',
+    subtitle: 'Your AgriCtec score, verified lenders and your loan applications.',
   },
   '/market': {
     title: 'Market Prices',
@@ -111,7 +111,7 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/weather': {
     title: 'Weather',
-    subtitle: 'Choose your location to view weather conditions and forecasts.',
+    subtitle: 'The forecast at your farm, with warnings and advice for today’s work.',
   },
   '/settings': {
     title: 'Profile & Settings',

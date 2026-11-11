@@ -3,6 +3,7 @@
 import { Users } from 'lucide-react';
 import { topCounterparties } from '@/components/momo/momo-filters';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { EmptyState } from '@/components/ui/empty-state';
 import { formatGHS } from '@/lib/format';
 import { useFarmStore } from '@/store/farm-store';
 
@@ -40,9 +41,11 @@ export function MomoContacts() {
         </div>
       </CardHeader>
       {contacts.length === 0 ? (
-        <p className="text-text-mute py-8 text-center text-sm">
-          Your buyers and suppliers will appear here once you log transactions.
-        </p>
+        <EmptyState
+          icon={Users}
+          title="No contacts yet"
+          description="Your buyers and suppliers will appear here once you log transactions."
+        />
       ) : (
         <ul className="space-y-4">
           {contacts.map((c, i) => {
@@ -69,13 +72,10 @@ export function MomoContacts() {
                     style={{ width: `${Math.max(8, (total / largest) * 100)}%` }}
                   >
                     <span
-                      className="bg-[#10b981]"
+                      className="bg-accent"
                       style={{ width: `${(c.received / total) * 100}%` }}
                     />
-                    <span
-                      className="bg-[#ef4444]"
-                      style={{ width: `${(c.sent / total) * 100}%` }}
-                    />
+                    <span className="bg-danger" style={{ width: `${(c.sent / total) * 100}%` }} />
                   </div>
                   <p className="text-text-mute mt-1 text-[11px]">
                     {c.count} transaction{c.count === 1 ? '' : 's'}

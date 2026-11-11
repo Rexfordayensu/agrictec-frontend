@@ -32,7 +32,9 @@ export function adminBreadcrumbs(
         ? data.farmers.find((f) => f.userId === id)?.profile.name
         : item.href === '/admin/loans'
           ? data.applications.find((a) => a.id === id)?.reference
-          : undefined;
+          : item.href === '/admin/lenders'
+            ? id // a readable slug of the lender's name
+            : undefined;
   return [
     ...crumbs,
     { label: item.label, href: item.href },

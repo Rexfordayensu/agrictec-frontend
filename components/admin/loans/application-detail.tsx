@@ -40,7 +40,13 @@ import { farmersService } from '@/services/admin/farmers.service';
 import { lendersService } from '@/services/admin/lenders.service';
 import { loanApplicationsService } from '@/services/admin/loan-applications.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
-import type { AdminRole, CreditConfig, FarmerDetail, Lender, LoanApplication } from '@/types/admin';
+import type {
+  AdminLender,
+  AdminRole,
+  CreditConfig,
+  FarmerDetail,
+  LoanApplication,
+} from '@/types/admin';
 
 interface PageData {
   app: LoanApplication;
@@ -48,7 +54,7 @@ interface PageData {
   farmer: FarmerDetail | null;
   /** The farmer's account is gone: the application stays, but can only be closed out. */
   farmerDeleted: boolean;
-  lender?: Lender;
+  lender?: AdminLender;
   config: CreditConfig;
 }
 
@@ -66,7 +72,7 @@ async function fetchLoanPage(id: string, role: AdminRole | undefined): Promise<L
         ? farmersService.getDetail(app.userId).catch(() => null)
         : Promise.resolve(null),
       loanApplicationsService.farmerExists(app.userId).then((exists) => !exists),
-      lendersService.list({ includeInactive: true }),
+      lendersService.list(),
       configService.getCreditConfig(),
     ]);
     return {
@@ -161,10 +167,8 @@ export function ApplicationDetail({ id }: { id: string }) {
   const DeltaIcon = delta > 0 ? TrendingUp : delta < 0 ? TrendingDown : Minus;
   const checks = farmer
     ? eligibilityChecks({
-        app,
         records: farmer.records,
-        score: farmer.credit.score,
-        lender,
+        ghanaCard: farmer.account.profile.ghanaCard.status,
         rules: config.eligibility,
       })
     : [];
@@ -229,7 +233,7 @@ export function ApplicationDetail({ id }: { id: string }) {
                   style={{ backgroundColor: lender?.color ?? 'var(--text-mute)' }}
                 />
                 <span className="text-text font-semibold">{lender?.name ?? 'Unknown lender'}</span>
-                {lender && !lender.active && <Badge color="gold">Inactive</Badge>}
+                {lender && !lender.listed && <Badge color="gold">Not listed</Badge>}
               </p>
             </div>
             <dl className="border-border mt-5 grid grid-cols-2 gap-x-4 gap-y-4 border-t pt-5 sm:grid-cols-3">
@@ -287,7 +291,7 @@ export function ApplicationDetail({ id }: { id: string }) {
             <Card>
               <CardHeader>
                 <div>
-                  <CardTitle>Credit score</CardTitle>
+                  <CardTitle>AgriCtec score</CardTitle>
                   <CardSub>At application, and today</CardSub>
                 </div>
               </CardHeader>

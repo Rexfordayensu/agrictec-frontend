@@ -10,11 +10,15 @@ export const pastOrTodayDate = z
 
 export const recordSchema = z
   .object({
-    type: z.enum(['income', 'expense', 'activity']),
+    type: z.enum(['income', 'expense', 'activity', 'financing']),
     description: z.string().trim().min(3, 'Describe the record (min 3 characters)').max(120),
     crop: z.enum(CROPS),
     amount: z.coerce.number({ error: 'Enter a number' }).min(0, 'Amount cannot be negative'),
     date: pastOrTodayDate,
+    category: z.string().optional(),
+    direction: z.enum(['in','out']).optional(),
+    paymentMethod: z.string().max(80).optional(),
+    externalReference: z.string().max(120).optional(),
     notes: z.string().max(500).optional(),
   })
   .refine((d) => d.type === 'activity' || d.amount > 0, {

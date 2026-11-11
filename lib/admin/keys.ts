@@ -9,7 +9,6 @@ export const PLATFORM_KEYS = {
   plans: 'platform:plans',
   lenders: 'platform:lenders',
   market: 'platform:content:market',
-  weatherOverride: 'platform:content:weather-override',
   crops: 'platform:content:crops',
   assistantKb: 'platform:content:assistant-kb',
   diagnoses: 'platform:content:diagnoses',

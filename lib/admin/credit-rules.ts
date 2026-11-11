@@ -108,11 +108,7 @@ export function draftIssues(draft: CreditConfigInput): DraftIssues {
 
   const e = draft.eligibility;
   if (!Number.isInteger(e.minRecords) || !inRange(e.minRecords, LIMITS.minRecords)) {
-    issues.eligibility = 'Minimum records must be a whole number from 0 to 1000.';
-  } else if (!Number.isInteger(e.minScore) || e.minScore < SCORE_MIN || e.minScore > SCORE_MAX) {
-    issues.eligibility = `Minimum score must be ${SCORE_MIN}–${SCORE_MAX}.`;
-  } else if (!inRange(e.maxProfitMultiplier, LIMITS.maxProfitMultiplier)) {
-    issues.eligibility = 'The loan multiple must be 0.5× to 20× yearly profit.';
+    issues.eligibility = 'The records target must be a whole number from 0 to 1000.';
   }
   return issues;
 }
@@ -141,11 +137,14 @@ const BAND_LABELS: Record<keyof CreditConfig['bands'], string> = {
 };
 const ELIGIBILITY_LABELS: Record<
   keyof CreditConfig['eligibility'],
-  [string, (v: number) => string]
+  [string, (v: number | undefined) => string]
 > = {
-  minRecords: ['Minimum records', (v) => `${v}`],
-  minScore: ['Minimum score', (v) => `${v}`],
-  maxProfitMultiplier: ['Max loan', (v) => `${v}× yearly profit`],
+  minRecords: ['Records target', (v) => `${v ?? 0}`],
+  minScore: ['Minimum score (no longer used)', (v) => (v === undefined ? 'none' : `${v}`)],
+  maxProfitMultiplier: [
+    'Loan multiple (no longer used)',
+    (v) => (v === undefined ? 'none' : `${v}× yearly profit`),
+  ],
 };
 
 /** Every value that differs between two configs, in editor order. */
@@ -222,12 +221,15 @@ export interface FarmerImpact {
 
 export const BANDS: ScoreLabel[] = ['Building', 'Fair', 'Good', 'Excellent'];
 
-/** Loan eligibility a farmer can have before choosing an amount: enough records and score. */
+/**
+ * Meets AgriCtec's record-keeping guidance (the same rule as app/domain/credit_rules.py). The
+ * score no longer decides anything about loans, so weights and bands can't move a farmer.
+ */
 export const meetsEligibility = (
   input: Pick<ScoringInput, 'records'>,
-  score: number,
+  _score: number,
   config: CreditConfigInput,
-) => input.records.length >= config.eligibility.minRecords && score >= config.eligibility.minScore;
+) => input.records.length >= config.eligibility.minRecords;
 
 export interface Impact {
   farmers: FarmerImpact[];

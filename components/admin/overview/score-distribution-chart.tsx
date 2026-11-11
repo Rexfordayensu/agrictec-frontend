@@ -17,12 +17,14 @@ export function ScoreDistributionChart({
   bands,
   buckets,
   averageScore,
+  evidence,
   className,
 }: {
   bands?: CreditConfig['bands'];
   /** Computed by the API (GET /admin/overview). */
   buckets: OverviewData['scoreDistribution'];
   averageScore: number;
+  evidence?: OverviewData['evidenceCoverage'];
   className?: string;
 }) {
   const canCredit = useCan('credit.configure');
@@ -32,7 +34,7 @@ export function ScoreDistributionChart({
 
   return (
     <Panel
-      title="Credit scores"
+      title="AgriCtec scores"
       description="All farmers, by score band"
       action={canCredit && <PanelLink href="/admin/credit-rules">Rules</PanelLink>}
       className={className}
@@ -46,6 +48,12 @@ export function ScoreDistributionChart({
         </span>
         <span className="text-text-mute text-xs">average</span>
       </p>
+      {evidence && (
+        <p className="text-text-mute mt-1 text-xs">
+          {evidence.farmers} of {evidence.total} farmers have at least one verified entry (
+          {Number(evidence.share)}%). The score informs farmers; it never decides a loan.
+        </p>
+      )}
 
       {/* One bar, a segment per band. */}
       <div

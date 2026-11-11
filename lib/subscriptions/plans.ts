@@ -27,7 +27,7 @@ export const PLAN_CATALOG: Plan[] = [
     aiCredits: 0,
     features: [
       'Farm records and MoMo tracking',
-      'Credit score and loan comparisons',
+      'AgriCtec score and loan product comparisons',
       'Market and weather information',
     ],
   },

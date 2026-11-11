@@ -348,7 +348,7 @@ export function StepLocation({
           <p className="text-text-mute mt-2 flex items-start gap-1.5 text-xs">
             <Info size={13} aria-hidden="true" className="mt-px shrink-0" />
             <span>
-              Adding your exact location helps verify your farm and can raise your credit score.
+              Adding your exact location helps verify your farm and can raise your AgriCtec score.
               {onDraft ? ' Your answers on this step are saved as you go.' : ''}
             </span>
           </p>

@@ -13,10 +13,8 @@ import { DeleteFarmerDialog } from '@/components/admin/farmers/detail/delete-far
 import { DiagnosesTab } from '@/components/admin/farmers/detail/diagnoses-tab';
 import { FarmerHeader } from '@/components/admin/farmers/detail/farmer-header';
 import { LoansTab } from '@/components/admin/farmers/detail/loans-tab';
-import { MomoTab } from '@/components/admin/farmers/detail/momo-tab';
 import { NotesTab } from '@/components/admin/farmers/detail/notes-tab';
 import { OverviewTab } from '@/components/admin/farmers/detail/overview-tab';
-import { RecordsTab } from '@/components/admin/farmers/detail/records-tab';
 import { ResetPasswordDialog } from '@/components/admin/farmers/detail/reset-password-dialog';
 import type { FarmerPageData } from '@/components/admin/farmers/detail/types';
 import { VerificationTab } from '@/components/admin/farmers/detail/verification-tab';
@@ -62,7 +60,7 @@ async function fetchFarmerPage(id: string, role: AdminRole | undefined): Promise
       loanApplicationsService.list({ userId: id }),
       can(role, 'verifications.review') ? verificationsService.list({ userId: id }) : null,
       can(role, 'risk.review') ? riskService.list({ userId: id }) : null,
-      lendersService.list({ includeInactive: true }),
+      lendersService.list(),
     ]);
     // The top bar names this farmer from the store, which holds only the farmers it needs.
     useAdminDataStore.getState().rememberFarmer(detail.account);
@@ -133,8 +131,7 @@ export function FarmerDetail({ id }: { id: string }) {
   const farmer = data.detail.account;
   const tabs: TabItem<TabKey>[] = [
     { value: 'overview', label: 'Overview' },
-    { value: 'records', label: 'Records', count: farmer.stats.records },
-    { value: 'momo', label: 'MoMo', count: farmer.stats.momo },
+
     { value: 'credit', label: 'Credit' },
     { value: 'loans', label: 'Loans', count: data.applications.length },
     { value: 'verification', label: 'Verification' },
@@ -164,6 +161,7 @@ export function FarmerDetail({ id }: { id: string }) {
         }}
       />
 
+      <Card><h2 className="text-sm font-semibold">Transaction verification</h2><p className="text-text-mute my-2 text-xs">Financial details are available only in the permitted transaction review queue.</p><dl className="flex flex-wrap gap-4 text-xs">{Object.entries(data.detail.transactionStatusCounts ?? {}).map(([status,count])=><div key={status}><dt>{status.replaceAll('_',' ')}</dt><dd className="font-bold">{count}</dd></div>)}</dl></Card>
       <Tabs
         tabs={tabs}
         value={tab}
@@ -174,9 +172,7 @@ export function FarmerDetail({ id }: { id: string }) {
       />
       <div role="tabpanel" id={`farmer-panel-${tab}`} aria-labelledby={`farmer-tab-${tab}`}>
         {tab === 'overview' && <OverviewTab {...tabProps} />}
-        {tab === 'records' && <RecordsTab {...tabProps} />}
-        {tab === 'momo' && <MomoTab {...tabProps} />}
-        {tab === 'credit' && <CreditTab {...tabProps} />}
+            {tab === 'credit' && <CreditTab {...tabProps} />}
         {tab === 'loans' && <LoansTab {...tabProps} />}
         {tab === 'verification' && <VerificationTab {...tabProps} />}
         {tab === 'diagnoses' && <DiagnosesTab {...tabProps} />}

@@ -133,6 +133,7 @@ export function AdminOverview() {
                   bands={bands}
                   buckets={data.scoreDistribution}
                   averageScore={data.kpis.averageScore}
+                  evidence={data.evidenceCoverage}
                   className={canLoans ? '' : 'xl:col-span-3'}
                 />
               )}

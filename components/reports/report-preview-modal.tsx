@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Download, Send, Sparkles } from 'lucide-react';
+import { ClipboardCheck, Download, Send } from 'lucide-react';
 import { toast } from 'sonner';
 import { REPORT_META } from '@/components/reports/report-meta';
 import { Button } from '@/components/ui/button';
@@ -10,7 +10,11 @@ import { useReportBuilder } from '@/hooks/use-report-data';
 import { PDF_UNAVAILABLE } from '@/components/reports/use-report-download';
 import { generateReportPDF } from '@/lib/pdf/generate-report';
 import { usePlatformStore } from '@/store/platform-store';
-import { formatGeneratedAt, type ReportData } from '@/lib/reports/build-report-data';
+import {
+  ASSESSMENT_HEADING,
+  formatGeneratedAt,
+  type ReportData,
+} from '@/lib/reports/build-report-data';
 import { cn } from '@/lib/utils';
 import { useReportStore } from '@/store/report-store';
 import { useSubscription } from '@/hooks/use-subscription';
@@ -145,7 +149,8 @@ function ReportDocument({ data }: { data: ReportData }) {
       )}
 
       {data.sections?.map((section) => {
-        const ai = section.heading === 'AI Assessment';
+        // The assessment stands out (it is the report's conclusion); other sections are plain.
+        const ai = section.heading === ASSESSMENT_HEADING;
         return (
           <section
             key={section.heading}
@@ -162,7 +167,7 @@ function ReportDocument({ data }: { data: ReportData }) {
                 ai ? 'text-ink-purple' : 'text-text',
               )}
             >
-              {ai && <Sparkles size={15} aria-hidden="true" />}
+              {ai && <ClipboardCheck size={15} aria-hidden="true" />}
               {section.heading}
             </h3>
             <p className="text-text-dim mt-2 text-sm leading-relaxed whitespace-pre-line">

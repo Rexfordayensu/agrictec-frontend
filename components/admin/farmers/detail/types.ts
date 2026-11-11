@@ -1,6 +1,6 @@
 import type {
   FarmerDetail,
-  Lender,
+  AdminLender,
   LoanApplication,
   RiskFlag,
   VerificationRequest,
@@ -12,7 +12,7 @@ export interface FarmerPageData {
   applications: LoanApplication[];
   verifications: VerificationRequest[] | null;
   riskFlags: RiskFlag[] | null;
-  lenders: Lender[];
+  lenders: AdminLender[];
 }
 
 export interface TabProps {

@@ -62,31 +62,27 @@ export function MomoToolbar({
             </button>
           )}
         </div>
-        <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-2 @3xl:flex">
-          <Select
-            aria-label="Filter by period"
-            value={filters.period}
-            onChange={(event) => onChange({ period: event.target.value as MomoPeriod })}
-            className="@3xl:w-40"
-          >
-            {(Object.keys(MOMO_PERIOD_LABELS) as MomoPeriod[]).map((p) => (
-              <option key={p} value={p}>
-                {MOMO_PERIOD_LABELS[p]}
-              </option>
-            ))}
-          </Select>
-          <Button
-            variant="ghost"
-            icon={Download}
-            onClick={onExport}
-            aria-label="Export CSV"
-            className="px-3 @3xl:px-4"
-          >
-            <span className="hidden @3xl:inline">Export</span>
+        <Select
+          aria-label="Filter by period"
+          value={filters.period}
+          onChange={(event) => onChange({ period: event.target.value as MomoPeriod })}
+          className="@3xl:w-40"
+        >
+          {(Object.keys(MOMO_PERIOD_LABELS) as MomoPeriod[]).map((p) => (
+            <option key={p} value={p}>
+              {MOMO_PERIOD_LABELS[p]}
+            </option>
+          ))}
+        </Select>
+
+        {/* The page's one way to add a transaction (direction is chosen in the form), like
+            "New Record" on the Records page. */}
+        <div className="grid grid-cols-2 gap-3 @3xl:flex">
+          <Button variant="ghost" icon={Download} onClick={onExport}>
+            Export CSV
           </Button>
-          <Button mutates icon={Plus} onClick={onNew} className="px-3 @3xl:px-4">
-            <span className="hidden @md:inline">New</span>
-            <span className="sr-only @md:hidden">New transaction</span>
+          <Button mutates icon={Plus} onClick={onNew}>
+            New transaction
           </Button>
         </div>
       </div>

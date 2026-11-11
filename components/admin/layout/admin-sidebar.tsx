@@ -19,12 +19,14 @@ import { useAdminUiStore } from '@/store/admin/admin-ui-store';
 
 /** Red for risk, gold for work waiting in a queue. */
 const BADGE_TONE: Record<AdminBadgeKey, string> = {
+  pendingTransactions: 'bg-gold text-[#3a2a05]',
   openRisk: 'bg-danger-strong text-white',
   pendingVerifications: 'bg-gold text-[#3a2a05]',
   newApplications: 'bg-gold text-[#3a2a05]',
 };
 
 const BADGE_LABEL: Record<AdminBadgeKey, string> = {
+  pendingTransactions: 'pending',
   openRisk: 'open',
   pendingVerifications: 'pending',
   newApplications: 'new',

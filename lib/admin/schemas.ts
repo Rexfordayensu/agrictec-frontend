@@ -40,8 +40,9 @@ export const creditConfigInputSchema = z
     bands: z.object({ fair: score, good: score, excellent: score }),
     eligibility: z.object({
       minRecords: z.number().int().min(0).max(1000),
-      minScore: score,
-      maxProfitMultiplier: z.number().min(0.5).max(20),
+      // Older versions only (no longer used to decide loans).
+      minScore: score.optional(),
+      maxProfitMultiplier: z.number().min(0.5).max(20).optional(),
     }),
   })
   .superRefine((config, ctx) => {

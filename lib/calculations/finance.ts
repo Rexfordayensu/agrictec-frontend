@@ -108,23 +108,12 @@ export function incomeByCrop(records: FarmRecord[]): Record<string, number> {
   return totals;
 }
 
-/** Expense categories, matched by keywords in the record description (first match wins). */
-const EXPENSE_CATEGORIES: { name: string; pattern: RegExp }[] = [
-  { name: 'Fertilizer', pattern: /fertili[sz]er|npk|urea|manure|compost/i },
-  { name: 'Pest control', pattern: /pesticide|insecticide|fungicide|herbicide|spray|chemical/i },
-  { name: 'Seeds', pattern: /seed|seedling|sucker|cutting|stem/i },
-  { name: 'Labour', pattern: /labou?r|worker|wage|weeding|harvest|shelling|planting/i },
-  { name: 'Transport', pattern: /transport|haulage|truck|freight|delivery/i },
-  { name: 'Equipment', pattern: /equipment|tool|tractor|machine|sprayer|irrigation|pump/i },
-];
-
 /** Total expenses per category, e.g. { Fertilizer: 2400, Labour: 2100, Other: 300 }. */
 export function expenseByCategory(records: FarmRecord[]): Record<string, number> {
   const totals: Record<string, number> = {};
   for (const record of records) {
     if (record.type !== 'expense') continue;
-    const category =
-      EXPENSE_CATEGORIES.find((c) => c.pattern.test(record.description))?.name ?? 'Other';
+    const category = record.category ? record.category.replaceAll('_', ' ') : 'Uncategorised';
     totals[category] = (totals[category] ?? 0) + record.amount;
   }
   return totals;
@@ -172,12 +161,6 @@ export function annualizedNetProfit(records: FarmRecord[]): number {
   }, parseISODate(recent[0].date));
   const monthsSpanned = Math.min(12, Math.max(1, differenceInCalendarMonths(now, earliest) + 1));
   return Math.round((netProfit(recent) / monthsSpanned) * 12);
-}
-
-/** Financial health score from 20 to 100. */
-export function financialHealth(records: FarmRecord[]): number {
-  const score = 50 + (netProfit(records) > 0 ? 20 : 0) + Math.min(30, records.length * 2);
-  return Math.min(100, Math.max(20, score));
 }
 
 /** Unique crops in order of first appearance, not counting "Other". */

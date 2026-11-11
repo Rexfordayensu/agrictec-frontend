@@ -161,6 +161,34 @@ function expenseReport({
   };
 }
 
+/**
+ * Whether the loan report recommends this farmer: profitable, every loan rule met (records,
+ * score, a verified Ghana Card) and no account review. The page's "Loan ready" label uses this
+ * same test, so the two can never disagree.
+ */
+export function loanReadinessCheck({
+  records,
+  profile,
+  stats,
+  underReview = false,
+}: Pick<ReportSource, 'records' | 'profile' | 'stats' | 'underReview'>) {
+  // amount 0: only the history and score rules apply here.
+  const eligibility = checkEligibility({
+    amount: 0,
+    records,
+    score: stats.credit.score,
+    rules: stats.loanRules,
+    ghanaCard: profile?.ghanaCard.status ?? 'not_provided',
+  });
+  return { eligibility, ready: stats.profit > 0 && eligibility.eligible && !underReview };
+}
+
+/**
+ * The loan report's summary paragraph. It is written from the farmer's figures and the loan
+ * rules (a fixed template, not an AI), so it is never labelled as AI.
+ */
+export const ASSESSMENT_HEADING = 'Assessment';
+
 function loanReadiness({
   records,
   momo,
@@ -175,15 +203,12 @@ function loanReadiness({
   // Sentence start vs mid-sentence, so a missing name never reads 'GHS 25,406, This farmer…'.
   const name = farmerName || 'This farmer';
   const nameMid = farmerName || 'this farmer';
-  // amount 0: only the history and score rules apply here.
-  const eligibility = checkEligibility({
-    amount: 0,
+  const { eligibility, ready: strong } = loanReadinessCheck({
     records,
-    score: credit.score,
-    rules: stats.loanRules,
-    ghanaCard: profile?.ghanaCard.status ?? 'not_provided',
+    profile,
+    stats,
+    underReview,
   });
-  const strong = stats.profit > 0 && eligibility.eligible && !underReview;
 
   const assessment = underReview
     ? 'Account under review. AgriCtec is reviewing activity on this account, so no loan recommendation is given until the review is complete. The figures below are shown as recorded by the farmer.'
@@ -232,7 +257,7 @@ function loanReadiness({
       align: ['left', 'right', 'right'],
     },
     sections: [
-      { heading: 'AI Assessment', body: assessment },
+      { heading: ASSESSMENT_HEADING, body: assessment },
       {
         heading: 'Verification Status',
         body: [

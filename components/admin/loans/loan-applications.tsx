@@ -219,7 +219,7 @@ export function LoanApplications() {
                 {lenders.map((l) => (
                   <option key={l.id} value={l.id}>
                     {l.name}
-                    {l.active ? '' : ' (inactive)'}
+                    {l.listed ? '' : ' (not listed)'}
                   </option>
                 ))}
               </Select>

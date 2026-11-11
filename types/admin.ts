@@ -7,7 +7,6 @@ import type {
   Diagnosis,
   DiagnosisResult,
   FarmRecord,
-  LoanPartner,
   MomoTransaction,
   Profile,
   YieldCrop,
@@ -25,6 +24,7 @@ export type Permission =
   | 'farmers.suspend'
   | 'farmers.delete'
   | 'farmers.impersonate'
+  | 'transactions.review'
   | 'verifications.review'
   | 'loans.view'
   | 'loans.manage'
@@ -123,6 +123,8 @@ export interface LoanApplication {
   reference: string;
   userId: string;
   partnerId: string;
+  /** The lender's name, from the API (the lender may since have been unlisted). */
+  partnerName?: string;
   amount: number;
   months: number;
   purpose: string;
@@ -160,7 +162,11 @@ export interface CreditConfig {
   targets: { recordsForFull: number; momoForFull: number; monthsWindow: number };
   /** Score thresholds, e.g. 500 / 650 / 750. */
   bands: { fair: number; good: number; excellent: number };
-  eligibility: { minRecords: number; minScore: number; maxProfitMultiplier: number };
+  /**
+   * minRecords: AgriCtec's record-keeping guidance target. minScore and maxProfitMultiplier only
+   * appear in older versions: the score and an AgriCtec limit no longer decide loans.
+   */
+  eligibility: { minRecords: number; minScore?: number; maxProfitMultiplier?: number };
   updatedAt: string;
   updatedBy: string;
   /** Why this version was published (required when publishing from the console). */
@@ -275,14 +281,94 @@ export interface AdminSession {
 }
 
 /** A lending partner the admin manages. Only active lenders are shown to farmers. */
-export interface Lender extends LoanPartner {
-  active: boolean;
-  /** A short line about the lender, shown with its offer. */
+export type InstitutionType =
+  | 'universal_bank'
+  | 'rural_community_bank'
+  | 'savings_and_loans'
+  | 'microfinance'
+  | 'finance_house'
+  | 'credit_union'
+  | 'development_finance'
+  | 'other';
+export type LicenceStatus = 'unverified' | 'verified' | 'expired' | 'revoked';
+export type PartnershipStatus = 'none' | 'in_discussion' | 'partner';
+export type PublicationStatus = 'draft' | 'published' | 'unpublished' | 'suspended';
+
+/**
+ * A real institution, as farmers see it (GET /platform/lenders): only published lenders whose
+ * licence was checked against an official source and whose listing was authorised. Unknown
+ * values are missing (shown as "Not provided"), never guessed. Loan terms belong to products.
+ */
+export interface Lender {
+  id: string;
+  name: string;
+  institutionType: InstitutionType;
+  registeredName?: string;
   description?: string;
-  createdAt: string;
+  color: string;
+  /** Relative to the API root (e.g. /platform/lenders/x/logo?v=1). */
+  logoPath?: string;
+  website?: string;
+  email?: string;
+  phone?: string;
+  address?: string;
+  region?: string;
+  offersAgriLoans?: boolean;
+  supportedRegions: string[];
+  licenceRef?: string;
+  regulator?: string;
+  licenceStatus: LicenceStatus;
+  verificationSource?: string;
+  verifiedAt?: string;
+  partnershipStatus: PartnershipStatus;
+  updatedAt?: string;
 }
 
-export type LenderInput = Omit<Lender, 'id' | 'createdAt'>;
+/** Everything the console manages, and why farmers can or can't see the lender. */
+export interface AdminLender extends Lender {
+  publicationStatus: PublicationStatus;
+  listingAuthorised: boolean;
+  listingNote?: string;
+  verificationNote?: string;
+  verifiedBy?: string;
+  verificationExpiresAt?: string;
+  reviewDue: boolean;
+  suspensionReason?: string;
+  publishedAt?: string;
+  createdBy?: string;
+  createdAt: string;
+  updatedBy?: string;
+  /** Farmers see it right now; otherwise `blockers` says why not. */
+  listed: boolean;
+  blockers: string[];
+  applications: number;
+}
+
+/** What an administrator types from the institution's official information. */
+export interface LenderInput {
+  name: string;
+  institutionType: InstitutionType;
+  registeredName?: string | null;
+  description?: string | null;
+  color: string;
+  website?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  region?: string | null;
+  offersAgriLoans?: boolean | null;
+  supportedRegions: string[];
+  licenceRef?: string | null;
+  regulator?: string | null;
+  partnershipStatus: PartnershipStatus;
+}
+
+export interface LenderVerificationInput {
+  licenceStatus: LicenceStatus;
+  source?: string;
+  checkedOn: string;
+  note?: string;
+}
 
 /** Crops with yield data (the crop content an admin edits). */
 export type KnownCrop = YieldCrop;
@@ -366,6 +452,7 @@ export type FeatureKey =
 
 /** A farmer with their data, for the quick view and the profile page (phase A7/A8). */
 export interface FarmerDetail {
+  transactionStatusCounts?: Record<string, number>;
   account: FarmerAccount;
   /** Newest first. */
   records: FarmRecord[];

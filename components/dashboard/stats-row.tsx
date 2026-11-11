@@ -16,14 +16,14 @@ export function StatsRow({ summary }: { summary: DashboardSummary }) {
     {
       label: 'Farm income',
       value: summary.income,
-      description: 'Sales and other farm income',
+      description: `Sales and other farm income · ${summary.verifiedShare.income}% verified`,
       icon: ArrowUpRight,
       tone: 'income',
     },
     {
       label: 'Farm expenses',
       value: summary.expenses,
-      description: 'Costs recorded for your farm',
+      description: `Costs recorded for your farm · ${summary.verifiedShare.expenses}% verified`,
       icon: ArrowDownLeft,
       tone: 'expenses',
     },

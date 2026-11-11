@@ -61,7 +61,7 @@ export const REPORT_CATALOG: { id: ReportId; title: string; description: string 
   {
     id: 'regions',
     title: 'Farmers by Region',
-    description: 'Farmers, average credit score, income and Ghana Card verification per region.',
+    description: 'Farmers, average AgriCtec score, income and Ghana Card verification per region.',
   },
   {
     id: 'loans',
@@ -70,7 +70,7 @@ export const REPORT_CATALOG: { id: ReportId; title: string; description: string 
   },
   {
     id: 'credit',
-    title: 'Credit Score Report',
+    title: 'AgriCtec Score Report',
     description: 'The score distribution by band, and the average score per region and per crop.',
   },
   {

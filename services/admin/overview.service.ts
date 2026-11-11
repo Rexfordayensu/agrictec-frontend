@@ -14,6 +14,8 @@ export interface OverviewData {
   farmersByRegion: { region: string; count: number }[];
   cropPopularity: { crop: string; count: number }[];
   scoreDistribution: (ScoreBucket & { count: number })[];
+  /** Registered farmers with at least one entry verified by an AgriCtec reviewer. */
+  evidenceCoverage?: { farmers: number; total: number; share: string };
   needsAttention: AttentionItem[];
   /** Farmers with at least one primary crop. */
   cropGrowers: number;

@@ -9,7 +9,7 @@ export const momoService = {
     return api<MomoTransaction[]>('/me/momo');
   },
 
-  /** A blank reference gets a generated "MOMO######" one. */
+  /** A missing reference stays unknown; no reference is invented. */
   async create(_userId: string, input: NewMomoInput): Promise<MomoTransaction> {
     return api<MomoTransaction>('/me/momo', { method: 'POST', body: input });
   },

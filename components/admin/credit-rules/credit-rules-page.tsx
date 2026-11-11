@@ -155,7 +155,7 @@ export function CreditRulesPage() {
       <header className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <div className="min-w-0">
           <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">
-            Credit score engine
+            AgriCtec score engine
           </p>
           <h1 className="font-display text-text mt-1 text-2xl font-bold sm:text-3xl">
             Credit rules

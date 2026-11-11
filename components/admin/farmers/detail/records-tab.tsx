@@ -18,6 +18,7 @@ const TYPE_COLOR: Record<FarmRecord['type'], BadgeColor> = {
   income: 'green',
   expense: 'red',
   activity: 'blue',
+  financing: 'purple',
 };
 
 const columns: DataTableColumn<FarmRecord>[] = [

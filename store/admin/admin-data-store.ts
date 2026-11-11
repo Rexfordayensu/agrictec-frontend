@@ -1,3 +1,4 @@
+import { transactionsService } from '@/services/transactions.service';
 import { create } from 'zustand';
 import { getCurrentAdmin } from '@/lib/admin/admin-session';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
@@ -18,6 +19,7 @@ import type {
 } from '@/types/admin';
 
 export interface BadgeCounts {
+  pendingTransactions: number;
   pendingVerifications: number;
   openRisk: number;
   newApplications: number;
@@ -58,7 +60,7 @@ const EMPTY = {
   verifications: [],
   riskFlags: [],
   announcements: [],
-  badgeCounts: { pendingVerifications: 0, openRisk: 0, newApplications: 0 },
+  badgeCounts: { pendingTransactions: 0, pendingVerifications: 0, openRisk: 0, newApplications: 0 },
   status: 'idle' as StoreStatus,
   error: null,
   loadedAt: null,
@@ -69,8 +71,10 @@ export function countBadges(
   verifications: VerificationRequest[],
   riskFlags: RiskFlag[],
   applications: LoanApplication[],
+  pendingTransactions = 0,
 ): BadgeCounts {
   return {
+    pendingTransactions,
     pendingVerifications: verifications.filter((v) => v.status === 'pending').length,
     openRisk: riskFlags.filter((f) => f.status === 'open').length,
     newApplications: applications.filter((a) => a.status === 'submitted').length,
@@ -90,11 +94,12 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
     const load = <T>(permission: Permission, fn: () => Promise<T[]>): Promise<T[]> =>
       can(role, permission) ? fn() : Promise.resolve([]);
     try {
-      const [applications, verifications, riskFlags, announcements] = await Promise.all([
+      const [applications, verifications, riskFlags, announcements, transactionCount] = await Promise.all([
         load('loans.view', () => loanApplicationsService.list()),
         load('verifications.review', () => verificationsService.list()),
         load('risk.review', () => riskService.list()),
         load('announcements.send', () => announcementsService.list()),
+        can(role,'transactions.review') ? transactionsService.queueCount() : Promise.resolve({count:0}),
       ]);
       // Never every farmer: only the ones these queues name (for their names and regions). The
       // farmers page, the overview and search ask the API for exactly what they show.
@@ -112,7 +117,7 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
         verifications,
         riskFlags,
         announcements,
-        badgeCounts: countBadges(verifications, riskFlags, applications),
+        badgeCounts: countBadges(verifications, riskFlags, applications, transactionCount.count),
         status: 'ready',
         loadedAt: new Date().toISOString(),
       });

@@ -15,14 +15,11 @@ export interface SettingsPageMeta {
   icon: LucideIcon;
 }
 
-/** The pages inside Profile & Settings, in menu order. Each is its own route. */
+/**
+ * The pages inside Profile & Settings, in menu order. Each is its own route; /settings opens
+ * the first one (Profile).
+ */
 export const SETTINGS_PAGES: SettingsPageMeta[] = [
-  {
-    href: '/settings/plans',
-    label: 'Plans & billing',
-    description: 'Compare plans and view your AI usage',
-    icon: CreditCard,
-  },
   {
     href: '/settings/profile',
     label: 'Profile',
@@ -42,15 +39,21 @@ export const SETTINGS_PAGES: SettingsPageMeta[] = [
     icon: SlidersHorizontal,
   },
   {
+    href: '/settings/plans',
+    label: 'Plans & billing',
+    description: 'Your plan and AI credits',
+    icon: CreditCard,
+  },
+  {
     href: '/settings/account',
     label: 'Account & data',
-    description: 'Your plan, backups and data',
+    description: 'Sign-in, backups and your data',
     icon: ShieldCheck,
   },
   {
     href: '/settings/about',
     label: 'About',
-    description: 'Version and how your data is stored',
+    description: 'What AgriCtec is and our policies',
     icon: Info,
   },
 ];

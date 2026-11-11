@@ -18,7 +18,7 @@ export function ProfileCompleteness() {
         <div className="min-w-0 flex-1">
           <h2 className="text-text text-base font-bold">Profile {complete}% complete</h2>
           <p className="text-text-mute mt-1 text-xs">
-            Completing your profile can raise your credit score by up to 55 points
+            Completing your profile can raise your AgriCtec score by up to 55 points
           </p>
         </div>
       </div>

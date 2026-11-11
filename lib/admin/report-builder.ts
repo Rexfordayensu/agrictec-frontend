@@ -69,7 +69,7 @@ const FARMERS: Dataset<FarmerAccount> = {
       value: (f) => formatFarmSize(f.profile.acres, f.profile.sizeUnit),
     },
     { key: 'crops', label: 'Crops', value: (f) => cropNames(f.profile).join('; '), default: true },
-    { key: 'score', label: 'Credit score', value: (f) => f.stats.score, default: true },
+    { key: 'score', label: 'AgriCtec score', value: (f) => f.stats.score, default: true },
     { key: 'income', label: 'Income (GHS)', value: (f) => f.stats.income, default: true },
     { key: 'expenses', label: 'Expenses (GHS)', value: (f) => f.stats.expenses },
     { key: 'records', label: 'Records', value: (f) => f.stats.records },
@@ -141,7 +141,7 @@ const MOMO: Dataset<MomoTransaction & { farmer: string }> = {
     },
     { key: 'counterparty', label: 'Counterparty', value: (t) => t.counterparty, default: true },
     { key: 'amount', label: 'Amount (GHS)', value: (t) => t.amount, default: true },
-    { key: 'reference', label: 'Reference', value: (t) => t.reference },
+    { key: 'reference', label: 'Reference', value: (t) => t.reference ?? 'Not provided' },
     { key: 'network', label: 'Network', value: (t) => t.network ?? '' },
   ],
   rows: (source) => {

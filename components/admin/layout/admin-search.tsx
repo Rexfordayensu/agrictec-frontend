@@ -9,6 +9,7 @@ import { useAdminRole } from '@/hooks/admin/use-can';
 import { useDebounce } from '@/hooks/use-debounce';
 import { can } from '@/lib/admin/permissions';
 import { formatGHS } from '@/lib/format';
+import { INSTITUTION_TYPE_LABELS } from '@/lib/lenders';
 import { normalizePhone } from '@/lib/profile';
 import { cn } from '@/lib/utils';
 import { farmersService } from '@/services/admin/farmers.service';
@@ -18,7 +19,7 @@ import { useAdminUiStore } from '@/store/admin/admin-ui-store';
 import type {
   AdminRole,
   FarmerAccount,
-  Lender,
+  AdminLender,
   LoanApplication,
   LoanStatus,
   AccountStatus,
@@ -59,7 +60,7 @@ const digits = (value: string) => value.replace(/\D/g, '');
  */
 export function searchConsole(
   query: string,
-  data: { farmers: FarmerAccount[]; applications: LoanApplication[]; lenders: Lender[] },
+  data: { farmers: FarmerAccount[]; applications: LoanApplication[]; lenders: AdminLender[] },
   role: AdminRole | undefined,
 ): SearchHit[] {
   const q = query.trim().toLowerCase();
@@ -111,9 +112,9 @@ export function searchConsole(
         .map((l) => ({
           kind: 'lender' as const,
           id: l.id,
-          href: `/admin/lenders?q=${encodeURIComponent(l.name)}`,
+          href: `/admin/lenders/${encodeURIComponent(l.id)}`,
           title: l.name,
-          detail: `${l.rate}% · up to ${formatGHS(l.maxAmount)}${l.active ? '' : ' · inactive'}`,
+          detail: `${INSTITUTION_TYPE_LABELS[l.institutionType]} · ${l.listed ? 'listed' : 'not listed'}`,
         }))
     : [];
 
@@ -148,7 +149,7 @@ export function AdminSearch() {
     query: '',
     farmers: [],
   });
-  const [lenders, setLenders] = useState<Lender[]>([]);
+  const [lenders, setLenders] = useState<AdminLender[]>([]);
   const [query, setQuery] = useState('');
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -161,7 +162,7 @@ export function AdminSearch() {
   useEffect(() => {
     if (!open || !can(role, 'lenders.manage')) return;
     let active = true;
-    lendersService.list({ includeInactive: true }).then((list) => active && setLenders(list));
+    lendersService.list().then((list) => active && setLenders(list));
     return () => {
       active = false;
     };

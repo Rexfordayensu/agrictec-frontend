@@ -4,28 +4,40 @@ import { useReadOnly } from '@/lib/read-only';
 import { useState } from 'react';
 import { Bell } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { useSettingsStore } from '@/store/settings-store';
 import type { NotificationSettings as Preferences } from '@/types';
 
-const options: { key: keyof Preferences; title: string; description: string }[] = [
+interface Option {
+  key: keyof Preferences;
+  title: string;
+  description: string;
+  /** Not built yet: shown switched off and disabled, so nobody waits for alerts that never come. */
+  comingSoon?: boolean;
+}
+
+const options: Option[] = [
   {
     key: 'aiInsights',
-    title: 'AI Insights',
-    description: 'Rotate farming and finance tips on your dashboard.',
+    title: 'Dashboard tips',
+    description: 'Show farming and money tips, based on your records, on your dashboard.',
   },
   {
     key: 'weatherAlerts',
-    title: 'Weather Alerts',
-    description: 'Keep weather alerts enabled for future live updates.',
+    title: 'Weather alerts',
+    description:
+      'Heavy rain or a thunderstorm in the next 3 days, or a dry week in the growing season, from the forecast at your farm’s map pin (or your region). Checked at 6am and 4pm.',
   },
   {
     key: 'priceAlerts',
-    title: 'Market Price Alerts',
-    description: 'Keep crop-price alerts enabled for future live updates.',
+    title: 'Market price alerts',
+    description:
+      'When a reviewed price for a crop you grow moves 10% or more (local prices only for your region).',
   },
 ];
+
 export function NotificationSettings() {
   const notifications = useSettingsStore((state) => state.notifications);
   const status = useSettingsStore((state) => state.status);
@@ -49,14 +61,18 @@ export function NotificationSettings() {
             className="flex items-start justify-between gap-3 py-4 first:pt-0 last:pb-0"
           >
             <div>
-              <p className="text-text text-sm font-semibold">{item.title}</p>
+              <p className="text-text flex flex-wrap items-center gap-2 text-sm font-semibold">
+                {item.title}
+                {item.comingSoon && <Badge color="gold">Coming soon</Badge>}
+              </p>
               <p className="text-text-mute mt-1 text-xs leading-relaxed">{item.description}</p>
             </div>
             <Switch
-              checked={notifications[item.key]}
-              label={item.title}
-              disabled={saving || status !== 'ready' || readOnly}
+              checked={item.comingSoon ? false : notifications[item.key]}
+              label={item.comingSoon ? `${item.title} (coming soon)` : item.title}
+              disabled={item.comingSoon || saving || status !== 'ready' || readOnly}
               onChange={async () => {
+                if (item.comingSoon) return;
                 setSaving(true);
                 try {
                   await useSettingsStore.getState().toggleNotification(item.key);
@@ -71,6 +87,9 @@ export function NotificationSettings() {
           </div>
         ))}
       </div>
+      <p className="text-text-mute border-border mt-4 border-t pt-4 text-xs leading-relaxed">
+        Alerts appear under the bell, and by SMS to your saved phone number when SMS is available.
+      </p>
     </Card>
   );
 }

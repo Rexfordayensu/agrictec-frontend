@@ -3,7 +3,8 @@
 
 import { api } from '@/services/api';
 import type { CreditSummary } from '@/services/loans.service';
-import type { MarketPrice, Weather } from '@/types';
+import type { MarketPrice } from '@/types';
+import type { LoanProduct } from '@/types/products';
 import type { PaymentMode } from '@/types/subscription';
 import type {
   Announcement,
@@ -21,13 +22,15 @@ export interface PlatformSnapshot {
   creditConfig: CreditConfig;
   flags: FeatureFlags;
   plans: Plan[];
-  /** Lenders accepting applications. */
+  /**
+   * The marketplace: published lenders whose licence check is current and whose listing was
+   * authorised. Empty until an administrator publishes one (never placeholders).
+   */
   lenders: Lender[];
-  /** Every lender, including switched-off ones (to name them on older applications). */
-  allLenders: Lender[];
+  /** Published products of listed lenders, each at its latest published version. */
+  loanProducts: LoanProduct[];
   /** Published, reviewed observations only. */
   marketPrices: MarketPrice[];
-  weatherOverride: Weather | null;
   crops: CropContent[];
   knowledge: AssistantKnowledgeItem[];
   diagnoses: DiagnosisContent[];

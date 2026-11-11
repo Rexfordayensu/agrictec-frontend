@@ -33,6 +33,8 @@ function contentSecurityPolicy(): string {
     'style-src': ["'self'", "'unsafe-inline'"],
     'img-src': [
       "'self'",
+      // Lender logos are served by the API.
+      ...(api ? [api] : []),
       'data:',
       'blob:',
       'https://tile.openstreetmap.org',
@@ -64,7 +66,8 @@ const SECURITY_HEADERS = [
   // The crop doctor's camera and the farm map's "use my location"; nothing else.
   {
     key: 'Permissions-Policy',
-    value: 'camera=(self), geolocation=(self), microphone=(), payment=(), usb=(), browsing-topics=()',
+    value:
+      'camera=(self), geolocation=(self), microphone=(), payment=(), usb=(), browsing-topics=()',
   },
   { key: 'Strict-Transport-Security', value: 'max-age=63072000; includeSubDomains' },
   { key: 'Cross-Origin-Opener-Policy', value: 'same-origin' },

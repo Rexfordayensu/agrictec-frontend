@@ -7,12 +7,12 @@ import {
   FileStack,
   Lock,
   ShieldCheck,
-  Sparkles,
 } from 'lucide-react';
 import { useReportDownload } from '@/components/reports/use-report-download';
 import { Button } from '@/components/ui/button';
 import { useFarmStats } from '@/hooks/use-farm-stats';
 import { formatDate, formatGHS } from '@/lib/format';
+import { loanReadinessCheck } from '@/lib/reports/build-report-data';
 import { useFarmStore } from '@/store/farm-store';
 import { usePlatformStore } from '@/store/platform-store';
 import { useProfileStore } from '@/store/profile-store';
@@ -25,7 +25,13 @@ import Link from 'next/link';
  * themes, like a printed report.
  */
 function DocumentMockup() {
-  const { credit, creditLabel, profit, borrowingPower, creditConfig } = useFarmStats();
+  const stats = useFarmStats();
+  const { credit, creditLabel, profit, borrowingPower } = stats;
+  const records = useFarmStore((s) => s.records);
+  const profile = useProfileStore((s) => s.profile);
+  const underReview = usePlatformStore((s) => s.underReview);
+  // The loan report's own test (profit, every loan rule, a verified Ghana Card, no review).
+  const { ready } = loanReadinessCheck({ records, profile, stats, underReview });
   const name = useProfileStore((s) => s.profile?.name.trim()) || 'Your farm';
   const maxLoan = borrowingPower;
   const pdfEnabled = usePlatformStore((s) => s.flags.pdfReports);
@@ -53,7 +59,7 @@ function DocumentMockup() {
               ['Credit score', `${credit.score} (${creditLabel})`],
               ['Net profit', formatGHS(profit)],
               ['Max. loan', formatGHS(maxLoan)],
-              ['Status', credit.score >= creditConfig.bands.good ? 'Loan ready' : 'Building'],
+              ['Status', underReview ? 'Under review' : ready ? 'Loan ready' : 'Building'],
             ].map(([label, value]) => (
               <div key={label} className="rounded-md bg-slate-50 px-2 py-1.5 ring-1 ring-slate-100">
                 <p className="text-[7px] text-slate-400">{label}</p>
@@ -81,7 +87,7 @@ function DocumentMockup() {
       </div>
       {/* Verified seal (only while PDF downloads are switched on) */}
       {pdfEnabled && (
-        <div className="absolute -right-3 bottom-6 inline-flex items-center gap-1.5 rounded-full bg-[#022c22] px-3 py-1.5 text-[11px] font-semibold text-[#34d399] shadow-lg ring-1 ring-[#34d399]/40">
+        <div className="absolute -right-3 bottom-6 inline-flex items-center gap-1.5 rounded-full bg-emerald-950 px-3 py-1.5 text-[11px] font-semibold text-emerald-400 shadow-lg ring-1 ring-emerald-400/40">
           <ShieldCheck size={13} /> PDF ready
         </div>
       )}
@@ -118,7 +124,7 @@ export function ReportsHero() {
       <div className="relative grid items-center gap-8 @3xl:grid-cols-[minmax(0,1fr)_290px]">
         <div>
           <span className="border-purple/30 bg-purple/10 text-ink-purple inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold">
-            <Sparkles size={13} aria-hidden="true" /> AI Report Center
+            <FileStack size={13} aria-hidden="true" /> Report Center
           </span>
           <h2
             id="reports-hero-title"

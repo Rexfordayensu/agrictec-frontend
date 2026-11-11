@@ -44,13 +44,15 @@ function Kpi({
       >
         {value}
       </p>
+      {/* The figure covers everything recorded; the line shows each of the last 12 months. */}
+      <p className="text-text-mute mt-0.5 text-[11px]">All time</p>
       <Sparkline data={series} ariaLabel={seriesLabel} className={cn('mt-3', tone.split(' ')[1])} />
-      <p className="text-text-mute mt-1 text-[11px]">Last 12 months</p>
+      <p className="text-text-mute mt-1 text-[11px]">Per month, last 12 months</p>
     </div>
   );
 }
 
-/** Headline figures with 12-month trend lines. */
+/** Headline figures for everything recorded (all time), each with its monthly line for the last 12 months. */
 export function ReportsKpis() {
   const { income, expenses, profit, margin, monthly12 } = useFarmStats();
   return (

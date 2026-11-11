@@ -199,7 +199,7 @@ export function FarmerQuickViewModal({
               <section aria-labelledby="qv-score">
                 <div className="mb-2 flex items-baseline justify-between">
                   <h3 id="qv-score" className="text-text text-sm font-bold">
-                    Credit score
+                    AgriCtec score
                   </h3>
                   <p className="text-text text-sm">
                     <span className="font-display text-xl font-bold">{account.stats.score}</span>{' '}

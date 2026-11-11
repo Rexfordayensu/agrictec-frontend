@@ -6,22 +6,49 @@ import { Badge, type BadgeColor } from '@/components/ui/badge';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { ScoreRing } from '@/components/ui/score-ring';
 import { useFarmStats } from '@/hooks/use-farm-stats';
+import { loanReadinessCheck } from '@/lib/reports/build-report-data';
 import { healthChecks } from '@/lib/reports/health-checks';
 import { cn } from '@/lib/utils';
+import { useFarmStore } from '@/store/farm-store';
+import { usePlatformStore } from '@/store/platform-store';
+import { useProfileStore } from '@/store/profile-store';
 
-function band(health: number): { label: string; color: BadgeColor } {
-  if (health >= 80) return { label: 'Healthy', color: 'green' };
-  if (health >= 60) return { label: 'Fair', color: 'gold' };
+/** The badge for how many of the checks pass (the ring shows the same share). */
+function band(
+  passed: number,
+  total: number,
+  hasData: boolean,
+): { label: string; color: BadgeColor } {
+  if (!hasData) return { label: 'Not started', color: 'blue' };
+  const share = passed / total;
+  if (share >= 0.8) return { label: 'Healthy', color: 'green' };
+  if (share >= 0.6) return { label: 'Fair', color: 'gold' };
   return { label: 'Needs attention', color: 'red' };
 }
 
-/** Health score (20–100) plus the five checks a lender would look at. */
+/**
+ * The five checks a lender would look at. The ring is simply the share that pass, so the
+ * number and the list beside it always agree. "Loan ready" also needs the loan rules (records,
+ * score, a verified Ghana Card): the same test as the loan report.
+ */
 export function HealthCard({ className }: { className?: string }) {
   const stats = useFarmStats();
-  const { label, color } = band(stats.health);
+  const records = useFarmStore((s) => s.records);
+  const profile = useProfileStore((s) => s.profile);
+  const underReview = usePlatformStore((s) => s.underReview);
   const checks = healthChecks(stats);
   const passed = checks.filter((c) => c.pass).length;
+  const health = Math.round((passed / checks.length) * 100);
+  const { label, color } = band(passed, checks.length, stats.hasData);
   const nextStep = checks.find((c) => !c.pass);
+  const { ready, eligibility } = loanReadinessCheck({ records, profile, stats, underReview });
+  // Healthy finances but a loan rule still missing (e.g. the Ghana Card): say what is missing.
+  const loanGap =
+    !nextStep && !ready
+      ? underReview
+        ? 'Your account is being reviewed. Loan recommendations resume once it is done.'
+        : (eligibility.reasons[0] ?? 'Complete the loan requirements to apply.')
+      : null;
 
   return (
     <Card className={cn('flex flex-col', className)}>
@@ -34,7 +61,7 @@ export function HealthCard({ className }: { className?: string }) {
       </CardHeader>
 
       <div className="flex items-center gap-4">
-        <ScoreRing value={stats.health} max={100} label="Health" size={112} />
+        <ScoreRing value={health} max={100} label="Health" size={112} />
         <div>
           <p className="text-text text-3xl font-extrabold">
             {passed}
@@ -84,32 +111,33 @@ export function HealthCard({ className }: { className?: string }) {
         <div
           className={cn(
             'rounded-2xl border p-4',
-            nextStep ? 'border-gold/30 bg-gold/10' : 'border-accent/30 bg-accent/10',
+            nextStep || loanGap ? 'border-gold/30 bg-gold/10' : 'border-accent/30 bg-accent/10',
           )}
         >
           <p
             className={cn(
               'flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase',
-              nextStep ? 'text-ink-gold' : 'text-ink-green',
+              nextStep || loanGap ? 'text-ink-gold' : 'text-ink-green',
             )}
           >
-            {nextStep ? (
+            {nextStep || loanGap ? (
               <Lightbulb size={14} aria-hidden="true" />
             ) : (
               <BadgeCheck size={14} aria-hidden="true" />
             )}
-            {nextStep ? 'Next step' : 'You’re loan ready'}
+            {nextStep ? 'Next step' : loanGap ? 'Finances look healthy' : 'You’re loan ready'}
           </p>
           <p className="text-text mt-1 text-sm">
             {nextStep
               ? `${nextStep.label}: ${nextStep.detail}`
-              : 'All five checks pass. Compare lender offers and apply with your report.'}
+              : (loanGap ??
+                'All five checks pass. Compare lender offers and apply with your report.')}
           </p>
           <Link
             href={nextStep ? nextStep.action.href : '/loans'}
             className="group text-ink-green mt-2 inline-flex min-h-9 items-center gap-1 text-sm font-semibold"
           >
-            {nextStep ? nextStep.action.label : 'See loan offers'}
+            {nextStep ? nextStep.action.label : loanGap ? 'See what’s missing' : 'See loan offers'}
             <ArrowRight
               size={14}
               aria-hidden="true"

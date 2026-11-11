@@ -78,7 +78,7 @@ export function DataSettings() {
             <Database size={18} aria-hidden="true" className="text-ink-green" />
             Your data, your control
           </CardTitle>
-          <CardSub>Back up or restore your records on this device</CardSub>
+          <CardSub>Download a copy of your data, restore one, or delete it</CardSub>
         </div>
       </CardHeader>
       <input
@@ -98,8 +98,8 @@ export function DataSettings() {
           <div>
             <p className="text-text text-sm font-semibold">Export my data</p>
             <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
-              Download your profile, farm records, MoMo, diagnoses, chat, settings and loan
-              applications. Photo thumbnails are excluded.
+              Download a file with your profile, farm records, MoMo transactions, crop diagnoses,
+              assistant chat, settings and loan applications. Photo thumbnails are left out.
             </p>
           </div>
           <Button
@@ -127,8 +127,9 @@ export function DataSettings() {
           <div>
             <p className="text-text text-sm font-semibold">Import data</p>
             <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
-              Restore an AgriCtec JSON export. The file is checked before you confirm replacing your
-              current data.
+              Restore an AgriCtec export: your profile, farm records, MoMo transactions and settings
+              are replaced. Crop diagnoses, assistant chat, verifications and loan applications stay
+              as they are. The file is checked before anything changes.
             </p>
           </div>
           <Button
@@ -169,7 +170,7 @@ export function DataSettings() {
         title="Replace your current data?"
         message={
           pending
-            ? `Restore the backup from ${formatDate(pending.exportedAt)} with ${pending.records.length} records, ${pending.momo.length} MoMo transactions and ${pending.diagnoses.length} diagnoses? Your current data will be replaced.`
+            ? `Restore the backup from ${formatDate(pending.exportedAt)} with ${pending.records.length} farm records and ${pending.momo.length} MoMo transactions? Your current profile, records, MoMo and settings will be replaced. Crop diagnoses, assistant chat, verifications and loan applications stay as they are.`
             : ''
         }
         confirmLabel="Replace and import"

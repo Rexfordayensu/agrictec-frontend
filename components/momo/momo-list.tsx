@@ -1,11 +1,13 @@
 'use client';
 
 import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { TransactionTools } from '@/components/transactions/transaction-tools';
 import { useState } from 'react';
 import { isToday, isYesterday } from 'date-fns';
 import {
   ArrowDownLeft,
   ArrowUpRight,
+  ChevronDown,
   FilterX,
   Pencil,
   Plus,
@@ -32,6 +34,9 @@ function friendlyDate(iso: string): string {
   return formatDate(date);
 }
 
+/** Transactions shown at first, and added by each "Show more". */
+const PAGE_SIZE = 25;
+
 const actionClass =
   'inline-flex size-10 items-center justify-center rounded-lg text-text-dim transition-colors hover:bg-glass-strong sm:size-9';
 
@@ -44,7 +49,7 @@ function TransactionRow({
   onEdit: (t: MomoTransaction) => void;
   onDelete: (t: MomoTransaction) => void;
 }) {
-  const readOnly = useReadOnly();
+  const readOnly = useReadOnly() || t.verificationStatus === 'verified';
   const inflow = t.direction === 'in';
   const Arrow = inflow ? ArrowDownLeft : ArrowUpRight;
   return (
@@ -66,9 +71,14 @@ function TransactionRow({
         )}
       </span>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-text truncate text-sm font-semibold">{t.counterparty}</p>
-        <p className="text-text-mute mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs">
+      {/* The row opens the transaction (its reference and every detail are in the form). */}
+      <div
+        title={`Reference ${t.reference ?? 'Not provided'}`}
+        aria-label={`${inflow ? 'Received from' : 'Sent to'} ${t.counterparty}, ${formatGHS(t.amount)}, ${friendlyDate(t.date)}. Open details`}
+        className="min-w-0 flex-1 rounded-lg text-left focus-visible:outline-2 focus-visible:outline-offset-2"
+      >
+        <span className="text-text block truncate text-sm font-semibold">{t.counterparty}</span>
+        <span className="text-text-mute mt-0.5 flex flex-wrap items-center gap-x-1.5 text-xs">
           <span>{inflow ? 'Received' : 'Sent'}</span>
           <span aria-hidden="true">·</span>
           <span>{friendlyDate(t.date)}</span>
@@ -78,8 +88,8 @@ function TransactionRow({
               <span>{t.network}</span>
             </>
           )}
-        </p>
-        <p className="text-text-mute mt-0.5 truncate font-mono text-[11px]">{t.reference}</p>
+        </span>
+        <TransactionTools kind="momo" id={t.id} entry={t} />
       </div>
 
       <div className="flex shrink-0 flex-col items-end gap-1 sm:flex-row sm:items-center sm:gap-3">
@@ -164,6 +174,8 @@ export function MomoList({
   const deleteMomo = useFarmStore((s) => s.deleteMomo);
   const [pendingDelete, setPendingDelete] = useState<MomoTransaction | null>(null);
   const [deleting, setDeleting] = useState(false);
+  // Reset to the first page whenever the filters change (MomoView keys this list by them).
+  const [visible, setVisible] = useState(PAGE_SIZE);
 
   const onEdit = (t: MomoTransaction) => openModal('momo', t.id);
 
@@ -187,7 +199,7 @@ export function MomoList({
       <EmptyState
         icon={Smartphone}
         title="No MoMo transactions yet"
-        description="Log mobile money payments you send and receive. They raise your credit score."
+        description="Log mobile money payments you send and receive. They raise your AgriCtec score."
         action={
           <Button mutates icon={Plus} onClick={() => openModal('momo')}>
             Add your first transaction
@@ -211,18 +223,41 @@ export function MomoList({
       />
     );
   } else {
+    // Months keep their full totals; only the rows shown are limited ("Show more" adds a page).
+    const shownGroups: { group: MomoMonthGroup; items: MomoTransaction[] }[] = [];
+    let budget = visible;
+    for (const group of groupMomoByMonth(rows)) {
+      if (budget <= 0) break;
+      const items = group.items.slice(0, budget);
+      shownGroups.push({ group, items });
+      budget -= items.length;
+    }
+    const hidden = rows.length - Math.min(visible, rows.length);
     content = (
       <div className="space-y-5">
-        {groupMomoByMonth(rows).map((group) => (
+        {shownGroups.map(({ group, items }) => (
           <section key={group.key} aria-label={group.label}>
             <MonthHeader group={group} />
             <ul className="mt-1">
-              {group.items.map((t) => (
+              {items.map((t) => (
                 <TransactionRow key={t.id} t={t} onEdit={onEdit} onDelete={setPendingDelete} />
               ))}
             </ul>
           </section>
         ))}
+        {hidden > 0 && (
+          <div className="flex justify-center pb-2">
+            <Button
+              variant="ghost"
+              icon={ChevronDown}
+              onClick={() => setVisible((v) => v + PAGE_SIZE)}
+              className="border-border border"
+            >
+              Show {Math.min(PAGE_SIZE, hidden)} more
+              <span className="text-text-mute font-normal">({hidden} left)</span>
+            </Button>
+          </div>
+        )}
       </div>
     );
   }

@@ -6,7 +6,6 @@ import { ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
-  generateMomoReference,
   MOMO_NETWORKS,
   momoSchema,
   type MomoFormInput,
@@ -18,6 +17,13 @@ import { Button } from '@/components/ui/button';
 import { FormField, fieldErrorId, fieldHintId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
+import { Select } from '@/components/ui/select';
+import {
+  ALL_CATEGORIES,
+  categoryLabel,
+  duplicateRetry,
+  isPossibleDuplicate,
+} from '@/lib/transactions';
 import { todayISO } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useFarmStore } from '@/store/farm-store';
@@ -50,8 +56,11 @@ function toFormValues(
         direction: transaction.direction,
         counterparty: transaction.counterparty,
         amount: transaction.amount,
-        reference: transaction.reference,
-        network: transaction.network ?? 'MTN',
+        reference: transaction.reference ?? '',
+        category: transaction.category ?? '',
+        paymentMethod: transaction.paymentMethod ?? '',
+        externalReference: transaction.externalReference ?? '',
+        network: transaction.network,
         date: transaction.date,
       }
     : {
@@ -59,7 +68,10 @@ function toFormValues(
         counterparty: defaults?.counterparty ?? '',
         amount: defaults?.amount ?? '',
         reference: defaults?.reference ?? '',
-        network: defaults?.network ?? 'MTN',
+        category: '',
+        paymentMethod: '',
+        externalReference: '',
+        network: defaults?.network,
         date: defaults?.date ?? todayISO(),
       };
 }
@@ -117,6 +129,7 @@ function MomoForm({
   onDone: () => void;
   onSavingChange: (saving: boolean) => void;
 }) {
+  const [duplicate, setDuplicate] = useState<MomoFormValues>();
   const addMomo = useFarmStore((s) => s.addMomo);
   const updateMomo = useFarmStore((s) => s.updateMomo);
 
@@ -133,12 +146,16 @@ function MomoForm({
   const direction = useWatch({ control, name: 'direction' });
   const network = useWatch({ control, name: 'network' });
 
-  async function onSubmit(values: MomoFormValues) {
+  async function onSubmit(values: MomoFormValues, confirmed = false) {
     const input: NewMomoInput = {
       direction: values.direction,
       counterparty: values.counterparty,
       amount: values.amount,
-      reference: values.reference?.toUpperCase() || generateMomoReference(),
+      reference: values.reference?.trim() || '',
+      category: values.category || null,
+      paymentMethod: values.paymentMethod?.trim() || null,
+      externalReference: values.externalReference?.trim() || null,
+      ...(confirmed ? duplicateRetry({}) : {}),
       network: values.network,
       date: values.date,
     };
@@ -154,6 +171,10 @@ function MomoForm({
       reset();
       onDone();
     } catch (error) {
+      if (isPossibleDuplicate(error)) {
+        setDuplicate(values);
+        return;
+      }
       toast.error(error instanceof Error ? error.message : 'Could not save the transaction');
     } finally {
       onSavingChange(false);
@@ -164,7 +185,45 @@ function MomoForm({
     hasError ? fieldErrorId(id) : hint ? fieldHintId(id) : undefined;
 
   return (
-    <form id={formId} noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      id={formId}
+      noValidate
+      onSubmit={handleSubmit((values) => onSubmit(values))}
+      className="space-y-4"
+    >
+      {duplicate && (
+        <div role="alert" className="bg-gold/10 space-y-2 rounded-xl p-3 text-sm">
+          <p>
+            A possible duplicate has the same date, amount, direction and category. Is this a
+            separate entry?
+          </p>
+          <Button mutates type="button" onClick={() => void onSubmit(duplicate, true)}>
+            Save anyway
+          </Button>
+          <Button variant="ghost" type="button" onClick={() => setDuplicate(undefined)}>
+            Keep editing
+          </Button>
+        </div>
+      )}
+      <label className="block space-y-2 text-xs font-semibold">
+        Category
+        <Select {...register('category')}>
+          <option value="">Uncategorised</option>
+          {ALL_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {categoryLabel(c)}
+            </option>
+          ))}
+        </Select>
+      </label>
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField label="Payment method" htmlFor="momo-method" hint="Optional">
+          <Input id="momo-method" {...register('paymentMethod')} />
+        </FormField>
+        <FormField label="External reference" htmlFor="momo-external" hint="Optional">
+          <Input id="momo-external" {...register('externalReference')} />
+        </FormField>
+      </div>
       <fieldset>
         <legend className="text-text-dim mb-1.5 text-xs font-semibold tracking-wide uppercase">
           Direction
@@ -198,13 +257,13 @@ function MomoForm({
       </fieldset>
 
       <FormField
-        label="Counterparty"
+        label={direction === 'out' ? 'Who you paid' : 'Who paid you'}
         htmlFor="momo-counterparty"
         error={errors.counterparty?.message}
       >
         <Input
           id="momo-counterparty"
-          placeholder="e.g., Buyer name or vendor"
+          placeholder={direction === 'out' ? 'e.g., Input supplier or worker' : 'e.g., Buyer name'}
           error={Boolean(errors.counterparty)}
           aria-describedby={describe('momo-counterparty', Boolean(errors.counterparty))}
           {...register('counterparty')}
@@ -260,7 +319,7 @@ function MomoForm({
         <FormField
           label="Reference"
           htmlFor="momo-reference"
-          hint="Leave blank to generate one"
+          hint="Optional. Leave blank if not provided."
           error={errors.reference?.message}
         >
           <Input
@@ -278,7 +337,7 @@ function MomoForm({
           label="Date"
           htmlFor="momo-date"
           error={errors.date?.message}
-          hint="Transactions added within 45 days of their date build your credit score."
+          hint="Transactions added within 45 days of their date build your AgriCtec score."
         >
           <Input
             id="momo-date"

@@ -59,7 +59,7 @@ export default function PrivacyPage() {
           </li>
           <li>
             <Term>Loans:</Term> the loans you apply for (amount, purpose, length, lender) and your
-            credit score at the time, which the app works out from your records and profile.
+            AgriCtec score at the time, which the app works out from your records and profile.
           </li>
           <li>
             <Term>Payments:</Term> if you buy a plan, the payment reference, amount, method and
@@ -79,7 +79,7 @@ export default function PrivacyPage() {
 
       <LegalSection id="use" title="2. Why we use it">
         <LegalList>
-          <li>To run your account and show your farm records, reports and credit score.</li>
+          <li>To run your account and show your farm records, reports and AgriCtec score.</li>
           <li>To check your identity and stop fraud, such as fake or borrowed Ghana Cards.</li>
           <li>To send your loan applications to the lender you choose.</li>
           <li>To give you weather, market prices, crop advice and answers to your questions.</li>
@@ -102,7 +102,7 @@ export default function PrivacyPage() {
           <li>
             <Term>Lenders, when you apply.</Term> When you send a loan application, the lender you
             chose receives your name, region, the amount, purpose and length of the loan, and your
-            credit score at the time. They decide whether to lend to you. We share nothing with a
+            AgriCtec score at the time. They decide whether to lend to you. We share nothing with a
             lender you have not applied to.
           </li>
           <li>

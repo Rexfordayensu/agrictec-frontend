@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { CATEGORIES, categoryLabel, duplicateRetry, isPossibleDuplicate } from '@/lib/transactions';
 import { CROPS } from '@/constants/crops';
 import { todayISO } from '@/lib/format';
 import { useFarmStore } from '@/store/farm-store';
@@ -25,6 +26,7 @@ const TYPE_OPTIONS = [
   { value: 'income', label: 'Income' },
   { value: 'expense', label: 'Expense' },
   { value: 'activity', label: 'Activity (no money)' },
+  { value: 'financing', label: 'Financing (separate from farm profit)' },
 ] as const;
 
 function toFormValues(record?: FarmRecord, defaults?: Partial<NewRecordInput>): RecordFormInput {
@@ -36,6 +38,10 @@ function toFormValues(record?: FarmRecord, defaults?: Partial<NewRecordInput>): 
         amount: record.type === 'activity' && record.amount === 0 ? '' : record.amount,
         date: record.date,
         notes: record.notes ?? '',
+        category: record.category ?? '',
+        direction: record.direction ?? 'in',
+        paymentMethod: record.paymentMethod ?? '',
+        externalReference: record.externalReference ?? '',
       }
     : {
         type: 'income',
@@ -45,6 +51,10 @@ function toFormValues(record?: FarmRecord, defaults?: Partial<NewRecordInput>): 
         date: todayISO(),
         notes: '',
         ...defaults,
+        category: defaults?.category ?? '',
+        direction: defaults?.direction ?? 'in',
+        paymentMethod: defaults?.paymentMethod ?? '',
+        externalReference: defaults?.externalReference ?? '',
       };
 }
 
@@ -102,6 +112,7 @@ function RecordForm({
   onDone: () => void;
   onSavingChange: (saving: boolean) => void;
 }) {
+  const [duplicate, setDuplicate] = useState<RecordFormValues>();
   const addRecord = useFarmStore((s) => s.addRecord);
   const updateRecord = useFarmStore((s) => s.updateRecord);
 
@@ -110,6 +121,7 @@ function RecordForm({
     handleSubmit,
     control,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<RecordFormInput, unknown, RecordFormValues>({
     resolver: zodResolver(recordSchema),
@@ -117,10 +129,16 @@ function RecordForm({
   });
 
   const type = useWatch({ control, name: 'type' });
+  const resetCategory = () => setValue('category', '');
 
-  async function onSubmit(values: RecordFormValues) {
+  async function onSubmit(values: RecordFormValues, confirmed = false) {
     const input: NewRecordInput = {
       type: values.type,
+      category: values.type === 'activity' ? null : values.category || null,
+      direction: values.type === 'financing' ? values.direction : null,
+      paymentMethod: values.paymentMethod?.trim() || null,
+      externalReference: values.externalReference?.trim() || null,
+      ...(confirmed ? duplicateRetry({}) : {}),
       description: values.description,
       crop: values.crop,
       amount: values.amount,
@@ -139,6 +157,10 @@ function RecordForm({
       reset();
       onDone();
     } catch (error) {
+      if (isPossibleDuplicate(error)) {
+        setDuplicate(values);
+        return;
+      }
       // Keep the modal open so nothing the farmer typed is lost.
       toast.error(error instanceof Error ? error.message : 'Could not save the record');
     } finally {
@@ -149,9 +171,32 @@ function RecordForm({
   const describe = (id: string, hasError: boolean) => (hasError ? fieldErrorId(id) : undefined);
 
   return (
-    <form id={formId} noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form
+      id={formId}
+      noValidate
+      onSubmit={handleSubmit((values) => onSubmit(values))}
+      className="space-y-4"
+    >
+      {duplicate && (
+        <div role="alert" className="bg-gold/10 space-y-2 rounded-xl p-3 text-sm">
+          <p>
+            A possible duplicate has the same date, amount, type and category. Is this a separate
+            entry?
+          </p>
+          <Button mutates type="button" onClick={() => void onSubmit(duplicate, true)}>
+            Save anyway
+          </Button>
+          <Button variant="ghost" type="button" onClick={() => setDuplicate(undefined)}>
+            Keep editing
+          </Button>
+        </div>
+      )}
       <FormField label="Record type" htmlFor="record-type" error={errors.type?.message}>
-        <Select id="record-type" error={Boolean(errors.type)} {...register('type')}>
+        <Select
+          id="record-type"
+          error={Boolean(errors.type)}
+          {...register('type', { onChange: () => resetCategory() })}
+        >
           {TYPE_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
               {option.label}
@@ -160,6 +205,34 @@ function RecordForm({
         </Select>
       </FormField>
 
+      {type !== 'activity' && (
+        <FormField label="Category" htmlFor="record-category">
+          <Select id="record-category" {...register('category')}>
+            <option value="">Uncategorised</option>
+            {CATEGORIES[type].map((c) => (
+              <option key={c} value={c}>
+                {categoryLabel(c)}
+              </option>
+            ))}
+          </Select>
+        </FormField>
+      )}
+      {type === 'financing' && (
+        <FormField label="Financing direction" htmlFor="record-direction">
+          <Select id="record-direction" {...register('direction')}>
+            <option value="in">Money in</option>
+            <option value="out">Money out</option>
+          </Select>
+        </FormField>
+      )}
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField label="Payment method" htmlFor="record-method" hint="Optional">
+          <Input id="record-method" {...register('paymentMethod')} />
+        </FormField>
+        <FormField label="External reference" htmlFor="record-reference" hint="Optional">
+          <Input id="record-reference" {...register('externalReference')} />
+        </FormField>
+      </div>
       <FormField
         label="Description"
         htmlFor="record-description"
@@ -208,7 +281,7 @@ function RecordForm({
         label="Date"
         htmlFor="record-date"
         error={errors.date?.message}
-        hint="Entries added within 45 days of their date build your credit score."
+        hint="Entries added within 45 days of their date build your AgriCtec score."
       >
         <Input
           id="record-date"

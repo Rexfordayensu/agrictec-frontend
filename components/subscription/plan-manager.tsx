@@ -157,7 +157,7 @@ export function PlanManager() {
       <div>
         <h3 className="text-text text-lg font-bold">Choose what fits your farm</h3>
         <p className="text-text-dim mt-1 text-sm">
-          All plans keep your farm records, MoMo tracking, credit score, loan comparisons and market
+          All plans keep your farm records, MoMo tracking, AgriCtec score, loan product comparisons and market
           information.
         </p>
       </div>

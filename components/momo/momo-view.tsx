@@ -6,6 +6,7 @@ import {
   activeMomoFilterCount,
   DEFAULT_MOMO_FILTERS,
   filterMomo,
+  MOMO_PERIOD_LABELS,
   type DirectionFilter,
   type MomoFilters,
 } from '@/components/momo/momo-filters';
@@ -14,7 +15,7 @@ import { MomoToolbar } from '@/components/momo/momo-toolbar';
 import { Card } from '@/components/ui/card';
 import { useDebounce } from '@/hooks/use-debounce';
 import { downloadFile, toCSV } from '@/lib/export/csv';
-import { todayISO } from '@/lib/format';
+import { formatGHS, todayISO } from '@/lib/format';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 
@@ -38,6 +39,9 @@ export function MomoView() {
     out: base.filter((t) => t.direction === 'out').length,
   };
   const activeFilters = activeMomoFilterCount(filters);
+  // Totals for exactly what the list shows (the summary above covers everything, all time).
+  const shownIn = rows.filter((t) => t.direction === 'in').reduce((sum, t) => sum + t.amount, 0);
+  const shownOut = rows.filter((t) => t.direction === 'out').reduce((sum, t) => sum + t.amount, 0);
 
   function exportCsv() {
     if (rows.length === 0) {
@@ -49,7 +53,7 @@ export function MomoView() {
       { header: 'Type', value: (t) => (t.direction === 'in' ? 'Received' : 'Sent') },
       { header: 'Counterparty', value: (t) => t.counterparty },
       { header: 'Network', value: (t) => t.network ?? '' },
-      { header: 'Reference', value: (t) => t.reference },
+      { header: 'Reference', value: (t) => t.reference ?? 'Not provided' },
       { header: 'Amount (GHS)', value: (t) => (t.direction === 'in' ? t.amount : -t.amount) },
     ]);
     downloadFile(csv, `AgriCtec_MoMo_${todayISO()}.csv`);
@@ -72,10 +76,18 @@ export function MomoView() {
         />
       </div>
 
-      <div className="text-text-mute flex items-center justify-between gap-3 px-4 pt-4 text-xs sm:px-5">
+      <div className="text-text-mute flex flex-wrap items-center justify-between gap-x-3 gap-y-1 px-4 pt-4 text-xs sm:px-5">
         <span aria-live="polite">
           Showing <strong className="text-text">{rows.length}</strong> of {momo.length} transaction
           {momo.length === 1 ? '' : 's'}
+          {rows.length > 0 && (
+            <>
+              {' · '}
+              {MOMO_PERIOD_LABELS[filters.period].toLowerCase()}: in{' '}
+              <strong className="text-ink-green">{formatGHS(shownIn)}</strong>, out{' '}
+              <strong className="text-ink-red">{formatGHS(shownOut)}</strong>
+            </>
+          )}
         </span>
         {activeFilters > 0 && (
           <button
@@ -90,6 +102,7 @@ export function MomoView() {
 
       <div className="p-2 sm:p-3">
         <MomoList
+          key={JSON.stringify({ ...filters, query })}
           rows={rows}
           hasAny={momo.length > 0}
           hasActiveFilters={activeFilters > 0}
