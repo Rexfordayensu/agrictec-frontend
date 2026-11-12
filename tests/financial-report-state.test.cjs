@@ -68,3 +68,40 @@ test('an empty period is explained above the figures, which show the exact zeros
   // The totals are not repeated here: the figures and chart below show them.
   assert.doesNotMatch(html,/GHS/);
 });
+
+test('record readiness is checked against the server’s figures, nothing estimated', () => {
+  const { reportReadiness } = require('../lib/report-readiness.ts');
+  const summary = {
+    recordReadiness: {entriesWithEvidence:3,identityVerified:true},
+    period: { months: 6 },
+    insufficient: false,
+    farm: { income: { total: '2500.00' }, expenses: { total: '850.00' } },
+    verifiedShare: { byCount: '60.00' },
+    counts: { byStatus: { self_reported: 2, verified: 3 } },
+  };
+  const all = reportReadiness(summary, 'verified');
+  assert.equal(all.percent, 100);
+  assert.equal(all.checks[0].label, 'Transaction history (6 months)');
+  const partial = reportReadiness(
+    { ...summary, recordReadiness: {entriesWithEvidence:0,identityVerified:false}, insufficient: true, verifiedShare: { byCount: '0.00' }, counts: { byStatus: { self_reported: 4 } } },
+    'pending',
+  );
+  assert.deepEqual(
+    partial.checks.map((c) => [c.key, c.done]),
+    [['history', false], ['incomeExpenses', true], ['verified', false], ['evidence', false], ['identity', false]],
+  );
+  assert.equal(partial.percent, 20);
+  const noAttachment = reportReadiness({...summary,recordReadiness:{entriesWithEvidence:0,identityVerified:false}}, 'verified');
+  assert.equal(noAttachment.checks.find(c=>c.key==='evidence').done,false);
+  assert.equal(noAttachment.checks.find(c=>c.key==='identity').done,false);
+});
+
+test('recent report transactions display the server period rows and exact decimal amounts',()=>{
+  const {RecentTransactionsPanel}=require('../components/reports/report-panels.tsx');
+  const html=renderToStaticMarkup(React.createElement(RecentTransactionsPanel,{summary:{recentTransactions:[{
+    id:'database-row',userId:'farmer',type:'income',amount:'123456789.01',description:'Saved database sale',
+    date:'2026-11-12',createdAt:'2026-11-12T09:00:00Z',category:'crop_sale',verificationStatus:'self_reported',crop:'Maize',
+  }]}}));
+  assert.match(html,/Saved database sale/);assert.match(html,/123,456,789.01/);
+  assert.doesNotMatch(html,/2,500.00|Sale of maize \(500 kg\)/);
+});

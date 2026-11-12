@@ -18,28 +18,49 @@ export function useFinancialSummary(months: ReportMonths) {
   const records = useFarmStore((s) => s.records);
   const momo = useFarmStore((s) => s.momo);
   const [attempt, setAttempt] = useState(0);
-  const request = useMemo(() => ({ months, records, momo, attempt }), [months, records, momo, attempt]);
+  const request = useMemo(
+    () => ({ months, records, momo, attempt }),
+    [months, records, momo, attempt],
+  );
   const [state, setState] = useState<State | null>(null);
 
   useEffect(() => {
-    const controller = new AbortController();
-    financialService.summary(months, controller.signal).then(
-      (summary) => {
-        if (!controller.signal.aborted) setState({ request, status: 'ready', summary });
-      },
-      (cause: unknown) => {
-        if (controller.signal.aborted) return;
-        setState({
-          request,
-          status: 'error',
-          summary: null,
-          error: financialReportError(cause),
-        });
-      },
-    );
-    return () => controller.abort();
+    let controller: AbortController;
+    function refresh() {
+      controller?.abort();
+      const current = new AbortController();
+      controller = current;
+      financialService.summary(months, current.signal).then(
+        (summary) => {
+          if (!current.signal.aborted) setState({ request, status: 'ready', summary });
+        },
+        (cause: unknown) => {
+          if (current.signal.aborted) return;
+          setState({
+            request,
+            status: 'error',
+            summary: null,
+            error: financialReportError(cause),
+          });
+        },
+      );
+    }
+    const visibleRefresh = () => {
+      if (document.visibilityState === 'visible') refresh();
+    };
+    refresh();
+    const timer = window.setInterval(visibleRefresh, 30_000);
+    window.addEventListener('focus', visibleRefresh);
+    document.addEventListener('visibilitychange', visibleRefresh);
+    return () => {
+      controller?.abort();
+      window.clearInterval(timer);
+      window.removeEventListener('focus', visibleRefresh);
+      document.removeEventListener('visibilitychange', visibleRefresh);
+    };
   }, [months, request]);
 
-  const current = state?.request === request ? state : { status: 'loading' as const, summary: null };
+  const current =
+    state?.request === request ? state : { status: 'loading' as const, summary: null };
   return { ...current, retry: () => setAttempt((n) => n + 1) };
 }

@@ -88,7 +88,8 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/reports': {
     title: 'Financial Reports',
-    subtitle: 'Your recorded figures, and PDF summaries you choose whether to share.',
+    subtitle:
+      'Track your farm income, expenses and cash flow, and download reports for loan applications.',
   },
   '/assistant': {
     title: 'AI Assistant',
