@@ -39,6 +39,20 @@ const {
 } = require('../lib/calculations/score-steps.ts');
 const { formatGhanaDate } = require('../lib/format.ts');
 
+test('the score is informational and cannot qualify or disqualify a farmer for a loan', () => {
+  const { checkEligibility } = require('../lib/calculations/loan.ts');
+  const { SCORE_EXPLANATION, LOAN_REVIEW_EXPLANATION } = require('../lib/loans/score-policy.ts');
+  const rules = { ...DEFAULT_CREDIT_CONFIG.eligibility, minScore: 850 };
+  const low = checkEligibility({ score: 300, records: [], rules, ghanaCard: 'verified' });
+  const high = checkEligibility({ score: 850, records: [], rules, ghanaCard: 'verified' });
+  assert.deepEqual(low, high, 'even a legacy score threshold cannot affect access');
+  assert.equal(checkEligibility({ score: 850, ghanaCard: 'pending' }).eligible, false);
+  assert.match(SCORE_EXPLANATION, /complete and consistent/);
+  assert.match(SCORE_EXPLANATION, /does not qualify or disqualify/);
+  assert.match(LOAN_REVIEW_EXPLANATION, /transaction history, supporting evidence/);
+  assert.match(LOAN_REVIEW_EXPLANATION, /does not guarantee approval/);
+});
+
 const profile = (over = {}) => ({
   name: 'Ama',
   phone: '0241234567',

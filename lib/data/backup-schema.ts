@@ -7,6 +7,15 @@ const id = z.string().min(1).max(160);
 const date = z.iso.date();
 const timestamp = z.iso.datetime({ offset: true });
 const money = z.number().nonnegative();
+// Restore editable transaction fields only. Verification decisions and receipt links cannot
+// be asserted by an imported file; the API creates fresh self-reported entries.
+const transactionFields = {
+  category: z.string().max(40).nullish(),
+  paymentMethod: z.string().max(80).nullish(),
+  externalReference: z.string().max(120).nullish(),
+  sourceType: z.enum(['farmer_entry', 'statement_upload']).optional(),
+  currency: z.literal('GHS').optional(),
+};
 export const backupProfileSchema = z
   .object({
     userId: id,
@@ -43,23 +52,27 @@ export const backupProfileSchema = z
       ctx.addIssue({ code: 'custom', path: ['gps'], message: 'Verified location is missing' });
   });
 const record = z.object({
+  ...transactionFields,
   id,
   userId: id,
-  type: z.enum(['income', 'expense', 'activity']),
-  description: z.string().max(120),
+  type: z.enum(['income', 'expense', 'activity', 'financing']),
+  direction: z.enum(['in', 'out']).nullish(),
+  description: z.string().max(300),
   crop: z.enum(CROPS),
   amount: money,
   date,
-  notes: z.string().max(500).optional(),
+  notes: z.string().max(1000).nullish(),
   createdAt: timestamp,
 });
 const momo = z.object({
+  ...transactionFields,
   id,
   userId: id,
   direction: z.enum(['in', 'out']),
   counterparty: z.string().max(160),
   amount: money,
-  reference: z.string().max(160),
+  reference: z.string().max(160).nullish(),
+  notes: z.string().max(1000).nullish(),
   network: z.enum(['MTN', 'Telecel', 'AirtelTigo']).optional(),
   date,
   createdAt: timestamp,

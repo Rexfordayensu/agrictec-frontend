@@ -10,6 +10,7 @@ import { useUiStore } from '@/store/ui-store';
 import { useModalStore } from '@/store/modal-store';
 import { initialPlatformState, usePlatformStore } from '@/store/platform-store';
 import { useSubscriptionStore } from '@/store/subscription-store';
+import { ApiError, isSignedOut } from '@/services/api';
 
 export {
   useAuthStore,
@@ -20,9 +21,9 @@ export {
   useSettingsStore,
 };
 
-/** Loads every user-data store in parallel. Await this before rendering the app shell. */
+/** Core farm/profile/settings are required; optional services fail within their own sections. */
 export async function loadAllStores(userId: string): Promise<void> {
-  await Promise.all([
+  const results = await Promise.allSettled([
     useFarmStore.getState().load(userId),
     useProfileStore.getState().load(userId),
     useChatStore.getState().load(userId),
@@ -32,6 +33,16 @@ export async function loadAllStores(userId: string): Promise<void> {
     usePlatformStore.getState().load(userId),
     useSubscriptionStore.getState().load(userId),
   ]);
+  for (const result of results) {
+    if (result.status === 'rejected' && (
+      isSignedOut(result.reason) ||
+      (result.reason instanceof ApiError && result.reason.code === 'maintenance')
+    )) throw result.reason;
+  }
+  for (const index of [0, 1, 3]) {
+    const result = results[index];
+    if (result.status === 'rejected') throw result.reason;
+  }
 }
 
 /**

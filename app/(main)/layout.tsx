@@ -11,6 +11,7 @@ import { AiCreditsWarning } from '@/components/subscription/ai-credits-warning';
 import { RecordFormModal } from '@/components/records/record-form-modal';
 import { DataLoader } from '@/components/providers/data-loader';
 import { SubscriptionSync } from '@/components/providers/subscription-sync';
+import { OptionalDataBoundary } from '@/components/providers/optional-data-boundary';
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
@@ -27,7 +28,7 @@ export default function MainLayout({ children }: { children: ReactNode }) {
               pt-3 = the top bar's sticky offset, so it starts level with the sidebar. */}
           <main className="min-w-0 flex-1 px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] min-[900px]:ml-[272px] min-[900px]:pt-3 min-[900px]:pb-16 md:px-8">
             <Topbar />
-            <PageContainer>{children}</PageContainer>
+            <PageContainer><OptionalDataBoundary>{children}</OptionalDataBoundary></PageContainer>
           </main>
           <MobileNav />
         </div>

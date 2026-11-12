@@ -7,6 +7,7 @@ import { useCredit, useLoanPath, type Credit } from '@/hooks/use-credit';
 import { RECORD_GRACE_DAYS } from '@/lib/calculations/credit-score';
 import { formatGhanaDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { SCORE_EXPLANATION, LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
 
 const MIN = 300;
 const MAX = 850;
@@ -61,9 +62,7 @@ function ScoreExplanation({ credit }: { credit: Credit }) {
           How your AgriCtec score works
         </h3>
         <p className={loanUi.sub}>
-          AgriCtec’s own measure of how complete and steady your records are, from 300 to 850. It is
-          not a credit bureau score and it never decides a loan: each lender sets its own
-          requirements.
+          {SCORE_EXPLANATION} {LOAN_REVIEW_EXPLANATION}
         </p>
       </div>
       {credit.factors.length > 0 && (
@@ -238,8 +237,7 @@ function ScorePanel({ credit }: { credit: Credit }) {
       </div>
 
       <p className="text-text-dim mt-5 text-xs leading-relaxed">
-        This is AgriCtec’s own measure of how complete and steady your farm records are. It is not a
-        credit bureau score, and it does not decide loans: each lender makes its own decision.
+        {SCORE_EXPLANATION}
       </p>
     </section>
   );

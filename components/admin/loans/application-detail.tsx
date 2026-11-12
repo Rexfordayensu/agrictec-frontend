@@ -1,5 +1,7 @@
 'use client';
 
+import { SCORE_EXPLANATION, LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { differenceInCalendarDays } from 'date-fns';
@@ -292,9 +294,10 @@ export function ApplicationDetail({ id }: { id: string }) {
               <CardHeader>
                 <div>
                   <CardTitle>AgriCtec score</CardTitle>
-                  <CardSub>At application, and today</CardSub>
+                  <CardSub>At application, and today. Informational only.</CardSub>
                 </div>
               </CardHeader>
+              <p className="text-text-mute mb-4 text-xs">{SCORE_EXPLANATION} {LOAN_REVIEW_EXPLANATION}</p>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-text-mute text-xs">Then</p>

@@ -12,6 +12,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useAuthStore } from '@/store/auth-store';
 import { useCreditStore } from '@/store/credit-store';
 import { useLoanStore } from '@/store/loan-store';
+import { SCORE_EXPLANATION, LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
 
 /**
  * The page once the API has answered GET /me/credit. Until then a placeholder, and if it fails
@@ -31,8 +32,7 @@ export function LoansView() {
       <LoansNotice />
       <LoanWorkspace />
       <p className="text-text-mute text-[11px] leading-relaxed">
-        Your AgriCtec score comes from your AgriCtec records. It is not a credit bureau score and
-        does not decide or guarantee a loan: each lender decides the amount, fees and terms.
+        {SCORE_EXPLANATION} {LOAN_REVIEW_EXPLANATION}
       </p>
       <GhanaCardModal open={ghanaCardOpen} onClose={() => setGhanaCardOpen(false)} />
     </div>

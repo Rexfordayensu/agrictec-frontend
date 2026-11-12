@@ -107,8 +107,9 @@ export function proxy(request: NextRequest) {
     return NextResponse.redirect(new URL('/admin', request.url));
   }
   if (pathname === ADMIN_LOGIN) {
-    // Open without any farmer session; an admin who is already signed in goes to the console.
-    return hasAdmin ? NextResponse.redirect(new URL('/admin', request.url)) : NextResponse.next();
+    // Cookie presence cannot prove the API still accepts the session. Keep sign-in reachable
+    // after an idle timeout, revocation or expiry, just like the farmer's sign-in page.
+    return NextResponse.next();
   }
 
   // ---- Farmer app ----
