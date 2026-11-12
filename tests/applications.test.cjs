@@ -91,3 +91,17 @@ test('the console has no way to approve a loan itself', () => {
   // A lender update always carries the lender's confirmation file.
   assert.match(review, /disabled=\{!proof \|\|/);
 });
+
+test('an application card shows how far it has got', () => {
+  const { applicationProgress, isOpenApplication } = require('../lib/loans/application-status.ts');
+  assert.deepEqual(applicationProgress('draft'), { done: 0, current: 0 });
+  assert.deepEqual(applicationProgress('in_review'), { done: 1, current: 1 });
+  assert.deepEqual(applicationProgress('changes_requested'), { done: 1, current: 1 });
+  assert.deepEqual(applicationProgress('approved_for_sending'), { done: 2, current: 2 });
+  assert.deepEqual(applicationProgress('documents_requested'), { done: 3, current: 3 });
+  assert.deepEqual(applicationProgress('approved_by_lender'), { done: 4, current: -1 });
+  assert.equal(isOpenApplication('draft'), false);
+  assert.equal(isOpenApplication('sent_to_lender'), true);
+  assert.equal(isOpenApplication('rejected_by_lender'), false);
+  assert.equal(isOpenApplication('withdrawn'), false);
+});

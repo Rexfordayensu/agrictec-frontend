@@ -3,6 +3,7 @@ import { useAuthStore } from '@/store/auth-store';
 import { useChatStore } from '@/store/chat-store';
 import { resetCreditStore, useCreditStore } from '@/store/credit-store';
 import { useFarmStore } from '@/store/farm-store';
+import { useApplicationsStore } from '@/store/applications-store';
 import { useLoanStore } from '@/store/loan-store';
 import { useProfileStore } from '@/store/profile-store';
 import { useSettingsStore } from '@/store/settings-store';
@@ -85,6 +86,7 @@ export function resetAllStores(): void {
     confirm: null,
     ghanaCardOpen: false,
   });
+  useApplicationsStore.getState().reset();
   resetCreditStore();
 }
 

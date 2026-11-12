@@ -3,6 +3,7 @@
 import { LoanActionLink } from '@/components/loans/loan-ui';
 import type { FactorKey, ScoreStep } from '@/lib/calculations/score-steps';
 import { cn } from '@/lib/utils';
+import type { ScoreFactor } from '@/services/loans.service';
 
 function barTone(value: number): string {
   if (value >= 75) return 'bg-accent';
@@ -17,14 +18,21 @@ function barTone(value: number): string {
 export function ScoreFactors({
   steps,
   bestKey,
+  details = [],
 }: {
   steps: ScoreStep[];
   bestKey: FactorKey | null;
+  /** The server's own wording of what each factor measures and how to raise it. */
+  details?: ScoreFactor[];
 }) {
   return (
     <ul className="space-y-4">
       {steps.map((factor) => {
         const best = factor.key === bestKey;
+        // The server names factors in snake_case (payment_history), the app in camelCase.
+        const about = details.find(
+          (d) => d.key.replace(/_/g, '').toLowerCase() === factor.key.toLowerCase(),
+        );
         return (
           <li
             key={factor.key}
@@ -52,6 +60,15 @@ export function ScoreFactors({
               />
             </div>
             <p className="text-text-mute mt-1 text-xs">{factor.help}</p>
+            {about && (
+              <details className="group mt-1">
+                <summary className="text-text-dim hover:text-text cursor-pointer text-[11px] font-semibold select-none">
+                  How it’s measured
+                </summary>
+                <p className="text-text-dim mt-1 text-xs">Measures: {about.measures}.</p>
+                <p className="text-text-mute mt-0.5 text-xs">To raise it: {about.improve}.</p>
+              </details>
+            )}
             {best && (
               <div className="mt-1 flex flex-wrap items-center gap-x-3">
                 <span className="bg-gold/15 text-ink-gold rounded-full px-2 py-0.5 text-[10px] font-semibold">

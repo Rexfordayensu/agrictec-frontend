@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { loansService, type CreditSummary } from '@/services/loans.service';
+import { useApplicationsStore } from '@/store/applications-store';
 import { useFarmStore } from '@/store/farm-store';
 import { usePlatformStore } from '@/store/platform-store';
 import { useProfileStore } from '@/store/profile-store';
@@ -53,6 +54,8 @@ export const resetCreditStore = () =>
 
 /** Several edits usually land together (a save touches more than one store): reload once. */
 const SETTLE_MS = 300;
+/** How often open pages re-read the server's figures. */
+const LIVE_REFRESH_MS = 60_000;
 let timer: ReturnType<typeof setTimeout> | undefined;
 
 function reloadSoon() {
@@ -80,4 +83,17 @@ if (typeof window !== 'undefined') {
     )
       reloadSoon();
   });
+
+  // What others change (AgriCtec reviewing an application, a lender's update, an admin's
+  // rules or lenders) shows without a page reload: refresh when the farmer comes back to the
+  // tab, and every minute while it is open.
+  const refreshLive = () => {
+    if (document.visibilityState !== 'visible') return;
+    reloadSoon();
+    const applications = useApplicationsStore.getState();
+    if (applications.status === 'ready') applications.load({ silent: true }).catch(() => {});
+    usePlatformStore.getState().refresh().catch(() => {});
+  };
+  document.addEventListener('visibilitychange', refreshLive);
+  setInterval(refreshLive, LIVE_REFRESH_MS);
 }

@@ -1,9 +1,9 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { recordedOnTime } from '@/lib/calculations/credit-score';
-import { bestScoreStep, scoreSteps } from '@/lib/calculations/score-steps';
+import { bestScoreStep, scoreSteps, withServerPoints } from '@/lib/calculations/score-steps';
 import { defaultLoanTab, loanPath, type LoanTab } from '@/lib/loans/loan-path';
+import { useApplicationsStore } from '@/store/applications-store';
 import { useCreditStore } from '@/store/credit-store';
 import { useFarmStore } from '@/store/farm-store';
 import { useLoanStore } from '@/store/loan-store';
@@ -13,18 +13,19 @@ import type { EligibilityIssueCode } from '@/types';
 
 /**
  * The farmer's credit as the API reports it (GET /me/credit and its eligibility check), with
- * the admin's live rules to put it in words. Null until the server has answered.
+ * the admin's live rules (GET /platform) to put it in words. Null until both have answered,
+ * so nothing is ever shown from built-in defaults.
  */
 export function useCredit() {
   const summary = useCreditStore((s) => s.summary);
   const gate = useCreditStore((s) => s.gate);
   const config = usePlatformStore((s) => s.creditConfig);
   const profile = useProfileStore((s) => s.profile);
+  const platformReady = usePlatformStore((s) => s.status === 'ready');
   const records = useFarmStore((s) => s.records);
-  const momo = useFarmStore((s) => s.momo);
-  if (!summary || !gate) return null;
+  if (!summary || !gate || !platformReady) return null;
 
-  const steps = scoreSteps(summary.credit, config, profile);
+  const steps = withServerPoints(scoreSteps(summary.credit, config, profile), summary.factors ?? []);
   const failing = new Set<EligibilityIssueCode>(gate.issues.map((issue) => issue.code));
   return {
     summary,
@@ -38,7 +39,7 @@ export function useCredit() {
     ready: gate.eligible && !summary.underReview,
     verifiedEntries: summary.evidence?.verified ?? 0,
     entriesWithEvidence: summary.evidence?.withEvidence ?? 0,
-    totalEntries: summary.evidence?.total ?? records.length + momo.length,
+    totalEntries: summary.evidence?.total ?? 0,
     verifiedShare: Number(summary.evidence?.verifiedShare ?? '0'),
     factors: summary.factors ?? [],
     missing: summary.missing ?? [],
@@ -46,10 +47,6 @@ export function useCredit() {
     rules: config.eligibility,
     steps,
     best: bestScoreStep(steps),
-    /** Saved entries logged too late to build the score (they still count towards profit). */
-    lateEntries:
-      records.filter((r) => !recordedOnTime(r)).length +
-      momo.filter((t) => !recordedOnTime(t)).length,
     ghanaCard: profile?.ghanaCard.status ?? 'not_provided',
     rejectedReason: profile?.ghanaCard.rejectedReason,
     recordCount: records.length,
@@ -68,7 +65,11 @@ export function useLoanTab(): LoanTab {
 
 /** The four steps to a loan for this farmer, and the first one still to do (-1: all done). */
 export function useLoanPath(credit: Credit | null) {
-  const applicationCount = useLoanStore((s) => s.applications.length);
+  // Applications prepared through AgriCtec: submitted ones count, drafts are "started".
+  const applicationCount = useApplicationsStore(
+    (s) => s.list.filter((a) => a.status !== 'draft' && a.status !== 'withdrawn').length,
+  );
+  const draftCount = useApplicationsStore((s) => s.list.filter((a) => a.status === 'draft').length);
   const lenderCount = usePlatformStore((s) => s.lenders.length);
   if (!credit) return null;
   const steps = loanPath({
@@ -80,6 +81,7 @@ export function useLoanPath(credit: Credit | null) {
     ghanaCard: credit.ghanaCard,
     underReview: credit.underReview,
     applicationCount,
+    draftCount,
     lenderCount,
   });
   return { steps, current: steps.findIndex((step) => !step.done) };

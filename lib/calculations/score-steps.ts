@@ -2,6 +2,16 @@ import { isProfileComplete, RECORD_GRACE_DAYS } from '@/lib/calculations/credit-
 import type { CreditScoreBreakdown, Profile } from '@/types';
 import type { CreditConfig } from '@/types/admin';
 
+/** One factor as GET /me/credit reports it (services/loans.service ScoreFactor). */
+export interface ServerFactor {
+  key: string;
+  label: string;
+  weight: number;
+  value: number;
+  points: number;
+  maxPoints: number;
+}
+
 export type FactorKey = Exclude<keyof CreditScoreBreakdown, 'score'>;
 
 /** The score runs from 300 to 850: 550 points shared out by the factor weights. */
@@ -110,4 +120,31 @@ export function scoreSteps(
 export function bestScoreStep(steps: ScoreStep[]): ScoreStep | null {
   const best = [...steps].sort((a, b) => b.available - a.available)[0];
   return best && best.available > 0 ? best : null;
+}
+
+/**
+ * The server's points for each factor (GET /me/credit), on the wording and links of
+ * scoreSteps: no factor's points are worked out in the browser. A factor the server did not
+ * report is left out rather than estimated.
+ */
+export function withServerPoints(
+  steps: ScoreStep[],
+  factors: readonly ServerFactor[],
+): ScoreStep[] {
+  const norm = (key: string) => key.replace(/_/g, '').toLowerCase();
+  return steps.flatMap((step) => {
+    const f = factors.find((factor) => norm(factor.key) === norm(step.key));
+    if (!f) return [];
+    return [
+      {
+        ...step,
+        label: f.label,
+        weight: f.weight,
+        value: f.value,
+        max: f.maxPoints,
+        earned: f.points,
+        available: Math.max(0, f.maxPoints - f.points),
+      },
+    ];
+  });
 }
