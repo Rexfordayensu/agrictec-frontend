@@ -1,5 +1,6 @@
 import { api } from '@/services/api';
 import type { MomoTransaction, NewMomoInput } from '@/types';
+import type { MomoSummary } from '@/types/momo-summary';
 
 // The API scopes every call to the signed-in farmer; `userId` is kept so callers don't change.
 
@@ -7,6 +8,11 @@ export const momoService = {
   /** Newest first, by date and then by creation time. */
   async list(_userId: string): Promise<MomoTransaction[]> {
     return api<MomoTransaction[]>('/me/momo');
+  },
+
+  /** Exact totals for the MoMo page, worked out by the server from the saved entries. */
+  async summary(signal?: AbortSignal): Promise<MomoSummary> {
+    return api<MomoSummary>('/me/momo/summary', { signal });
   },
 
   /** A missing reference stays unknown; no reference is invented. */
@@ -19,7 +25,10 @@ export const momoService = {
     id: string,
     patch: Partial<NewMomoInput>,
   ): Promise<MomoTransaction> {
-    return api<MomoTransaction>(`/me/momo/${encodeURIComponent(id)}`, { method: 'PATCH', body: patch });
+    return api<MomoTransaction>(`/me/momo/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      body: patch,
+    });
   },
 
   async remove(_userId: string, id: string): Promise<void> {

@@ -1,20 +1,15 @@
 import type { Metadata } from 'next';
-import { MomoContacts } from '@/components/momo/momo-contacts';
-import { MomoFlowChart } from '@/components/momo/momo-flow-chart';
-import { MomoHero } from '@/components/momo/momo-hero';
-import { MomoView } from '@/components/momo/momo-view';
+import { MomoOverview } from '@/components/momo/momo-overview';
+import { MomoTransactions } from '@/components/momo/momo-transactions';
 
 export const metadata: Metadata = { title: 'MoMo Transactions' };
 
+/** The farmer's Mobile Money: the server's totals (GET /me/momo/summary), then every entry. */
 export default function MomoPage() {
   return (
-    <div className="@container space-y-6">
-      <MomoHero />
-      <MomoView />
-      <div className="grid grid-cols-1 gap-6 @4xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <MomoFlowChart />
-        <MomoContacts />
-      </div>
+    <div className="@container space-y-4 sm:space-y-5">
+      <MomoOverview />
+      <MomoTransactions />
     </div>
   );
 }
