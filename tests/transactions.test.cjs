@@ -62,3 +62,19 @@ test('financing never contributes to farm income or expenses',()=>{
   const rows=[{type:'income',amount:100},{type:'expense',amount:20},{type:'financing',direction:'in',amount:999},{type:'financing',direction:'out',amount:888}];
   assert.equal(totalIncome(rows),100);assert.equal(totalExpenses(rows),20);
 });
+
+test('MoMo figures keep the server’s exact decimals and show a negative net clearly', () => {
+  const { formatSignedMoney } = require('../lib/transactions.ts');
+  assert.equal(formatSignedMoney('1200.50'), 'GHS 1,200.50');
+  assert.equal(formatSignedMoney('-100.00'), '−GHS 100.00');
+  assert.equal(formatSignedMoney('0.00'), 'GHS 0.00');
+});
+
+test('“vs last month” never breaks when there is nothing to compare with', () => {
+  const { vsLastMonth } = require('../lib/momo-display.ts');
+  // The API layer turns the server's null into undefined.
+  assert.equal(vsLastMonth(undefined, '0.00', '0.00'), 'Nothing last month');
+  assert.equal(vsLastMonth(null, '650.00', '0.00'), 'New this month');
+  assert.equal(vsLastMonth('54.58', '650.00', '420.50'), '+54.58% vs last month');
+  assert.equal(vsLastMonth('-100.00', '0.00', '180.00'), '-100.00% vs last month');
+});

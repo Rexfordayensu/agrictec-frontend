@@ -135,6 +135,25 @@ export function TransactionTools({
   );
 }
 
+/** The same evidence & history dialog, opened from elsewhere (e.g. a table row's menu). */
+export function TransactionReviewModal({
+  kind,
+  id,
+  open,
+  onClose,
+}: {
+  kind: 'farm' | 'momo';
+  id: string;
+  open: boolean;
+  onClose: () => void;
+}) {
+  return (
+    <Modal open={open} onClose={onClose} title="Transaction evidence & history">
+      {open && <TransactionDetail kind={kind} id={id} />}
+    </Modal>
+  );
+}
+
 function TransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) {
   const [item, setItem] = useState<TransactionItem>();
   const [error, setError] = useState('');

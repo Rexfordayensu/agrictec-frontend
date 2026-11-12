@@ -44,6 +44,13 @@ export function formatTransactionMoney(value: string, currency = 'GHS'): string 
   const [integer, fraction] = value.split('.');
   return `${currency} ${integer.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}${fraction === undefined ? '' : `.${fraction}`}`;
 }
+/** "GHS 1,200.50", or "−GHS 100.00" for a negative amount (the server's exact decimal text). */
+export function formatSignedMoney(value: string, currency = 'GHS'): string {
+  return value.startsWith('-')
+    ? `−${formatTransactionMoney(value.slice(1), currency)}`
+    : formatTransactionMoney(value, currency);
+}
+
 export function isPossibleDuplicate(error: unknown): boolean {
   return (
     typeof error === 'object' &&
