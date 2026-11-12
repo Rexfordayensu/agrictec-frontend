@@ -36,7 +36,6 @@ import { usePlatformStore } from '@/store/platform-store';
 import type { Crop, DiagnosisResult } from '@/types';
 import { useSubscriptionStore } from '@/store/subscription-store';
 import { useSubscription } from '@/hooks/use-subscription';
-import { AiUsageBanner } from '@/components/subscription/ai-usage-banner';
 
 const PHOTO_TIPS: { icon: LucideIcon; text: string }[] = [
   { icon: Sun, text: 'Natural daylight, no flash' },
@@ -172,7 +171,6 @@ export function CropDoctorView() {
 
   return (
     <>
-      <AiUsageBanner feature="cropDoctor" />
       <div className="grid grid-cols-1 items-start gap-6 @4xl:grid-cols-2">
         {/* Scanner */}
         <Card className="rounded-3xl">

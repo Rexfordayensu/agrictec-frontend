@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/layout/sidebar';
 import { Topbar } from '@/components/layout/topbar';
 import { MomoFormModal } from '@/components/momo/momo-form-modal';
 import { GhanaCardReminder } from '@/components/profile/ghana-card-reminder';
+import { AiCreditsWarning } from '@/components/subscription/ai-credits-warning';
 import { RecordFormModal } from '@/components/records/record-form-modal';
 import { DataLoader } from '@/components/providers/data-loader';
 import { SubscriptionSync } from '@/components/providers/subscription-sync';
@@ -35,6 +36,8 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         <MomoFormModal />
         {/* A minute after opening the app without a verified Ghana Card: a reminder to add it. */}
         <GhanaCardReminder />
+        {/* At 90% of the month's AI credits, and when they run out: an upgrade warning. */}
+        <AiCreditsWarning />
       </DataLoader>
     </>
   );

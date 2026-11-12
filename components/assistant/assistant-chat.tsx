@@ -10,10 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { useChatStore } from '@/store/chat-store';
-import { useAiCreditWarning } from '@/hooks/use-ai-credit-warning';
 
 export function AssistantChat() {
-  useAiCreditWarning();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
   const isTyping = useChatStore((state) => state.isTyping);

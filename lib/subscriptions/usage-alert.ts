@@ -1,14 +1,38 @@
+import { GHANA_TIME_ZONE } from '@/lib/format';
 import { storage } from '@/services/storage';
 import type { SubscriptionSnapshot } from '@/types/subscription';
 
 const shown = new Set<string>();
 
-export function aiUsageAlertId(userId: string, resetsAt: string) {
-  return `ai-usage-90:${userId}:${resetsAt}`;
+/** "low": 90% of the month's AI credits used. "finished": all of them. */
+export type AiUsageLevel = 'low' | 'finished';
+
+export interface AiUsageAlert {
+  id: string;
+  level: AiUsageLevel;
+  percentage: number;
+  title: string;
+  description: string;
 }
 
-/** One warning per account and monthly allowance, including after reloads on this device. */
-export function claimAiUsageAlert(snapshot: SubscriptionSnapshot) {
+export function aiUsageAlertId(userId: string, resetsAt: string, level: AiUsageLevel = 'low') {
+  return `ai-usage-${level === 'low' ? '90' : '100'}:${userId}:${resetsAt}`;
+}
+
+const resetDay = (resetsAt: string) =>
+  new Date(resetsAt).toLocaleDateString('en-GH', {
+    day: 'numeric',
+    month: 'short',
+    timeZone: GHANA_TIME_ZONE,
+  });
+
+/**
+ * The upgrade warning for the AI credit pop-up (components/subscription/ai-credits-warning.tsx):
+ * once at 90% and once when the credits are finished, per account and monthly allowance,
+ * remembered after reloads on this device. Null when there is nothing new to say (unlimited or
+ * no AI plan, below 90%, already shown, or an admin's read-only view).
+ */
+export function claimAiUsageAlert(snapshot: SubscriptionSnapshot): AiUsageAlert | null {
   const limit = snapshot.creditsLimit;
   if (
     typeof window === 'undefined' ||
@@ -20,15 +44,30 @@ export function claimAiUsageAlert(snapshot: SubscriptionSnapshot) {
     snapshot.creditsUsed / limit < 0.9
   )
     return null;
-  const id = aiUsageAlertId(snapshot.subscription.userId, snapshot.resetsAt);
+  const { userId } = snapshot.subscription;
+  const level: AiUsageLevel = snapshot.creditsUsed >= limit ? 'finished' : 'low';
+  const id = aiUsageAlertId(userId, snapshot.resetsAt, level);
   if (shown.has(id) || storage.get(id, false)) return null;
-  storage.set(id, true);
-  shown.add(id);
+  // Finished covers "nearly finished" too: the 90% warning never follows it this month.
+  const ids = level === 'finished' ? [id, aiUsageAlertId(userId, snapshot.resetsAt, 'low')] : [id];
+  for (const key of ids) {
+    storage.set(key, true);
+    shown.add(key);
+  }
   const percentage = Math.min(100, Math.floor((snapshot.creditsUsed / limit) * 100));
-  return {
-    id,
-    title:
-      percentage >= 100 ? 'Your AI credits are finished' : 'Your AI credits are nearly finished',
-    description: `You have used ${percentage}% of your monthly AI credits. ${snapshot.creditsRemaining ?? 0} credits remain. Would you like to upgrade your plan?`,
-  };
+  return level === 'finished'
+    ? {
+        id,
+        level,
+        percentage,
+        title: 'Your AI credits are finished',
+        description: `You have used all your monthly AI credits. Upgrade your plan to keep using the AI Assistant and Crop Doctor, or wait until your credits reset on ${resetDay(snapshot.resetsAt)}.`,
+      }
+    : {
+        id,
+        level,
+        percentage,
+        title: 'Your AI credits are nearly finished',
+        description: `You have used ${percentage}% of your monthly AI credits. ${snapshot.creditsRemaining ?? 0} credits remain. You can upgrade your plan to keep using the AI Assistant and Crop Doctor.`,
+      };
 }
