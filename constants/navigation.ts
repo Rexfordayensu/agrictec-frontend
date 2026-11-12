@@ -93,7 +93,8 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/assistant': {
     title: 'AI Assistant',
-    subtitle: 'Ask anything about farming, finance and loans.',
+    subtitle:
+      'Your smart farming companion. Get practical advice, plan your farm, track finances and prepare for loans.',
   },
   '/crop-doctor': {
     title: 'AI Crop Doctor',
