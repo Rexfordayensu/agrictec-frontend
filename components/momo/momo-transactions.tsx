@@ -61,6 +61,17 @@ const money = (n: number) =>
   n.toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const control =
   'border-border bg-glass text-text h-10 min-w-0 rounded-xl border px-3 text-sm focus:border-accent focus:outline-none';
+/** Name, reference, network, or the amount as typed ("100", "100.00", "1,070.50"). */
+function matches(t: MomoTransaction, query: string): boolean {
+  const q = query.trim().toLowerCase();
+  if (!q) return true;
+  const amount = q.replace(/,/g, '').replace(/^ghs\s*/, '');
+  if (/^\d+(\.\d{1,2})?$/.test(amount) && Number(amount) === t.amount) return true;
+  return [t.counterparty, t.reference ?? '', t.network ?? ''].some((f) =>
+    f.toLowerCase().includes(q),
+  );
+}
+
 const describe = (t: MomoTransaction) =>
   `${t.category ? categoryLabel(t.category) : 'Mobile Money'} / ${SOURCE_LABELS[t.sourceType ?? 'farmer_entry']}`;
 
@@ -84,9 +95,9 @@ export function MomoTransactions() {
   // Network, period, search and status apply to every tab; each tab then narrows further.
   const base = useMemo(
     () =>
-      filterMomo(momo, { ...DEFAULT_MOMO_FILTERS, network, period, query }).filter(
-        (t) => status === 'all' || (t.verificationStatus ?? 'self_reported') === status,
-      ),
+      filterMomo(momo, { ...DEFAULT_MOMO_FILTERS, network, period, query: '' })
+        .filter((t) => matches(t, query))
+        .filter((t) => status === 'all' || (t.verificationStatus ?? 'self_reported') === status),
     [momo, network, period, query, status],
   );
   const counts = {
@@ -171,10 +182,10 @@ export function MomoTransactions() {
   }
 
   const tabs: { value: Tab; label: string }[] = [
-    { value: 'all', label: 'All transactions' },
-    { value: 'in', label: 'Money in' },
-    { value: 'out', label: 'Money out' },
-    { value: 'verified', label: 'Verified' },
+    { value: 'all', label: 'All Transactions' },
+    { value: 'in', label: 'Money In' },
+    { value: 'out', label: 'Money Out' },
+    { value: 'verified', label: 'Verification' },
   ];
 
   return (
@@ -194,7 +205,7 @@ export function MomoTransactions() {
             className={cn(
               'min-h-10 shrink-0 rounded-full border px-4 text-sm font-semibold whitespace-nowrap transition-colors',
               tab === t.value
-                ? 'bg-accent border-transparent text-[#022c22]'
+                ? 'border-transparent bg-[#08784f] text-white'
                 : 'border-border bg-glass text-text-dim hover:text-text',
             )}
           >
@@ -225,7 +236,7 @@ export function MomoTransactions() {
                 loading={statementBusy}
                 onClick={() => void statement()}
               >
-                Download statement (PDF)
+                Download Statement (PDF)
               </Button>
               <Button
                 mutates
@@ -233,7 +244,7 @@ export function MomoTransactions() {
                 onClick={() => openModal('momo')}
                 className="@md:col-span-2 @2xl:col-span-1"
               >
-                New transaction
+                New Transaction
               </Button>
             </div>
           </div>
@@ -264,7 +275,7 @@ export function MomoTransactions() {
               onChange={(e) => reset(setNetwork)(e.target.value as NetworkFilter)}
               className={control}
             >
-              <option value="all">All networks</option>
+              <option value="all">All Networks</option>
               {MOMO_NETWORKS.map((n) => (
                 <option key={n} value={n}>
                   {n}
@@ -277,9 +288,9 @@ export function MomoTransactions() {
               onChange={(e) => reset(setTab)(e.target.value as DirectionFilter)}
               className={control}
             >
-              <option value="all">All types</option>
-              <option value="in">Money in</option>
-              <option value="out">Money out</option>
+              <option value="all">All Types</option>
+              <option value="in">Money In</option>
+              <option value="out">Money Out</option>
             </select>
             <select
               aria-label="Verification status"
@@ -287,7 +298,7 @@ export function MomoTransactions() {
               onChange={(e) => reset(setStatus)(e.target.value as StatusFilter)}
               className={control}
             >
-              <option value="all">Verification status</option>
+              <option value="all">Verification Status</option>
               {(Object.keys(TRANSACTION_STATUSES) as VerificationStatus[]).map((s) => (
                 <option key={s} value={s}>
                   {TRANSACTION_STATUSES[s]}
@@ -305,7 +316,7 @@ export function MomoTransactions() {
                 type="search"
                 value={search}
                 onChange={(e) => reset(setSearch)(e.target.value)}
-                placeholder="Search by name, reference or network…"
+                placeholder="Search by name, reference or amount..."
                 className={cn(control, 'w-full pl-9 [&::-webkit-search-cancel-button]:hidden')}
               />
               {search && (
@@ -371,7 +382,8 @@ export function MomoTransactions() {
                     </th>
                     <th className="px-4 py-3 font-semibold">Verification</th>
                     <th className="px-2 py-3 font-semibold">Reference</th>
-                    <th className="w-12 px-3 py-3">
+                    <th className="w-12 px-3 py-3 text-right">
+                      <MoreHorizontal size={18} aria-hidden="true" className="ml-auto" />
                       <span className="sr-only">Actions</span>
                     </th>
                   </tr>
@@ -410,7 +422,7 @@ export function MomoTransactions() {
                         <Status t={t} />
                       </td>
                       <td className="text-text-dim max-w-32 truncate px-2 py-3.5 text-xs">
-                        {t.reference || '—'}
+                        {t.reference || '-'}
                       </td>
                       <td className="px-3 py-3.5 text-right">
                         <RowMenu t={t} />
@@ -452,7 +464,12 @@ export function MomoTransactions() {
 
             <div className="border-border flex flex-wrap items-center justify-between gap-3 border-t px-4 py-3 sm:px-5">
               <p className="text-text-dim text-sm" aria-live="polite">
-                Showing {(current - 1) * PAGE_SIZE + 1}–{(current - 1) * PAGE_SIZE + shown.length}{' '}
+                Showing{' '}
+                <strong className="text-text font-semibold">
+                  {shown.length === 1
+                    ? (current - 1) * PAGE_SIZE + 1
+                    : `${(current - 1) * PAGE_SIZE + 1}–${(current - 1) * PAGE_SIZE + shown.length}`}
+                </strong>{' '}
                 of {rows.length} transaction{rows.length === 1 ? '' : 's'}
                 {filtered && (
                   <button
@@ -472,7 +489,7 @@ export function MomoTransactions() {
                 >
                   <ChevronLeft size={16} aria-hidden="true" />
                 </PageButton>
-                <span className="bg-accent inline-flex size-9 items-center justify-center rounded-lg text-sm font-bold text-[#022c22]">
+                <span className="inline-flex size-9 items-center justify-center rounded-lg bg-[#08784f] text-sm font-bold text-white">
                   {current}
                 </span>
                 {pages > 1 && <span className="text-text-mute text-xs">of {pages}</span>}

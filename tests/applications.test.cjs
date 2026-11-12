@@ -37,18 +37,46 @@ const { lenderFormSchema, emptyLenderForm, formToLenderInput } = require(
 const { ADMIN_NAV_ITEMS, getAdminPageMeta } = require('../constants/admin-navigation.ts');
 
 const read = (rel) => fs.readFileSync(path.join(root, rel), 'utf8');
-const backend = (rel) => fs.readFileSync(path.join(root, '..', 'backend', rel), 'utf8');
+// The backend repository, when it is checked out beside this one (a developer's machine).
+// CI checks out only this repository, so tests that read it are skipped there.
+const backendFile = path.join(root, '..', 'backend', 'app', 'services', 'loan_applications.py');
+const hasBackend = fs.existsSync(backendFile);
 
-test('every status the API can return has a look and a hint for the farmer', () => {
-  const source = backend('app/services/loan_applications.py');
-  const labels = source.slice(source.indexOf('STATUS_LABELS'), source.indexOf('}', source.indexOf('STATUS_LABELS')));
-  const statuses = [...labels.matchAll(/"([a-z_]+)":/g)].map((m) => m[1]);
-  assert.ok(statuses.length >= 12);
-  for (const status of statuses) {
+/** The statuses the API sends (backend app/services/loan_applications.py STATUS_LABELS). */
+const API_STATUSES = [
+  'draft',
+  'submitted',
+  'in_review',
+  'changes_requested',
+  'approved_for_sending',
+  'sent_to_lender',
+  'received_by_lender',
+  'under_lender_review',
+  'documents_requested',
+  'approved_by_lender',
+  'rejected_by_lender',
+  'withdrawn',
+];
+
+test('every application status has a look and a hint for the farmer', () => {
+  for (const status of API_STATUSES) {
     assert.ok(APPLICATION_STATUS[status], `missing ${status}`);
     assert.ok(APPLICATION_STATUS[status].farmerHint.length > 0);
   }
+  assert.deepEqual(Object.keys(APPLICATION_STATUS).sort(), [...API_STATUSES].sort());
 });
+
+test(
+  'the statuses match the backend’s list',
+  { skip: !hasBackend && 'the backend repository is not checked out beside this one' },
+  () => {
+    const source = fs.readFileSync(backendFile, 'utf8');
+    const start = source.indexOf('STATUS_LABELS');
+    const labels = source.slice(start, source.indexOf('}', start));
+    const statuses = [...labels.matchAll(/"([a-z_]+)":/g)].map((m) => m[1]);
+    assert.deepEqual([...statuses].sort(), [...API_STATUSES].sort());
+  },
+);
 
 test('lender progress is limited to what a lender can confirm', () => {
   assert.deepEqual(

@@ -73,7 +73,11 @@ test('MoMo figures keep the server’s exact decimals and show a negative net cl
 test('“vs last month” never breaks when there is nothing to compare with', () => {
   const { vsLastMonth } = require('../lib/momo-display.ts');
   // The API layer turns the server's null into undefined.
-  assert.equal(vsLastMonth(undefined, '0.00', '0.00'), 'Nothing last month');
+  assert.equal(vsLastMonth(undefined, '0.00', '0.00'), '+0% vs last month');
+  const { movedLabel } = require('../lib/momo-display.ts');
+  assert.equal(movedLabel(0, 1), 'Total Sent');
+  assert.equal(movedLabel(2, 0), 'Total Received');
+  assert.equal(movedLabel(2, 2), 'Total Moved');
   assert.equal(vsLastMonth(null, '650.00', '0.00'), 'New this month');
   assert.equal(vsLastMonth('54.58', '650.00', '420.50'), '+54.58% vs last month');
   assert.equal(vsLastMonth('-100.00', '0.00', '180.00'), '-100.00% vs last month');
