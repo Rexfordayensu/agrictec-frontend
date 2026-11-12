@@ -171,8 +171,9 @@ function WeatherPanel({
 
   if (compact)
     return (
-      <Card className="min-w-0 rounded-3xl">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      // Laid out by its own width: side by side when wide, stacked in a narrow column.
+      <Card className="@container h-full min-w-0 rounded-3xl">
+        <div className="flex h-full flex-col gap-4 @lg:flex-row @lg:items-center @lg:justify-between">
           <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
               {report ? (
@@ -220,7 +221,7 @@ function WeatherPanel({
           </div>
           <Link
             href={weatherHref}
-            className="border-border text-ink-green hover:bg-glass-strong inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-4 text-center text-sm font-semibold"
+            className="border-border text-ink-green hover:bg-glass-strong mt-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-4 text-center text-sm font-semibold @lg:mt-0"
           >
             View weather forecast
           </Link>

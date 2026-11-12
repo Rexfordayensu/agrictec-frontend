@@ -89,3 +89,31 @@ test('no income means no profit margin, and a loss stays negative', () => {
   assert.equal(loss.profit, -90);
   assert.equal(loss.margin, null);
 });
+
+test('the farm insight is a sentence about the server’s own figures, never sample data', () => {
+  const { farmInsight } = require('../lib/dashboard-insight.ts');
+  const base = {
+    months: 6,
+    income: 3700,
+    expenses: 750,
+    profit: 2950,
+    financialRecordCount: 4,
+    verifiedShare: { income: 0, expenses: 0, entries: 80 },
+    insufficient: false,
+    monthsWithRecords: 6,
+  };
+  assert.match(farmInsight({ ...base, financialRecordCount: 0 }), /Record your sales/);
+  assert.match(
+    farmInsight({ ...base, income: 100, expenses: 400, profit: -300 }),
+    /expenses \(GHS 400\) are higher than your income \(GHS 100\)/,
+  );
+  assert.match(
+    farmInsight({ ...base, verifiedShare: { ...base.verifiedShare, entries: 0 } }),
+    /0% of your entries are verified/,
+  );
+  assert.match(
+    farmInsight({ ...base, insufficient: true, monthsWithRecords: 2 }),
+    /cover 2 of the last 6 months/,
+  );
+  assert.match(farmInsight(base), /GHS 2,950 more than your expenses over the last 6 months/);
+});

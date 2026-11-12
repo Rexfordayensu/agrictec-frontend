@@ -1,159 +1,59 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
-import { ArrowRight, BookOpen, Sprout } from 'lucide-react';
-import { AiRecommendations } from '@/components/dashboard/ai-recommendations';
+import { ActivityTrend } from '@/components/dashboard/activity-trend';
 import { AnnouncementBanner } from '@/components/dashboard/announcement-banner';
 import { DashboardHero } from '@/components/dashboard/dashboard-hero';
-import { IncomeExpenseChart } from '@/components/dashboard/income-expense-chart';
 import { LoanReadinessCard } from '@/components/dashboard/loan-readiness-card';
-import { LoanReadinessPanel } from '@/components/dashboard/loan-readiness-panel';
+import { FarmInsight, NextSteps } from '@/components/dashboard/next-steps';
+import { OverviewStats } from '@/components/dashboard/overview-stats';
 import { QuickActions } from '@/components/dashboard/quick-actions';
-import { RecentActivity } from '@/components/dashboard/recent-activity';
-import { StatsRow } from '@/components/dashboard/stats-row';
+import { RecentTransactions } from '@/components/dashboard/recent-transactions';
 import { WeatherCard } from '@/components/market/weather-card';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { useFinancialSummary } from '@/hooks/use-financial-summary';
 import { fromFinancialSummary, type DashboardRange } from '@/lib/dashboard-summary';
-import { formatGHS, formatGhanaDate } from '@/lib/format';
-import { useFarmStore } from '@/store/farm-store';
 import './dashboard.css';
-import { LogoLoader } from '@/components/ui/logo-loader';
 
+/**
+ * The farmer's overview. Every figure is the server's: the score and readiness checklist
+ * (GET /me/credit), the period's totals and monthly trend (GET /me/financial-summary), and the
+ * farmer's own saved records, MoMo entries and profile. Nothing is sample data.
+ */
 export function FarmerDashboard() {
-  const records = useFarmStore((state) => state.records);
-  const momo = useFarmStore((state) => state.momo);
   const [range, setRange] = useState<DashboardRange>(6);
-  // The server's exact figures for the period; nothing is added up in the browser.
   const figures = useFinancialSummary(range);
   const summary =
     figures.summary && figures.summary.period.months === range
       ? fromFinancialSummary(figures.summary)
       : null;
-  const hasRecords = records.length > 0;
-  const hasActivity = hasRecords || momo.length > 0;
+  const error = figures.status === 'error' ? figures.error : null;
+
   return (
-    <div className="farmer-dashboard">
+    <div className="flex flex-col gap-4 sm:gap-5">
       <AnnouncementBanner />
       <DashboardHero />
-      <QuickActions />
-
-      {hasRecords ? (
-        <section aria-labelledby="farm-summary-title" className="farmer-dashboard-finances">
-          <div className="farmer-dashboard-section-heading">
-            <div>
-              <h2 id="farm-summary-title">Your farm at a glance</h2>
-              {summary ? (
-                <p>{`${summary.periodLabel} · through today`}</p>
-              ) : (
-                <LogoLoader size="sm" label="Loading your figures" />
-              )}
-            </div>
-            <div
-              role="group"
-              aria-label="Financial reporting period"
-              className="farmer-dashboard-period"
-            >
-              {([3, 6, 12] as const).map((months) => (
-                <button
-                  key={months}
-                  type="button"
-                  aria-pressed={range === months}
-                  onClick={() => setRange(months)}
-                >
-                  Last {months} months
-                </button>
-              ))}
-            </div>
-          </div>
-          {figures.status === 'error' && !summary ? (
-            <div role="alert" className="farmer-dashboard-footnote">
-              <p>{figures.error}</p>
-              <Button size="sm" variant="ghost" className="mt-2" onClick={figures.retry}>
-                Try again
-              </Button>
-            </div>
-          ) : !summary ? (
-            <Skeleton className="h-28 w-full rounded-2xl" />
-          ) : (
-            <>
-              <div aria-live="polite" aria-atomic="true">
-                <StatsRow summary={summary} />
-              </div>
-              <div className="farmer-dashboard-finance-footer">
-                <p>
-                  {summary.recordCount} farm record{summary.recordCount === 1 ? '' : 's'} in this
-                  period · {summary.verifiedShare.entries}% verified
-                </p>
-                <Link href="/momo">
-                  MoMo net: <strong>{formatGHS(summary.momoNet)}</strong>
-                  <ArrowRight size={14} aria-hidden="true" />
-                  <span className="sr-only">View mobile money transactions</span>
-                </Link>
-              </div>
-              <p className="farmer-dashboard-footnote">
-                MoMo is tracked separately and is not added to farm income.
-                {summary.insufficient &&
-                  ` Your records cover ${summary.monthsWithRecords} of these ${summary.months} months; nothing is projected.`}
-                {summary.dataAsOf && ` Updated ${formatGhanaDate(summary.dataAsOf)}.`}
-              </p>
-            </>
-          )}
-        </section>
-      ) : (
-        <section className="farmer-dashboard-welcome" aria-labelledby="first-record-title">
-          <div className="farmer-dashboard-welcome-icon">
-            <Sprout size={30} aria-hidden="true" />
-          </div>
-          <div>
-            <p className="farmer-dashboard-eyebrow">A SIMPLE PLACE TO START</p>
-            <h2 id="first-record-title">Every farm story starts with one record.</h2>
-            <p>
-              Record a sale, a cost, or work on your farm. Your financial picture will grow as you
-              add real activity.
-            </p>
-            <p className="farmer-dashboard-welcome-tip">
-              <BookOpen size={17} aria-hidden="true" />
-              For example: a maize sale, fertilizer, or planting.
-            </p>
-          </div>
-        </section>
-      )}
-
-      <div className="farmer-dashboard-grid" data-empty={!hasActivity}>
-        <RecentActivity className="farmer-dashboard-activity farmer-dashboard-panel" limit={4} />
-        {hasActivity && <AiRecommendations />}
-        {hasRecords &&
-          summary &&
-          (summary.financialRecordCount ? (
-            <IncomeExpenseChart summary={summary} />
-          ) : (
-            <section className="farmer-dashboard-trend farmer-dashboard-period-empty">
-              <BookOpen size={24} aria-hidden="true" />
-              <h2>No sales or expenses in this period</h2>
-              <p>
-                Your records are still saved. Choose a longer period, or use Add record to log a
-                sale or cost.
-              </p>
-              <Link href="/records" className="farmer-dashboard-text-link">
-                View all farm records
-                <ArrowRight size={16} aria-hidden="true" />
-              </Link>
-            </section>
-          ))}
-        {hasActivity && <LoanReadinessCard />}
-        <div className="farmer-dashboard-weather">
+      <OverviewStats summary={summary} />
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+        <ActivityTrend
+          summary={summary}
+          range={range}
+          onRange={setRange}
+          error={error}
+          onRetry={figures.retry}
+        />
+        <LoanReadinessCard />
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+        <RecentTransactions />
+        <QuickActions range={range} />
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+        <NextSteps />
+        <div className="min-w-0">
           <WeatherCard compact />
         </div>
+        <FarmInsight summary={summary} />
       </div>
-      {/* Evidence for lenders and the latest checks: separate from the record-keeping score. */}
-      {hasActivity && (
-        <LoanReadinessPanel
-          summary={figures.summary && figures.summary.period.months === range ? figures.summary : null}
-        />
-      )}
     </div>
   );
 }
