@@ -8,6 +8,7 @@ import { ACTIVE_STATUSES, type LoanAction } from '@/lib/loans/loan-path';
 import { cn } from '@/lib/utils';
 import { useLoanStore } from '@/store/loan-store';
 import { usePlatformStore } from '@/store/platform-store';
+import { LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
 
 const MIN = 300;
 const MAX = 850;
@@ -46,7 +47,7 @@ export function LoansHeader() {
     eyebrow = 'Applications paused';
     headline = 'Your account is being reviewed';
     detail =
-      'AgriCtec is checking your account. You can apply again once the review is complete. Meanwhile you can see lenders and keep building your score.';
+      'AgriCtec is checking your account. You can apply again once the review is complete. Meanwhile you can see lenders and keep your transaction history up to date.';
   } else if (active.length > 0) {
     eyebrow = 'Application in progress';
     headline =
@@ -62,12 +63,12 @@ export function LoansHeader() {
     eyebrow = 'Ghana Card reviewed';
     headline = 'See what lenders ask for';
     detail = lenderCount
-      ? 'Each lender sets its own requirements, shown with its loan products. Your AgriCtec score does not decide a loan.'
+      ? LOAN_REVIEW_EXPLANATION
       : 'No verified lenders are on AgriCtec yet. Keep your records up to date: they will be ready when lenders are.';
     action = lenderCount ? { label: 'See lenders', run: 'lenders' } : null;
   } else {
-    eyebrow = 'Getting loan ready';
-    headline = `${remaining} step${remaining === 1 ? '' : 's'} to ${applications.length ? 'your next' : 'your first'} loan`;
+    eyebrow = 'Preparing your records';
+    headline = `${remaining} preparation step${remaining === 1 ? '' : 's'} remaining`;
     detail = next ? `Next: ${next.title.toLowerCase()}. ${next.detail}.` : '';
     action = next?.action ?? null;
   }

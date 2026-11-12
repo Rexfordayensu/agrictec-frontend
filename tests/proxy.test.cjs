@@ -28,6 +28,21 @@ const { NextRequest } = require('next/server');
 
 const SECRET = 's3cret-shared-with-the-api';
 
+test('admin sign-in stays reachable with expired or revoked session cookies', () => {
+  for (const target of ['/admin-login', '/admin-login?reason=timeout', '/admin-login?next=%2Fadmin%2Ffarmers']) {
+    const response = proxy(new NextRequest('https://app.example.test' + target, {
+      headers: { cookie: 'agrictec_admin=expired; agrictec_role=super_admin' },
+    }));
+    assert.equal(response.status, 200, target);
+    assert.equal(response.headers.get('location'), null, target);
+  }
+  // Keeping sign-in open does not grant console access without an admin cookie.
+  const response = proxy(new NextRequest('https://app.example.test/admin/farmers'));
+  const target = new URL(response.headers.get('location'));
+  assert.equal(target.pathname, '/admin-login');
+  assert.equal(target.searchParams.get('next'), '/admin/farmers');
+});
+
 test('an expired farmer cookie cannot bounce sign-in back to a protected page', () => {
   for (const target of [
     '/login',

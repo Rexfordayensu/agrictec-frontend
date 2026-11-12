@@ -1,43 +1,45 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { financialReportError } from '@/lib/financial-report-state';
 import { financialService } from '@/services/financial.service';
 import { useFarmStore } from '@/store/farm-store';
 import type { FinancialSummary, ReportMonths } from '@/types/financial';
 
 type State =
-  | { status: 'loading'; summary: FinancialSummary | null }
-  | { status: 'ready'; summary: FinancialSummary }
-  | { status: 'error'; summary: FinancialSummary | null; error: string };
+  | { request: object; status: 'ready'; summary: FinancialSummary }
+  | { request: object; status: 'error'; summary: null; error: string };
 
 /**
  * The server's financial summary for a period. It is fetched again when the farmer's records
- * or MoMo entries change (the last answer stays on screen meanwhile), and never worked out here.
+ * or MoMo entries change. An earlier answer is hidden until the new request succeeds.
  */
 export function useFinancialSummary(months: ReportMonths) {
   const records = useFarmStore((s) => s.records);
   const momo = useFarmStore((s) => s.momo);
   const [attempt, setAttempt] = useState(0);
-  const [state, setState] = useState<State>({ status: 'loading', summary: null });
+  const request = useMemo(() => ({ months, records, momo, attempt }), [months, records, momo, attempt]);
+  const [state, setState] = useState<State | null>(null);
 
   useEffect(() => {
     const controller = new AbortController();
     financialService.summary(months, controller.signal).then(
       (summary) => {
-        if (!controller.signal.aborted) setState({ status: 'ready', summary });
+        if (!controller.signal.aborted) setState({ request, status: 'ready', summary });
       },
       (cause: unknown) => {
         if (controller.signal.aborted) return;
-        setState((current) => ({
+        setState({
+          request,
           status: 'error',
-          summary: current.summary,
+          summary: null,
           error: financialReportError(cause),
-        }));
+        });
       },
     );
     return () => controller.abort();
-  }, [months, records, momo, attempt]);
+  }, [months, request]);
 
-  return { ...state, retry: () => setAttempt((n) => n + 1) };
+  const current = state?.request === request ? state : { status: 'loading' as const, summary: null };
+  return { ...current, retry: () => setAttempt((n) => n + 1) };
 }

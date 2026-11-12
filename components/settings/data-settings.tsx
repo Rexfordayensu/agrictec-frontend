@@ -99,7 +99,8 @@ export function DataSettings() {
             <p className="text-text text-sm font-semibold">Export my data</p>
             <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
               Download a file with your profile, farm records, MoMo transactions, crop diagnoses,
-              assistant chat, settings and loan applications. Photo thumbnails are left out.
+              assistant chat, settings and loan applications. Photo thumbnails, receipts and
+              transaction review history are left out.
             </p>
           </div>
           <Button
@@ -129,7 +130,8 @@ export function DataSettings() {
             <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
               Restore an AgriCtec export: your profile, farm records, MoMo transactions and settings
               are replaced. Crop diagnoses, assistant chat, verifications and loan applications stay
-              as they are. The file is checked before anything changes.
+              as they are. Imported transactions become self-reported; receipts and transaction
+              reviews are not restored. The file is checked before anything changes.
             </p>
           </div>
           <Button
@@ -170,7 +172,7 @@ export function DataSettings() {
         title="Replace your current data?"
         message={
           pending
-            ? `Restore the backup from ${formatDate(pending.exportedAt)} with ${pending.records.length} farm records and ${pending.momo.length} MoMo transactions? Your current profile, records, MoMo and settings will be replaced. Crop diagnoses, assistant chat, verifications and loan applications stay as they are.`
+            ? `Restore the backup from ${formatDate(pending.exportedAt)} with ${pending.records.length} farm records and ${pending.momo.length} MoMo transactions? Your current profile, records, MoMo and settings will be replaced. Imported transactions become self-reported; receipts and transaction reviews are not restored. Crop diagnoses, assistant chat, identity verifications and loan applications stay as they are.`
             : ''
         }
         confirmLabel="Replace and import"
@@ -184,7 +186,7 @@ export function DataSettings() {
       <ConfirmDialog
         open={deleteOpen}
         title="Delete all your farm data?"
-        message="This removes your profile, records, MoMo, diagnoses, chat and settings from your account. Your Ghana Card status and loan applications stay on record. Export a backup first if you want to restore them later."
+        message="This removes your profile, records, MoMo, diagnoses, chat, settings and saved financial reports, including their PDF files, from your account. Your Ghana Card status and loan applications stay on record. Download any reports you want to keep and export a backup first."
         confirmLabel="Delete all data"
         danger
         loading={busy}

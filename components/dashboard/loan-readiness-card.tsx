@@ -6,6 +6,7 @@ import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { useCreditStore } from '@/store/credit-store';
 import { usePlatformStore } from '@/store/platform-store';
+import { SCORE_EXPLANATION, LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
 
 /** The API's credit summary (GET /me/credit): the same score and checklist as /loans. */
 export function LoanReadinessCard() {
@@ -19,8 +20,8 @@ export function LoanReadinessCard() {
     <Card className="farmer-dashboard-credit farmer-dashboard-panel">
       <CardHeader>
         <div>
-          <CardTitle>Credit readiness</CardTitle>
-          <CardSub>Based on all your records and profile</CardSub>
+          <CardTitle>Your record-keeping progress</CardTitle>
+          <CardSub>Completeness and consistency of your records</CardSub>
         </div>
         <ShieldCheck size={21} aria-hidden="true" className="text-ink-green" />
       </CardHeader>
@@ -41,9 +42,9 @@ export function LoanReadinessCard() {
           : 'Your preparation checklist is complete. Explore your credit details.'}
       </p>
       <Link href="/loans?tab=credit" className="farmer-dashboard-text-link">
-        View readiness details <ArrowRight size={16} aria-hidden="true" />
+        View record-keeping details <ArrowRight size={16} aria-hidden="true" />
       </Link>
-      <p className="farmer-dashboard-footnote">This score does not guarantee loan approval.</p>
+      <p className="farmer-dashboard-footnote">{SCORE_EXPLANATION} {LOAN_REVIEW_EXPLANATION}</p>
     </Card>
   );
 }
