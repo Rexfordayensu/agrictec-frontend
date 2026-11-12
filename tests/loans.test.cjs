@@ -136,7 +136,7 @@ test('the path to a loan has no score or amount threshold', () => {
     }),
   );
   assert.equal(starting[0].done, false);
-  assert.equal(starting[0].detail, '3 of 10 farm records (AgriCtec guidance)');
+  assert.equal(starting[0].detail, '3 of 10 records');
   assert.equal(starting[1].detail, 'No receipts or statements attached yet');
   // A card under review needs waiting, not another submission.
   assert.equal(starting[2].done, false);
@@ -148,9 +148,17 @@ test('the path to a loan has no score or amount threshold', () => {
   assert.equal(paused[3].action, null);
   assert.equal(paused[3].detail, 'Paused while your account is reviewed');
   // Never a lender that isn't there.
-  assert.equal(ready[3].detail, 'No verified lenders on AgriCtec yet');
-  assert.equal(loanPath(pathInput({ lenderCount: 2 }))[3].detail, '2 verified lenders on AgriCtec');
-  assert.deepEqual(ready[3].action, { label: 'See lenders', run: 'lenders' });
+  assert.equal(ready[3].detail, 'No lenders listed yet');
+  assert.equal(ready[3].action, null);
+  const withLenders = loanPath(pathInput({ lenderCount: 2 }));
+  assert.equal(withLenders[3].detail, '2 verified lenders on AgriCtec');
+  assert.deepEqual(withLenders[3].action, { label: 'See lenders', run: 'lenders' });
+  const started = loanPath(pathInput({ lenderCount: 2, draftCount: 1 }));
+  assert.equal(started[3].detail, 'Started: finish and submit it');
+  assert.deepEqual(started[3].action, { label: 'Continue your application', run: 'applications' });
+  const sent = loanPath(pathInput({ lenderCount: 2, applicationCount: 1 }));
+  assert.equal(sent[3].done, true);
+  assert.equal(sent[3].detail, '1 application submitted');
 });
 
 test('the page opens on the tab a link asks for, else on what the farmer can do now', () => {
@@ -312,4 +320,31 @@ test('transaction-based lender rules read plainly and financial ones need their 
     assert.ok(products.FINANCIAL_METRICS.has(metric), metric);
   assert.ok(!products.FINANCIAL_METRICS.has('ghana_card_verified'));
   assert.match(products.DSCR_METHOD, /existing monthly loan repayments/);
+});
+
+test('score factor points are the server’s, never worked out in the browser', () => {
+  const { withServerPoints } = require('../lib/calculations/score-steps.ts');
+  const step = (key) => ({
+    key,
+    label: key,
+    weight: 1,
+    value: 0,
+    max: 999,
+    earned: 999,
+    available: 0,
+    help: 'help',
+    href: '/records',
+    action: 'Act',
+  });
+  const steps = [step('paymentHistory'), step('momoActivity')];
+  const out = withServerPoints(steps, [
+    { key: 'payment_history', label: 'Payment history', weight: 30, value: 33, points: 54, maxPoints: 165 },
+  ]);
+  // A factor the server did not report is left out, not estimated.
+  assert.equal(out.length, 1);
+  assert.deepEqual(
+    [out[0].earned, out[0].max, out[0].available, out[0].value, out[0].weight],
+    [54, 165, 111, 33, 30],
+  );
+  assert.equal(out[0].action, 'Act');
 });

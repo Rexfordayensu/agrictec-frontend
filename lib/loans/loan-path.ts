@@ -45,7 +45,10 @@ export interface LoanPathInput {
   entriesWithEvidence: number;
   ghanaCard: GhanaCardStatus;
   underReview: boolean;
+  /** Applications submitted through AgriCtec (drafts not included). */
   applicationCount: number;
+  /** Applications started but not yet submitted. */
+  draftCount?: number;
   /** Lenders farmers can see right now (published, licence checked, listing authorised). */
   lenderCount: number;
 }
@@ -61,9 +64,10 @@ const plural = (n: number, word: string, many = `${word}s`) => `${n} ${n === 1 ?
 
 function applyDetail(input: LoanPathInput): string {
   if (input.underReview) return 'Paused while your account is reviewed';
-  if (input.applicationCount) return `${plural(input.applicationCount, 'application')} on record`;
+  if (input.applicationCount) return `${plural(input.applicationCount, 'application')} submitted`;
+  if (input.draftCount) return 'Started: finish and submit it';
   if (input.lenderCount) return `${plural(input.lenderCount, 'verified lender')} on AgriCtec`;
-  return 'No verified lenders on AgriCtec yet';
+  return 'No lenders listed yet';
 }
 
 /** The four steps from "no history" to "applied", in order. */
@@ -73,7 +77,7 @@ export function loanPath(input: LoanPathInput): PathStep[] {
     {
       key: 'records',
       title: 'Build your records',
-      detail: `${Math.min(input.recordCount, minRecords)} of ${minRecords} farm records (AgriCtec guidance)`,
+      detail: `${Math.min(input.recordCount, minRecords)} of ${minRecords} records`,
       done: input.recordCount >= minRecords,
       action: { label: 'Add records', href: '/records' },
     },
@@ -97,17 +101,23 @@ export function loanPath(input: LoanPathInput): PathStep[] {
     },
     {
       key: 'apply',
-      title: 'Apply to a lender',
+      title: 'Apply through AgriCtec',
       detail: applyDetail(input),
       done: applicationCount > 0,
-      action: underReview ? null : { label: 'See lenders', run: 'lenders' },
+      action: underReview
+        ? null
+        : input.draftCount && !applicationCount
+          ? { label: 'Continue your application', run: 'applications' }
+          : input.lenderCount
+            ? { label: 'See lenders', run: 'lenders' }
+            : null,
     },
   ];
 }
 
 /**
  * The tab /loans opens on: the one a link asked for, else "Lenders" for a farmer the server
- * says is ready, else "My credit" (what to do first).
+ * says is ready, else "Overview" (what to do first).
  */
 export function defaultLoanTab(requested: string | null, ready: boolean): LoanTab {
   if (requested && (LOAN_TABS as readonly string[]).includes(requested))

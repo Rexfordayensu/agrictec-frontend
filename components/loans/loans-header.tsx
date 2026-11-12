@@ -1,14 +1,16 @@
 'use client';
 
-import { ChevronRight } from 'lucide-react';
+import type { ReactNode } from 'react';
 import { LoanActionButton, loanUi } from '@/components/loans/loan-ui';
+import { StatementDownload } from '@/components/loans/statement-download';
 import { useCredit, useLoanPath, useLoanTab } from '@/hooks/use-credit';
-import { LOAN_STATUS_LABELS } from '@/lib/admin/loan-status';
-import { ACTIVE_STATUSES, type LoanAction } from '@/lib/loans/loan-path';
+import { isOpenApplication } from '@/lib/loans/application-status';
+import type { LoanAction } from '@/lib/loans/loan-path';
 import { cn } from '@/lib/utils';
+import { useApplicationsStore } from '@/store/applications-store';
 import { useLoanStore } from '@/store/loan-store';
 import { usePlatformStore } from '@/store/platform-store';
-import { LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
+import type { ApplicationStatus, ApplicationSummary } from '@/types/applications';
 
 const MIN = 300;
 const MAX = 850;
@@ -20,144 +22,189 @@ const BAND_TONE: Record<string, string> = {
   Excellent: 'bg-accent',
 };
 
+const AT_AGRICTEC: ApplicationStatus[] = ['submitted', 'in_review', 'approved_for_sending'];
+
+/** The status card's one button, or the transaction-history download when no lender is listed. */
+type Next = LoanAction | 'statement' | null;
+
 /**
- * Where the farmer stands, in one sentence and one next step, then the three numbers that
- * matter. Everything comes from the API's credit summary and the farmer's applications.
+ * The top of /loans: what to do now (a short headline, one line, one button), then three
+ * numbers. Driven by the farmer's applications, Ghana Card and whether lenders are listed.
  */
 export function LoansHeader() {
   const credit = useCredit();
   const path = useLoanPath(credit);
-  const applications = useLoanStore((s) => s.applications);
-  const setTab = useLoanStore((s) => s.setTab);
+  const applications = useApplicationsStore((s) => s.list);
   const lenderCount = usePlatformStore((s) => s.lenders.length);
   const tab = useLoanTab();
   if (!credit || !path) return null;
 
-  const lenderName = (app: { partnerName?: string }) => app.partnerName ?? 'the lender';
-  const active = applications.filter((a) => ACTIVE_STATUSES.includes(a.status));
-  const latest = applications[0];
+  const open = applications.filter((a) => isOpenApplication(a.status));
+  const draft = applications.find((a) => a.status === 'draft');
+  const latest = applications.find((a) => a.status !== 'draft');
   const remaining = path.steps.filter((s) => !s.done && s.key !== 'apply').length;
   const next = path.current >= 0 ? path.steps[path.current] : null;
+  const lender = (a: ApplicationSummary) => a.lenderName ?? 'the lender';
+  const go = (a: ApplicationSummary, label: string): LoanAction => ({
+    label,
+    href: `/loans/applications/${a.id}`,
+  });
 
-  let eyebrow: string;
   let headline: string;
   let detail: string;
-  let action: LoanAction | null = null;
+  let action: Next = null;
+  let attention = false;
   if (credit.underReview) {
-    eyebrow = 'Applications paused';
-    headline = 'Your account is being reviewed';
-    detail =
-      'AgriCtec is checking your account. You can apply again once the review is complete. Meanwhile you can see lenders and keep your transaction history up to date.';
-  } else if (active.length > 0) {
-    eyebrow = 'Application in progress';
-    headline =
-      active.length === 1
-        ? `Your application is with ${lenderName(active[0])}`
-        : `${active.length} applications in progress`;
-    detail =
-      active.length === 1
-        ? `Status: ${LOAN_STATUS_LABELS[active[0].status].toLowerCase()}. We'll notify you when the lender updates it.`
-        : 'We will notify you when a lender updates one of them.';
-    action = { label: 'Track application', run: 'applications' };
+    attention = true;
+    headline = 'Your account is under review';
+    detail = 'You can apply again once AgriCtec finishes.';
+  } else if (open.length > 0) {
+    const app = open[0];
+    if (app.status === 'changes_requested' || app.status === 'documents_requested') {
+      attention = true;
+      headline =
+        app.status === 'changes_requested' ? 'Update your application' : 'Send more documents';
+      detail = `${app.status === 'changes_requested' ? 'AgriCtec' : lender(app)} needs something from you.`;
+      action = go(app, 'Open application');
+    } else if (AT_AGRICTEC.includes(app.status)) {
+      headline = 'AgriCtec is checking your application';
+      detail = `${app.productName ?? 'Your loan'} · ${lender(app)}. We’ll notify you.`;
+      action = go(app, 'Track');
+    } else {
+      headline = `Your application is with ${lender(app)}`;
+      detail = `${app.statusLabel}. We’ll notify you of any update.`;
+      action = go(app, 'Track');
+    }
+  } else if (draft && credit.ready) {
+    headline = 'Finish your application';
+    detail = `${draft.productName ?? 'Loan'} · ${lender(draft)}`;
+    action = go(draft, 'Continue');
+  } else if (credit.ready && lenderCount > 0) {
+    headline = 'You’re ready to apply';
+    detail = 'Pick a loan product from a verified lender.';
+    action = { label: 'See lenders', run: 'lenders' };
   } else if (credit.ready) {
-    eyebrow = 'Ghana Card reviewed';
-    headline = 'See what lenders ask for';
-    detail = lenderCount
-      ? LOAN_REVIEW_EXPLANATION
-      : 'No verified lenders are on AgriCtec yet. Keep your records up to date: they will be ready when lenders are.';
-    action = lenderCount ? { label: 'See lenders', run: 'lenders' } : null;
+    headline = 'No lenders listed yet';
+    detail = 'Take your transaction history to a bank yourself.';
+    action = 'statement';
   } else {
-    eyebrow = 'Preparing your records';
-    headline = `${remaining} preparation step${remaining === 1 ? '' : 's'} remaining`;
-    detail = next ? `Next: ${next.title.toLowerCase()}. ${next.detail}.` : '';
+    attention = true;
+    headline = `${remaining} step${remaining === 1 ? '' : 's'} to get loan-ready`;
+    detail = next ? `Next: ${next.title}` : '';
     action = next?.action ?? null;
   }
 
   // No button that only reopens the tab already on screen.
   const opensCurrentTab =
-    action !== null &&
-    'run' in action &&
-    ((action.run === 'lenders' && tab === 'lenders') ||
-      (action.run === 'applications' && tab === 'applications'));
+    action !== null && typeof action === 'object' && 'run' in action && action.run === tab;
   const pct = ((Math.min(MAX, Math.max(MIN, credit.score)) - MIN) / (MAX - MIN)) * 100;
+  const submitted = applications.filter((a) => a.status !== 'draft').length;
 
   return (
-    <header className="flex flex-col gap-5">
-      <div className="flex flex-col gap-4 @xl:flex-row @xl:items-center @xl:justify-between @xl:gap-6">
-        <div className="min-w-0">
-          <p className={cn(loanUi.eyebrow, credit.underReview && 'text-ink-gold')}>{eyebrow}</p>
-          <h2 className="text-text mt-2 text-[clamp(24px,3vw,32px)] leading-tight font-semibold tracking-[-0.6px] wrap-break-word">
-            {headline}
-          </h2>
-          {detail && (
-            <p className="text-text-dim mt-2 max-w-2xl text-sm leading-relaxed">{detail}</p>
+    <header className="flex flex-col gap-3">
+      <section
+        aria-labelledby="loans-status-title"
+        className={cn(
+          'rounded-card border p-4 sm:p-5',
+          attention ? 'border-gold/35 bg-gold/8' : 'border-accent/30 bg-accent/6',
+        )}
+      >
+        <div className="flex flex-col gap-3 @xl:flex-row @xl:items-center @xl:justify-between @xl:gap-6">
+          <div className="min-w-0">
+            <h2
+              id="loans-status-title"
+              className="text-text text-[clamp(20px,2.6vw,26px)] leading-tight font-semibold tracking-[-0.5px] wrap-break-word"
+            >
+              {headline}
+            </h2>
+            {detail && <p className="text-text-dim mt-1 text-sm">{detail}</p>}
+          </div>
+          {action === 'statement' ? (
+            <StatementDownload compact />
+          ) : (
+            action &&
+            !opensCurrentTab && <LoanActionButton action={action} className="w-full @xl:w-auto" />
           )}
         </div>
-        {action && !opensCurrentTab && (
-          <LoanActionButton action={action} className="w-full @xl:w-auto" />
-        )}
-      </div>
+      </section>
 
-      <dl className="border-border bg-glass rounded-card grid grid-cols-2 overflow-hidden border @3xl:grid-cols-3">
-        <div className="border-border min-w-0 border-r p-4 sm:p-5">
-          <dt className="text-text-dim text-xs font-semibold">AgriCtec score</dt>
-          <dd className="mt-1.5">
-            <p className="text-text text-[28px] leading-none font-semibold tracking-[-0.6px] tabular-nums">
-              {credit.score}
-              <span className="text-text-mute text-sm font-normal tracking-normal"> / {MAX}</span>
-            </p>
+      <dl className="grid grid-cols-3 gap-2 sm:gap-3">
+        <Tile label="Score">
+          <Big>{credit.score}</Big>
+          <div
+            role="img"
+            aria-label={`${credit.score} on a scale from ${MIN} to ${MAX}: ${credit.band}`}
+            className="bg-glass-strong mt-2 h-1 overflow-hidden rounded-full"
+          >
             <div
-              role="img"
-              aria-label={`${credit.score} on a scale from ${MIN} to ${MAX}: ${credit.band}`}
-              className="bg-glass-strong mt-3 h-1.5 overflow-hidden rounded-full"
-            >
-              <div
-                className={cn('h-full rounded-full', BAND_TONE[credit.band] ?? 'bg-accent')}
-                style={{ width: `${pct}%` }}
-              />
-            </div>
-            <p className="text-text-mute mt-2 text-xs">{credit.band}</p>
-          </dd>
-        </div>
-        <div className="border-border min-w-0 p-4 sm:p-5 @3xl:border-r">
-          <dt className="text-text-dim text-xs font-semibold">Verified entries</dt>
-          <dd className="mt-1.5">
-            <p className="text-ink-green text-[22px] leading-tight font-semibold tabular-nums @lg:text-[28px] @lg:leading-none">
+              className={cn('h-full rounded-full', BAND_TONE[credit.band] ?? 'bg-accent')}
+              style={{ width: `${pct}%` }}
+            />
+          </div>
+          <Small>{credit.band}</Small>
+        </Tile>
+        <Tile label="Records">
+          <Big>{credit.totalEntries}</Big>
+          <Small>
+            <span className="text-ink-green font-semibold">
               {Math.round(credit.verifiedShare)}%
-            </p>
-            <p className="text-text-mute mt-2 text-xs leading-relaxed">
-              {credit.verifiedEntries} of {credit.totalEntries} entries checked by AgriCtec from
-              evidence
-            </p>
-          </dd>
-        </div>
-        <div className="border-border col-span-2 min-w-0 border-t @3xl:col-span-1 @3xl:border-t-0">
-          <dt className="sr-only">Applications</dt>
-          <dd className="h-full">
-            <button
-              type="button"
-              onClick={() => setTab('applications')}
-              className="hover:bg-glass-strong flex h-full w-full items-center gap-3 p-4 text-left transition-colors sm:p-5"
-            >
-              <span className="min-w-0 flex-1">
-                <span className="text-text-dim block text-xs font-semibold" aria-hidden="true">
-                  Applications
-                </span>
-                <span className="text-text mt-1.5 block text-[22px] leading-none font-semibold tabular-nums @lg:text-[28px]">
-                  {applications.length || 'None'}
-                  <span className="sr-only"> applications</span>
-                </span>
-                <span className="text-text-mute mt-2 block truncate text-xs">
-                  {latest
-                    ? `Latest: ${LOAN_STATUS_LABELS[latest.status]} · ${lenderName(latest)}`
-                    : 'Applications you send appear here'}
-                </span>
-              </span>
-              <ChevronRight size={18} aria-hidden="true" className="text-text-mute shrink-0" />
-            </button>
-          </dd>
-        </div>
+            </span>{' '}
+            verified
+          </Small>
+        </Tile>
+        <ApplicationsTile latest={latest} count={submitted} />
       </dl>
     </header>
+  );
+}
+
+const Big = ({ children }: { children: ReactNode }) => (
+  <span className="text-text block text-[22px] leading-none font-semibold tracking-[-0.5px] tabular-nums sm:text-[26px]">
+    {children}
+  </span>
+);
+
+const Small = ({ children }: { children: ReactNode }) => (
+  <span className="text-text-mute mt-1.5 block truncate text-[11px] sm:text-xs">{children}</span>
+);
+
+function Tile({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <div className="border-border bg-glass rounded-card min-w-0 border p-3 sm:p-4">
+      <dt className="text-text-dim text-[11px] font-semibold sm:text-xs">{label}</dt>
+      <dd className="mt-1.5">{children}</dd>
+    </div>
+  );
+}
+
+function ApplicationsTile({ latest, count }: { latest?: ApplicationSummary; count: number }) {
+  const setTab = useLoanStore((s) => s.setTab);
+  return (
+    <div className="border-border bg-glass rounded-card min-w-0 border">
+      <dt className="sr-only">Applications</dt>
+      <dd className="h-full">
+        <button
+          type="button"
+          onClick={() => setTab('applications')}
+          className="hover:bg-glass-strong rounded-card flex h-full w-full flex-col items-start p-3 text-left transition-colors sm:p-4"
+        >
+          <span
+            className="text-text-dim block text-[11px] font-semibold sm:text-xs"
+            aria-hidden="true"
+          >
+            Applications
+          </span>
+          <span className="mt-1.5 block">
+            <Big>
+              {count}
+              <span className="sr-only"> submitted</span>
+            </Big>
+          </span>
+          <span className={cn(loanUi.sub, 'mt-1.5 block truncate text-[11px] sm:text-xs')}>
+            {latest ? latest.statusLabel : 'None yet'}
+          </span>
+        </button>
+      </dd>
+    </div>
   );
 }

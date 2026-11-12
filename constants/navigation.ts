@@ -103,7 +103,7 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/loans': {
     title: 'Loans & Credit',
-    subtitle: 'Your AgriCtec score, verified lenders and your loan applications.',
+      subtitle: 'Track your financial health, prepare your records, and apply through verified lenders.',
   },
   '/market': {
     title: 'Market Prices',
