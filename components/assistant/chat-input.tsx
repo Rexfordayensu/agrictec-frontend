@@ -2,7 +2,9 @@
 
 import { READ_ONLY_MESSAGE, useReadOnly } from '@/lib/read-only';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { ArrowUp, CornerDownLeft, Mic, Square } from 'lucide-react';
+import Link from 'next/link';
+import { CornerDownLeft, Info, Mic, Paperclip, SendHorizontal, Square } from 'lucide-react';
+import { usePlatformStore } from '@/store/platform-store';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useChatStore } from '@/store/chat-store';
@@ -19,6 +21,7 @@ export function ChatInput() {
   const { snapshot, allows } = useSubscription();
   const sendMessage = useChatStore((state) => state.sendMessage);
   const readOnly = useReadOnly();
+  const cropDoctor = usePlatformStore((state) => state.flags.cropDoctor);
   const inputRef = useRef<HTMLInputElement>(null);
   const restoreFocus = useRef(false);
   const disabled =
@@ -83,13 +86,25 @@ export function ChatInput() {
   }
 
   return (
-    <form onSubmit={send}>
+    <form onSubmit={send} className="assistant-input">
       <div className="border-border bg-bg-2/60 focus-within:border-accent/50 focus-within:ring-accent/10 flex items-center gap-2 rounded-2xl border p-2 transition-shadow focus-within:ring-2">
+        {cropDoctor && (
+          <Link
+            href="/crop-doctor"
+            aria-label="Add a crop photo (opens AI Crop Doctor)"
+            title="Add a crop photo in AI Crop Doctor"
+            className="text-text-mute hover:bg-glass-strong hover:text-text inline-flex size-10 shrink-0 items-center justify-center rounded-xl"
+          >
+            <Paperclip size={18} aria-hidden="true" />
+          </Link>
+        )}
         <Input
           ref={inputRef}
           aria-label="Message the assistant"
           aria-describedby={text.length > 400 ? 'chat-character-count' : undefined}
-          placeholder={readOnly ? READ_ONLY_MESSAGE : 'Ask about your farm…'}
+          placeholder={
+            readOnly ? READ_ONLY_MESSAGE : 'Ask a question about your farm, finances or loans...'
+          }
           value={text}
           maxLength={500}
           disabled={disabled || readOnly || listening}
@@ -119,22 +134,26 @@ export function ChatInput() {
         </Button>
         <Button
           type="submit"
-          icon={ArrowUp}
+          icon={SendHorizontal}
           mutates
           aria-label="Send message"
           disabled={disabled || listening || !text.trim()}
-          className="size-10 min-h-10 shrink-0 rounded-xl px-0"
+          className="size-12 min-h-12 shrink-0 rounded-xl px-0"
         >
           <span className="sr-only">Send</span>
         </Button>
       </div>
-      <p role="status" aria-live="polite" className="text-text-dim mt-2 text-[11px]">
-        {listening
-          ? 'Listening… Speak in English, then press stop to review your question.'
-          : 'Tap the microphone to speak. Review the text before sending.'}
-      </p>
-      <div className="text-text-mute mt-2.5 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[10px]">
-        <p>Guidance for your farm. Confirm local conditions.</p>
+      {listening && (
+        <p role="status" aria-live="polite" className="text-text-dim mt-2 text-[11px]">
+          Listening… Speak in English, then press stop to review your question.
+        </p>
+      )}
+      <div className="text-text-mute mt-3 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-xs">
+        <p className="flex items-center gap-1.5">
+          <Info size={14} aria-hidden="true" className="shrink-0" />
+          Answers are for guidance only. Always consider advice from a qualified agricultural or
+          financial professional.
+        </p>
         {text.length > 400 ? (
           <p id="chat-character-count" className="tabular-nums">
             {text.length}/500 characters

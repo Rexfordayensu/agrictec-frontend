@@ -1,0 +1,418 @@
+.assistant-reference {
+  width: 100%;
+  min-width: 0;
+}
+.assistant-reference :is(h2, h3) {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.5px;
+}
+.assistant-layout {
+  grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.assistant-main {
+  min-width: 0;
+}
+.assistant-main > :not(:last-child) {
+  margin-bottom: 15px;
+}
+.assistant-reference .shadow-glass {
+  box-shadow:
+    0 3px 6px #244c6305,
+    0 8px 18px #244c6308;
+}
+.assistant-hero {
+  min-height: 142px;
+  border-radius: 18px;
+  padding: 17px 25px 19px;
+  background: linear-gradient(110deg, #005e52, #007346) !important;
+}
+.assistant-hero h2 {
+  font-size: 36px;
+  font-weight: 800;
+  line-height: 1.25;
+  letter-spacing: -0.8px;
+}
+.assistant-hero p {
+  max-width: 540px;
+  font-size: 16px;
+  line-height: 1.6;
+  font-weight: 550;
+  margin-top: 8px;
+}
+.assistant-hero > svg {
+  width: 51%;
+}
+.assistant-chat {
+  height: 738px;
+  min-height: 680px;
+  border-radius: 21px;
+}
+.assistant-chat::before {
+  display: none;
+}
+.assistant-chat > div:first-child {
+  padding: 14px 16px 14px;
+}
+.assistant-help h2 {
+  font-size: 22px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+.assistant-help > div {
+  margin-top: 13px;
+}
+.assistant-topic-row {
+  gap: 14px;
+  padding-bottom: 1px;
+}
+.assistant-topic-row > button {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex: 0 0 calc((100% - 42px) / 4);
+  min-width: 0;
+  width: auto;
+  border-radius: 15px;
+  padding: 12px 15px;
+  min-height: 158px;
+  align-self: stretch;
+  vertical-align: top;
+}
+.assistant-topic-row > button:disabled {
+  opacity: 1;
+}
+.assistant-topic-row > button > span:first-child {
+  width: 38px;
+  height: 40px;
+  background: color-mix(in srgb, var(--icon) 10%, transparent);
+}
+.assistant-topic-row > button > span:nth-child(2) {
+  margin-top: 7px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.assistant-topic-row > button > span:last-child {
+  font-size: 13px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+.assistant-help > div > button {
+  width: 38px;
+  height: 38px;
+  right: -7px;
+  box-shadow: 0 2px 5px #284d5710;
+}
+.assistant-conversation {
+  padding: 28px 24px;
+}
+.assistant-welcome {
+  gap: 12px;
+}
+.assistant-welcome > span {
+  width: 38px;
+  height: 38px;
+  margin-top: 9px;
+}
+.assistant-welcome > div {
+  width: auto;
+  max-width: calc(100% - 50px);
+  padding: 12px 16px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  border: 0;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--bg-2) 65%, var(--glass));
+}
+.assistant-welcome ul {
+  margin-top: 10px;
+}
+.assistant-welcome li {
+  margin: 0;
+  line-height: 1.65;
+}
+.assistant-chat > .assistant-composer {
+  padding: 0 17px 16px;
+}
+.assistant-input > div:first-child {
+  padding: 6px;
+  gap: 7px;
+  min-height: 62px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--bg-2) 55%, var(--glass));
+}
+.assistant-input input {
+  font-size: 13px;
+  height: 46px;
+  padding-left: 7px;
+}
+.assistant-input a {
+  width: 38px;
+  height: 38px;
+  background: var(--glass-strong);
+}
+.assistant-input button[type='submit'] {
+  background: linear-gradient(135deg, #00a75e, #008829);
+  width: 51px;
+  height: 48px;
+  color: white;
+  box-shadow: none;
+}
+.assistant-input button[type='submit'] svg {
+  transform: rotate(-25deg);
+}
+.assistant-input > div:last-child {
+  font-size: 11px;
+  margin-top: 11px;
+}
+.assistant-input > div:last-child > span {
+  display: none;
+}
+.assistant-sidebar {
+  min-width: 0;
+}
+.assistant-sidebar > section {
+  padding: 16px;
+  border-radius: 20px;
+  margin-bottom: 19px;
+}
+.assistant-sidebar > section h2 {
+  font-size: 19px;
+  line-height: 1.4;
+  font-weight: 760;
+}
+.assistant-sidebar > section > :first-child {
+  gap: 12px;
+}
+.assistant-sidebar > section > :first-child > svg:first-child {
+  box-sizing: content-box;
+  padding: 8px;
+  background: #e6f8d947;
+  border-radius: 13px;
+  width: 20px;
+  height: 20px;
+}
+.assistant-glance ul {
+  margin-top: 9px;
+  border-radius: 15px;
+  overflow: hidden;
+}
+.assistant-glance li a {
+  padding: 7px 13px;
+  min-height: 46px;
+  gap: 13px;
+}
+.assistant-glance li svg {
+  box-sizing: content-box;
+  padding: 7px;
+  background: #d2f5e03d;
+  border-radius: 10px;
+  width: 18px;
+  height: 18px;
+}
+.assistant-glance li span {
+  font-size: 13px;
+}
+.assistant-glance li span:first-of-type {
+  font-weight: 600;
+}
+.assistant-insights ul {
+  margin-top: 14px;
+}
+.assistant-insights li > a {
+  padding: 12px 14px;
+  gap: 12px;
+  border-radius: 15px;
+  background: linear-gradient(115deg, #c6f4dd3d, #d5f4e847);
+}
+.assistant-insights li > a > svg:first-child {
+  box-sizing: content-box;
+  padding: 8px;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  background: #adeda840;
+  border-radius: 11px;
+}
+.assistant-insights li > a > span > span:first-child {
+  font-size: 14px;
+  letter-spacing: -0.2px;
+}
+.assistant-insights li > a > span > span:last-child {
+  font-size: 12px;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+.assistant-insights li > a > svg:last-child {
+  align-self: center;
+}
+.assistant-popular ul {
+  margin-top: 6px;
+}
+.assistant-popular li > button {
+  min-height: 51px;
+  padding-top: 7px;
+  padding-bottom: 7px;
+  gap: 12px;
+}
+.assistant-popular li > button > span:first-child {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+.assistant-popular li > button > span:last-of-type {
+  font-size: 13px;
+  font-weight: 550;
+}
+@media (min-width: 1200px) {
+  body:has(.assistant-reference) aside[aria-label='Sidebar'] {
+    width: 240px;
+    top: 0;
+    bottom: 6px;
+    left: 4px;
+  }
+  body:has(.assistant-reference) main {
+    margin-left: 252px;
+    padding: 0 12px 24px;
+  }
+  body:has(.assistant-reference) main > header {
+    margin-bottom: 20px;
+  }
+  body:has(.assistant-reference) main > header > div {
+    height: 78px;
+  }
+  body:has(.assistant-reference) aside[aria-label='Sidebar'] nav a {
+    font-size: 13px;
+  }
+}
+@media (max-width: 1250px) {
+  .assistant-layout {
+    grid-template-columns: minmax(0, 1.8fr) minmax(0, 1fr);
+    gap: 16px;
+  }
+  .assistant-hero {
+    padding: 20px;
+  }
+  .assistant-hero h2 {
+    font-size: 32px;
+  }
+  .assistant-hero p {
+    font-size: 14px;
+    max-width: 460px;
+  }
+  .assistant-topic-row > button {
+    padding: 11px;
+  }
+  .assistant-topic-row > button > span:last-child {
+    font-size: 12px;
+  }
+  .assistant-sidebar > section {
+    padding: 14px;
+  }
+  .assistant-sidebar > section h2 {
+    font-size: 17px;
+  }
+  .assistant-glance li a {
+    padding-inline: 9px;
+    gap: 8px;
+  }
+  .assistant-glance li span {
+    font-size: 12px;
+  }
+}
+@media (max-width: 1000px) {
+  .assistant-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .assistant-sidebar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+  .assistant-sidebar > section {
+    margin: 0;
+  }
+  .assistant-popular {
+    grid-column: 1/-1;
+  }
+  .assistant-chat {
+    height: 740px;
+  }
+}
+@media (max-width: 600px) {
+  .assistant-main {
+    width: 100%;
+  }
+  .assistant-hero {
+    min-height: 154px;
+    padding: 20px;
+  }
+  .assistant-hero h2 {
+    font-size: 30px;
+  }
+  .assistant-hero p {
+    font-size: 13px;
+    line-height: 1.6;
+  }
+  .assistant-help h2 {
+    font-size: 20px;
+  }
+  .assistant-topic-row {
+    gap: 10px;
+  }
+  .assistant-topic-row > button {
+    flex-basis: calc((100% - 10px) / 2);
+    min-height: 158px;
+    padding: 12px;
+  }
+  .assistant-chat {
+    height: 780px;
+    min-height: 640px;
+  }
+  .assistant-conversation {
+    padding: 20px 12px;
+  }
+  .assistant-welcome {
+    gap: 8px;
+  }
+  .assistant-welcome > span {
+    width: 30px;
+    height: 30px;
+  }
+  .assistant-welcome > div {
+    max-width: calc(100% - 38px);
+    padding: 12px;
+    font-size: 12px;
+  }
+  .assistant-chat > .assistant-composer {
+    padding-inline: 11px;
+  }
+  .assistant-input > div:first-child {
+    gap: 2px;
+    padding: 4px;
+  }
+  .assistant-input input {
+    font-size: 12px;
+    padding-inline: 2px;
+  }
+  .assistant-input a {
+    width: 30px;
+    height: 35px;
+  }
+  .assistant-input button[type='button'] {
+    width: 32px;
+  }
+  .assistant-input button[type='submit'] {
+    width: 42px;
+  }
+  .assistant-input > div:last-child {
+    font-size: 10px;
+  }
+  .assistant-sidebar {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .assistant-popular {
+    grid-column: auto;
+  }
+}

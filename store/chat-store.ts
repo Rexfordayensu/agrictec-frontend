@@ -95,9 +95,13 @@ export const useChatStore = create<ChatState>()((set, get) => ({
       if (!isCurrent()) return;
       const exchange: ChatMessage[] = saved.length
         ? saved
-        : [userMessage, { id: generateId(), role: 'ai', content: reply, createdAt: new Date().toISOString() }];
+        : [
+            userMessage,
+            { id: generateId(), role: 'ai', content: reply, createdAt: new Date().toISOString() },
+          ];
       set((state) => ({
         messages: [...state.messages.filter((m) => m !== userMessage), ...exchange],
+        isTyping: false,
       }));
     } catch (error) {
       if (!isCurrent()) return;

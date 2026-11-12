@@ -1,16 +1,21 @@
 'use client';
 
 import { useState } from 'react';
-import { Bot, Trash2 } from 'lucide-react';
+import { Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { ChatInput } from '@/components/assistant/chat-input';
 import { ChatWindow } from '@/components/assistant/chat-window';
-import { QuickPrompts } from '@/components/assistant/quick-prompts';
-import { Button } from '@/components/ui/button';
+import { HelpTopics } from '@/components/assistant/help-topics';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { cn } from '@/lib/utils';
 import { useChatStore } from '@/store/chat-store';
 
+/**
+ * The conversation (GET /me/chat, each question answered and saved by POST /me/assistant),
+ * with the topic cards above it and the message box below.
+ */
 export function AssistantChat() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [isClearing, setIsClearing] = useState(false);
@@ -19,6 +24,7 @@ export function AssistantChat() {
   const userId = useChatStore((state) => state.userId);
   const clear = useChatStore((state) => state.clear);
   const hasConversation = useChatStore((state) => state.messages.length > 1);
+  const readOnly = useReadOnly();
 
   async function clearChat() {
     setIsClearing(true);
@@ -35,45 +41,29 @@ export function AssistantChat() {
   return (
     <Card
       padding="none"
-      className="flex h-[calc(100svh-8rem)] min-h-[36rem] min-w-0 flex-col rounded-3xl min-[900px]:min-h-[42rem]"
+      className="assistant-chat flex h-[calc(100svh-17rem)] min-h-[36rem] min-w-0 flex-col rounded-3xl"
     >
-      <div className="border-border flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3 sm:px-6">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="border-accent/20 bg-accent/10 text-ink-green flex size-10 shrink-0 items-center justify-center rounded-2xl border">
-            <Bot size={21} aria-hidden="true" />
-          </span>
-          <div className="min-w-0">
-            <h3 className="text-text text-sm font-bold">Chat with AI</h3>
-            <p className="text-text-mute mt-1 flex items-center gap-1.5 text-[11px]">
-              <span aria-hidden="true" className="bg-accent size-1.5 rounded-full" />
-              {isTyping ? 'Preparing your answer' : 'Your farming companion'}
-            </p>
-          </div>
-        </div>
-        <Button
-          variant="ghost"
-          size="sm"
-          icon={Trash2}
-          mutates
-          disabled={isTyping || status !== 'ready' || isClearing || !hasConversation}
-          onClick={() => setConfirmOpen(true)}
-          className="text-text-mute shrink-0 border-0 bg-transparent shadow-none backdrop-blur-none"
-        >
-          Clear chat
-        </Button>
+      <div className="border-border shrink-0 border-b px-4 pt-5 pb-4 sm:px-6">
+        <HelpTopics />
       </div>
-      <ChatWindow />
-      <div className="border-border bg-glass shrink-0 border-t px-4 py-3 sm:px-6">
+      <div className="relative flex min-h-0 flex-1 flex-col">
         {hasConversation && (
-          <details className="mb-2">
-            <summary className="text-text-dim focus-visible:outline-accent cursor-pointer rounded text-xs font-medium">
-              Suggested questions
-            </summary>
-            <div className="mt-2">
-              <QuickPrompts />
-            </div>
-          </details>
+          <button
+            type="button"
+            {...readOnlyProps(readOnly)}
+            disabled={isTyping || status !== 'ready' || isClearing}
+            onClick={readOnly ? undefined : () => setConfirmOpen(true)}
+            className={cn(
+              'border-border bg-bg-2 text-text-mute hover:text-text absolute top-3 right-4 z-10 inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold disabled:opacity-50',
+              readOnly && READ_ONLY_CLASS,
+            )}
+          >
+            <Trash2 size={13} aria-hidden="true" /> Clear chat
+          </button>
         )}
+        <ChatWindow />
+      </div>
+      <div className="assistant-composer shrink-0 px-4 pt-3 pb-4 sm:px-6">
         <ChatInput key={userId} />
       </div>
       <ConfirmDialog
