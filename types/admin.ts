@@ -342,6 +342,10 @@ export interface AdminLender extends Lender {
   listed: boolean;
   blockers: string[];
   applications: number;
+  /** Where farmers' applications go, once the lender agreed in writing (null: hand-off by the farmer). */
+  submissionEmail: string | null;
+  submissionAgreedOn: string | null;
+  submissionNote: string | null;
 }
 
 /** What an administrator types from the institution's official information. */
@@ -361,6 +365,9 @@ export interface LenderInput {
   licenceRef?: string | null;
   regulator?: string | null;
   partnershipStatus: PartnershipStatus;
+  submissionEmail?: string | null;
+  submissionAgreedOn?: string | null;
+  submissionNote?: string | null;
 }
 
 export interface LenderVerificationInput {

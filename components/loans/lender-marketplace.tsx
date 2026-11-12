@@ -10,6 +10,7 @@ import {
   ProductDetails,
 } from '@/components/loans/loan-products';
 import { loanUi } from '@/components/loans/loan-ui';
+import { StatementDownload } from '@/components/loans/statement-download';
 import { LenderLogo } from '@/components/shared/lender-logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -75,8 +76,9 @@ export function LenderMarketplace() {
         </h3>
         <p className="text-text-dim max-w-md text-sm leading-relaxed">
           Once approved financial institutions are added, their agricultural loan products will
-          appear here.
+          appear here, and you can apply to them through AgriCtec.
         </p>
+        <StatementDownload />
       </section>
     );
   }

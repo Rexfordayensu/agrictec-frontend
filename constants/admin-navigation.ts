@@ -83,7 +83,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     items: [
       {
         label: 'Loan Applications',
-        href: '/admin/loans',
+        href: '/admin/applications',
         icon: ClipboardList,
         permission: 'loans.view',
         badgeKey: 'newApplications',
@@ -185,9 +185,13 @@ export const ADMIN_PAGE_META: Record<string, { title: string; subtitle: string }
     title: 'Risk & Fraud',
     subtitle: 'Review suspicious activity flagged by the detection rules.',
   },
-  '/admin/loans': {
+  '/admin/applications': {
     title: 'Loan Applications',
-    subtitle: 'Move applications through review, approval and repayment.',
+    subtitle: 'Check farmers’ applications against their records, then send them to the lender.',
+  },
+  '/admin/loans': {
+    title: 'Earlier applications',
+    subtitle: 'Read-only history from before applications were prepared through AgriCtec.',
   },
   '/admin/lenders': {
     title: 'Lenders',

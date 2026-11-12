@@ -110,7 +110,8 @@ function Fact({ label, value, strong }: { label: string; value: string; strong?:
 /** One application (phase A10): the facts, the farmer then and now, the rules today, the timeline. */
 export function ApplicationDetail({ id }: { id: string }) {
   const role = useAdminRole();
-  const canManage = can(role, 'loans.manage');
+  // Earlier applications are read-only history: the API no longer moves them (410).
+  const canManage = false && can(role, 'loans.manage');
   const refreshConsole = useAdminDataStore((s) => s.refresh);
   const [state, setState] = useState<LoadState>({ status: 'loading' });
   const [version, setVersion] = useState(0);

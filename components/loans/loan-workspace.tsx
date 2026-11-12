@@ -1,8 +1,9 @@
 'use client';
 
+import { useState } from 'react';
 import { CreditTab } from '@/components/loans/credit-tab';
+import { FarmerApplications } from '@/components/loans/farmer-applications';
 import { LenderMarketplace } from '@/components/loans/lender-marketplace';
-import { MyApplications } from '@/components/loans/my-applications';
 import { Tabs } from '@/components/ui/tabs';
 import { useLoanTab } from '@/hooks/use-credit';
 import type { LoanTab } from '@/lib/loans/loan-path';
@@ -20,6 +21,8 @@ export function LoanWorkspace() {
   const applications = useLoanStore((s) => s.applications);
   const lenderCount = usePlatformStore((s) => s.lenders.length);
   const tab = useLoanTab();
+  // Applications prepared through AgriCtec (loaded by their tab) plus earlier recorded ones.
+  const [prepared, setPrepared] = useState(0);
 
   const panel = (value: LoanTab) => ({
     id: `${ID}-panel-${value}`,
@@ -39,7 +42,7 @@ export function LoanWorkspace() {
         tabs={[
           { value: 'credit', label: 'My credit' },
           { value: 'lenders', label: 'Lenders', count: lenderCount },
-          { value: 'applications', label: 'Applications', count: applications.length },
+          { value: 'applications', label: 'Applications', count: applications.length + prepared },
         ]}
       />
 
@@ -50,7 +53,7 @@ export function LoanWorkspace() {
         <LenderMarketplace />
       </div>
       <div {...panel('applications')}>
-        <MyApplications />
+        <FarmerApplications onCount={setPrepared} />
       </div>
     </section>
   );

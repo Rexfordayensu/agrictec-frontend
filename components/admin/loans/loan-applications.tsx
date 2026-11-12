@@ -52,7 +52,8 @@ export function LoanApplications() {
   const id = useId();
   const pathname = usePathname();
   const params = useSearchParams();
-  const canManage = useCan('loans.manage');
+  // Earlier applications are read-only history: the API no longer moves them (410).
+  const canManage = false;
   const canExport = useCan('reports.export');
   const applications = useAdminDataStore((s) => s.applications);
   const farmers = useAdminDataStore((s) => s.farmers);

@@ -73,6 +73,18 @@ export function lenderFormSchema(otherNames: string[]) {
     offersAgriLoans: z.enum(['unknown', 'yes', 'no']),
     supportedRegions: z.array(z.string()),
     partnershipStatus: z.enum(['none', 'in_discussion', 'partner']),
+    submissionEmail: z
+      .string()
+      .trim()
+      .max(160)
+      .refine((v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address.'),
+    submissionAgreedOn: z
+      .string()
+      .refine((v) => !v || v <= new Date().toISOString().slice(0, 10), 'The date can’t be in the future.'),
+    submissionNote: optional(500, 'note'),
+  }).refine((f) => !f.submissionEmail.trim() || f.submissionAgreedOn, {
+    path: ['submissionAgreedOn'],
+    message: 'Enter the date the lender agreed to receive applications by email.',
   });
 }
 
@@ -94,6 +106,9 @@ export const emptyLenderForm = (): LenderFormValues => ({
   offersAgriLoans: 'unknown',
   supportedRegions: [],
   partnershipStatus: 'none',
+  submissionEmail: '',
+  submissionAgreedOn: '',
+  submissionNote: '',
 });
 
 export const lenderToForm = (l: AdminLender): LenderFormValues => ({
@@ -113,6 +128,9 @@ export const lenderToForm = (l: AdminLender): LenderFormValues => ({
     l.offersAgriLoans === true ? 'yes' : l.offersAgriLoans === false ? 'no' : 'unknown',
   supportedRegions: l.supportedRegions,
   partnershipStatus: l.partnershipStatus,
+  submissionEmail: l.submissionEmail ?? '',
+  submissionAgreedOn: l.submissionAgreedOn ?? '',
+  submissionNote: l.submissionNote ?? '',
 });
 
 const orNull = (v: string) => v.trim() || null;
@@ -133,4 +151,7 @@ export const formToLenderInput = (f: LenderFormValues): LenderInput => ({
   offersAgriLoans: f.offersAgriLoans === 'unknown' ? null : f.offersAgriLoans === 'yes',
   supportedRegions: f.supportedRegions,
   partnershipStatus: f.partnershipStatus as PartnershipStatus,
+  submissionEmail: orNull(f.submissionEmail),
+  submissionAgreedOn: f.submissionAgreedOn || null,
+  submissionNote: orNull(f.submissionNote),
 });
