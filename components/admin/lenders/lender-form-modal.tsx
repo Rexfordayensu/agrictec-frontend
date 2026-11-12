@@ -285,6 +285,46 @@ function LenderForm({
           </FormField>
         </Section>
 
+        <Section
+          title="Receiving farmers’ applications"
+          hint="Only once the lender agreed in writing. Without it, AgriCtec records how each application was handed over."
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            <FormField
+              label="Applications email"
+              htmlFor={field('submissionEmail')}
+              error={errors.submissionEmail?.message}
+            >
+              <Input
+                id={field('submissionEmail')}
+                type="email"
+                error={Boolean(errors.submissionEmail)}
+                {...register('submissionEmail')}
+              />
+            </FormField>
+            <FormField
+              label="Date the lender agreed"
+              htmlFor={field('submissionAgreedOn')}
+              error={errors.submissionAgreedOn?.message}
+            >
+              <Input
+                id={field('submissionAgreedOn')}
+                type="date"
+                error={Boolean(errors.submissionAgreedOn)}
+                {...register('submissionAgreedOn')}
+              />
+            </FormField>
+          </div>
+          <FormField
+            label="How it was agreed"
+            htmlFor={field('submissionNote')}
+            error={errors.submissionNote?.message}
+            hint="e.g. Letter from the credit manager, 3 Nov 2026"
+          >
+            <Input id={field('submissionNote')} {...register('submissionNote')} />
+          </FormField>
+        </Section>
+
         <Section title="Agricultural lending and partnership">
           <div className="grid gap-4 sm:grid-cols-2">
             <FormField label="Offers agricultural loans" htmlFor={field('offersAgriLoans')}>

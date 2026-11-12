@@ -195,7 +195,8 @@ test('route lookups pick the most specific page', () => {
   assert.equal(findAdminNavItem('/admin/farmers/abc-123').label, 'All Farmers');
   assert.equal(findAdminNavItem('/admin/credit-rules').label, 'Credit Rules');
   assert.equal(findAdminNavItem('/dashboard'), undefined);
-  assert.equal(getAdminPageMeta('/admin/loans/APP-1').title, 'Loan Applications');
+  assert.equal(getAdminPageMeta('/admin/applications/APP-1').title, 'Loan Applications');
+  assert.equal(getAdminPageMeta('/admin/loans/APP-1').title, 'Earlier applications');
   assert.equal(getAdminPageMeta('/admin/content/crops').title, 'Crops & Yields');
   assert.equal(getAdminPageMeta('/admin/unknown').title, 'Overview');
 });

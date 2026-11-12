@@ -6,6 +6,7 @@ import { loanUi } from '@/components/loans/loan-ui';
 import { LenderLogo } from '@/components/shared/lender-logo';
 import { Button } from '@/components/ui/button';
 import { EligibilityCheck } from '@/components/loans/eligibility-check';
+import { StartApplication } from '@/components/loans/start-application';
 import { Modal } from '@/components/ui/modal';
 import { formatGhanaDate, formatDate } from '@/lib/format';
 import {
@@ -238,13 +239,7 @@ export function ProductDetails({
 
         <EligibilityCheck product={product} />
 
-        <div className="border-border bg-glass rounded-2xl border p-4">
-          <p className="text-text text-sm font-semibold">How to apply</p>
-          <p className="text-text-dim mt-1 text-sm">
-            Applying through AgriCtec is not open yet. To apply, contact {product.lender.name}{' '}
-            through its official channels (see the lender’s details).
-          </p>
-        </div>
+        <StartApplication product={product} />
         <p className="text-text-mute text-xs">
           Version {product.version}, published {formatGhanaDate(product.publishedAt)}. These are the
           lender’s stated terms, not an offer: the lender decides every loan.

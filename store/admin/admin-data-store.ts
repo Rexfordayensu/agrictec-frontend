@@ -5,6 +5,7 @@ import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
 import { can } from '@/lib/admin/permissions';
 import { announcementsService } from '@/services/admin/announcements.service';
 import { farmersService } from '@/services/admin/farmers.service';
+import { adminApplicationsService } from '@/services/admin/applications.service';
 import { loanApplicationsService } from '@/services/admin/loan-applications.service';
 import { riskService } from '@/services/admin/risk.service';
 import { verificationsService } from '@/services/admin/verifications.service';
@@ -94,12 +95,15 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
     const load = <T>(permission: Permission, fn: () => Promise<T[]>): Promise<T[]> =>
       can(role, permission) ? fn() : Promise.resolve([]);
     try {
-      const [applications, verifications, riskFlags, announcements, transactionCount] = await Promise.all([
+      const [applications, verifications, riskFlags, announcements, transactionCount, applicationCounts] = await Promise.all([
         load('loans.view', () => loanApplicationsService.list()),
         load('verifications.review', () => verificationsService.list()),
         load('risk.review', () => riskService.list()),
         load('announcements.send', () => announcementsService.list()),
         can(role,'transactions.review') ? transactionsService.queueCount() : Promise.resolve({count:0}),
+        can(role, 'loans.view')
+          ? adminApplicationsService.counts().catch(() => null)
+          : Promise.resolve(null),
       ]);
       // Never every farmer: only the ones these queues name (for their names and regions). The
       // farmers page, the overview and search ask the API for exactly what they show.
@@ -117,7 +121,11 @@ export const useAdminDataStore = create<AdminDataState>()((set, get) => ({
         verifications,
         riskFlags,
         announcements,
-        badgeCounts: countBadges(verifications, riskFlags, applications, transactionCount.count),
+        badgeCounts: {
+          ...countBadges(verifications, riskFlags, applications, transactionCount.count),
+          // Farmers' applications waiting for AgriCtec (the earlier pipeline is read-only).
+          newApplications: applicationCounts?.needsAttention ?? 0,
+        },
         status: 'ready',
         loadedAt: new Date().toISOString(),
       });
