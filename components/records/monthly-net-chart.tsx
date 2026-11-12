@@ -1,5 +1,6 @@
 'use client';
 
+import { BarChart3 } from 'lucide-react';
 import { BarChart } from '@/components/charts/bar-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
@@ -7,6 +8,7 @@ import { useFarmStats } from '@/hooks/use-farm-stats';
 import { sumSeries } from '@/lib/calculations/finance';
 import { formatGHS } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { useFarmStore } from '@/store/farm-store';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -18,35 +20,49 @@ export function MonthlyNetChart({ className }: { className?: string }) {
   const ytdNet = sumSeries(currentYearNet);
   const best = currentYearNet.reduce((top, net, i) => (net > currentYearNet[top] ? i : top), 0);
   const hasBest = currentYearNet[best] > 0;
+  // Any income or expense this year (a month can net to zero, so check the records).
+  const hasAny = useFarmStore((s) =>
+    s.records.some(
+      (r) => (r.type === 'income' || r.type === 'expense') && r.date.startsWith(String(year)),
+    ),
+  );
 
   return (
     <Card className={cn('flex flex-col', className)}>
       <CardHeader className="flex-wrap">
         <div>
-          <CardTitle>Monthly Net ({year})</CardTitle>
+          <CardTitle>Monthly Net</CardTitle>
           <CardSub>Monthly breakdown: income minus expenses</CardSub>
         </div>
       </CardHeader>
 
-      <dl className="mb-4 flex flex-wrap gap-3">
-        <div className="border-border bg-glass rounded-xl border px-3 py-2">
-          <dt className="text-text-mute text-[11px]">Net this year</dt>
-          <dd className={cn('text-sm font-bold', ytdNet < 0 ? 'text-ink-red' : 'text-text')}>
-            {formatGHS(ytdNet)}
-          </dd>
-        </div>
-        {hasBest && (
+      {hasAny && (
+        <dl className="mb-4 flex flex-wrap gap-3">
           <div className="border-border bg-glass rounded-xl border px-3 py-2">
-            <dt className="text-text-mute text-[11px]">Best month</dt>
-            <dd className="text-text text-sm font-bold">
-              {MONTHS[best]} ·{' '}
-              <span className="text-ink-green">{formatGHS(currentYearNet[best])}</span>
+            <dt className="text-text-mute text-[11px]">Net this year</dt>
+            <dd className={cn('text-sm font-bold', ytdNet < 0 ? 'text-ink-red' : 'text-text')}>
+              {formatGHS(ytdNet)}
             </dd>
           </div>
-        )}
-      </dl>
+          {hasBest && (
+            <div className="border-border bg-glass rounded-xl border px-3 py-2">
+              <dt className="text-text-mute text-[11px]">Best month</dt>
+              <dd className="text-text text-sm font-bold">
+                {MONTHS[best]} ·{' '}
+                <span className="text-ink-green">{formatGHS(currentYearNet[best])}</span>
+              </dd>
+            </div>
+          )}
+        </dl>
+      )}
 
-      <div className="mt-auto">
+      <div className="relative mt-auto">
+        {!hasAny && (
+          <p className="border-border bg-bg-2 text-text-dim absolute top-1/2 left-1/2 z-10 w-44 -translate-x-1/2 -translate-y-1/2 rounded-xl border px-3 py-3 text-center text-xs leading-relaxed shadow-md">
+            <BarChart3 size={18} aria-hidden="true" className="text-text-mute mx-auto mb-1" />
+            Your monthly net will appear here once you add records.
+          </p>
+        )}
         <BarChart
           height={260}
           showLegend={false}

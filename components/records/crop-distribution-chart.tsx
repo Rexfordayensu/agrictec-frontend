@@ -1,5 +1,6 @@
 'use client';
 
+import { Info } from 'lucide-react';
 import { DoughnutChart } from '@/components/charts/doughnut-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
@@ -44,14 +45,24 @@ export function CropDistributionChart({ className }: { className?: string }) {
           data={entries.map(([, total]) => total)}
           colors={entries.map((_, i) => colors[i % colors.length])}
           centerLabel={
-            <>
-              <span className="text-text-mute text-[11px]">Total</span>
-              <span className="text-text text-lg font-extrabold">{formatCompactGHS(income)}</span>
-            </>
+            entries.length === 0 ? (
+              <span className="text-text-dim text-sm">No data yet</span>
+            ) : (
+              <>
+                <span className="text-text-mute text-[11px]">Total</span>
+                <span className="text-text text-lg font-extrabold">{formatCompactGHS(income)}</span>
+              </>
+            )
           }
         />
       </div>
 
+      {entries.length === 0 && (
+        <p className="bg-glass-strong text-text-dim mt-5 flex gap-2 rounded-xl px-3 py-2.5 text-xs leading-relaxed">
+          <Info size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
+          Add income records (e.g. crop sales) to see the income mix by crop.
+        </p>
+      )}
       {entries.length > 0 && (
         <ul className="mt-5 space-y-2.5">
           {entries.map(([crop, total], i) => (
