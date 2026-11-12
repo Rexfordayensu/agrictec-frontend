@@ -305,6 +305,22 @@ export function ProductEditor({ lenderId, productId }: { lenderId: string; produ
               }
             />
           </FormField>
+          <FormField
+            label="History assessed (months)"
+            htmlFor="p-assessment-months"
+            hint="How many months of transactions the lender looks at. Leave empty if not stated."
+          >
+            <Input
+              id="p-assessment-months"
+              type="number"
+              min={1}
+              max={36}
+              value={content.terms.assessmentMonths ?? ''}
+              onChange={(e) =>
+                setTerms({ assessmentMonths: e.target.value ? Number(e.target.value) : null })
+              }
+            />
+          </FormField>
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <FormField label="Interest rate (%)" htmlFor="p-rate">

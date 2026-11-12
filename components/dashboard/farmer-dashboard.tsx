@@ -8,6 +8,7 @@ import { AnnouncementBanner } from '@/components/dashboard/announcement-banner';
 import { DashboardHero } from '@/components/dashboard/dashboard-hero';
 import { IncomeExpenseChart } from '@/components/dashboard/income-expense-chart';
 import { LoanReadinessCard } from '@/components/dashboard/loan-readiness-card';
+import { LoanReadinessPanel } from '@/components/dashboard/loan-readiness-panel';
 import { QuickActions } from '@/components/dashboard/quick-actions';
 import { RecentActivity } from '@/components/dashboard/recent-activity';
 import { StatsRow } from '@/components/dashboard/stats-row';
@@ -147,6 +148,12 @@ export function FarmerDashboard() {
           <WeatherCard compact />
         </div>
       </div>
+      {/* Evidence for lenders and the latest checks: separate from the record-keeping score. */}
+      {hasActivity && (
+        <LoanReadinessPanel
+          summary={figures.summary && figures.summary.period.months === range ? figures.summary : null}
+        />
+      )}
     </div>
   );
 }

@@ -293,3 +293,23 @@ test('no store selector builds a new array or object (it would re-render forever
   for (const dir of ['app', 'components', 'hooks', 'lib']) walk(path.join(root, dir));
   assert.deepEqual(offenders, []);
 });
+
+test('transaction-based lender rules read plainly and financial ones need their dates', () => {
+  const { formatGHS } = require('../lib/format.ts');
+  assert.equal(
+    products.describeCheck({ metric: 'dscr', op: 'gte', value: '1.2' }),
+    'Debt-service coverage ratio: at least 1.2',
+  );
+  assert.equal(
+    products.describeCheck({ metric: 'period_income', op: 'gte', value: '12000' }),
+    `Documented income in the assessment period: at least ${formatGHS(12000)}`,
+  );
+  assert.equal(
+    products.describeCheck({ metric: 'debt_burden', op: 'lte', value: '30' }),
+    'Existing loan repayments as a share of income (%): at most 30',
+  );
+  for (const metric of ['dscr', 'period_income', 'verified_share', 'months_of_records'])
+    assert.ok(products.FINANCIAL_METRICS.has(metric), metric);
+  assert.ok(!products.FINANCIAL_METRICS.has('ghana_card_verified'));
+  assert.match(products.DSCR_METHOD, /existing monthly loan repayments/);
+});
