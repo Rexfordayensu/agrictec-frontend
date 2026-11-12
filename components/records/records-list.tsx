@@ -4,7 +4,7 @@ import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import { TransactionTools } from '@/components/transactions/transaction-tools';
 import { useState } from 'react';
 import { isToday, isYesterday } from 'date-fns';
-import { ClipboardList, FilterX, Pencil, Plus, SearchX, Trash2 } from 'lucide-react';
+import { FilterX, Pencil, Plus, SearchX, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 import {
   groupByMonth,
@@ -41,7 +41,8 @@ function Amount({ record }: { record: FarmRecord }) {
   if (record.type === 'activity') {
     return <span className="text-text-mute text-xs">No amount</span>;
   }
-  const income = record.type === 'income' || (record.type === 'financing' && record.direction === 'in');
+  const income =
+    record.type === 'income' || (record.type === 'financing' && record.direction === 'in');
   return (
     <span
       className={cn(
@@ -186,16 +187,19 @@ export function RecordsList({
   let content;
   if (!hasAnyRecords) {
     content = (
-      <EmptyState
-        icon={ClipboardList}
-        title="No records yet. Add your first record!"
-        description="Income, expenses and farm activities you record here build your financial history."
-        action={
-          <Button mutates icon={Plus} onClick={() => openModal('record')}>
+      <div className="flex flex-col items-center gap-6 px-4 py-8 text-center sm:flex-row sm:justify-center sm:gap-10 sm:text-left">
+        <ClipboardArt />
+        <div className="max-w-md">
+          <h3 className="text-text text-lg font-bold">No records yet — let’s get started!</h3>
+          <p className="text-text-dim mt-2 text-sm leading-relaxed">
+            Add your first income, expense, activity or financing record to build your farm history
+            and unlock useful reports.
+          </p>
+          <Button mutates icon={Plus} onClick={() => openModal('record')} className="mt-4">
             Add your first record
           </Button>
-        }
-      />
+        </div>
+      </div>
     );
   } else if (rows.length === 0) {
     content = (
@@ -261,5 +265,47 @@ export function RecordsList({
         onCancel={() => setPendingDelete(null)}
       />
     </>
+  );
+}
+
+/** Decoration for the empty list: a checklist clipboard with a seedling. */
+function ClipboardArt() {
+  return (
+    <svg aria-hidden="true" viewBox="0 0 240 150" className="h-36 w-auto shrink-0">
+      <ellipse cx="120" cy="138" rx="105" ry="9" fill="currentColor" className="text-accent/15" />
+      <path
+        d="M40 120 Q 30 70 80 60 Q 140 40 180 80 Q 215 110 190 135 Z"
+        fill="currentColor"
+        className="text-accent/10"
+      />
+      <path
+        d="M200 30 l12 -10 M206 44 l16 -2 M188 22 l2 -14"
+        stroke="#2f8f5b"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <g transform="translate(95 18) rotate(-8)">
+        <rect x="0" y="0" width="84" height="112" rx="10" fill="#2f8f5b" />
+        <rect x="7" y="10" width="70" height="96" rx="5" fill="#ffffff" />
+        <rect x="26" y="-7" width="32" height="15" rx="5" fill="#256f47" />
+        {[28, 50, 72].map((y) => (
+          <g key={y}>
+            <path
+              d={`M16 ${y} l5 5 l9 -10`}
+              stroke="#2f8f5b"
+              strokeWidth="3.5"
+              fill="none"
+              strokeLinecap="round"
+            />
+            <rect x="36" y={y - 3} width="32" height="5" rx="2.5" fill="#cfe6d8" />
+          </g>
+        ))}
+      </g>
+      <g transform="translate(55 70)">
+        <path d="M22 64 Q 19 40 22 16" stroke="#3c9a4f" strokeWidth="4" fill="none" />
+        <path d="M22 34 Q -2 26 0 6 Q 20 9 22 34 Z" fill="#5bbf62" />
+        <path d="M23 26 Q 44 10 52 22 Q 40 38 23 26 Z" fill="#4caf58" />
+      </g>
+    </svg>
   );
 }

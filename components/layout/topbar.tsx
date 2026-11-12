@@ -31,7 +31,7 @@ function pageInfo(pathname: string): PageInfo {
       return {
         title: meta?.title ?? item.label,
         subtitle: meta?.subtitle ?? '',
-        section: section.title,
+        section: item.href === '/reports' ? 'Finance' : section.title,
         icon: item.icon,
       };
     }

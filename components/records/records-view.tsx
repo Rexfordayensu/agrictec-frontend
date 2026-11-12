@@ -13,6 +13,7 @@ import {
   type RecordTab,
 } from '@/components/records/record-filters';
 import { RecordsList } from '@/components/records/records-list';
+import { RecordsHero } from '@/components/records/records-hero';
 import { RecordsSummary } from '@/components/records/records-summary';
 import { RecordsToolbar } from '@/components/records/records-toolbar';
 import { Card } from '@/components/ui/card';
@@ -85,49 +86,56 @@ export function RecordsView() {
 
   return (
     <div className="space-y-5">
-      <Tabs
-        tabs={[
-          { value: 'records', label: 'Farm records' },
-          { value: 'transactions', label: 'All transactions' },
-        ]}
-        value={view}
-        onChange={setView}
-        label="Record views"
-      />
-      {view === 'transactions' ? (
-        <TransactionsView />
-      ) : (
-        <>
-          <RecordsSummary rows={rows} filtered={activeFilters > 0} />
+      <RecordsHero />
+      <RecordsSummary rows={rows} filtered={activeFilters > 0} />
 
-          <Card className="@container" padding="none">
-            <div className="border-border border-b p-4 sm:p-5">
-              <RecordsToolbar
-                filters={filters}
-                onChange={update}
-                counts={counts}
-                crops={cropsInUse}
-                onExport={exportCsv}
-                onNew={() => openModal('record')}
-              />
-            </div>
+      <Card className="@container" padding="none">
+        <div className="space-y-4 p-4 sm:p-5">
+          <Tabs
+            tabs={[
+              { value: 'records', label: 'Farm records' },
+              { value: 'transactions', label: 'All transactions' },
+            ]}
+            value={view}
+            onChange={setView}
+            label="Record views"
+          />
+          {view === 'records' && (
+            <RecordsToolbar
+              filters={filters}
+              onChange={update}
+              counts={counts}
+              crops={cropsInUse}
+              onExport={exportCsv}
+              onNew={() => openModal('record')}
+            />
+          )}
+        </div>
 
-            <div className="text-text-mute flex items-center justify-between gap-3 px-4 pt-4 text-xs sm:px-5">
-              <span aria-live="polite">
-                Showing <strong className="text-text">{rows.length}</strong> of {records.length}{' '}
-                record
-                {records.length === 1 ? '' : 's'}
-              </span>
-              {activeFilters > 0 && (
-                <button
-                  type="button"
-                  onClick={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
-                  className="text-ink-green min-h-9 font-semibold hover:underline"
-                >
-                  Clear {activeFilters} filter{activeFilters === 1 ? '' : 's'}
-                </button>
-              )}
-            </div>
+        {view === 'transactions' ? (
+          <div className="border-border border-t p-4 sm:p-5">
+            <TransactionsView />
+          </div>
+        ) : (
+          <div className="border-border border-t">
+            {records.length > 0 && (
+              <div className="text-text-mute flex items-center justify-between gap-3 px-4 pt-4 text-xs sm:px-5">
+                <span aria-live="polite">
+                  Showing <strong className="text-text">{rows.length}</strong> of {records.length}{' '}
+                  record
+                  {records.length === 1 ? '' : 's'}
+                </span>
+                {activeFilters > 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
+                    className="text-ink-green min-h-9 font-semibold hover:underline"
+                  >
+                    Clear {activeFilters} filter{activeFilters === 1 ? '' : 's'}
+                  </button>
+                )}
+              </div>
+            )}
 
             <div className="p-2 sm:p-3">
               <RecordsList
@@ -138,9 +146,9 @@ export function RecordsView() {
                 onClearFilters={() => setFilters({ ...DEFAULT_FILTERS, sort: filters.sort })}
               />
             </div>
-          </Card>
-        </>
-      )}
+          </div>
+        )}
+      </Card>
     </div>
   );
 }

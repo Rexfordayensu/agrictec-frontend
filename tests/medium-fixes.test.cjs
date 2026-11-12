@@ -86,6 +86,10 @@ test('authentication, suspension, maintenance and core data failures still stop 
 
 function financialHook() {
   const slots = [], pending = [], requests = [];
+  const listeners = {};
+  let interval, intervalMs;
+  global.window = {setInterval:(fn,ms)=>{interval=fn;intervalMs=ms;return 1;},clearInterval:()=>{},addEventListener:(name,fn)=>{listeners[name]=fn;},removeEventListener:()=>{}};
+  global.document = {visibilityState:'visible',addEventListener:(name,fn)=>{listeners[name]=fn;},removeEventListener:()=>{}};
   let cursor = 0;
   const farm = { records: [], momo: [] };
   const changed = (a, b) => !a || a.length !== b.length || a.some((x, i) => x !== b[i]);
@@ -116,13 +120,21 @@ function financialHook() {
       requests.push({ months, signal, resolve, reject });
     }) } },
   });
-  return { farm, requests, render(months = 6) {
+  return { farm, requests, listeners, tick:()=>interval(), intervalMs:()=>intervalMs, render(months = 6) {
     cursor = 0;
     const result = useFinancialSummary(months);
     while (pending.length) pending.shift()();
     return result;
   } };
 }
+
+test('financial reports poll only while visible and refresh on focus', () => {
+  const h=financialHook();h.render();assert.equal(h.intervalMs(),30000);
+  document.visibilityState='hidden';h.tick();assert.equal(h.requests.length,1);
+  document.visibilityState='visible';h.tick();assert.equal(h.requests.length,2);
+  h.listeners.focus();assert.equal(h.requests.length,3);
+  assert.equal(h.requests[1].signal.aborted,true);
+});
 
 test('record changes and failed refreshes never retain outdated financial totals', async () => {
   const h = financialHook();

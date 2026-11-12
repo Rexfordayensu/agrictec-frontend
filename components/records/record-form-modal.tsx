@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { CATEGORIES, categoryLabel, duplicateRetry, isPossibleDuplicate } from '@/lib/transactions';
 import { CROPS } from '@/constants/crops';
 import { todayISO } from '@/lib/format';
+import { transactionsService } from '@/services/transactions.service';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import type { FarmRecord, NewRecordInput } from '@/types';
@@ -63,6 +64,7 @@ export function RecordFormModal() {
   const modal = useModalStore((s) => s.modal);
   const editingId = useModalStore((s) => s.editingId);
   const recordDefaults = useModalStore((s) => s.recordDefaults);
+  const receipt = useModalStore((s) => s.receipt);
   const closeModal = useModalStore((s) => s.closeModal);
   const editing = useFarmStore((s) =>
     editingId ? s.records.find((r) => r.id === editingId) : undefined,
@@ -92,6 +94,7 @@ export function RecordFormModal() {
         formId={formId}
         editing={editing}
         defaults={recordDefaults}
+        receipt={editing ? undefined : receipt}
         onDone={closeModal}
         onSavingChange={setSaving}
       />
@@ -103,12 +106,15 @@ function RecordForm({
   formId,
   editing,
   defaults,
+  receipt,
   onDone,
   onSavingChange,
 }: {
   formId: string;
   editing?: FarmRecord;
   defaults?: Partial<NewRecordInput>;
+  /** Attached as evidence (a receipt) once the new record is saved. */
+  receipt?: File;
   onDone: () => void;
   onSavingChange: (saving: boolean) => void;
 }) {
@@ -151,8 +157,9 @@ function RecordForm({
         await updateRecord(editing.id, input);
         toast.success('Record updated');
       } else {
-        await addRecord(input);
-        toast.success('Record saved successfully');
+        const record = await addRecord(input);
+        if (receipt) await attachReceipt(record.id, receipt);
+        else toast.success('Record saved successfully');
       }
       reset();
       onDone();
@@ -168,6 +175,20 @@ function RecordForm({
     }
   }
 
+  /** Uploads the imported receipt to the new record; the record stays saved if this fails. */
+  async function attachReceipt(recordId: string, file: File) {
+    try {
+      await transactionsService.upload('farm', recordId, file, 'receipt', () => undefined);
+      toast.success('Record saved with its receipt');
+      const { userId, load } = useFarmStore.getState();
+      if (userId) await load(userId, { silent: true });
+    } catch (error) {
+      toast.warning(
+        `Record saved, but the receipt could not be attached: ${error instanceof Error ? error.message : 'please try again'}. Attach it from Evidence & review.`,
+      );
+    }
+  }
+
   const describe = (id: string, hasError: boolean) => (hasError ? fieldErrorId(id) : undefined);
 
   return (
@@ -177,6 +198,12 @@ function RecordForm({
       onSubmit={handleSubmit((values) => onSubmit(values))}
       className="space-y-4"
     >
+      {receipt && (
+        <p className="border-accent/30 bg-accent/8 text-text rounded-xl border px-3 py-2 text-sm">
+          Receipt attached: <strong className="font-semibold">{receipt.name}</strong>. It is saved
+          with this record as evidence for AgriCtec to review.
+        </p>
+      )}
       {duplicate && (
         <div role="alert" className="bg-gold/10 space-y-2 rounded-xl p-3 text-sm">
           <p>

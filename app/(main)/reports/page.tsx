@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '@/components/reports/financial-reports.css';
 import { FinancialReportsView } from '@/components/reports/financial-reports-view';
 
 export const metadata: Metadata = { title: 'Financial Reports' };

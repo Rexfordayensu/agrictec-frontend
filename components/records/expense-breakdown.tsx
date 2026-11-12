@@ -14,6 +14,7 @@ import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { EmptyState } from '@/components/ui/empty-state';
 import { useFarmStats } from '@/hooks/use-farm-stats';
 import { formatGHS } from '@/lib/format';
+import { categoryLabel } from '@/lib/transactions';
 
 export const CATEGORY_ICONS: Record<string, LucideIcon> = {
   Fertilizer: FlaskConical,
@@ -47,7 +48,7 @@ export function ExpenseBreakdown({ className }: { className?: string }) {
         <EmptyState
           icon={Package}
           title="No expenses yet"
-          description="Record costs like fertilizer, seeds and labour to see them here."
+          description="Record costs like fertilizer, seeds and labour to see the breakdown."
         />
       ) : (
         <ul className="space-y-4">
@@ -61,7 +62,7 @@ export function ExpenseBreakdown({ className }: { className?: string }) {
                     <Icon size={15} aria-hidden="true" />
                   </span>
                   <span className="text-text min-w-0 flex-1 truncate text-sm font-medium">
-                    {category}
+                    {categoryLabel(category)}
                   </span>
                   <span className="text-text text-sm font-semibold tabular-nums">
                     {formatGHS(total)}
@@ -71,7 +72,7 @@ export function ExpenseBreakdown({ className }: { className?: string }) {
                 <div
                   className="bg-glass-strong mt-2 ml-11 h-1.5 overflow-hidden rounded-full"
                   role="img"
-                  aria-label={`${category}: ${share}% of expenses`}
+                  aria-label={`${categoryLabel(category)}: ${share}% of expenses`}
                 >
                   <div
                     className="animate-progress-grow h-full rounded-full bg-linear-to-r from-[#f87171] to-[#ef4444]"

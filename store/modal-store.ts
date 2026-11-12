@@ -12,9 +12,12 @@ interface ModalState {
   recordDefaults?: Partial<NewRecordInput>;
   /** Prefills a new MoMo transaction, e.g. the direction from "Log money received". */
   momoDefaults?: Partial<NewMomoInput>;
+  /** A receipt chosen with "Import receipt": attached as evidence once the new record is saved. */
+  receipt?: File;
   openModal: (modal: GlobalModal, editingId?: string) => void;
   openRecordWithDefaults: (defaults: Partial<NewRecordInput>) => void;
   openMomoWithDefaults: (defaults: Partial<NewMomoInput>) => void;
+  openRecordWithReceipt: (receipt: File) => void;
   closeModal: () => void;
 }
 
@@ -31,14 +34,49 @@ export const useModalStore = create<ModalState>()((set) => ({
   editingId: undefined,
   recordDefaults: undefined,
   momoDefaults: undefined,
+  receipt: undefined,
   openModal: (modal, editingId) =>
-    blocked() || set({ modal, editingId, recordDefaults: undefined, momoDefaults: undefined }),
+    blocked() ||
+    set({
+      modal,
+      editingId,
+      recordDefaults: undefined,
+      momoDefaults: undefined,
+      receipt: undefined,
+    }),
   openRecordWithDefaults: (recordDefaults) =>
     blocked() ||
-    set({ modal: 'record', editingId: undefined, recordDefaults, momoDefaults: undefined }),
+    set({
+      modal: 'record',
+      editingId: undefined,
+      recordDefaults,
+      momoDefaults: undefined,
+      receipt: undefined,
+    }),
+  openRecordWithReceipt: (receipt) =>
+    blocked() ||
+    set({
+      modal: 'record',
+      editingId: undefined,
+      recordDefaults: undefined,
+      momoDefaults: undefined,
+      receipt,
+    }),
   openMomoWithDefaults: (momoDefaults) =>
     blocked() ||
-    set({ modal: 'momo', editingId: undefined, recordDefaults: undefined, momoDefaults }),
+    set({
+      modal: 'momo',
+      editingId: undefined,
+      recordDefaults: undefined,
+      momoDefaults,
+      receipt: undefined,
+    }),
   closeModal: () =>
-    set({ modal: null, editingId: undefined, recordDefaults: undefined, momoDefaults: undefined }),
+    set({
+      modal: null,
+      editingId: undefined,
+      recordDefaults: undefined,
+      momoDefaults: undefined,
+      receipt: undefined,
+    }),
 }));

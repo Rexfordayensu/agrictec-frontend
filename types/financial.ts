@@ -15,6 +15,9 @@ export interface VerifiedLine {
 }
 
 export interface FinancialSummary {
+  /** Latest farm income/expenses within this exact reporting period, newest first. */
+  recentTransactions?: (Omit<import('@/types').FarmRecord, 'amount'> & { amount: DecimalText })[];
+  recordReadiness?: { entriesWithEvidence: number; identityVerified: boolean };
   currency: 'GHS';
   period: { from: string; to: string; months: ReportMonths };
   /** When the newest entry was saved (ISO), or null with no entries. */
@@ -46,6 +49,32 @@ export interface FinancialSummary {
     description: string;
     verificationStatus: string;
   }[];
+  /** The same number of whole months just before this period (absent on an older API). */
+  previous?: {
+    from: string;
+    to: string;
+    income: DecimalText;
+    expenses: DecimalText;
+    net: DecimalText;
+  };
+  /**
+   * Percent change on the previous period. A value is absent when the previous period had
+   * nothing to compare with (the API layer turns the server's null into undefined).
+   */
+  changeOnPrevious?: {
+    income?: DecimalText | null;
+    expenses?: DecimalText | null;
+    net?: DecimalText | null;
+  };
+  /** Farm income and expenses in this period by category group, with their share. */
+  byCategory?: {
+    key: 'crop_sales' | 'livestock_sales' | 'farm_inputs' | 'labour_services' | 'other';
+    label: string;
+    amount: DecimalText;
+    share: DecimalText;
+  }[];
+  /** Farm income plus expenses in this period (the category chart's total). */
+  categoryTotal?: DecimalText;
   monthsWithRecords: number;
   /** The farmer's first entry (any farm record or MoMo), or null: the chart starts that month. */
   firstRecordedOn?: string | null;
