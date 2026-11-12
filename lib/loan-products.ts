@@ -77,7 +77,35 @@ export const METRICS: Record<
   record_count: { label: 'Number of farm records', kind: 'number' },
   income_12m: { label: 'Recorded income, last 12 months', kind: 'amount' },
   net_12m: { label: 'Recorded net result, last 12 months', kind: 'amount' },
+  history_months: { label: 'Months since the first recorded entry', kind: 'number' },
+  period_income: { label: 'Documented income in the assessment period', kind: 'amount' },
+  period_net: { label: 'Net cash flow in the assessment period', kind: 'amount' },
+  avg_monthly_net: { label: 'Average monthly net cash flow', kind: 'amount' },
+  verified_share: { label: 'Verified share of recorded income and costs (%)', kind: 'number' },
+  income_months_share: { label: 'Share of months with recorded income (%)', kind: 'number' },
+  debt_burden: { label: 'Existing loan repayments as a share of income (%)', kind: 'number' },
+  dscr: { label: 'Debt-service coverage ratio', kind: 'number' },
 };
+
+/** Rules about the farmer's finances: they need the date they took effect and were last confirmed. */
+export const FINANCIAL_METRICS: ReadonlySet<Metric> = new Set<Metric>([
+  'months_of_records',
+  'record_count',
+  'income_12m',
+  'net_12m',
+  'history_months',
+  'period_income',
+  'period_net',
+  'avg_monthly_net',
+  'verified_share',
+  'income_months_share',
+  'debt_burden',
+  'dscr',
+]);
+
+/** How AgriCtec calculates the debt-service coverage ratio (shown to admins and farmers). */
+export const DSCR_METHOD =
+  "Average monthly net cash flow ÷ (existing monthly loan repayments + this loan's average monthly cost).";
 
 export const OPS_BY_KIND: Record<'bool' | 'number' | 'amount' | 'choice', CheckOp[]> = {
   bool: ['is_true'],

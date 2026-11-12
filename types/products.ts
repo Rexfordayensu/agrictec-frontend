@@ -20,7 +20,16 @@ export type Metric =
   | 'months_of_records'
   | 'record_count'
   | 'income_12m'
-  | 'net_12m';
+  | 'net_12m'
+  // Transaction-based rules over the product's assessment period (backend loan_assessment.py).
+  | 'history_months'
+  | 'period_income'
+  | 'period_net'
+  | 'avg_monthly_net'
+  | 'verified_share'
+  | 'income_months_share'
+  | 'debt_burden'
+  | 'dscr';
 export type CheckOp = 'is_true' | 'gte' | 'lte' | 'in';
 export type DocumentFormat = 'pdf' | 'jpg' | 'png' | 'webp';
 export type RatePeriod = 'year' | 'month';
@@ -56,6 +65,8 @@ export interface ProductTerms {
   guarantor?: string | null;
   /** Missing: not provided. A list: only these regions. */
   supportedRegions?: string[] | null;
+  /** Months of history the lender assesses (missing: not stated; AgriCtec then uses 12). */
+  assessmentMonths?: number | null;
 }
 
 export interface RequirementCheck {
@@ -80,6 +91,10 @@ export interface Requirement {
   visibleIf?: { key: string; equals: string } | null;
   verification: Verification;
   source?: string | null;
+  /** yyyy-MM-dd: when the lender's rule took effect, was last confirmed, and is due for review. */
+  effectiveFrom?: string | null;
+  reviewedOn?: string | null;
+  reviewBy?: string | null;
 }
 
 export interface ProductContent {

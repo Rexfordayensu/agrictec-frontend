@@ -15,6 +15,8 @@ import {
   CATEGORY_LABELS,
   DOCUMENT_FORMATS,
   FIELD_TYPE_LABELS,
+  DSCR_METHOD,
+  FINANCIAL_METRICS,
   METRICS,
   OPS_BY_KIND,
   VERIFICATION_LABELS,
@@ -93,6 +95,9 @@ export function RequirementModal({
     initial?.verification ?? 'self_declared',
   );
   const [source, setSource] = useState(initial?.source ?? '');
+  const [effectiveFrom, setEffectiveFrom] = useState(initial?.effectiveFrom ?? '');
+  const [reviewedOn, setReviewedOn] = useState(initial?.reviewedOn ?? '');
+  const [reviewBy, setReviewBy] = useState(initial?.reviewBy ?? '');
 
   const kind = METRICS[metric].kind;
   const parents = earlier.filter((r) => r.fieldType === 'yes_no' || r.fieldType === 'select');
@@ -127,6 +132,12 @@ export function RequirementModal({
   if (hasCheck && kind === 'choice' && checkChoices.length === 0)
     problems.push('Choose at least one value for the check.');
   if (dependsOn && !equals) problems.push('Choose the answer that shows this requirement.');
+  const financialRule = hasCheck && FINANCIAL_METRICS.has(metric);
+  if (financialRule && !effectiveFrom) problems.push('Enter the date this lender rule took effect.');
+  if (financialRule && !reviewedOn)
+    problems.push('Enter the date this rule was last confirmed with the lender.');
+  if (reviewedOn && reviewBy && reviewBy < reviewedOn)
+    problems.push('The next review date is before the last review.');
 
   function save() {
     const numeric = fieldType === 'number' || fieldType === 'amount';
@@ -152,6 +163,9 @@ export function RequirementModal({
       visibleIf: dependsOn && equals ? { key: dependsOn, equals } : null,
       verification,
       source: orNull(source),
+      effectiveFrom: orNull(effectiveFrom),
+      reviewedOn: orNull(reviewedOn),
+      reviewBy: orNull(reviewBy),
     });
   }
 
@@ -457,6 +471,50 @@ export function RequirementModal({
             onChange={(e) => setSource(e.target.value)}
           />
         </FormField>
+
+        {/* A lender rule is applied only as confirmed: from when, last checked, next check. */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <FormField
+            label={financialRule ? 'Rule took effect' : 'Rule took effect (optional)'}
+            htmlFor="req-effective"
+          >
+            <Input
+              id="req-effective"
+              type="date"
+              value={effectiveFrom}
+              onChange={(e) => setEffectiveFrom(e.target.value)}
+            />
+          </FormField>
+          <FormField
+            label={financialRule ? 'Last confirmed with the lender' : 'Last confirmed (optional)'}
+            htmlFor="req-reviewed"
+          >
+            <Input
+              id="req-reviewed"
+              type="date"
+              value={reviewedOn}
+              onChange={(e) => setReviewedOn(e.target.value)}
+            />
+          </FormField>
+          <FormField
+            label="Confirm again by (optional)"
+            htmlFor="req-review-by"
+            hint="After this date the rule is not applied until confirmed again."
+          >
+            <Input
+              id="req-review-by"
+              type="date"
+              value={reviewBy}
+              onChange={(e) => setReviewBy(e.target.value)}
+            />
+          </FormField>
+        </div>
+        {hasCheck && metric === 'dscr' && (
+          <p className="text-text-mute text-xs">
+            AgriCtec calculates it as: {DSCR_METHOD} Use this check only when the lender’s stated
+            method is the same.
+          </p>
+        )}
 
         {problems.length > 0 && (
           <ul className="text-ink-gold list-disc space-y-0.5 pl-5 text-xs">

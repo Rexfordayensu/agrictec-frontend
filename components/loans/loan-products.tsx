@@ -5,6 +5,7 @@ import { CircleCheck, Columns3, FileText, ShieldCheck } from 'lucide-react';
 import { loanUi } from '@/components/loans/loan-ui';
 import { LenderLogo } from '@/components/shared/lender-logo';
 import { Button } from '@/components/ui/button';
+import { EligibilityCheck } from '@/components/loans/eligibility-check';
 import { Modal } from '@/components/ui/modal';
 import { formatGhanaDate, formatDate } from '@/lib/format';
 import {
@@ -176,6 +177,9 @@ export function ProductDetails({
           <Row label="Collateral">{terms.collateral}</Row>
           <Row label="Guarantor">{terms.guarantor}</Row>
           <Row label="Regions served">{terms.supportedRegions?.join(', ')}</Row>
+          <Row label="History assessed">
+            {terms.assessmentMonths ? `${terms.assessmentMonths} months of transactions` : null}
+          </Row>
           <Row label="Official source">{product.source}</Row>
           <Row label="Terms last checked">
             {product.sourceCheckedOn ? formatDate(product.sourceCheckedOn) : null}
@@ -231,6 +235,8 @@ export function ProductDetails({
             </div>
           )}
         </section>
+
+        <EligibilityCheck product={product} />
 
         <div className="border-border bg-glass rounded-2xl border p-4">
           <p className="text-text text-sm font-semibold">How to apply</p>
