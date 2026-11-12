@@ -1,0 +1,484 @@
+.momo-reference {
+  min-width: 0;
+  width: 100%;
+  --momo-green: #008b54;
+}
+.momo-reference :is(h2, h3, h4) {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.4px;
+}
+.momo-reference .shadow-glass {
+  box-shadow:
+    0 3px 5px #244c6305,
+    0 8px 20px #244c6308;
+}
+.momo-reference .rounded-card {
+  border-radius: 21px;
+}
+.momo-hero-row {
+  gap: 17px;
+}
+.momo-wallet {
+  min-height: 173px;
+  padding: 27px 28px;
+  border: 1px solid #04764d;
+  box-shadow: 0 4px 14px #0065420b;
+}
+.momo-wallet > span {
+  background: #058b4b88;
+  padding: 6px 12px;
+  font-size: 12px;
+  line-height: 1.3;
+}
+.momo-wallet h2 {
+  font-size: 14px;
+  letter-spacing: -0.2px;
+  margin-top: 20px;
+}
+.momo-wallet > p {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 41px;
+  font-weight: 760;
+  letter-spacing: -1.5px;
+  line-height: 1.12;
+  margin-top: 9px;
+  position: relative;
+  z-index: 1;
+}
+.momo-wallet > svg {
+  right: -7px;
+  max-height: 168px;
+  height: 100%;
+  width: auto;
+  opacity: 1;
+}
+.momo-this-month {
+  min-height: 173px;
+  padding: 20px;
+}
+.momo-this-month h2 {
+  font-size: 14px;
+  font-weight: 750;
+  margin: 0;
+}
+.momo-this-month h2 > span {
+  font-size: 13px;
+  color: var(--text);
+}
+.momo-this-month dl {
+  margin-top: 21px;
+}
+.momo-this-month dl > div {
+  gap: 8px;
+  padding-left: 12px;
+  padding-right: 10px;
+}
+.momo-this-month dl > div > span {
+  width: 32px;
+  height: 34px;
+  flex-shrink: 0;
+}
+.momo-this-month dl > div:first-child {
+  padding-left: 0;
+}
+.momo-this-month dl > div:last-child {
+  padding-right: 0;
+}
+.momo-this-month dt {
+  font-size: 12px;
+}
+.momo-this-month dd:first-of-type {
+  font-size: 20px;
+  font-weight: 740;
+  letter-spacing: -0.6px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.momo-this-month dd:last-child:not(:first-of-type) {
+  font-size: 12px;
+}
+.momo-summary-tiles {
+  gap: 14px;
+}
+.momo-summary-tiles > div {
+  padding: 15px 16px;
+  min-height: 97px;
+  gap: 12px;
+  align-items: flex-start;
+}
+.momo-summary-tiles dt {
+  font-size: 12px;
+  letter-spacing: -0.25px;
+  line-height: 1.5;
+  white-space: normal;
+}
+.momo-summary-tiles dd:first-of-type {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-size: 22px;
+  letter-spacing: -0.7px;
+  margin-top: 4px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  line-height: 1.3;
+}
+.momo-summary-tiles dd:last-child:not(:first-of-type) {
+  font-size: 11px;
+  margin-top: 4px;
+  color: var(--text-mute);
+  line-height: 1.5;
+}
+.momo-summary-tiles dd > span {
+  font-size: 17px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.momo-summary-tiles > div > span {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+}
+.momo-chart-row {
+  gap: 16px;
+}
+.momo-chart-row > section {
+  min-width: 0;
+  min-height: 239px;
+  padding: 17px 18px;
+}
+.momo-chart-row h2 {
+  font-size: 15px;
+  font-weight: 740;
+  line-height: 1.4;
+}
+.momo-chart-row h2 + p {
+  font-size: 11px;
+  color: var(--text-mute);
+  line-height: 1.5;
+}
+.momo-trend > div:first-child {
+  margin-bottom: 12px;
+}
+.momo-trend > div:first-child > span {
+  font-size: 10px;
+  gap: 13px;
+  padding-top: 6px;
+}
+.momo-trend > div:nth-child(2) {
+  height: 162px !important;
+}
+.momo-sources .momo-source-content {
+  grid-template-columns: minmax(110px, 0.95fr) minmax(0, 1.2fr);
+  gap: 9px;
+  margin-top: 16px;
+}
+.momo-source-donut {
+  width: 100%;
+  max-width: 142px;
+  min-width: 0;
+}
+.momo-source-donut > div {
+  max-width: 100%;
+}
+.momo-source-content ul {
+  font-size: 10px;
+}
+.momo-source-content ul li {
+  gap: 6px;
+}
+.momo-source-content ul li > span:last-child {
+  font-size: 10px;
+}
+.momo-chart-row > section:last-child {
+  border-color: #75c8aa42;
+  background: linear-gradient(135deg, #daf4e628, #ddf1ed38);
+  padding: 18px 21px;
+}
+.momo-chart-row > section:last-child > div {
+  gap: 10px;
+}
+.momo-chart-row > section:last-child h2 {
+  font-size: 16px;
+  letter-spacing: -0.5px;
+}
+.momo-chart-row > section:last-child > p {
+  font-size: 12px;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+.momo-chart-row > section:last-child > ul {
+  font-size: 12px;
+  line-height: 1.55;
+  margin-top: 14px;
+  gap: 12px;
+}
+.momo-transaction-section {
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+}
+.momo-transaction-section > [role='tablist'] {
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.momo-transaction-section > [role='tablist'] > button {
+  min-height: 36px;
+  padding-inline: 28px;
+  border-radius: 22px;
+  font-size: 12px;
+  box-shadow: 0 2px 6px #234b580b;
+}
+.momo-transaction-section > [role='tablist'] > button[aria-selected='true'] {
+  background: linear-gradient(140deg, #008d50, #00723f);
+  box-shadow: 0 3px 9px #05875020;
+}
+.momo-transaction-section > section {
+  border-radius: 21px;
+}
+.momo-transaction-section > section > div:first-child {
+  padding: 19px 20px 14px;
+}
+.momo-transaction-section h2 {
+  font-size: 17px;
+  line-height: 1.4;
+}
+.momo-transaction-section h2 + p {
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.momo-transaction-section button {
+  border-radius: 12px;
+}
+.momo-transaction-section > section > div:first-child > div:first-child > div:last-child > button {
+  font-size: 12px;
+  min-height: 39px;
+  padding-inline: 15px;
+  box-shadow: 0 2px 5px #284d5709;
+}
+.momo-transaction-section button:has(.lucide-plus) {
+  background: linear-gradient(135deg, #00b25d, #00954b);
+  color: white;
+}
+.momo-transaction-section select,
+.momo-transaction-section input[type='search'] {
+  height: 38px;
+  border-radius: 11px;
+  font-size: 12px;
+  background: var(--glass);
+  box-shadow: 0 2px 5px #274a5d06;
+}
+.momo-transaction-section thead tr {
+  background: linear-gradient(90deg, #e4e9ed44, #e4e9ed22);
+  color: var(--text);
+}
+.momo-transaction-section thead th {
+  padding-top: 7px;
+  padding-bottom: 7px;
+  font-size: 11px;
+}
+.momo-transaction-section tbody td {
+  font-size: 12px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+.momo-transaction-section tbody td:nth-child(2) > span:first-child {
+  font-size: 12px;
+}
+.momo-transaction-section tbody td:nth-child(2) > span:last-child {
+  font-size: 11px;
+  color: var(--text-mute);
+  margin-top: 3px;
+}
+.momo-transaction-section tbody td > span[class*='rounded-full'] {
+  font-size: 11px;
+}
+.momo-transaction-section [aria-label='Pages'] button,
+.momo-transaction-section [aria-label='Pages'] > span {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+}
+.momo-transaction-section [aria-live='polite'] {
+  font-size: 12px;
+}
+@media (min-width: 1200px) {
+  body:has(.momo-reference) aside[aria-label='Sidebar'] {
+    width: 230px;
+    left: 10px;
+    top: 10px;
+    bottom: 10px;
+  }
+  body:has(.momo-reference) main {
+    margin-left: 250px;
+    padding-left: 12px;
+    padding-right: 16px;
+    padding-top: 12px;
+  }
+  body:has(.momo-reference) main > header {
+    margin-bottom: 15px;
+  }
+  body:has(.momo-reference) main > header > div {
+    height: 70px;
+  }
+  body:has(.momo-reference) aside nav a {
+    font-size: 13px;
+  }
+}
+@media (max-width: 1250px) {
+  .momo-summary-tiles > div {
+    padding: 14px;
+    gap: 9px;
+  }
+  .momo-summary-tiles dd:first-of-type {
+    font-size: 20px;
+  }
+  .momo-chart-row > section {
+    padding: 16px;
+  }
+  .momo-wallet > p {
+    font-size: 36px;
+  }
+}
+@media (max-width: 900px) {
+  .momo-wallet {
+    min-height: 185px;
+  }
+  .momo-wallet > p {
+    font-size: 38px;
+  }
+  .momo-chart-row > section {
+    min-height: 230px;
+  }
+  .momo-source-content ul {
+    font-size: 11px;
+  }
+  .momo-trend > div:nth-child(2) {
+    height: 190px !important;
+  }
+}
+@media (max-width: 600px) {
+  .momo-reference {
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+  }
+  .momo-hero-row,
+  .momo-summary-tiles,
+  .momo-chart-row {
+    min-width: 0;
+    width: 100%;
+  }
+  .momo-wallet {
+    padding: 22px;
+    min-height: 179px;
+  }
+  .momo-wallet > p {
+    font-size: 34px;
+    max-width: 78%;
+    overflow-wrap: anywhere;
+    letter-spacing: -1px;
+  }
+  .momo-wallet > svg {
+    right: -27px;
+    opacity: 0.65;
+  }
+  .momo-wallet h2 {
+    font-size: 13px;
+  }
+  .momo-this-month {
+    padding: 18px;
+    min-height: 190px;
+  }
+  .momo-this-month dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    margin-top: 20px;
+  }
+  .momo-this-month dl > div {
+    flex-direction: column;
+    gap: 7px;
+    padding-left: 9px;
+    padding-right: 9px;
+    border-right: 1px solid var(--border);
+  }
+  .momo-this-month dl > div:last-child {
+    border: 0;
+  }
+  .momo-this-month dt {
+    font-size: 10px;
+  }
+  .momo-this-month dd:first-of-type {
+    font-size: 16px;
+  }
+  .momo-this-month dd:last-child:not(:first-of-type) {
+    font-size: 10px;
+  }
+  .momo-summary-tiles {
+    gap: 10px;
+  }
+  .momo-summary-tiles > div {
+    min-height: 115px;
+    gap: 7px;
+    flex-direction: column;
+    padding: 13px;
+  }
+  .momo-summary-tiles dt {
+    font-size: 11px;
+  }
+  .momo-summary-tiles dd:first-of-type {
+    font-size: 21px;
+  }
+  .momo-summary-tiles dd > span {
+    font-size: 15px;
+  }
+  .momo-summary-tiles > div:last-child {
+    flex-direction: row;
+    align-items: center;
+    gap: 13px;
+    min-height: 84px;
+  }
+  .momo-summary-tiles > div > span {
+    width: 32px;
+    height: 32px;
+  }
+  .momo-summary-tiles dd:last-child:not(:first-of-type) {
+    font-size: 10px;
+  }
+  .momo-sources .momo-source-content {
+    grid-template-columns: minmax(110px, 1fr) minmax(0, 1.35fr);
+  }
+  .momo-trend > div:first-child {
+    gap: 8px;
+  }
+  .momo-trend > div:first-child > span {
+    font-size: 10px;
+  }
+  .momo-chart-row > section:last-child > ul {
+    grid-template-columns: 1fr;
+    font-size: 12px;
+  }
+  .momo-transaction-section > [role='tablist'] {
+    gap: 7px;
+  }
+  .momo-transaction-section > [role='tablist'] > button {
+    font-size: 11px;
+    padding-inline: 14px;
+    min-height: 35px;
+  }
+  .momo-transaction-section > section > div:first-child {
+    padding: 16px;
+  }
+  .momo-transaction-section
+    > section
+    > div:first-child
+    > div:first-child
+    > div:last-child
+    > button {
+    font-size: 11px;
+    min-height: 39px;
+  }
+  .momo-transaction-section input[type='search'] {
+    font-size: 11px;
+  }
+  .momo-transaction-section [aria-live='polite'] {
+    font-size: 11px;
+  }
+}

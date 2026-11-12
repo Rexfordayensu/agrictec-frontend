@@ -40,8 +40,8 @@ const monthLabel = (key: string, withYear = false) =>
 
 const NETWORK_COLORS: Record<string, string> = {
   MTN: '#f5c400',
-  Telecel: '#e60000',
-  AirtelTigo: '#1d6fd8',
+  Telecel: '#1677ff',
+  AirtelTigo: '#ff3948',
 };
 
 /**
@@ -68,13 +68,13 @@ export function MomoOverview() {
       </div>
     );
   return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 gap-4 @4xl:grid-cols-2">
+    <div className="momo-overview space-y-4">
+      <div className="momo-hero-row grid grid-cols-1 gap-4 @4xl:grid-cols-2">
         <WalletCard summary={summary} />
         <ThisMonth summary={summary} />
       </div>
       <Tiles summary={summary} />
-      <div className="grid grid-cols-1 gap-4 @4xl:grid-cols-2 @6xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.85fr)]">
+      <div className="momo-chart-row grid grid-cols-1 gap-4 @4xl:grid-cols-2 @6xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)_minmax(0,0.85fr)]">
         <Trend summary={summary} />
         <Sources summary={summary} />
         <UseRecords className="@4xl:col-span-2 @6xl:col-span-1" />
@@ -88,7 +88,7 @@ function WalletCard({ summary }: { summary: MomoSummary }) {
   return (
     <section
       aria-labelledby="wallet-title"
-      className="rounded-card relative isolate flex min-h-44 flex-col justify-center overflow-hidden p-6 text-white"
+      className="momo-wallet rounded-card relative isolate flex min-h-44 flex-col justify-center overflow-hidden p-6 text-white"
       style={{ background: 'linear-gradient(115deg, #04432f 0%, #075a3d 55%, #0a6b48 100%)' }}
     >
       <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-white/15 px-3 py-1 text-xs font-bold">
@@ -117,12 +117,23 @@ function PhoneArt() {
       viewBox="0 0 260 200"
       className="pointer-events-none absolute right-0 bottom-0 -z-10 hidden h-full max-h-48 w-auto opacity-95 @md:block"
     >
+      <defs>
+        <linearGradient id="momo-phone-frame" x2="1" y2="1">
+          <stop stopColor="#9dc6d1" />
+          <stop offset=".5" stopColor="#538697" />
+          <stop offset="1" stopColor="#b3d1d7" />
+        </linearGradient>
+        <linearGradient id="momo-phone-screen" x2=".8" y2="1">
+          <stop stopColor="#174957" />
+          <stop offset="1" stopColor="#092d34" />
+        </linearGradient>
+      </defs>
       <path d="M40 200 C 52 150, 92 128, 120 140 C 98 154, 76 176, 70 200 Z" fill="#1f9d4d" />
       <path d="M60 200 C 40 160, 46 120, 76 104 C 80 136, 82 168, 92 200 Z" fill="#2fb35c" />
       <path d="M232 200 C 238 160, 252 140, 260 132 L 260 200 Z" fill="#1f9d4d" />
       <g transform="rotate(14 160 110)">
-        <rect x="104" y="10" width="112" height="216" rx="22" fill="#0b2f24" />
-        <rect x="112" y="20" width="96" height="196" rx="16" fill="#123f31" />
+        <rect x="104" y="10" width="112" height="216" rx="22" fill="url(#momo-phone-frame)" />
+        <rect x="110" y="16" width="100" height="204" rx="17" fill="url(#momo-phone-screen)" />
         <rect x="143" y="28" width="34" height="6" rx="3" fill="#0b2f24" />
         <rect x="134" y="74" width="52" height="52" rx="12" fill="#f5c400" />
         <path
@@ -145,7 +156,7 @@ function ThisMonth({ summary }: { summary: MomoSummary }) {
   return (
     <section
       aria-labelledby="month-title"
-      className={cn(dashPanel, 'flex flex-col justify-center')}
+      className={cn(dashPanel, 'momo-this-month flex flex-col justify-center')}
     >
       <h2 id="month-title" className="text-text text-[17px] font-bold">
         This Month{' '}
@@ -223,7 +234,7 @@ function Tiles({ summary }: { summary: MomoSummary }) {
   const a = summary.allTime;
   const main = summary.mainNetwork;
   return (
-    <dl className="grid grid-cols-2 gap-3 @3xl:grid-cols-3 @6xl:grid-cols-5">
+    <dl className="momo-summary-tiles grid grid-cols-2 gap-3 @3xl:grid-cols-3 @6xl:grid-cols-5">
       <Tile icon={Download} tone="green" label="Total Received" sub="(All Time)">
         {ghs(a.in)}
       </Tile>
@@ -296,7 +307,7 @@ function Trend({ summary }: { summary: MomoSummary }) {
   const { palette } = useChartTheme();
   const rows = summary.monthly;
   return (
-    <section aria-labelledby="momo-trend-title" className={dashPanel}>
+    <section aria-labelledby="momo-trend-title" className={cn(dashPanel, 'momo-trend')}>
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
           <h2 id="momo-trend-title" className="text-text text-[17px] font-bold">
@@ -334,19 +345,28 @@ function Sources({ summary }: { summary: MomoSummary }) {
   const nets = summary.networks;
   const a = summary.allTime;
   return (
-    <section aria-labelledby="sources-title" className={cn(dashPanel, '@container')}>
+    <section aria-labelledby="sources-title" className={cn(dashPanel, 'momo-sources @container')}>
       <h2 id="sources-title" className="text-text text-[17px] font-bold">
         Transaction Sources
       </h2>
       <p className="text-text-dim text-xs">By amount (all time)</p>
-      <div className="mt-4 grid grid-cols-1 items-center gap-3 @[16rem]:grid-cols-[7rem_minmax(0,1fr)]">
-        <div className="mx-auto w-28">
+      <div className="momo-source-content mt-4 grid grid-cols-1 items-center gap-3 @[16rem]:grid-cols-[7rem_minmax(0,1fr)]">
+        <div className="momo-source-donut mx-auto w-28">
           <DoughnutChart
             aspectRatio={1}
             showLegend={false}
-            labels={nets.map((n) => n.network)}
-            data={nets.map((n) => Number(n.amount))}
-            colors={nets.map((n) => NETWORK_COLORS[n.network])}
+            labels={[
+              ...nets.map((n) => n.network),
+              ...(summary.untagged.count ? ['Not provided'] : []),
+            ]}
+            data={[
+              ...nets.map((n) => Number(n.amount)),
+              ...(summary.untagged.count ? [Number(summary.untagged.amount)] : []),
+            ]}
+            colors={[
+              ...nets.map((n) => NETWORK_COLORS[n.network]),
+              ...(summary.untagged.count ? ['#a4b4bf'] : []),
+            ]}
             ariaLabel={`Money moved by network: ${nets.map((n) => `${n.network} ${ghs(n.amount)}`).join(', ')}.`}
             centerLabel={
               <span className="block text-center leading-tight">

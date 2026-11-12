@@ -48,7 +48,7 @@ import {
   type VerificationStatus,
 } from '@/lib/transactions';
 import { cn } from '@/lib/utils';
-import { financialService } from '@/services/financial.service';
+import { momoService } from '@/services/momo.service';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import type { MomoTransaction } from '@/types';
@@ -81,6 +81,9 @@ const describe = (t: MomoTransaction) =>
  */
 export function MomoTransactions() {
   const momo = useFarmStore((s) => s.momo);
+  const farmStatus = useFarmStore((s) => s.status);
+  const userId = useFarmStore((s) => s.userId);
+  const loadFarm = useFarmStore((s) => s.load);
   const openModal = useModalStore((s) => s.openModal);
   const [tab, setTab] = useState<Tab>('all');
   const [period, setPeriod] = useState<MomoPeriod>('all');
@@ -168,12 +171,18 @@ export function MomoTransactions() {
   }
 
   async function statement() {
+    if (statementBusy || rows.length === 0) return;
     setStatementBusy(true);
     try {
-      // The server's statement of the last 12 months: farm records and MoMo, with their status.
-      const report = await financialService.createReport(12);
-      const { blob, filename } = await financialService.downloadReport(report);
-      saveBlob(blob, filename);
+      const blob = await momoService.statement({
+        period,
+        network: network === 'all' ? undefined : network,
+        direction: tab === 'in' || tab === 'out' ? tab : undefined,
+        status: tab === 'verified' ? 'verified' : status === 'all' ? undefined : status,
+        query,
+        newest_first: newestFirst,
+      });
+      saveBlob(blob, `AgriCtec_MoMo_Statement_${todayISO()}.pdf`);
     } catch (cause) {
       toast.error(financialReportError(cause, 'pdf'));
     } finally {
@@ -188,8 +197,14 @@ export function MomoTransactions() {
     { value: 'verified', label: 'Verification' },
   ];
 
+  if (farmStatus === 'error') return <section role="alert" className={dashPanel}>
+    <h2 className="text-text font-semibold">Your transactions could not be refreshed</h2>
+    <p className="text-text-mute mt-2 text-sm">We have hidden the earlier list so it is not mistaken for current data.</p>
+    <Button className="mt-3" variant="ghost" onClick={() => { if (userId) void loadFarm(userId).catch(() => {}); }}>Try again</Button>
+  </section>;
+
   return (
-    <div className="space-y-4">
+    <div className="momo-transaction-section space-y-4">
       <div
         role="tablist"
         aria-label="Show transactions"
@@ -234,6 +249,7 @@ export function MomoTransactions() {
                 variant="ghost"
                 icon={FileText}
                 loading={statementBusy}
+                disabled={rows.length === 0}
                 onClick={() => void statement()}
               >
                 Download Statement (PDF)
@@ -317,6 +333,7 @@ export function MomoTransactions() {
                 value={search}
                 onChange={(e) => reset(setSearch)(e.target.value)}
                 placeholder="Search by name, reference or amount..."
+                maxLength={120}
                 className={cn(control, 'w-full pl-9 [&::-webkit-search-cancel-button]:hidden')}
               />
               {search && (
