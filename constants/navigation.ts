@@ -83,7 +83,8 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/momo': {
     title: 'MoMo Transactions',
-    subtitle: 'Track MoMo inflows and outflows and build your financial history.',
+    subtitle:
+      'Track your Mobile Money inflows and outflows, build your financial history, and use it for loan applications.',
   },
   '/reports': {
     title: 'Financial Reports',
