@@ -51,7 +51,7 @@ export function RuleSection({
           <h2 id={titleId} className="text-text flex items-center gap-2 text-sm font-semibold">
             {title}
             {changed && !error && (
-              <span className="bg-gold/15 text-ink-gold rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+              <span className="bg-gold/15 text-ink-gold rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase">
                 Edited
               </span>
             )}
@@ -126,7 +126,7 @@ export function NumberField({
         />
         {unit && <span className="text-text-mute shrink-0 text-xs">{unit}</span>}
       </div>
-      <p className="mt-1.5 flex min-h-4 items-center justify-between gap-2 text-[11px]">
+      <p className="mt-1.5 flex min-h-4 items-center justify-between gap-2 text-xs">
         {hint && (
           <span id={`${id}-hint`} className="text-text-mute">
             {hint}

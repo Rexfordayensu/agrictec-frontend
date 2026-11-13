@@ -413,7 +413,7 @@ function Form({
                         </span>
                         <span className="text-text text-sm font-semibold">{meta.label}</span>
                       </span>
-                      <span className="text-text-mute text-[11px] leading-tight">{meta.hint}</span>
+                      <span className="text-text-mute text-xs leading-tight">{meta.hint}</span>
                     </button>
                   );
                 })}

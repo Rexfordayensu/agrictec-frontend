@@ -54,7 +54,7 @@ import type { WeatherLocation, WeatherReport } from '@/types/market';
  * The farm's map pin as a weather location, rounded to 2 decimals (about 1 km) exactly like the
  * weather alerts, so this page and the alerts read the same forecast.
  */
-function farmLocation(gps: { lat: number; lng: number }, region?: string): WeatherLocation {
+export function farmLocation(gps: { lat: number; lng: number }, region?: string): WeatherLocation {
   return {
     kind: 'coordinates',
     label: region ? `Your farm · ${region}` : 'Your farm',
@@ -528,7 +528,7 @@ function WeatherForecasts({ report, today }: { report: WeatherReport; today: str
                 </time>
                 <WeatherIcon condition={conditionOf(hour.description)} size={30} />
                 <span className="text-text text-sm font-bold">{Math.round(hour.temp)}°</span>
-                <span className="text-ink-blue text-[11px] font-semibold">
+                <span className="text-ink-blue text-xs font-semibold">
                   {hour.rainChance === null ? '–' : `${hour.rainChance}%`}
                   <span className="sr-only"> chance of rain, {hour.description}</span>
                 </span>

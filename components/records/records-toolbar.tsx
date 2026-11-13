@@ -53,7 +53,7 @@ export function RecordsToolbar({
   }));
 
   return (
-    <div className="space-y-4">
+    <div className="records-toolbar space-y-4">
       {/* Row 1: search, period, sort, actions */}
       <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-center">
         <div className="relative min-w-0 flex-1">

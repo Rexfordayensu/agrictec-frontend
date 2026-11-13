@@ -17,7 +17,7 @@ export function SidebarNav({ onNavigate }: { onNavigate?: () => void }) {
     <nav aria-label="Main navigation" className="flex-1 overflow-y-auto px-3 py-4">
       {enabledNavSections(flags).map((section) => (
         <div key={section.title} className="mb-5 last:mb-0">
-          <p className="text-text-mute mb-2 px-3 text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-text-mute mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
             {t(`nav.section.${section.title}`)}
           </p>
           <ul className="space-y-1">

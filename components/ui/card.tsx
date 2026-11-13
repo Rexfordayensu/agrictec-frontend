@@ -41,7 +41,7 @@ export function CardHeader({ className, children, ...props }: HTMLAttributes<HTM
 
 export function CardTitle({ className, children, ...props }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h3 className={cn('text-text text-[15px] font-bold', className)} {...props}>
+    <h3 className={cn('text-text text-sm font-bold', className)} {...props}>
       {children}
     </h3>
   );
@@ -49,7 +49,7 @@ export function CardTitle({ className, children, ...props }: HTMLAttributes<HTML
 
 export function CardSub({ className, children, ...props }: HTMLAttributes<HTMLParagraphElement>) {
   return (
-    <p className={cn('text-text-mute mt-0.5 text-[11px]', className)} {...props}>
+    <p className={cn('text-text-mute mt-0.5 text-xs', className)} {...props}>
       {children}
     </p>
   );

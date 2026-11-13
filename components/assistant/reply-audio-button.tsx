@@ -52,7 +52,7 @@ export function ReplyAudioButton({ content }: { content: ChatMessage['content'] 
         {playing ? 'Stop audio' : 'Listen'}
       </button>
       {voice && (
-        <span title={voice.name} className="text-text-mute text-[10px]">
+        <span title={voice.name} className="text-text-mute text-xs">
           {voice.ghanaian
             ? 'Ghanaian English'
             : voice.name === 'Device default'

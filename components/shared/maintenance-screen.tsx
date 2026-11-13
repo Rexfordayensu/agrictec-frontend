@@ -21,7 +21,9 @@ export function MaintenanceScreen({ message }: { message: string }) {
           <div className="bg-gold/15 text-ink-gold mx-auto mb-4 flex size-16 items-center justify-center rounded-2xl">
             <Wrench size={30} aria-hidden="true" />
           </div>
-          <h1 className="font-display text-text text-2xl font-bold">We&apos;ll be right back</h1>
+          <h1 className="font-display text-text text-display font-bold">
+            We&apos;ll be right back
+          </h1>
           {message.trim() && (
             <p className="text-text-dim mt-3 text-sm leading-relaxed whitespace-pre-line">
               {message}

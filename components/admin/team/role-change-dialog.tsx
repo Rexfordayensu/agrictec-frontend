@@ -128,7 +128,7 @@ function Change({
                   <span className="flex w-full items-center justify-between gap-2">
                     <RoleBadge role={option} />
                     {current && (
-                      <span className="text-text-mute text-[10px] font-bold tracking-wider uppercase">
+                      <span className="text-text-mute text-xs font-bold tracking-wider uppercase">
                         Current
                       </span>
                     )}

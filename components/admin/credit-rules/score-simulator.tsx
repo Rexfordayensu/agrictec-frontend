@@ -217,7 +217,7 @@ export function ScoreSimulator({
           <table className="w-full min-w-[30rem] text-left text-sm">
             <caption className="sr-only">Each factor and the points it adds</caption>
             <thead>
-              <tr className="text-text-mute border-border border-b text-[11px] font-semibold tracking-wider uppercase">
+              <tr className="text-text-mute border-border border-b text-xs font-semibold tracking-wider uppercase">
                 <th scope="col" className="py-2 pr-3 font-semibold">
                   Factor
                 </th>
@@ -249,7 +249,7 @@ export function ScoreSimulator({
                         />
                         {f.label}
                       </span>
-                      <span className="text-text-mute ml-4 text-[11px]">
+                      <span className="text-text-mute ml-4 text-xs">
                         weight {live.weights[f.key]}%
                         {draft.weights[f.key] !== live.weights[f.key] &&
                           ` → ${draft.weights[f.key]}%`}

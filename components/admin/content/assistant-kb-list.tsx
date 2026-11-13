@@ -133,7 +133,7 @@ export function AssistantKbList({
                 <p className="text-text truncate text-sm font-semibold">
                   {item.reply.title}
                   {fallback && (
-                    <span className="bg-glass-strong text-text-dim ml-2 rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+                    <span className="bg-glass-strong text-text-dim ml-2 rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase">
                       Fallback
                     </span>
                   )}
@@ -146,13 +146,13 @@ export function AssistantKbList({
                       {item.keywords.slice(0, MAX_CHIPS).map((k) => (
                         <span
                           key={k}
-                          className="bg-purple/12 text-ink-purple rounded-md px-1.5 py-0.5 font-mono text-[11px]"
+                          className="bg-purple/12 text-ink-purple rounded-md px-1.5 py-0.5 font-mono text-xs"
                         >
                           {k}
                         </span>
                       ))}
                       {extra > 0 && (
-                        <span className="text-text-mute px-1 text-[11px]">+{extra} more</span>
+                        <span className="text-text-mute px-1 text-xs">+{extra} more</span>
                       )}
                     </>
                   )}

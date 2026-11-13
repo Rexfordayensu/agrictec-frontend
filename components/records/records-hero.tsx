@@ -12,7 +12,7 @@ import './records.css';
 
 const RECEIPT_TYPES = 'image/jpeg,image/png,image/webp,application/pdf';
 const secondary =
-  'border-border bg-glass text-text hover:bg-glass-strong inline-flex min-h-10 items-center gap-2 rounded-xl border px-3.5 text-[13px] font-semibold transition-colors';
+  'border-border bg-glass text-text hover:bg-glass-strong inline-flex min-h-10 items-center gap-2 rounded-xl border px-3.5 text-small font-semibold transition-colors';
 
 /**
  * The welcome banner: one place to add a record, import a receipt (saved with the new record as
@@ -35,7 +35,7 @@ export function RecordsHero() {
   return (
     <section
       aria-labelledby="records-hero-title"
-      className="rounded-card border-border relative isolate overflow-hidden border p-5 sm:p-7"
+      className="records-hero rounded-card border-border relative isolate overflow-hidden border p-5 sm:p-7"
       style={{
         background:
           'linear-gradient(100deg, var(--records-hero-from) 0%, var(--records-hero-to) 100%)',
@@ -44,7 +44,7 @@ export function RecordsHero() {
       <div className="@container relative z-10 max-w-[48rem]">
         <h2
           id="records-hero-title"
-          className="text-[clamp(22px,2.6vw,30px)] leading-tight font-extrabold tracking-tight text-[var(--records-hero-title)]"
+          className="text-display leading-tight font-extrabold tracking-tight text-[var(--records-hero-title)]"
         >
           Every strong financial profile <br className="hidden sm:block" />
           starts with good records.
@@ -135,6 +135,18 @@ function FarmIllustration() {
       className="pointer-events-none absolute right-0 bottom-0 -z-0 hidden h-full w-[38%] max-w-[440px] md:block"
     >
       <defs>
+        <linearGradient id="rh-board">
+          <stop stopColor="#7cad67" />
+          <stop offset="1" stopColor="#2b8a5d" />
+        </linearGradient>
+        <linearGradient id="rh-leaf" x2="1" y2="1">
+          <stop stopColor="#bee85c" />
+          <stop offset="1" stopColor="#53ac45" />
+        </linearGradient>
+        <linearGradient id="rh-field" x2="1" y2="1">
+          <stop stopColor="#cfdf8c" />
+          <stop offset="1" stopColor="#68ba66" />
+        </linearGradient>
         <linearGradient id="rh-sky" x1="0" x2="0" y1="0" y2="1">
           <stop offset="0" stopColor="#e8f6ee" stopOpacity="0" />
           <stop offset="1" stopColor="#d9f0e2" />
@@ -142,15 +154,16 @@ function FarmIllustration() {
       </defs>
       <rect x="140" y="0" width="380" height="220" fill="url(#rh-sky)" />
       {/* Hills and fields */}
-      <path d="M150 150 Q 260 100 380 135 T 520 120 V 220 H 150 Z" fill="#bfe3c7" />
-      <path d="M200 175 Q 320 140 520 150 V 220 H 200 Z" fill="#7cc58a" />
+      <path d="M0 132Q75 135 130 80T260 62T385 49T520 62V220H0Z" fill="#c9e8dc" opacity=".45" />
+      <path d="M0 162Q90 155 200 122T390 103T520 117V220H0Z" fill="#bfe3c7" />
+      <path d="M0 194 Q 230 140 520 150 V 220 H 0 Z" fill="url(#rh-field)" />
       {[0, 1, 2, 3, 4, 5].map((i) => (
         <path
           key={i}
           d={`M${250 + i * 45} 220 L ${360 + i * 28} 158`}
-          stroke="#a7894f"
-          strokeWidth="5"
-          opacity="0.55"
+          stroke="#d7b75f"
+          strokeWidth="9"
+          opacity="0.75"
         />
       ))}
       {/* Barn */}
@@ -167,14 +180,19 @@ function FarmIllustration() {
       ].map(([x, y, r]) => (
         <g key={x}>
           <rect x={x - 2} y={y + r - 4} width="4" height="16" fill="#7a5a3a" />
-          <circle cx={x} cy={y} r={r} fill="#3f9a54" />
+          <circle cx={x} cy={y} r={r} fill="#64b85b" />
+          <circle cx={x - 9} cy={y + 3} r={r * 0.65} fill="#76c965" />
+          <circle cx={x + 8} cy={y + 8} r={r * 0.75} fill="#3f9a54" />
         </g>
       ))}
       {/* Clipboard */}
-      <g transform="translate(250 22) rotate(-6)">
-        <rect x="0" y="0" width="110" height="150" rx="12" fill="#2f8f5b" />
+      <g transform="translate(135 48) rotate(5)">
+        <rect x="3" y="3" width="110" height="150" rx="12" fill="#267451" opacity=".18" />
+        <rect x="0" y="0" width="110" height="150" rx="12" fill="url(#rh-board)" />
         <rect x="9" y="12" width="92" height="130" rx="6" fill="#ffffff" />
-        <rect x="35" y="-8" width="40" height="18" rx="6" fill="#256f47" />
+        <circle cx="55" cy="-8" r="12" fill="url(#rh-board)" />
+        <circle cx="55" cy="-8" r="4" fill="#edf8ee" />
+        <rect x="31" y="-8" width="48" height="18" rx="3" fill="url(#rh-board)" />
         {[30, 58, 86, 114].map((y, i) => (
           <g key={y}>
             {i < 2 ? (
@@ -193,10 +211,10 @@ function FarmIllustration() {
         ))}
       </g>
       {/* Seedling */}
-      <g transform="translate(215 120)">
+      <g transform="translate(95 120)">
         <path d="M30 80 Q 26 50 30 20" stroke="#3c9a4f" strokeWidth="5" fill="none" />
-        <path d="M30 40 Q 0 30 2 6 Q 28 10 30 40 Z" fill="#5bbf62" />
-        <path d="M31 30 Q 56 12 66 26 Q 52 46 31 30 Z" fill="#4caf58" />
+        <path d="M30 40 Q 0 30 2 6 Q 28 10 30 40 Z" fill="url(#rh-leaf)" />
+        <path d="M31 30 Q 56 12 66 26 Q 52 46 31 30 Z" fill="url(#rh-leaf)" />
         <ellipse cx="30" cy="84" rx="34" ry="9" fill="#8b6a43" />
       </g>
     </svg>

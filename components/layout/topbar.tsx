@@ -76,11 +76,11 @@ export function Topbar() {
           )}
           <div className="min-w-0">
             {section && (
-              <p className="text-text-mute text-[10px] font-semibold tracking-wider uppercase min-[900px]:text-[11px]">
+              <p className="text-text-mute text-xs font-semibold tracking-wider uppercase min-[900px]:text-xs">
                 {t(`nav.section.${section}`)}
               </p>
             )}
-            <h1 className="font-display text-text truncate text-[15px] leading-tight font-bold min-[900px]:text-xl">
+            <h1 className="font-display text-text truncate text-sm leading-tight font-bold min-[900px]:text-xl">
               {t(navKey(pathname)) === navKey(pathname) ? title : t(navKey(pathname))}
             </h1>
             {subtitle && (

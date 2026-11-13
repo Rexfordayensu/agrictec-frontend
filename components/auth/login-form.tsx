@@ -12,7 +12,11 @@ import { AuthDivider, FormAlert } from '@/components/auth/form-alert';
 import { GuestButton } from '@/components/auth/guest-button';
 import { NewPasswordForm } from '@/components/auth/new-password-form';
 import { PasswordInput } from '@/components/auth/password-input';
-import { lockedUntil as lockEnd, SignInLockAlert, useSignInLock } from '@/components/auth/sign-in-lock';
+import {
+  lockedUntil as lockEnd,
+  SignInLockAlert,
+  useSignInLock,
+} from '@/components/auth/sign-in-lock';
 import { Button } from '@/components/ui/button';
 import { FormField, fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
@@ -97,7 +101,7 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
   return (
     <div className={'agric-login-formContent'}>
       <div className={'agric-login-heading'}>
-        <h1 className="font-display text-text text-2xl font-bold">Welcome back</h1>
+        <h1 className="font-display text-text text-display font-bold">Welcome back</h1>
         <p className="text-text-dim mt-1 text-sm">Sign in to your AgriCtec account.</p>
       </div>
 

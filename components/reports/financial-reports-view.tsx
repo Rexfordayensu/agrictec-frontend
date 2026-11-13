@@ -40,7 +40,7 @@ import { useModalStore } from '@/store/modal-store';
 import type { FinancialReport, FinancialSummary, ReportMonths } from '@/types/financial';
 
 const panel = 'border-border bg-glass rounded-card min-w-0 border p-5 sm:p-6';
-const title = 'text-text text-[17px] font-semibold';
+const title = 'text-text text-lg font-semibold';
 const MONTHS: ReportMonths[] = [3, 6, 12];
 
 /** "Jun 2026 – Nov 2026" for the last `months` months to today (display only). */
@@ -71,7 +71,7 @@ export function FinancialReportsView() {
     <div className="financial-reference @container space-y-5">
       <header className="flex flex-col gap-4 @3xl:flex-row @3xl:items-end @3xl:justify-between">
         <div className="min-w-0">
-          <h2 className="text-text text-[clamp(24px,2.6vw,30px)] leading-tight font-bold tracking-tight">
+          <h2 className="text-text text-display leading-tight font-bold tracking-tight">
             Your financial report
           </h2>
           <p className="text-text-dim mt-1.5 text-sm">
@@ -275,13 +275,13 @@ function Stat({
         </dt>
         <dd
           className={cn(
-            'text-text mt-1 text-xl leading-tight font-bold tabular-nums @6xl:text-[24px]',
+            'text-text mt-1 text-xl leading-tight font-bold tabular-nums @6xl:text-2xl',
             valueClass,
           )}
         >
           {value}
         </dd>
-        <dd className="mt-1.5 text-xs @6xl:whitespace-nowrap @7xl:text-[13px]">{children}</dd>
+        <dd className="@7xl:text-small mt-1.5 text-xs @6xl:whitespace-nowrap">{children}</dd>
       </div>
     </div>
   );
@@ -330,7 +330,7 @@ function DownloadPanel({
     >
       <div className="flex items-center gap-3">
         <IconTile icon={FileText} />
-        <h2 id="download-title" className="text-text text-[17px] font-bold">
+        <h2 id="download-title" className="text-text text-lg font-bold">
           Download financial report
         </h2>
       </div>
@@ -435,7 +435,7 @@ function SavedReports({ saved }: { saved: ReturnType<typeof useSavedReports> }) 
 
   return (
     <section aria-labelledby="saved-title" className={dashPanel}>
-      <h2 id="saved-title" className="text-text text-[17px] font-bold">
+      <h2 id="saved-title" className="text-text text-lg font-bold">
         Saved reports
       </h2>
       <p className="text-text-dim mt-0.5 text-xs">

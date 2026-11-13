@@ -5,7 +5,7 @@ import { useProfileStore } from '@/store/profile-store';
 export function YieldHero() {
   return (
     <header>
-      <h1 className="font-display text-ink-green text-2xl leading-tight font-bold sm:text-3xl">
+      <h1 className="font-display text-ink-green text-display leading-tight font-bold">
         AI Yield Predictor
       </h1>
       <p className="text-text-dim mt-1 text-sm">

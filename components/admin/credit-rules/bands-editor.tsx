@@ -63,7 +63,7 @@ export function BandsEditor({
             />
           ))}
         </div>
-        <div aria-hidden="true" className="mt-2 grid grid-cols-4 gap-1 text-[11px]">
+        <div aria-hidden="true" className="mt-2 grid grid-cols-4 gap-1 text-xs">
           {segments.map((s) => (
             <span key={s.band} className="min-w-0">
               <span className={cn('block font-semibold', bandTone(s.band).text)}>{s.band}</span>

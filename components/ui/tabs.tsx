@@ -96,7 +96,7 @@ export function Tabs<V extends string>({
               {tab.count !== undefined && (
                 <span
                   className={cn(
-                    'min-w-6 rounded-full px-1.5 py-0.5 text-center text-[11px] leading-none font-bold',
+                    'min-w-6 rounded-full px-1.5 py-0.5 text-center text-xs leading-none font-bold',
                     selected ? 'bg-[#022c22]/15' : 'bg-glass-strong text-text-mute',
                   )}
                 >

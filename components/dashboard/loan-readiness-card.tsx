@@ -48,7 +48,7 @@ export function LoanReadinessCard() {
         <Skeleton className="h-48 w-full rounded-xl" />
       ) : (
         <>
-          <p className="text-text text-[32px] leading-none font-bold tabular-nums">{pct}%</p>
+          <p className="text-text text-4xl leading-none font-bold tabular-nums">{pct}%</p>
           <div
             role="progressbar"
             aria-label={`${done} of ${items.length} readiness steps done`}

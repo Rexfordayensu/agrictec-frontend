@@ -83,7 +83,7 @@ export function AdminNotifications() {
         {total > 0 && (
           <span
             aria-hidden="true"
-            className="bg-danger-strong ring-bg-2 absolute top-1.5 right-1.5 inline-flex min-w-4 items-center justify-center rounded-full px-1 text-[10px] leading-4 font-bold text-white ring-2"
+            className="bg-danger-strong ring-bg-2 absolute top-1.5 right-1.5 inline-flex min-w-4 items-center justify-center rounded-full px-1 text-xs leading-4 font-bold text-white ring-2"
           >
             {total > 99 ? '99+' : total}
           </span>

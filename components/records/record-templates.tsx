@@ -59,10 +59,10 @@ export function RecordTemplates({ className }: { className?: string }) {
       <div className="bg-accent/10 flex items-center gap-3 px-4 py-4 sm:px-5">
         <Layers size={24} aria-hidden="true" className="text-ink-green shrink-0" />
         <div>
-          <h2 id="templates-title" className="text-text text-[15px] font-bold">
+          <h2 id="templates-title" className="text-text text-sm font-bold">
             What you can record
           </h2>
-          <p className="text-text-mute text-[11px]">Common records for your farm</p>
+          <p className="text-text-mute text-xs">Common records for your farm</p>
         </div>
       </div>
       <ul className="space-y-2 p-3 sm:p-4">

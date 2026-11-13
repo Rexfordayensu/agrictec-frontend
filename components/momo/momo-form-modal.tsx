@@ -248,7 +248,7 @@ function MomoForm({
                 <Icon size={18} aria-hidden="true" className="shrink-0" />
                 <span>
                   <span className="block text-sm font-semibold">{label}</span>
-                  <span className="text-text-mute block text-[11px]">{hint}</span>
+                  <span className="text-text-mute block text-xs">{hint}</span>
                 </span>
               </span>
             </label>

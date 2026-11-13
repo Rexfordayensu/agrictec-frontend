@@ -38,6 +38,7 @@ export function CropDistributionChart({ className }: { className?: string }) {
 
       <div className="mx-auto max-w-60">
         <DoughnutChart
+          emptyLabel="No data yet"
           ariaLabel="Income by crop"
           aspectRatio={1}
           showLegend={false}
@@ -49,7 +50,7 @@ export function CropDistributionChart({ className }: { className?: string }) {
               <span className="text-text-dim text-sm">No data yet</span>
             ) : (
               <>
-                <span className="text-text-mute text-[11px]">Total</span>
+                <span className="text-text-mute text-xs">Total</span>
                 <span className="text-text text-lg font-extrabold">{formatCompactGHS(income)}</span>
               </>
             )

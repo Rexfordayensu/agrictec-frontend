@@ -17,7 +17,7 @@ export function LegalHeader({
 }) {
   return (
     <header className="border-border mb-8 border-b pb-6">
-      <h1 className="font-display text-text text-3xl font-bold">{title}</h1>
+      <h1 className="font-display text-text text-display font-bold">{title}</h1>
       <p className="text-text-mute mt-2 text-xs">Last updated {updated}</p>
       <div className="text-text-dim mt-4 space-y-3 text-sm leading-relaxed">{children}</div>
     </header>

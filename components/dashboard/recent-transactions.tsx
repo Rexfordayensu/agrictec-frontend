@@ -120,7 +120,7 @@ export function RecentTransactions({ limit = 5 }: { limit?: number }) {
         <>
           {/* A wide card: a table. */}
           <div className="-mx-4 hidden overflow-x-auto sm:-mx-5 @xl:block">
-            <table className="w-full text-[13px]">
+            <table className="text-small w-full">
               <thead>
                 <tr className="bg-glass-strong text-text-dim text-left text-xs">
                   <th className="px-4 py-2.5 font-semibold">Date</th>
@@ -147,7 +147,7 @@ export function RecentTransactions({ limit = 5 }: { limit?: number }) {
                       {row.network ? (
                         <span
                           className={cn(
-                            'rounded-full px-2 py-0.5 text-[11px] font-bold',
+                            'rounded-full px-2 py-0.5 text-xs font-bold',
                             NETWORK_TONE[row.network] ?? 'bg-glass-strong text-text',
                           )}
                         >

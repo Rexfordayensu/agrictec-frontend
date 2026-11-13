@@ -44,6 +44,12 @@ export interface WeatherLocation {
   label: string;
   region?: string;
   city?: string;
+  /** The neighbourhood inside the town (e.g. Adum in Kumasi), from the position. */
+  area?: string;
+  /** The village or hamlet at the position (e.g. Krapa), when OpenStreetMap names one. */
+  village?: string;
+  /** e.g. "Ejisu Municipal District". */
+  district?: string;
   latitude?: number;
   longitude?: number;
   accuracyMetres?: number;

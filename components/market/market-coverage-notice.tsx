@@ -1,13 +1,15 @@
 import { Info } from 'lucide-react';
 
+/** The publication rule, said plainly: reviewed, source-backed prices only, never invented. */
 export function MarketCoverageNotice() {
   return (
-    <div className="border-info/20 bg-info/5 text-text-dim flex items-start gap-2.5 rounded-2xl border px-4 py-3 text-xs leading-relaxed">
-      <Info size={16} aria-hidden="true" className="text-ink-blue mt-0.5 shrink-0" />
+    <div className="border-accent/30 bg-accent/8 text-text flex items-start gap-3 rounded-2xl border px-5 py-3.5 text-left text-sm leading-relaxed">
+      <Info size={22} aria-hidden="true" className="text-ink-green mt-0.5 shrink-0" />
       <p>
-        <span className="text-text font-semibold">Ghana market coverage.</span> Only reviewed,
-        source-backed price observations are published. AI market research is not connected yet;
-        unavailable prices are never replaced with invented amounts.
+        Only reviewed, source-backed price observations are published.
+        <br />
+        AI market research is not connected yet; unavailable prices are never replaced with invented
+        amounts.
       </p>
     </div>
   );

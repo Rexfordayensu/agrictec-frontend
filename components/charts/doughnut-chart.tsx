@@ -19,6 +19,7 @@ export interface DoughnutChartProps {
   centerLabel?: ReactNode;
   ariaLabel?: string;
   className?: string;
+  emptyLabel?: string;
 }
 
 export function DoughnutChart({
@@ -30,6 +31,7 @@ export function DoughnutChart({
   centerLabel,
   ariaLabel = 'Doughnut chart',
   className,
+  emptyLabel = 'No data',
 }: DoughnutChartProps) {
   const { baseOptions, gridColor } = useChartTheme();
   const isEmpty = data.length === 0 || data.every((value) => value <= 0);
@@ -74,7 +76,7 @@ export function DoughnutChart({
       )}
       {isEmpty && (
         <p className="text-text-mute pointer-events-none absolute inset-0 flex items-center justify-center text-sm">
-          No data
+          {emptyLabel}
         </p>
       )}
     </div>

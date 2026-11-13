@@ -237,7 +237,7 @@ export function AdminTable<T>({
                       sorted === 'asc' ? 'ascending' : sorted === 'desc' ? 'descending' : undefined
                     }
                     className={cn(
-                      'text-text-mute px-3 py-3 text-[11px] font-semibold tracking-wider whitespace-nowrap uppercase',
+                      'text-text-mute px-3 py-3 text-xs font-semibold tracking-wider whitespace-nowrap uppercase',
                       column.align === 'right' && 'text-right',
                       column.className,
                     )}

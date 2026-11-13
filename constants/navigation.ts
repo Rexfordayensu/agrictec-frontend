@@ -114,7 +114,7 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/weather': {
     title: 'Weather',
-    subtitle: 'The forecast at your farm, with warnings and advice for today’s work.',
+    subtitle: 'Get accurate weather updates and practical advice for your farm.',
   },
   '/settings': {
     title: 'Profile & Settings',

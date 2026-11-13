@@ -86,8 +86,8 @@ export function EligibilityCheck({ product }: { product: LoanProduct }) {
           Check your eligibility
         </h3>
         <p className="text-text-dim mt-1 text-xs leading-relaxed">
-          Compares your recorded transactions with what {product.lender.name} has published for
-          this product. A preliminary check, not a loan decision.
+          Compares your recorded transactions with what {product.lender.name} has published for this
+          product. A preliminary check, not a loan decision.
         </p>
       </div>
       <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
@@ -172,10 +172,7 @@ function Result({ result }: { result: EligibilityResult }) {
             label="Months with records"
             value={`${figures.monthsWithRecords} of ${period.months}`}
           />
-          <Figure
-            label="Recorded loans owed"
-            value={money(figures.outstandingRecordedLoans)}
-          />
+          <Figure label="Recorded loans owed" value={money(figures.outstandingRecordedLoans)} />
         </dl>
       </Block>
 
@@ -185,7 +182,9 @@ function Result({ result }: { result: EligibilityResult }) {
             {repayment.payments === 1
               ? `One payment of ${money(repayment.instalment)}`
               : `${repayment.payments} payments of ${money(repayment.instalment)}`}{' '}
-            ({FREQUENCY_LABELS[repayment.frequency as keyof typeof FREQUENCY_LABELS] ?? repayment.frequency}
+            (
+            {FREQUENCY_LABELS[repayment.frequency as keyof typeof FREQUENCY_LABELS] ??
+              repayment.frequency}
             ). Total {money(repayment.totalRepayment)}, of which interest{' '}
             {money(repayment.totalInterest)}
             {Number(repayment.totalFees) > 0 ? `, plus fees of ${money(repayment.totalFees)}` : ''}.
@@ -196,8 +195,8 @@ function Result({ result }: { result: EligibilityResult }) {
         {affordability.available ? (
           <div className="mt-2 text-sm">
             <p className="text-text-dim">
-              Average monthly net cash flow {money(affordability.averageMonthlyNet)} − existing
-              loan repayments {money(affordability.existingMonthlyDebtService)} − this loan{' '}
+              Average monthly net cash flow {money(affordability.averageMonthlyNet)} − existing loan
+              repayments {money(affordability.existingMonthlyDebtService)} − this loan{' '}
               {money(affordability.proposedAverageMonthly)} a month ={' '}
               <span
                 className={cn(
@@ -239,7 +238,7 @@ function Result({ result }: { result: EligibilityResult }) {
                   </p>
                   <p className="text-text-dim mt-1 text-xs leading-relaxed">{rule.explanation}</p>
                   {(rule.source || rule.reviewedOn) && (
-                    <p className="text-text-mute mt-1 text-[11px]">
+                    <p className="text-text-mute mt-1 text-xs">
                       {rule.source}
                       {rule.source && rule.reviewedOn ? ' · ' : ''}
                       {rule.reviewedOn ? `confirmed ${formatGhanaDate(rule.reviewedOn)}` : ''}
@@ -311,9 +310,9 @@ function Block({ title, children }: { title: string; children: ReactNode }) {
 function Figure({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
     <div className="border-border rounded-xl border p-2.5">
-      <dt className="text-text-mute text-[11px]">{label}</dt>
+      <dt className="text-text-mute text-xs">{label}</dt>
       <dd className="text-text text-sm font-semibold tabular-nums">{value}</dd>
-      {hint && <dd className="text-text-mute text-[10px]">{hint}</dd>}
+      {hint && <dd className="text-text-mute text-xs">{hint}</dd>}
     </div>
   );
 }

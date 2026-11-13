@@ -167,7 +167,7 @@ export function MaintenanceModeCard({
         </div>
 
         <figure className="m-0 min-w-0">
-          <figcaption className="text-text-mute mb-2 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase">
+          <figcaption className="text-text-mute mb-2 flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase">
             <Eye size={13} aria-hidden="true" />
             What farmers see
           </figcaption>

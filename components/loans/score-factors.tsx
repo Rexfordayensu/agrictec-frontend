@@ -40,7 +40,7 @@ export function ScoreFactors({
           >
             <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
               <span className="text-text font-semibold">{factor.label}</span>
-              <span className="text-text-mute text-[11px]">{factor.weight}% of score</span>
+              <span className="text-text-mute text-xs">{factor.weight}% of score</span>
               <span className="text-text ml-auto font-semibold tabular-nums">
                 {factor.earned}
                 <span className="text-text-mute font-normal"> / {factor.max}</span>
@@ -62,7 +62,7 @@ export function ScoreFactors({
             <p className="text-text-mute mt-1 text-xs">{factor.help}</p>
             {about && (
               <details className="group mt-1">
-                <summary className="text-text-dim hover:text-text cursor-pointer text-[11px] font-semibold select-none">
+                <summary className="text-text-dim hover:text-text cursor-pointer text-xs font-semibold select-none">
                   How it’s measured
                 </summary>
                 <p className="text-text-dim mt-1 text-xs">Measures: {about.measures}.</p>
@@ -71,7 +71,7 @@ export function ScoreFactors({
             )}
             {best && (
               <div className="mt-1 flex flex-wrap items-center gap-x-3">
-                <span className="bg-gold/15 text-ink-gold rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                <span className="bg-gold/15 text-ink-gold rounded-full px-2 py-0.5 text-xs font-semibold">
                   Biggest gain · +{factor.available} pts
                 </span>
                 <LoanActionLink

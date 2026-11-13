@@ -190,7 +190,7 @@ export function FarmersFilters({
               <SlidersHorizontal size={16} aria-hidden="true" />
               Filters
               {panelCount > 0 && (
-                <span className="bg-purple inline-flex size-5 items-center justify-center rounded-full text-[11px] text-white">
+                <span className="bg-purple inline-flex size-5 items-center justify-center rounded-full text-xs text-white">
                   {panelCount}
                   <span className="sr-only"> active</span>
                 </span>

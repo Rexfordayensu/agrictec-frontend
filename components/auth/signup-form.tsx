@@ -73,7 +73,7 @@ export function SignupForm() {
   if (!signupOpen) {
     return (
       <div className="space-y-4 text-center">
-        <h1 className="font-display text-text text-2xl font-bold">Sign-ups are closed</h1>
+        <h1 className="font-display text-text text-display font-bold">Sign-ups are closed</h1>
         <p className="text-text-dim text-sm">
           New accounts can&apos;t be created right now. Please check back soon.
         </p>
@@ -90,7 +90,7 @@ export function SignupForm() {
   return (
     <div className="agric-login-formContent">
       <div className="agric-login-heading">
-        <h1 className="font-display text-text text-2xl font-bold">Create your account</h1>
+        <h1 className="font-display text-text text-display font-bold">Create your account</h1>
         <p className="text-text-dim mt-1 text-sm">
           Start building your digital financial identity.
         </p>

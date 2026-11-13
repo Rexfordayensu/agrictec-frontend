@@ -121,7 +121,7 @@ export function NotificationBell({ buttonClassName }: { buttonClassName: string 
                         {n.title}
                       </span>
                       <span className="text-text-dim block text-xs break-words">{n.body}</span>
-                      <span className="text-text-mute mt-1 block text-[11px]">
+                      <span className="text-text-mute mt-1 block text-xs">
                         {formatDistanceToNow(new Date(n.createdAt), { addSuffix: true })}
                       </span>
                     </span>

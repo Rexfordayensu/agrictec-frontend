@@ -75,7 +75,7 @@ export function ImagePreview({
         <p className="text-text-dim min-w-0 flex-1 truncate text-xs" title={file.name}>
           {file.name}
         </p>
-        <span className="text-text-mute hidden text-[11px] sm:inline">
+        <span className="text-text-mute hidden text-xs sm:inline">
           {(file.size / 1024 / 1024).toFixed(1)} MB
         </span>
         <Button size="sm" variant="ghost" icon={X} onClick={onRemove} disabled={disabled}>

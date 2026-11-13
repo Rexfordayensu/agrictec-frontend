@@ -217,7 +217,7 @@ export function ReportSchedules() {
                     <span className="text-text-mute font-normal">· {FREQUENCIES[s.frequency]}</span>
                   </p>
                   <p className="text-text-dim truncate text-xs">{s.recipients.join(', ')}</p>
-                  <p className="text-text-mute mt-0.5 text-[11px]">
+                  <p className="text-text-mute mt-0.5 text-xs">
                     {s.active
                       ? `Next: ${format(new Date(s.nextRunAt), 'EEE d MMM yyyy, HH:mm')}`
                       : 'Paused'}

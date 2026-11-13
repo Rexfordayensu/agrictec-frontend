@@ -12,7 +12,7 @@ export function RiskTag({ count, className }: { count: number; className?: strin
     <span
       title={label}
       className={cn(
-        'border-danger/40 bg-danger/15 text-ink-red inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase',
+        'border-danger/40 bg-danger/15 text-ink-red inline-flex shrink-0 items-center gap-1 rounded-md border px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase',
         className,
       )}
     >

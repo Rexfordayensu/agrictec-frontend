@@ -46,7 +46,7 @@ function Evidence({ related }: { related: RiskRelated }) {
             <div className="flex items-start gap-3">
               <InitialsAvatar name={account.profile.name || account.email} size="lg" />
               <div className="min-w-0 flex-1">
-                <p className="text-text-mute text-[11px] font-semibold tracking-wider uppercase">
+                <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">
                   {index === 0 ? 'Flagged account' : 'Linked account'}
                 </p>
                 <p className="text-text flex items-center gap-1.5 text-sm font-semibold">
@@ -106,7 +106,7 @@ function Evidence({ related }: { related: RiskRelated }) {
           <caption className="sr-only">
             {isMomo ? 'MoMo transactions' : 'Farm records'}; flagged rows are marked
           </caption>
-          <thead className="text-text-mute border-border border-b text-[11px] tracking-wider uppercase">
+          <thead className="text-text-mute border-border border-b text-xs tracking-wider uppercase">
             <tr>
               <th scope="col" className="px-3 py-2 font-semibold">
                 Date
@@ -198,7 +198,7 @@ function Evidence({ related }: { related: RiskRelated }) {
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section>
-      <h3 className="text-text-mute mb-2 text-[11px] font-semibold tracking-wider uppercase">
+      <h3 className="text-text-mute mb-2 text-xs font-semibold tracking-wider uppercase">
         {title}
       </h3>
       {children}
@@ -365,7 +365,7 @@ function Detail({
               <SeverityDot severity={flag.severity} showLabel />
               <StatusBadge kind="risk" status={flag.status} />
             </div>
-            <p className="text-text mt-1.5 text-[15px] font-semibold">{flag.description}</p>
+            <p className="text-text mt-1.5 text-sm font-semibold">{flag.description}</p>
             <p className="text-text-dim mt-1 text-sm">{rule.explanation}</p>
           </div>
         </div>

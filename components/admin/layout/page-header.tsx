@@ -24,7 +24,7 @@ export function PageHeader({
       )}
     >
       <div className="min-w-0">
-        <h1 className="font-display text-text text-2xl leading-tight font-bold">{title}</h1>
+        <h1 className="font-display text-text text-display leading-tight font-bold">{title}</h1>
         {description && <p className="text-text-dim mt-1 max-w-2xl text-sm">{description}</p>}
       </div>
       {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}

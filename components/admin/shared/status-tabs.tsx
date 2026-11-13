@@ -47,7 +47,7 @@ export function StatusTabs<V extends string>({
               aria-pressed={selected}
               onClick={() => onChange(tab.value)}
               className={cn(
-                'inline-flex min-h-11 items-center gap-1.5 border-b-2 px-2 text-[13px] font-semibold transition-colors sm:gap-2 sm:px-3 sm:text-sm',
+                'text-small inline-flex min-h-11 items-center gap-1.5 border-b-2 px-2 font-semibold transition-colors sm:gap-2 sm:px-3 sm:text-sm',
                 selected
                   ? 'border-purple text-text'
                   : 'text-text-mute hover:text-text border-transparent',
@@ -57,7 +57,7 @@ export function StatusTabs<V extends string>({
               {tab.count !== undefined && (
                 <span
                   className={cn(
-                    'rounded-md px-1.5 py-0.5 text-[11px] tabular-nums',
+                    'rounded-md px-1.5 py-0.5 text-xs tabular-nums',
                     selected ? 'bg-purple/15 text-ink-purple' : 'bg-glass-strong text-text-mute',
                   )}
                 >

@@ -16,7 +16,7 @@ export function ReportBody({ report }: { report: AdminReport }) {
       <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-4">
         {report.summary.map((item) => (
           <div key={item.label} className="border-border bg-glass rounded-xl border px-3.5 py-3">
-            <p className="text-text-mute text-[11px] font-semibold tracking-wide uppercase">
+            <p className="text-text-mute text-xs font-semibold tracking-wide uppercase">
               {item.label}
             </p>
             <p className="font-display text-text mt-1 truncate text-lg font-bold tabular-nums">
@@ -30,7 +30,7 @@ export function ReportBody({ report }: { report: AdminReport }) {
           <h3 className="text-text mb-2 text-sm font-semibold">{table.title}</h3>
           <div className="border-border overflow-x-auto rounded-xl border">
             <table className="w-full min-w-[480px] text-left text-xs">
-              <thead className="bg-glass text-text-mute text-[11px] tracking-wider uppercase">
+              <thead className="bg-glass text-text-mute text-xs tracking-wider uppercase">
                 <tr>
                   {table.headers.map((header, i) => (
                     <th

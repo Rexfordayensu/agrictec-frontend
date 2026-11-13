@@ -55,7 +55,7 @@ export { APPROVE_CLASS, REJECT_CLASS } from '@/components/admin/shared/action-st
 /** A keyboard key in a hint ("A Approve"). */
 export function Kbd({ children }: { children: string }) {
   return (
-    <kbd className="border-border bg-bg-2 text-text inline-flex min-w-5 items-center justify-center rounded-md border px-1.5 py-0.5 font-mono text-[11px] leading-none font-semibold">
+    <kbd className="border-border bg-bg-2 text-text inline-flex min-w-5 items-center justify-center rounded-md border px-1.5 py-0.5 font-mono text-xs leading-none font-semibold">
       {children}
     </kbd>
   );

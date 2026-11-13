@@ -92,7 +92,7 @@ export function TransactionReview() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold">Transactions review</h1>
+        <h1 className="font-display text-display font-bold">Transactions review</h1>
         <p className="text-text-mute mt-1 text-sm">
           Review submitted evidence. Decisions verify the farmer&apos;s entry through AgriCtec;
           provider verification is unavailable.

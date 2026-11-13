@@ -96,7 +96,7 @@ export function LineChart({
             display: true,
             text: yAxisTitle,
             color: baseOptions.scales.y.ticks.color,
-            font: { size: 10 },
+            font: { size: 12 },
           },
         }),
       },

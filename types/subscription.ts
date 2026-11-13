@@ -42,3 +42,17 @@ export interface SubscriptionSnapshot {
   creditsRemaining: number | null;
   resetsAt: string;
 }
+
+/** One row of GET /me/subscription/payments. Money is exact decimal text ("50.00"). */
+export interface BillingItem {
+  reference: string;
+  planId: PlanId;
+  planName: string;
+  amountGHS: string;
+  currency: string;
+  method: MockPaymentMethod | null;
+  status: 'paid' | 'pending' | 'failed' | 'simulated';
+  createdAt: string;
+  paidAt?: string | null;
+  channel?: string | null;
+}

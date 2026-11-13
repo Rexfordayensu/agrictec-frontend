@@ -19,11 +19,7 @@ import { ReportBuilder } from '@/components/admin/reports/report-builder';
 import { ReportPreview } from '@/components/admin/reports/report-preview';
 import { ReportSchedules } from '@/components/admin/reports/report-schedules';
 import { Skeleton } from '@/components/ui/skeleton';
-import {
-  REPORT_CATALOG,
-  type AdminReport,
-  type ReportId,
-} from '@/lib/admin/admin-reports';
+import { REPORT_CATALOG, type AdminReport, type ReportId } from '@/lib/admin/admin-reports';
 import { downloadFile } from '@/lib/export/csv';
 import { cn } from '@/lib/utils';
 import {
@@ -111,7 +107,7 @@ export function ReportsCenter() {
                     <Icon size={20} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
-                    <h3 className="text-text text-[15px] font-semibold">{meta.title}</h3>
+                    <h3 className="text-text text-sm font-semibold">{meta.title}</h3>
                     <p className="text-text-mute mt-0.5 text-xs leading-relaxed">
                       {meta.description}
                     </p>
@@ -122,7 +118,7 @@ export function ReportsCenter() {
                   {report
                     ? report.summary.slice(0, 2).map((item) => (
                         <div key={item.label} className="bg-bg-2/60 rounded-xl px-3 py-2">
-                          <dt className="text-text-mute truncate text-[11px]">{item.label}</dt>
+                          <dt className="text-text-mute truncate text-xs">{item.label}</dt>
                           <dd className="text-text font-display truncate text-base font-bold tabular-nums">
                             {item.value}
                           </dd>

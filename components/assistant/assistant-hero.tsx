@@ -14,11 +14,11 @@ export function AssistantHero() {
       <div className="relative z-10 max-w-xl">
         <h2
           id="assistant-hello"
-          className="text-[clamp(28px,3.4vw,40px)] leading-tight font-extrabold tracking-tight"
+          className="text-display leading-tight font-extrabold tracking-tight"
         >
           Hello{name ? `, ${name}` : ''}!
         </h2>
-        <p className="mt-2 text-[15px] leading-relaxed text-white/90">
+        <p className="mt-2 text-sm leading-relaxed text-white/90">
           I’m your AgriCtec AI Assistant. I can help you with farming advice, financial guidance,
           and loan readiness.
         </p>

@@ -56,7 +56,7 @@ export function AdminOverview() {
           <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">
             {format(now, 'EEEE, d MMMM')}
           </p>
-          <h1 className="font-display text-text mt-1 text-2xl leading-tight font-bold sm:text-3xl">
+          <h1 className="font-display text-text text-display mt-1 leading-tight font-bold">
             {greeting(now.getHours())}
             {name ? `, ${name}` : ''}
           </h1>

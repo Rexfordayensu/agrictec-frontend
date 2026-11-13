@@ -194,7 +194,7 @@ function Invite({ onClose, onInvited }: { onClose: () => void; onInvited: () => 
                   <span className="text-text-dim text-xs leading-relaxed">
                     {ROLE_DESCRIPTIONS[option]}
                   </span>
-                  <span className="text-text-mute text-[11px]">
+                  <span className="text-text-mute text-xs">
                     {ROLE_PERMISSIONS[option].length} permissions
                   </span>
                 </button>

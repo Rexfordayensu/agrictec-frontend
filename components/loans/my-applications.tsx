@@ -96,7 +96,7 @@ function ApplicationItem({ app }: { app: LoanApplication }) {
           <dt className="text-text-mute">Term</dt>
           <dd className="text-text text-sm font-bold">
             {app.months} months
-            <span className="text-text-mute block text-[11px] font-normal">{app.rate}% a year</span>
+            <span className="text-text-mute block text-xs font-normal">{app.rate}% a year</span>
           </dd>
         </div>
       </dl>
@@ -117,7 +117,7 @@ function ApplicationItem({ app }: { app: LoanApplication }) {
       )}
 
       <div className="mt-3 flex items-center justify-between gap-2">
-        <p className="text-text-mute font-mono text-[11px]">Ref {app.reference}</p>
+        <p className="text-text-mute font-mono text-xs">Ref {app.reference}</p>
         <button
           type="button"
           onClick={() => setOpen((value) => !value)}

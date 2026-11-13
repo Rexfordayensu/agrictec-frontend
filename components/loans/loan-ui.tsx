@@ -11,11 +11,11 @@ import { useLoanStore } from '@/store/loan-store';
 /** The look the redesigned dashboard uses, shared by every section of /loans. */
 export const loanUi = {
   panel: 'border-border bg-glass min-w-0 rounded-card border p-5 sm:p-6',
-  eyebrow: 'text-ink-green text-[11px] font-semibold tracking-[1.6px] uppercase',
-  title: 'text-text text-[17px] font-semibold',
+  eyebrow: 'text-ink-green text-xs font-semibold tracking-[1.6px] uppercase',
+  title: 'text-text text-lg font-semibold',
   sub: 'text-text-mute mt-1 text-xs leading-relaxed',
   label: 'text-text mb-2.5 text-sm font-semibold',
-  link: 'group text-ink-green inline-flex min-h-11 items-center gap-1.5 text-[13px] font-semibold hover:underline',
+  link: 'group text-ink-green inline-flex min-h-11 items-center gap-1.5 text-small font-semibold hover:underline',
 } as const;
 
 /** The same action as a main button (the page header's next step). */

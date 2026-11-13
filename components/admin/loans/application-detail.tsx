@@ -190,7 +190,7 @@ export function ApplicationDetail({ id }: { id: string }) {
         <div className="mt-2 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-3">
-              <h1 className="font-display text-text text-2xl font-bold">{app.reference}</h1>
+              <h1 className="font-display text-text text-display font-bold">{app.reference}</h1>
               <StatusBadge kind="loan" status={app.status} />
             </div>
             <p className="text-text-dim mt-1 text-sm">
@@ -298,7 +298,9 @@ export function ApplicationDetail({ id }: { id: string }) {
                   <CardSub>At application, and today. Informational only.</CardSub>
                 </div>
               </CardHeader>
-              <p className="text-text-mute mb-4 text-xs">{SCORE_EXPLANATION} {LOAN_REVIEW_EXPLANATION}</p>
+              <p className="text-text-mute mb-4 text-xs">
+                {SCORE_EXPLANATION} {LOAN_REVIEW_EXPLANATION}
+              </p>
               <div className="flex items-center gap-4">
                 <div>
                   <p className="text-text-mute text-xs">Then</p>

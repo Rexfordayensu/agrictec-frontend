@@ -39,18 +39,18 @@
   height: 64px;
 }
 .agric-login-logo > div > p:first-child {
-  font-size: 36px;
+  font-size: var(--text-display);
   font-weight: 650;
   letter-spacing: -1px;
 }
 .agric-login-logo > div > p:last-child {
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 3px;
 }
 .agric-login-brand > p {
   margin-top: 10px;
   color: #bdcadc;
-  font-size: 15px;
+  font-size: var(--text-sm);
   letter-spacing: 0;
 }
 
@@ -83,7 +83,7 @@
 }
 .agric-login-heading h1 {
   font-family: var(--font-inter), sans-serif;
-  font-size: 30px;
+  font-size: var(--text-display);
   line-height: 1.2;
   font-weight: 750;
   letter-spacing: -1px;
@@ -91,7 +91,7 @@
 .agric-login-heading p {
   margin-top: 6px;
   color: #bdcadc;
-  font-size: 15px;
+  font-size: var(--text-sm);
   line-height: 1.5;
 }
 .agric-login-form {
@@ -101,7 +101,7 @@
   margin-top: 24px;
 }
 .agric-login-form label {
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: 0;
 }
 .agric-login-inputWrap {
@@ -127,7 +127,7 @@
     inset 0 1px 3px #0005,
     0 1px 0 #d9f4ff14;
   color: #f6f8fc;
-  font-size: 15px;
+  font-size: var(--text-sm);
 }
 .agric-login-inputWrap input[aria-invalid='true'] {
   border-color: #f87171;
@@ -158,7 +158,7 @@
 .agric-login-forgot {
   margin-top: -6px;
   text-align: right;
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .agric-login-submit {
   width: 100%;
@@ -172,7 +172,7 @@
   box-shadow:
     inset 0 1px 2px #e2fffcb3,
     0 0 34px #00e4b525;
-  font-size: 17px;
+  font-size: var(--text-lg);
   font-weight: 700;
 }
 .agric-login-submit svg {
@@ -184,7 +184,7 @@
 }
 .agric-login-divider > div {
   gap: 20px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 600;
 }
 .agric-login-divider span {
@@ -198,7 +198,7 @@
   box-shadow:
     inset 0 1px 3px #e3f3ff40,
     inset 0 -8px 16px #71b7bf13;
-  font-size: 15px;
+  font-size: var(--text-sm);
   gap: 12px;
 }
 .agric-login-guest button svg {
@@ -207,7 +207,7 @@
 }
 .agric-login-guest p {
   margin-top: 10px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: #bdcadc;
   line-height: 1.5;
 }
@@ -215,7 +215,7 @@
   margin-top: 24px;
   color: #bdcadc;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .agric-login-legal {
   margin-top: 16px;
@@ -264,7 +264,7 @@
     padding: 26px 22px 28px;
   }
   .agric-login-heading h1 {
-    font-size: 28px;
+    font-size: var(--text-display);
   }
   .agric-login-ribbonTop {
     left: -575px;

@@ -33,7 +33,7 @@ function SummaryTile({
         <Icon size={20} aria-hidden="true" />
       </span>
       <div className="min-w-0">
-        <p className="text-text-mute text-[11px] font-semibold tracking-wider uppercase">{label}</p>
+        <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">{label}</p>
         <p
           className={cn(
             'text-text truncate text-lg font-extrabold tracking-tight sm:text-xl',
@@ -57,7 +57,7 @@ export function RecordsSummary({ rows, filtered }: { rows: FarmRecord[]; filtere
   const activities = rows.filter((r) => r.type === 'activity').length;
 
   return (
-    <div className="grid grid-cols-2 gap-3 @4xl:grid-cols-4">
+    <div className="records-summary grid grid-cols-2 gap-3 @4xl:grid-cols-4">
       <SummaryTile
         icon={ArrowUpRight}
         tone="bg-accent/15 text-ink-green"

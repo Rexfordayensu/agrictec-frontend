@@ -11,7 +11,9 @@ export function BrandLogo({ subtitle, className }: { subtitle?: string; classNam
           <AgriCtecWordmark />
         </p>
         {subtitle && (
-          <p className="text-text-mute text-[10px] tracking-[2px] uppercase">{subtitle}</p>
+          <p className="text-text-mute text-xs tracking-[1px] whitespace-nowrap uppercase">
+            {subtitle}
+          </p>
         )}
       </div>
     </div>

@@ -160,7 +160,7 @@ export function DiagnosisHistory() {
                       style={{ width: `${diagnosis.confidence}%` }}
                     />
                   </div>
-                  <span className="text-text-dim text-[11px] tabular-nums">
+                  <span className="text-text-dim text-xs tabular-nums">
                     {diagnosis.confidence}% confidence
                   </span>
                 </div>

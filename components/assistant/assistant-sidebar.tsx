@@ -157,8 +157,8 @@ function Insights() {
                   className="text-ink-green mt-0.5 shrink-0"
                 />
                 <span className="min-w-0 flex-1">
-                  <span className="text-text block text-[15px] font-bold">{item.title}</span>
-                  <span className="text-text-dim mt-1 block text-[13px] leading-relaxed">
+                  <span className="text-text block text-sm font-bold">{item.title}</span>
+                  <span className="text-text-dim text-small mt-1 block leading-relaxed">
                     {item.text}
                   </span>
                 </span>

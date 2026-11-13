@@ -1,6 +1,6 @@
 import { useSyncExternalStore } from 'react';
 
-const FONT_SIZE = 11;
+const FONT_SIZE = 12;
 
 export interface ChartPalette {
   accent: string;

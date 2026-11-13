@@ -104,7 +104,7 @@ export function AuditDetailModal({
           ))}
         </dl>
         <section>
-          <h3 className="text-text-mute mb-2 text-[11px] font-semibold tracking-wider uppercase">
+          <h3 className="text-text-mute mb-2 text-xs font-semibold tracking-wider uppercase">
             Before → after
           </h3>
           {hasDiff ? (

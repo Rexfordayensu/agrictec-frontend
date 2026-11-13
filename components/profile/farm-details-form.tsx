@@ -10,7 +10,8 @@ import { StepFarmType } from '@/components/onboarding/step-farm-type';
 import { StepLocation } from '@/components/onboarding/step-location';
 import type { StepProps } from '@/components/onboarding/wizard-nav';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { CardHead } from '@/components/settings/card-head';
+import { Card } from '@/components/ui/card';
 import { CropIcon, cropFromName } from '@/components/ui/crop-icon';
 import { Modal } from '@/components/ui/modal';
 import { formatGPS } from '@/lib/format';
@@ -34,29 +35,33 @@ const EDITORS: Record<Section, { title: string; icon: typeof Sprout; Step: StepC
 function Row({
   section,
   onEdit,
+  editing,
   children,
 }: {
   section: Section;
   onEdit: (section: Section) => void;
+  editing: boolean;
   children: ReactNode;
 }) {
   const { title, icon: Icon } = EDITORS[section];
   return (
-    <div className="border-border flex items-start gap-3 border-b py-3.5 first:pt-0 last:border-b-0 last:pb-0">
-      <Icon size={17} aria-hidden="true" className="text-text-mute mt-0.5 shrink-0" />
-      <div className="min-w-0 flex-1">
-        <p className="text-text-mute text-[11px] font-semibold tracking-wider uppercase">{title}</p>
-        <div className="text-text mt-0.5 text-sm">{children}</div>
-      </div>
-      <button
-        type="button"
-        onClick={() => onEdit(section)}
-        aria-label={`Edit ${title.toLowerCase()}`}
-        className="text-ink-green hover:bg-glass -mt-1.5 -mr-2 inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold"
-      >
-        <Pencil size={13} aria-hidden="true" />
-        Edit
-      </button>
+    <div className="border-border grid grid-cols-[1.5rem_minmax(6.5rem,8rem)_minmax(0,1fr)_auto] items-start gap-3 border-b py-3 last:border-b-0">
+      <Icon size={19} aria-hidden="true" className="text-text-dim mt-0.5" />
+      <p className="text-text-dim text-sm">{title}</p>
+      <div className="text-text min-w-0 text-sm">{children}</div>
+      {editing ? (
+        <button
+          type="button"
+          onClick={() => onEdit(section)}
+          aria-label={`Edit ${title.toLowerCase()}`}
+          className="text-ink-green hover:bg-glass -my-1.5 inline-flex min-h-9 items-center gap-1 rounded-lg px-2 text-xs font-semibold"
+        >
+          <Pencil size={13} aria-hidden="true" />
+          Edit
+        </button>
+      ) : (
+        <span />
+      )}
     </div>
   );
 }
@@ -69,6 +74,7 @@ export function FarmDetailsForm() {
   const profile = useProfileStore((state) => state.profile);
   const save = useProfileStore((state) => state.save);
   const [editing, setEditing] = useState<Section | null>(null);
+  const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
   const formId = useId();
 
@@ -102,32 +108,32 @@ export function FarmDetailsForm() {
 
   return (
     <Card id="farm-details" className="h-full scroll-mt-24 rounded-3xl">
-      <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <Sprout size={18} aria-hidden="true" className="text-ink-green" />
-            Farm details
-          </CardTitle>
-          <CardSub>What you told us during setup. Tap Edit to change any part.</CardSub>
-        </div>
-      </CardHeader>
+      <CardHead
+        id="farm-details-title"
+        icon={Sprout}
+        title="Farm details"
+        sub={editMode ? 'Choose the part to change.' : 'Information about your farm.'}
+        onEdit={() => setEditMode((v) => !v)}
+        editLabel={editMode ? 'Done' : 'Edit'}
+      />
+      <div className="mt-3" />
 
-      <Row section="name" onEdit={setEditing}>
+      <Row section="name" onEdit={setEditing} editing={editMode}>
         <p className="font-semibold">{profile.farmName || 'Not set'}</p>
       </Row>
-      <Row section="location" onEdit={setEditing}>
+      <Row section="location" onEdit={setEditing} editing={editMode}>
         <p className="font-semibold">{locationLabel(profile) || 'Not set'}</p>
         {profile.community && <p className="text-text-dim">{profile.community}</p>}
         <p className="text-text-mute text-xs tabular-nums">
           {profile.gps ? formatGPS(profile.gps.lat, profile.gps.lng) : 'No map pin'}
         </p>
       </Row>
-      <Row section="size" onEdit={setEditing}>
+      <Row section="size" onEdit={setEditing} editing={editMode}>
         <p className="font-semibold">
           {profile.acres > 0 ? formatFarmSize(profile.acres, profile.sizeUnit) : 'Not set'}
         </p>
       </Row>
-      <Row section="crops" onEdit={setEditing}>
+      <Row section="crops" onEdit={setEditing} editing={editMode}>
         {crops.length ? (
           <ul aria-label="Crops" className="mt-1 flex flex-wrap gap-1.5">
             {crops.map((crop) => (
@@ -144,7 +150,7 @@ export function FarmDetailsForm() {
           <p className="font-semibold">Not set</p>
         )}
       </Row>
-      <Row section="type" onEdit={setEditing}>
+      <Row section="type" onEdit={setEditing} editing={editMode}>
         <p className="font-semibold">{profile.farmType}</p>
         {profile.cooperativeName && <p className="text-text-dim">{profile.cooperativeName}</p>}
         {profile.outgrowerCompany && (

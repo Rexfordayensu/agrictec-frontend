@@ -214,8 +214,8 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
         <div className="border-border flex flex-col rounded-2xl border border-dashed p-4">
           <p className="text-text text-sm font-semibold">Restore from a backup</p>
           <p className="text-text-mute mt-1 flex-1 text-xs leading-relaxed">
-            The file is opened with its passphrase and checked before anything changes, and you
-            see what it contains first.
+            The file is opened with its passphrase and checked before anything changes, and you see
+            what it contains first.
           </p>
           <label
             htmlFor={fileId}
@@ -387,7 +387,7 @@ export function BackupRestoreCard({ onRestored }: { onRestored: () => void }) {
             <dl className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               {counts.map(([label, value]) => (
                 <div key={label} className="border-border bg-glass rounded-xl border px-3 py-2.5">
-                  <dt className="text-text-mute text-[11px]">{label}</dt>
+                  <dt className="text-text-mute text-xs">{label}</dt>
                   <dd className="text-text font-display text-lg font-bold tabular-nums">
                     {value.toLocaleString()}
                   </dd>

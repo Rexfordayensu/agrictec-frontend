@@ -3,9 +3,10 @@
 // Credits are spent by the API itself when an assistant question or a crop scan succeeds.
 
 import { FEATURE_NAMES, planAccess } from '@/lib/subscriptions/plans';
-import { api } from '@/services/api';
+import { api, apiBlob } from '@/services/api';
 import type { FeatureFlags, Plan } from '@/types/admin';
 import type {
+  BillingItem,
   MockPaymentMethod,
   PlanFeature,
   PlanId,
@@ -41,6 +42,16 @@ export function assertPlanFeature(
 }
 
 export const subscriptionService = {
+  /** Billing history, newest first: Paystack payments and any simulated (demo) one. */
+  async payments(signal?: AbortSignal): Promise<BillingItem[]> {
+    return api<BillingItem[]>('/me/subscription/payments', { signal });
+  },
+
+  /** A PDF receipt for one of the farmer's own payments. */
+  async receipt(reference: string): Promise<Blob> {
+    return apiBlob(`/me/subscription/payments/${encodeURIComponent(reference)}/receipt`);
+  },
+
   async get(_userId: string): Promise<SubscriptionSnapshot> {
     return api<SubscriptionSnapshot>('/me/subscription');
   },

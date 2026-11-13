@@ -33,7 +33,7 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
         <div className="flex items-center gap-3">
           <CropTile crop={crop} />
           <div>
-            <h3 className="text-text flex items-center gap-2 text-[15px] font-bold">
+            <h3 className="text-text flex items-center gap-2 text-sm font-bold">
               Growing tips for {crop}
               <Lightbulb size={16} aria-hidden="true" className="text-ink-gold" />
             </h3>
@@ -45,7 +45,7 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
         <dl className="grid grid-cols-3 gap-2 @3xl:min-w-96">
           {facts.map((fact) => (
             <div key={fact.label} className="border-border bg-glass rounded-xl border px-3 py-2">
-              <dt className="text-text-mute text-[10px] font-semibold tracking-wide uppercase">
+              <dt className="text-text-mute text-xs font-semibold tracking-wide uppercase">
                 {fact.label}
               </dt>
               <dd className="text-text mt-0.5 text-xs font-bold tabular-nums @md:text-sm">
@@ -68,7 +68,7 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
             >
               {String(index + 1).padStart(2, '0')}
             </span>
-            <span className="text-ink-green bg-accent/10 inline-flex w-fit items-center rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase">
+            <span className="text-ink-green bg-accent/10 inline-flex w-fit items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase">
               Step {index + 1}
             </span>
             <p className="text-text-dim relative text-sm leading-relaxed">{tip}</p>
