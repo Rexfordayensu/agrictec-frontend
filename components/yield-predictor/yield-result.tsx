@@ -1,13 +1,6 @@
 'use client';
 
-import {
-  ArrowUpRight,
-  Banknote,
-  CircleAlert,
-  Lightbulb,
-  TrendingUp,
-  Wheat,
-} from 'lucide-react';
+import { ArrowUpRight, Banknote, CircleAlert, Lightbulb, TrendingUp, Wheat } from 'lucide-react';
 import { perAcreBenchmarks } from '@/components/yield-predictor/yield-options';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
@@ -33,7 +26,7 @@ function RangeBar({ low, expected, high }: { low: number; expected: number; high
           style={{ left: `${position}%` }}
         />
       </div>
-      <div className="text-text-mute mt-2 grid grid-cols-3 text-[11px] tabular-nums">
+      <div className="text-text-mute mt-2 grid grid-cols-3 text-xs tabular-nums">
         <span className="pl-[12%]">Low {quantity(low)} t</span>
         <span className="text-ink-green text-center font-semibold">Expected</span>
         <span className="pr-[12%] text-right">High {quantity(high)} t</span>
@@ -75,7 +68,7 @@ export function YieldResult({
   return (
     <Card className={cn('animate-fade-in @container rounded-3xl', stale && 'opacity-90')}>
       <div className="mb-5 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-text flex items-center gap-2 text-[15px] font-bold">
+        <h3 className="text-text flex items-center gap-2 text-sm font-bold">
           <TrendingUp size={17} aria-hidden="true" className="text-ink-green" />
           Your harvest outlook
         </h3>
@@ -87,7 +80,8 @@ export function YieldResult({
           className="bg-gold/10 text-ink-gold mb-4 flex items-start gap-2 rounded-xl p-3 text-xs leading-relaxed"
         >
           <CircleAlert size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
-          Your choices have changed. Select “Update my estimate” in the form to refresh these results.
+          Your choices have changed. Select “Update my estimate” in the form to refresh these
+          results.
         </p>
       )}
 
@@ -108,7 +102,7 @@ export function YieldResult({
               {quantity(input.acres)} {input.acres === 1 ? 'acre' : 'acres'}
             </span>
           </div>
-          <p className="text-ink-green mt-4 text-[11px] font-semibold tracking-wider uppercase">
+          <p className="text-ink-green mt-4 text-xs font-semibold tracking-wider uppercase">
             Predicted Yield
           </p>
           <p className="text-text mt-1 flex items-baseline gap-2">
@@ -127,7 +121,7 @@ export function YieldResult({
 
       <div className="mt-4 grid grid-cols-1 gap-4 @lg:grid-cols-2">
         <div className="glass rounded-2xl p-4">
-          <p className="text-text-mute flex items-center gap-1.5 text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-text-mute flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase">
             <Banknote size={13} aria-hidden="true" className="text-ink-green" />
             Your revenue potential
           </p>
@@ -155,7 +149,7 @@ export function YieldResult({
                   </dd>
                 </div>
               </dl>
-              <p className="text-text-mute mt-3 text-[10px]">
+              <p className="text-text-mute mt-3 text-xs">
                 Published market price
                 {result.priceSource
                   ? ` · ${result.priceSource.where}${result.priceSource.observedAt ? `, observed ${result.priceSource.observedAt}` : ''}`
@@ -173,7 +167,7 @@ export function YieldResult({
 
         {benchmarks && (
           <div className="glass rounded-2xl p-4">
-            <p className="text-text-mute flex items-center gap-1.5 text-[10px] font-semibold tracking-wider uppercase">
+            <p className="text-text-mute flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase">
               <TrendingUp size={13} aria-hidden="true" className="text-ink-green" />
               Yield per acre
             </p>
@@ -187,9 +181,7 @@ export function YieldResult({
                       )}
                     >
                       {row.label}
-                      <span className="text-text-mute ml-1 text-[10px] font-normal">
-                        {row.hint}
-                      </span>
+                      <span className="text-text-mute ml-1 text-xs font-normal">{row.hint}</span>
                     </dt>
                     <dd className="text-text font-semibold tabular-nums">
                       {quantity(row.value)} t
@@ -212,7 +204,7 @@ export function YieldResult({
         <Lightbulb size={16} aria-hidden="true" className="text-ink-blue mt-0.5 shrink-0" />
         <p>{yieldInsight(input, result, crops)}</p>
       </div>
-      <p className="text-text-mute mt-4 text-center text-[10px] leading-relaxed">
+      <p className="text-text-mute mt-4 text-center text-xs leading-relaxed">
         A planning estimate, not a harvest or a sale. Record income when you actually sell.
       </p>
     </Card>

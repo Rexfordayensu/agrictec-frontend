@@ -77,7 +77,7 @@ export function PriceTrendChart({
             />
             <span className="font-semibold">{series.label}</span>
             {!percentage && (
-              <span className="text-text-mute text-[10px]">/{unitFor(series.label)}</span>
+              <span className="text-text-mute text-xs">/{unitFor(series.label)}</span>
             )}
           </li>
         ))}

@@ -8,7 +8,7 @@ export interface AiChipProps {
 }
 
 const chipClass =
-  'inline-flex items-center gap-1.5 rounded-full border border-purple/30 bg-linear-to-r from-purple/15 to-info/15 px-3 py-1 text-[11px] font-semibold text-ink-purple';
+  'inline-flex items-center gap-1.5 rounded-full border border-purple/30 bg-linear-to-r from-purple/15 to-info/15 px-3 py-1 text-xs font-semibold text-ink-purple';
 
 /** Renders a button when clickable, otherwise a plain label. */
 export function AiChip({ children, onClick, className }: AiChipProps) {

@@ -144,7 +144,7 @@ export function ChatInput() {
         </Button>
       </div>
       {listening && (
-        <p role="status" aria-live="polite" className="text-text-dim mt-2 text-[11px]">
+        <p role="status" aria-live="polite" className="text-text-dim mt-2 text-xs">
           Listening… Speak in English, then press stop to review your question.
         </p>
       )}

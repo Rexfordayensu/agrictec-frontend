@@ -85,11 +85,11 @@ export function RecordsView() {
   }
 
   return (
-    <div className="space-y-5">
+    <div className="records-view space-y-5">
       <RecordsHero />
       <RecordsSummary rows={rows} filtered={activeFilters > 0} />
 
-      <Card className="@container" padding="none">
+      <Card className="records-workspace @container" padding="none">
         <div className="space-y-4 p-4 sm:p-5">
           <Tabs
             tabs={[

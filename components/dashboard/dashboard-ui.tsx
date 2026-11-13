@@ -57,7 +57,7 @@ export function PanelHeading({
     <div className="mb-4 flex items-start gap-3">
       {icon && <IconTile icon={icon} size="sm" />}
       <div className="min-w-0 flex-1">
-        <h2 id={id} className="text-text text-[17px] leading-tight font-bold">
+        <h2 id={id} className="text-text text-lg leading-tight font-bold">
           {title}
         </h2>
         {sub && <p className="text-text-mute mt-0.5 text-xs">{sub}</p>}

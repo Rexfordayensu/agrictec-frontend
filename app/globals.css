@@ -96,6 +96,32 @@
   --spacing-header: 4.75rem;
 }
 
+/* ---------- Type scale ----------
+   One set of font sizes for every page. Each step grows smoothly from phones to desktops
+   (clamp), so a 390px phone, a laptop and a wide monitor each get a size that suits them, and
+   the same kind of text is the same size on every page. Nothing is smaller than 12px.
+   Page stylesheets use these through var(--text-*); components through text-* classes. */
+@theme static {
+  --text-xs: 0.75rem; /* 12px: labels, badges, captions (the minimum) */
+  --text-small: 0.8125rem; /* 13px: secondary text */
+  --text-small--line-height: 1.45;
+  --text-sm: clamp(0.875rem, 0.84rem + 0.1vw, 0.9375rem); /* 14 -> 15px: body text */
+  --text-base: 1rem; /* 16px */
+  --text-lg: clamp(1rem, 0.95rem + 0.22vw, 1.125rem); /* 16 -> 18px: card headings */
+  --text-xl: clamp(1.125rem, 1.03rem + 0.4vw, 1.25rem); /* 18 -> 20px */
+  --text-2xl: clamp(1.25rem, 1.08rem + 0.6vw, 1.5rem); /* 20 -> 24px: section headings, figures */
+  --text-3xl: clamp(1.375rem, 1.1rem + 0.9vw, 1.875rem); /* 22 -> 30px: big figures */
+  --text-4xl: clamp(1.75rem, 1.35rem + 1.3vw, 2.25rem); /* 28 -> 36px */
+  --text-display: clamp(
+    1.5rem,
+    1.12rem + 1.25vw,
+    2.125rem
+  ); /* 24 -> 34px: every page's banner title */
+  --text-display--line-height: 1.15;
+  --text-stat-lg: clamp(1.75rem, 1.2rem + 1.9vw, 2.625rem); /* 28 -> 42px: one headline figure */
+  --text-stat-lg--line-height: 1.1;
+}
+
 /* ---------- Base styles ---------- */
 @layer base {
   body {
@@ -542,5 +568,15 @@
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+/* Phones: form fields at 16px, so iPhones do not zoom the page in when a field is tapped.
+   Unlayered and !important so no page stylesheet can shrink them. */
+@media (max-width: 640px) {
+  input:not([type='checkbox'], [type='radio'], [type='range'], [type='file']),
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

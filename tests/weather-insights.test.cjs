@@ -191,3 +191,57 @@ test('a rain amount or wind speed the source left out is unknown, never dry or c
   assert.equal(byKey.fertilizer.tone, 'caution');
   assert.match(byKey.fertilizer.text, /no rain amounts/);
 });
+
+test('the season follows the region’s rainfall pattern', () => {
+  const { seasonFor } = require('../lib/market/season.ts');
+  assert.equal(seasonFor('Ashanti', 11), 'Minor rainy season');
+  assert.equal(seasonFor('Ashanti', 5), 'Major rainy season');
+  assert.equal(seasonFor('Ashanti', 8), 'Short dry spell');
+  assert.equal(seasonFor('Greater Accra', 1), 'Dry season (Harmattan)');
+  assert.equal(seasonFor('Northern', 7), 'Rainy season');
+  assert.equal(seasonFor('Upper East', 11), 'Dry season (Harmattan)');
+});
+
+test('the outlook only repeats the forecast’s own rain figures', () => {
+  const { outlookFor } = require('../lib/market/season.ts');
+  const day = (rainMm, rainChance = null, storm = false) => ({ date: '2026-11-13', description: '', minTemp: 22, maxTemp: 30, rainMm, rainChance, windKph: 8, storm });
+  assert.match(outlookFor([day(0), day(0.2), day(0)]), /Mostly dry/);
+  assert.match(outlookFor([day(4.7), day(0), day(0.1), day(0)]), /Intermittent rain \(1 of 4 days\)/);
+  assert.match(outlookFor([day(5), day(3), day(9, null, true)]), /Frequent rain \(3 of 3 days\) with storms/);
+  // A provider without amounts: the chance decides; without either, nothing is guessed.
+  assert.match(outlookFor([day(null, 80), day(null, 10)]), /Intermittent rain \(1 of 2 days\)/);
+  assert.match(outlookFor([day(null, null)]), /no rain figures/);
+});
+
+test('a position shows its village, town, district and region, and the weather never waits', async () => {
+  const { nameWeatherLocation } = require('../lib/market/weather-location.ts');
+  const { describePlace } = require('../lib/market/place-text.ts');
+  const here = { kind: 'coordinates', label: 'Your current location', latitude: 6.7186, longitude: -1.4867 };
+  const parts = (loc, farm = false) =>
+    describePlace(loc, farm).parts.map((p) => `${p.label}: ${p.value}`);
+  // Real answer near Ejisu: a village in its district, no town named above it.
+  const krapa = await nameWeatherLocation(here, async () => ({
+    village: 'Krapa', area: null, town: null, district: 'Ejisu Municipal District', region: 'Ashanti',
+    inGhana: true, label: 'Krapa, Ashanti, Ghana',
+  }));
+  assert.equal(krapa.label, 'Krapa, Ashanti, Ghana');
+  assert.equal(krapa.latitude, 6.7186);
+  assert.equal(describePlace(krapa, false).title, 'Krapa, Ashanti');
+  assert.deepEqual(parts(krapa), ['Village: Krapa', 'District: Ejisu Municipal', 'Region: Ashanti']);
+  // Real answer for central Kumasi: a neighbourhood of the city.
+  const kumasi = await nameWeatherLocation(here, async () => ({
+    village: null, area: 'Adum', town: 'Kumasi', district: 'Kumasi Metropolitan District', region: 'Ashanti',
+    inGhana: true, label: 'Kumasi, Ashanti, Ghana',
+  }));
+  assert.deepEqual(parts(kumasi), ['Area: Adum', 'Town / city: Kumasi', 'District: Kumasi Metropolitan', 'Region: Ashanti']);
+  assert.equal(describePlace({ ...kumasi, label: 'Your farm · Ashanti' }, true).title, 'Your farm · Kumasi');
+  // A region that is not one of Ghana's 16 is never kept.
+  const lome = await nameWeatherLocation(here, async () => ({ town: 'Lomé', region: 'Maritime', inGhana: false, label: 'Lomé (outside Ghana)' }));
+  assert.equal(lome.region, undefined);
+  // The lookup fails: the position is kept, so the forecast still shows.
+  const failed = await nameWeatherLocation(here, async () => { throw new Error('offline'); });
+  assert.equal(failed, here);
+  assert.match(describePlace(failed, false).detail, /could not be named/);
+  // A place chosen by hand shows what was chosen.
+  assert.deepEqual(parts({ kind: 'place', region: 'Volta', city: 'Ho', label: 'Ho, Volta, Ghana' }), ['Town / city: Ho', 'Region: Volta']);
+});

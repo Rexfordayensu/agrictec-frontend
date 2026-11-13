@@ -44,7 +44,7 @@ export function PermissionsMatrix() {
             <tr className="border-border border-b">
               <th
                 scope="col"
-                className="text-text-mute px-5 py-3 text-[11px] font-semibold tracking-wider uppercase"
+                className="text-text-mute px-5 py-3 text-xs font-semibold tracking-wider uppercase"
               >
                 Permission
               </th>
@@ -61,7 +61,7 @@ export function PermissionsMatrix() {
                 <th
                   scope="rowgroup"
                   colSpan={ROLES_HIGH_FIRST.length + 1}
-                  className="bg-bg-2/50 text-text-mute px-5 py-2 text-[11px] font-semibold tracking-wider uppercase"
+                  className="bg-bg-2/50 text-text-mute px-5 py-2 text-xs font-semibold tracking-wider uppercase"
                 >
                   {group.label}
                 </th>

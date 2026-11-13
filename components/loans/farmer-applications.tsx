@@ -108,7 +108,7 @@ function ApplicationCard({ app }: { app: ApplicationSummary }) {
                 />
                 <span
                   className={cn(
-                    'mt-1.5 hidden items-center gap-1 truncate text-[11px] sm:flex',
+                    'mt-1.5 hidden items-center gap-1 truncate text-xs sm:flex',
                     isDone || isCurrent ? 'text-text-dim' : 'text-text-mute',
                   )}
                 >
@@ -126,7 +126,7 @@ function ApplicationCard({ app }: { app: ApplicationSummary }) {
         </ol>
       )}
       {!ended && current >= 0 && (
-        <p className="text-text-mute mt-1.5 text-[11px] sm:hidden">
+        <p className="text-text-mute mt-1.5 text-xs sm:hidden">
           Stage {current + 1} of {APPLICATION_STAGES.length}: {APPLICATION_STAGES[current]}
         </p>
       )}

@@ -52,7 +52,7 @@ function DeltaChip({ delta, lowerIsBetter }: { delta: number; lowerIsBetter?: bo
   return (
     <span
       className={cn(
-        'inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-[11px] font-semibold tabular-nums',
+        'inline-flex shrink-0 items-center gap-1 rounded-md px-1.5 py-0.5 text-xs font-semibold tabular-nums',
         flat
           ? 'bg-glass-strong text-text-mute'
           : good
@@ -210,7 +210,7 @@ export function KpiGrid({
                 )}
               </div>
               <div className="flex items-end justify-between gap-3">
-                <p className="font-display text-text text-2xl leading-none font-bold whitespace-nowrap tabular-nums sm:text-[28px]">
+                <p className="font-display text-text text-2xl leading-none font-bold whitespace-nowrap tabular-nums sm:text-3xl">
                   {kpi.value}
                 </p>
                 {kpi.trend && kpi.trend.length > 1 && (

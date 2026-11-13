@@ -239,16 +239,14 @@ export function CropDoctorView() {
             />
           )}
 
-          <div className="text-text-mute mt-4 space-y-1 text-[11px]">
+          <div className="text-text-mute mt-4 space-y-1 text-xs">
             <p className="flex items-center gap-1.5">
               <ShieldCheck size={13} aria-hidden="true" className="text-ink-green shrink-0" />
               {aiOn
                 ? 'Your photo is sent securely for analysis and is not kept there.'
                 : 'The crop doctor is not available right now. Please check back later.'}
             </p>
-            <p>
-              AI can be wrong. Confirm with your extension officer.
-            </p>
+            <p>AI can be wrong. Confirm with your extension officer.</p>
           </div>
         </Card>
 
@@ -290,7 +288,7 @@ export function CropDoctorView() {
                     next.
                   </p>
                 </div>
-                <p className="text-text-mute mb-3 text-[11px] font-semibold tracking-wider uppercase">
+                <p className="text-text-mute mb-3 text-xs font-semibold tracking-wider uppercase">
                   What the Crop Doctor checks
                 </p>
                 <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">

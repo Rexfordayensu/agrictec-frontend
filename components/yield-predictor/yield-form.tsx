@@ -94,7 +94,7 @@ function OptionCards<T extends string>({
           const text = (
             <span className="min-w-0 flex-1">
               <span className="text-text block text-sm font-semibold">{label}</span>
-              <span className="text-text-mute block text-[11px] leading-snug">{hint}</span>
+              <span className="text-text-mute block text-xs leading-snug">{hint}</span>
             </span>
           );
           return (
@@ -389,7 +389,7 @@ export function YieldForm() {
                   style={{ width: `${Math.max(4, strength.share * 100)}%` }}
                 />
               </div>
-              <p className="text-text-mute mt-2 text-[11px]">
+              <p className="text-text-mute mt-2 text-xs">
                 {strength.share >= 1
                   ? 'You’ve chosen the strongest combination of inputs.'
                   : `${Math.round(strength.share * 100)}% of the best possible inputs.`}

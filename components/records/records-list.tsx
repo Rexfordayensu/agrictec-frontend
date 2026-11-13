@@ -187,7 +187,7 @@ export function RecordsList({
   let content;
   if (!hasAnyRecords) {
     content = (
-      <div className="flex flex-col items-center gap-6 px-4 py-8 text-center sm:flex-row sm:justify-center sm:gap-10 sm:text-left">
+      <div className="records-empty flex flex-col items-center gap-6 px-4 py-8 text-center sm:flex-row sm:justify-center sm:gap-10 sm:text-left">
         <ClipboardArt />
         <div className="max-w-md">
           <h3 className="text-text text-lg font-bold">No records yet — let’s get started!</h3>
@@ -272,6 +272,17 @@ export function RecordsList({
 function ClipboardArt() {
   return (
     <svg aria-hidden="true" viewBox="0 0 240 150" className="h-36 w-auto shrink-0">
+      <defs>
+        <linearGradient id="re-board">
+          <stop stopColor="#90ceb1" />
+          <stop offset=".5" stopColor="#369c72" />
+          <stop offset="1" stopColor="#70b99a" />
+        </linearGradient>
+        <linearGradient id="re-leaf" x2="1" y2="1">
+          <stop stopColor="#a4d66e" />
+          <stop offset="1" stopColor="#44a34c" />
+        </linearGradient>
+      </defs>
       <ellipse cx="120" cy="138" rx="105" ry="9" fill="currentColor" className="text-accent/15" />
       <path
         d="M40 120 Q 30 70 80 60 Q 140 40 180 80 Q 215 110 190 135 Z"
@@ -285,9 +296,11 @@ function ClipboardArt() {
         strokeLinecap="round"
       />
       <g transform="translate(95 18) rotate(-8)">
-        <rect x="0" y="0" width="84" height="112" rx="10" fill="#2f8f5b" />
+        <rect x="0" y="0" width="84" height="112" rx="10" fill="url(#re-board)" />
         <rect x="7" y="10" width="70" height="96" rx="5" fill="#ffffff" />
-        <rect x="26" y="-7" width="32" height="15" rx="5" fill="#256f47" />
+        <circle cx="42" cy="-8" r="10" fill="url(#re-board)" />
+        <circle cx="42" cy="-8" r="3.5" fill="#edf8ee" />
+        <rect x="22" y="-7" width="40" height="15" rx="3" fill="url(#re-board)" />
         {[28, 50, 72].map((y) => (
           <g key={y}>
             <path
@@ -303,8 +316,8 @@ function ClipboardArt() {
       </g>
       <g transform="translate(55 70)">
         <path d="M22 64 Q 19 40 22 16" stroke="#3c9a4f" strokeWidth="4" fill="none" />
-        <path d="M22 34 Q -2 26 0 6 Q 20 9 22 34 Z" fill="#5bbf62" />
-        <path d="M23 26 Q 44 10 52 22 Q 40 38 23 26 Z" fill="#4caf58" />
+        <path d="M22 34 Q -2 26 0 6 Q 20 9 22 34 Z" fill="url(#re-leaf)" />
+        <path d="M23 26 Q 44 10 52 22 Q 40 38 23 26 Z" fill="url(#re-leaf)" />
       </g>
     </svg>
   );

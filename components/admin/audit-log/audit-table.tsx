@@ -39,7 +39,7 @@ function ActionChip({ action }: { action: string }) {
   return (
     <span
       className={cn(
-        'inline-flex max-w-full items-center rounded-md px-2 py-0.5 text-[11px] font-semibold whitespace-nowrap',
+        'inline-flex max-w-full items-center rounded-md px-2 py-0.5 text-xs font-semibold whitespace-nowrap',
         GROUP_TONE[auditGroupOf(action)],
       )}
     >
@@ -85,7 +85,7 @@ export function AuditTable({
           <col className="w-40" />
           <col />
         </colgroup>
-        <thead className="border-border text-text-mute border-b text-[11px] tracking-wider uppercase">
+        <thead className="border-border text-text-mute border-b text-xs tracking-wider uppercase">
           <tr>
             <th scope="col" className="px-5 py-3 font-semibold">
               Time

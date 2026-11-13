@@ -80,7 +80,7 @@ export function WeightsEditor({
                       {f.label}
                     </label>
                     {value[f.key] !== was && (
-                      <span className="text-ink-gold text-[11px] font-semibold">Live: {was}%</span>
+                      <span className="text-ink-gold text-xs font-semibold">Live: {was}%</span>
                     )}
                   </div>
                   <p className="text-text-mute mt-0.5 text-xs">{f.description}</p>

@@ -123,7 +123,7 @@ export function CashFlowPanel({ summary }: { summary: FinancialSummary }) {
       aria-labelledby="cashflow-title"
       className={cn(dashPanel, 'report-cashflow flex flex-col')}
     >
-      <h2 id="cashflow-title" className="text-text text-[17px] font-bold">
+      <h2 id="cashflow-title" className="text-text text-lg font-bold">
         Income, expenses and cash flow
       </h2>
       <div className="text-text mt-3 flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs">
@@ -180,7 +180,7 @@ export function CategoryPanel({ summary }: { summary: FinancialSummary }) {
       aria-labelledby="category-title"
       className={cn(dashPanel, 'report-category @container')}
     >
-      <h2 id="category-title" className="text-text text-[17px] font-bold">
+      <h2 id="category-title" className="text-text text-lg font-bold">
         Transaction by category
       </h2>
       {!groups ? (
@@ -205,20 +205,22 @@ export function CategoryPanel({ summary }: { summary: FinancialSummary }) {
                   <span className="text-text block text-base font-extrabold">
                     {formatTransactionMoney(summary.categoryTotal ?? '0.00').replace(/^GHS /, '')}
                   </span>
-                  <span className="text-text-dim block text-[11px]">Total</span>
+                  <span className="text-text-dim block text-xs">Total</span>
                 </span>
               }
             />
           </div>
-          <ul className="space-y-3.5 text-[12.5px] whitespace-nowrap">
+          <ul className="space-y-3.5 text-xs">
             {groups.map((g) => (
               <li key={g.key} className="flex items-center gap-2.5">
                 <i
                   className="size-3 shrink-0 rounded-[3px]"
                   style={{ background: CATEGORY_COLORS[g.key] }}
                 />
-                <span className="text-text flex-1">{g.label}</span>
-                <span className="text-text tabular-nums">{Math.round(Number(g.share))}%</span>
+                <span className="text-text min-w-0 flex-1">{g.label}</span>
+                <span className="text-text shrink-0 tabular-nums">
+                  {Math.round(Number(g.share))}%
+                </span>
               </li>
             ))}
           </ul>
@@ -276,7 +278,7 @@ export function RecentTransactionsPanel({ summary }: { summary: FinancialSummary
       className={cn(dashPanel, 'report-recent @container')}
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
-        <h2 id="recent-tx-title" className="text-text text-[17px] font-bold">
+        <h2 id="recent-tx-title" className="text-text text-lg font-bold">
           Recent transactions
         </h2>
         <Link
@@ -299,7 +301,7 @@ export function RecentTransactionsPanel({ summary }: { summary: FinancialSummary
           <div className="hidden overflow-x-auto @2xl:block">
             <table className="w-full text-sm">
               <thead>
-                <tr className="bg-glass-strong text-text text-left text-[13px]">
+                <tr className="bg-glass-strong text-text text-small text-left">
                   <th className="rounded-l-lg px-2 py-3 font-semibold">Date</th>
                   <th className="px-2 py-3 font-semibold">Description</th>
                   <th className="px-2 py-3 font-semibold">Category</th>
@@ -501,7 +503,7 @@ export function ReadinessPanel({ summary }: { summary: FinancialSummary }) {
     <section aria-labelledby="readiness-report-title" className={cn(dashPanel, 'report-readiness')}>
       <h2
         id="readiness-report-title"
-        className="text-text flex items-center gap-2 text-[17px] font-bold"
+        className="text-text flex items-center gap-2 text-lg font-bold"
       >
         Financial record readiness
         <span title="What a lender usually looks for in your records, checked against your recorded figures. It is not a loan decision.">

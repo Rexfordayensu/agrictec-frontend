@@ -39,14 +39,14 @@ export function MonthlyNetChart({ className }: { className?: string }) {
       {hasAny && (
         <dl className="mb-4 flex flex-wrap gap-3">
           <div className="border-border bg-glass rounded-xl border px-3 py-2">
-            <dt className="text-text-mute text-[11px]">Net this year</dt>
+            <dt className="text-text-mute text-xs">Net this year</dt>
             <dd className={cn('text-sm font-bold', ytdNet < 0 ? 'text-ink-red' : 'text-text')}>
               {formatGHS(ytdNet)}
             </dd>
           </div>
           {hasBest && (
             <div className="border-border bg-glass rounded-xl border px-3 py-2">
-              <dt className="text-text-mute text-[11px]">Best month</dt>
+              <dt className="text-text-mute text-xs">Best month</dt>
               <dd className="text-text text-sm font-bold">
                 {MONTHS[best]} ·{' '}
                 <span className="text-ink-green">{formatGHS(currentYearNet[best])}</span>
@@ -64,6 +64,7 @@ export function MonthlyNetChart({ className }: { className?: string }) {
           </p>
         )}
         <BarChart
+          showAllLabels
           height={260}
           showLegend={false}
           ariaLabel={`Monthly net income for ${year}`}

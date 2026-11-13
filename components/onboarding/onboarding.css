@@ -31,13 +31,13 @@
 }
 .onboarding-eyebrow {
   color: var(--text-mute);
-  font-size: 11px;
+  font-size: var(--text-xs);
   font-weight: 650;
   letter-spacing: 1.8px;
 }
 .onboarding-intro h1 {
   margin-top: 10px;
-  font-size: clamp(28px, 3vw, 36px);
+  font-size: var(--text-display);
   line-height: 1.2;
   font-weight: 650;
   letter-spacing: -0.9px;
@@ -46,7 +46,7 @@
   margin-top: 10px;
   max-width: 580px;
   color: var(--text-dim);
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.7;
 }
 .onboarding-workspace {
@@ -67,7 +67,7 @@
   padding: 0 12px;
 }
 .onboarding-step-count {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 .onboarding-progress-track {
@@ -121,20 +121,20 @@
   border: 1px solid #62788b70;
   border-radius: 50%;
   color: var(--text-mute);
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 650;
 }
 .onboarding-step-label {
   display: block;
   color: var(--text-dim);
-  font-size: 13px;
+  font-size: var(--text-small);
   font-weight: 600;
 }
 .onboarding-step-help {
   display: block;
   margin-top: 3px;
   color: var(--text-mute);
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .onboarding-step-link.is-current {
   border-color: #32e5be50;
@@ -161,7 +161,7 @@
   margin: 20px 12px 0;
   padding-top: 18px;
   color: var(--text-mute);
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.7;
 }
 .onboarding-save-note svg {
@@ -181,7 +181,7 @@
   scroll-margin-top: 24px;
 }
 .onboarding-step-content h2 {
-  font-size: 23px;
+  font-size: var(--text-2xl);
   letter-spacing: -0.4px;
 }
 .onboarding-step-content input:not([type='checkbox']),
@@ -190,7 +190,7 @@
   border-color: #627d95;
   border-radius: 12px;
   background-color: #0d1b2a;
-  font-size: 16px;
+  font-size: var(--text-base);
 }
 .onboarding-step-content input[aria-invalid='true'],
 .onboarding-step-content select[aria-invalid='true'] {
@@ -227,7 +227,7 @@
   width: 100%;
   color: var(--text-mute);
   text-align: right;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .onboarding-loading,
 .onboarding-load-error {
@@ -241,12 +241,12 @@
   gap: 18px;
 }
 .onboarding-load-error h2 {
-  font-size: 22px;
+  font-size: var(--text-2xl);
   font-weight: 600;
 }
 .onboarding-load-error p {
   margin-top: 8px;
-  font-size: 14px;
+  font-size: var(--text-sm);
   color: var(--text-dim);
 }
 .onboarding-skip-link {
@@ -259,7 +259,7 @@
   padding: 12px 18px;
   color: #022c22;
   background: #84ffcf;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 600;
 }
 .onboarding-skip-link:focus {
@@ -276,7 +276,7 @@
     margin-bottom: 20px;
   }
   .onboarding-intro > p:last-child {
-    font-size: 13px;
+    font-size: var(--text-small);
   }
   .onboarding-workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -296,11 +296,11 @@
     padding: 0;
   }
   .onboarding-eyebrow {
-    font-size: 10px;
+    font-size: var(--text-xs);
     letter-spacing: 1.3px;
   }
   .onboarding-step-count {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .onboarding-progress-track {
     margin: 12px 0 4px;
@@ -313,7 +313,7 @@
     justify-content: space-between;
     gap: 12px;
     text-align: left;
-    font-size: 13px;
+    font-size: var(--text-small);
     font-weight: 600;
   }
   .onboarding-step-toggle > span:last-child {
@@ -321,7 +321,7 @@
     align-items: center;
     gap: 6px;
     color: var(--ink-green);
-    font-size: 12px;
+    font-size: var(--text-xs);
     white-space: nowrap;
   }
   .onboarding-step-list[data-expanded='false'] {
@@ -336,7 +336,7 @@
   .onboarding-save-note {
     margin: 10px 0 0;
     padding-top: 12px;
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .onboarding-panel {
     border-radius: 20px;
@@ -345,7 +345,7 @@
     padding: 24px 20px;
   }
   .onboarding-step-content h2 {
-    font-size: 21px;
+    font-size: var(--text-xl);
   }
   .onboarding-actions {
     padding: 14px 20px max(12px, env(safe-area-inset-bottom));

@@ -10,7 +10,7 @@ export function AdminBrand({ className }: { className?: string }) {
         <p className="font-display text-xl leading-tight font-semibold tracking-tight">
           <AgriCtecWordmark />
         </p>
-        <span className="bg-purple/15 text-ink-purple rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wider uppercase">
+        <span className="bg-purple/15 text-ink-purple rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wider uppercase">
           Console
         </span>
       </div>

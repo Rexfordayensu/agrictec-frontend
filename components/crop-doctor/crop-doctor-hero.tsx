@@ -6,7 +6,7 @@ import { useFarmStore } from '@/store/farm-store';
 export function CropDoctorHero() {
   return (
     <header>
-      <h1 className="font-display text-ink-green text-2xl leading-tight font-bold sm:text-3xl">
+      <h1 className="font-display text-ink-green text-display leading-tight font-bold">
         AI Crop Doctor
       </h1>
       <p className="text-text-dim mt-1 text-sm">Choose your crop and add a clear leaf photo.</p>

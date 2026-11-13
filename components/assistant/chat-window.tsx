@@ -34,7 +34,7 @@ export function ChatWindow() {
         <div className="space-y-6">
           <div
             aria-hidden="true"
-            className="text-text-mute flex items-center gap-3 text-[10px] font-medium tracking-wide"
+            className="text-text-mute flex items-center gap-3 text-xs font-medium tracking-wide"
           >
             <span className="bg-border h-px flex-1" />
             Your conversation
@@ -69,7 +69,7 @@ function WelcomeBubble() {
       >
         <Bot size={20} />
       </span>
-      <div className="border-border bg-bg-2 text-text max-w-xl rounded-2xl rounded-tl-md border px-4 py-3.5 text-[15px] leading-relaxed">
+      <div className="border-border bg-bg-2 text-text max-w-xl rounded-2xl rounded-tl-md border px-4 py-3.5 text-sm leading-relaxed">
         <p>Hello! 👋</p>
         <p>I’m your AgriCtec AI Assistant. You can ask me questions like:</p>
         <ul className="mt-2 space-y-1">

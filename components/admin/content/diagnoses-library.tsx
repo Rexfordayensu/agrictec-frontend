@@ -136,7 +136,7 @@ export function DiagnosesLibrary() {
       <div className="border-border bg-glass overflow-hidden rounded-2xl border">
         <div
           aria-hidden="true"
-          className="text-text-mute border-border hidden grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto] gap-4 border-b px-5 py-2.5 text-[11px] font-semibold tracking-wider uppercase md:grid"
+          className="text-text-mute border-border hidden grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_auto] gap-4 border-b px-5 py-2.5 text-xs font-semibold tracking-wider uppercase md:grid"
         >
           <span>Disease</span>
           <span>Crop</span>

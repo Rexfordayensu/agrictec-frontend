@@ -18,7 +18,7 @@ export function AnnouncementPreview({ announcement }: { announcement: PreviewCon
     <div className="space-y-3">
       {(['dark', 'light'] as const).map((theme) => (
         <figure key={theme} className="m-0">
-          <figcaption className="text-text-mute mb-1.5 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider uppercase">
+          <figcaption className="text-text-mute mb-1.5 flex items-center gap-1.5 text-xs font-semibold tracking-wider uppercase">
             {theme === 'dark' ? (
               <Moon size={12} aria-hidden="true" />
             ) : (

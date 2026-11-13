@@ -14,7 +14,7 @@ import { useUiStore } from '@/store/ui-store';
 const gridItemClass =
   'flex min-h-16 w-full flex-col items-center justify-start gap-1 rounded-xl px-0.5 py-1.5 text-center transition-colors hover:text-text active:bg-glass-strong focus-visible:outline-2 focus-visible:outline-accent';
 const gridLabelClass =
-  'text-[10px] leading-tight font-medium [overflow-wrap:break-word] min-[360px]:text-[11px]';
+  'text-xs leading-tight font-medium [overflow-wrap:break-word] min-[360px]:text-xs';
 
 /**
  * Every bar control has the same layout: a fixed 32×48px icon pill with a small label
@@ -26,7 +26,7 @@ const barItemClass =
 const barPillClass =
   'relative inline-flex h-8 w-12 shrink-0 items-center justify-center rounded-full transition-colors duration-200';
 const barLabelClass =
-  'max-w-full truncate text-[10px] leading-3 font-semibold max-[359px]:tracking-tight';
+  'max-w-full truncate text-xs leading-3 font-semibold max-[359px]:tracking-tight';
 
 /** One direct destination in the bottom bar: icon pill with its label underneath. */
 function BarLink({ item, active }: { item: NavItem; active: boolean }) {

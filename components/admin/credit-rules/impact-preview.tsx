@@ -217,7 +217,7 @@ export function ImpactPreview({
       <div>
         <div className="mb-3 flex items-center justify-between">
           <p className="text-text-mute text-xs font-semibold">Farmers per band</p>
-          <p className="flex items-center gap-3 text-[11px]">
+          <p className="flex items-center gap-3 text-xs">
             <span className="text-text-mute flex items-center gap-1.5">
               <span aria-hidden="true" className="bg-text-mute/40 size-2 rounded-sm" /> Live
             </span>
@@ -244,7 +244,7 @@ export function ImpactPreview({
                     { key: 'draft', count: after, color: 'bg-purple' },
                   ].map((bar) => (
                     <div key={bar.key} className="flex h-full w-5 flex-col justify-end">
-                      <span className="text-text-mute mb-1 text-center text-[10px] font-semibold tabular-nums">
+                      <span className="text-text-mute mb-1 text-center text-xs font-semibold tabular-nums">
                         {bar.count}
                       </span>
                       <span
@@ -260,7 +260,7 @@ export function ImpactPreview({
                 <p className={cn('mt-1.5 text-center text-xs font-semibold', bandTone(band).text)}>
                   {band}
                 </p>
-                <p className="text-text-mute text-center text-[11px] tabular-nums">
+                <p className="text-text-mute text-center text-xs tabular-nums">
                   {after - before === 0
                     ? '±0'
                     : `${after - before > 0 ? '+' : '−'}${Math.abs(after - before)}`}

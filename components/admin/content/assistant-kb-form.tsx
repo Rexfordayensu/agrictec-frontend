@@ -300,7 +300,7 @@ function KbForm({
                     title={p.description}
                     onClick={() => insert(p.token)}
                     className={cn(
-                      'rounded-lg border px-2 py-1 font-mono text-[11px] transition-colors',
+                      'rounded-lg border px-2 py-1 font-mono text-xs transition-colors',
                       index < FEATURED.length
                         ? 'border-purple/40 bg-purple/10 text-ink-purple hover:bg-purple/20'
                         : 'border-border text-text-dim hover:bg-glass-strong',

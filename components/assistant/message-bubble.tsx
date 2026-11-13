@@ -27,7 +27,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
         <span className="sr-only">{isUser ? 'You' : 'AgriCtec assistant'}</span>
         <div
           className={cn(
-            'rounded-2xl px-4 py-3.5 text-sm leading-relaxed [overflow-wrap:anywhere] sm:text-[15px]',
+            'rounded-2xl px-4 py-3.5 text-sm leading-relaxed [overflow-wrap:anywhere] sm:text-sm',
             isUser
               ? 'rounded-tr-sm bg-linear-to-br from-emerald-700 to-emerald-800 text-white shadow-sm'
               : 'border-border bg-glass text-text rounded-tl-sm border',
@@ -40,7 +40,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
           <time
             dateTime={message.createdAt}
             title={new Date(message.createdAt).toLocaleString('en-GH')}
-            className={cn('text-text-mute mt-1.5 block px-1 text-[10px]', isUser && 'text-right')}
+            className={cn('text-text-mute mt-1.5 block px-1 text-xs', isUser && 'text-right')}
           >
             {isUser ? 'You' : 'AgriCtec'} · {timeFormat.format(new Date(message.createdAt))}
           </time>

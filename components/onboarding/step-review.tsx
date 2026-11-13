@@ -31,9 +31,7 @@ function Section({
   return (
     <section className="border-border border-b py-4 first:pt-0 last:border-b-0">
       <div className="flex items-start justify-between gap-3">
-        <h3 className="text-text-mute text-[11px] font-semibold tracking-wider uppercase">
-          {title}
-        </h3>
+        <h3 className="text-text-mute text-xs font-semibold tracking-wider uppercase">{title}</h3>
         <button
           type="button"
           onClick={() => onEdit(step)}

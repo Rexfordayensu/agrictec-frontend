@@ -197,7 +197,7 @@ export function ProductDetails({
             <div className="mt-3 space-y-4">
               {requirementGroups(product.requirements).map((group) => (
                 <div key={group.category}>
-                  <p className="text-text-mute mb-1.5 text-[11px] font-semibold tracking-wider uppercase">
+                  <p className="text-text-mute mb-1.5 text-xs font-semibold tracking-wider uppercase">
                     {group.label}
                   </p>
                   <ul className="space-y-2">
@@ -208,7 +208,7 @@ export function ProductDetails({
                           {r.name}
                           <span
                             className={cn(
-                              'rounded-full px-2 py-0.5 text-[10px] font-semibold',
+                              'rounded-full px-2 py-0.5 text-xs font-semibold',
                               r.required
                                 ? 'bg-gold/15 text-ink-gold'
                                 : 'bg-glass-strong text-text-mute',
@@ -223,7 +223,7 @@ export function ProductDetails({
                         {requirementAsk(r) && (
                           <p className="text-text-dim mt-1 text-xs">{requirementAsk(r)}</p>
                         )}
-                        <p className="text-text-mute mt-1 text-[11px]">
+                        <p className="text-text-mute mt-1 text-xs">
                           {VERIFICATION_LABELS[r.verification]}
                           {r.visibleIf ? ' · only in some cases' : ''}
                           {r.source ? ` · ${r.source}` : ''}

@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '@/components/records/records-page.css';
 import { CropDistributionChart } from '@/components/records/crop-distribution-chart';
 import { ExpenseBreakdown } from '@/components/records/expense-breakdown';
 import { MonthlyNetChart } from '@/components/records/monthly-net-chart';
@@ -13,12 +14,12 @@ export const metadata: Metadata = { title: 'Farm Records' };
  */
 export default function RecordsPage() {
   return (
-    <div className="@container space-y-5">
+    <div className="records-reference @container space-y-5">
       <RecordsView />
-      <div className="grid grid-cols-1 gap-5 @3xl:grid-cols-2 @5xl:grid-cols-4">
-        <CropDistributionChart />
-        <ExpenseBreakdown />
-        <MonthlyNetChart />
+      <div className="records-charts grid grid-cols-1 gap-5 @2xl:grid-cols-2 @7xl:grid-cols-4">
+        <CropDistributionChart className="records-crop-chart" />
+        <ExpenseBreakdown className="records-expense-chart" />
+        <MonthlyNetChart className="records-net-chart" />
         <RecordTemplates />
       </div>
     </div>

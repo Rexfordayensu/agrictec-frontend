@@ -64,7 +64,7 @@ export function NewPasswordForm({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-text text-2xl font-bold">Choose a new password</h1>
+        <h1 className="font-display text-text text-display font-bold">Choose a new password</h1>
         <p className="text-text-dim mt-1 text-sm">
           You signed in with a temporary password from AgriCtec support. Choose your own to
           continue; the temporary one stops working.

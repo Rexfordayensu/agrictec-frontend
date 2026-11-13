@@ -138,7 +138,7 @@ export function ReportBuilder() {
         <div className="space-y-6">
           <Step n={1} title="Dataset">
             <div role="radiogroup" aria-label="Dataset" className="grid grid-cols-2 gap-2">
-              {DATASETS.filter(d => d.id !== 'records' && d.id !== 'momo').map((d) => {
+              {DATASETS.filter((d) => d.id !== 'records' && d.id !== 'momo').map((d) => {
                 const Icon = DATASET_ICONS[d.id];
                 const on = d.id === spec.dataset;
                 return (
@@ -236,7 +236,7 @@ export function ReportBuilder() {
                 ))}
               </Select>
               <label className="min-w-0">
-                <span className="text-text-mute mb-1 block text-[11px] font-semibold">
+                <span className="text-text-mute mb-1 block text-xs font-semibold">
                   {dataset.dateLabel} from
                 </span>
                 <Input
@@ -247,7 +247,7 @@ export function ReportBuilder() {
                 />
               </label>
               <label className="min-w-0">
-                <span className="text-text-mute mb-1 block text-[11px] font-semibold">to</span>
+                <span className="text-text-mute mb-1 block text-xs font-semibold">to</span>
                 <Input
                   type="date"
                   value={spec.to ?? ''}
@@ -293,7 +293,7 @@ export function ReportBuilder() {
             <div className="border-border max-h-[28rem] overflow-auto rounded-xl border">
               <table className="w-full text-left text-xs">
                 <caption className="sr-only">Report preview, first {PREVIEW_ROWS} rows</caption>
-                <thead className="bg-bg-2 text-text-mute sticky top-0 text-[11px] tracking-wider uppercase">
+                <thead className="bg-bg-2 text-text-mute sticky top-0 text-xs tracking-wider uppercase">
                   <tr>
                     {result.headers.map((h) => (
                       <th key={h} scope="col" className="px-3 py-2 font-semibold whitespace-nowrap">

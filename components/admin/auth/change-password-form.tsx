@@ -69,7 +69,7 @@ export function ChangePasswordForm({
     <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       {!hideHeading && (
         <div>
-          <h1 className="font-display text-text text-2xl font-bold">
+          <h1 className="font-display text-text text-display font-bold">
             {forced ? 'Set a new password' : 'Change password'}
           </h1>
           <p className="text-text-dim mt-1 text-sm">

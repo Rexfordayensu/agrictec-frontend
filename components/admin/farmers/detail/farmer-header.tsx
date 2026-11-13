@@ -53,9 +53,11 @@ export function FarmerHeader({
           </span>
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <h1 className="font-display text-text text-2xl leading-tight font-bold">{name}</h1>
+              <h1 className="font-display text-text text-display leading-tight font-bold">
+                {name}
+              </h1>
               <StatusBadge kind="account" status={farmer.status} />
-              <RiskTag count={farmer.riskConfirmed} className="py-1 text-[11px]" />
+              <RiskTag count={farmer.riskConfirmed} className="py-1 text-xs" />
               {farmer.tags.map((tag) => (
                 <Badge key={tag} color="purple">
                   {tag}

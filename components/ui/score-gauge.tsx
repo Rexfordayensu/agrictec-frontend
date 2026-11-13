@@ -59,17 +59,17 @@ export function ScoreGauge({ value, min, max, label, caption, className }: Score
           stroke="#fff"
           strokeWidth="4"
         />
-        <text x={CX - R} y={CY + 16} textAnchor="middle" className="fill-text-mute text-[9px]">
+        <text x={CX - R} y={CY + 16} textAnchor="middle" className="fill-text-mute text-xs">
           {min}
         </text>
-        <text x={CX + R} y={CY + 16} textAnchor="middle" className="fill-text-mute text-[9px]">
+        <text x={CX + R} y={CY + 16} textAnchor="middle" className="fill-text-mute text-xs">
           {max}
         </text>
       </svg>
       <div className="absolute inset-x-0 bottom-3 text-center">
         <p className="text-text text-4xl leading-none font-extrabold tracking-tight">{value}</p>
         {caption && <p className="text-ink-green mt-1 text-sm font-semibold">{caption}</p>}
-        <p className="text-text-mute text-[10px] font-semibold tracking-wider uppercase">{label}</p>
+        <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">{label}</p>
       </div>
     </div>
   );

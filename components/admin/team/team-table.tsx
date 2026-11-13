@@ -47,7 +47,7 @@ export function TeamTable({
         <span className="text-text flex items-center gap-2 font-semibold">
           <span className="truncate">{a.name}</span>
           {a.id === currentAdminId && (
-            <span className="bg-purple/15 text-ink-purple rounded-md px-1.5 py-0.5 text-[10px] font-bold uppercase">
+            <span className="bg-purple/15 text-ink-purple rounded-md px-1.5 py-0.5 text-xs font-bold uppercase">
               You
             </span>
           )}
@@ -61,7 +61,7 @@ export function TeamTable({
     <span className="flex flex-wrap items-center gap-1.5">
       <StatusBadge kind="admin" status={a.status} />
       {a.mustChangePassword && a.status === 'active' && (
-        <span className="text-ink-gold text-[11px] font-semibold">Awaiting first sign-in</span>
+        <span className="text-ink-gold text-xs font-semibold">Awaiting first sign-in</span>
       )}
     </span>
   );
@@ -71,7 +71,7 @@ export function TeamTable({
       {/* Wide screens: a table. */}
       <table className="hidden w-full text-left text-sm md:table">
         <caption className="sr-only">Team members</caption>
-        <thead className="border-border text-text-mute border-b text-[11px] tracking-wider uppercase">
+        <thead className="border-border text-text-mute border-b text-xs tracking-wider uppercase">
           <tr>
             <th scope="col" className="px-5 py-3 font-semibold">
               Member

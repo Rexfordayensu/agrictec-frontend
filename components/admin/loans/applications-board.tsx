@@ -137,7 +137,7 @@ export function ApplicationsBoard({
                 <h2 id={headingId} className="text-text text-sm font-semibold">
                   {LOAN_STATUS_LABELS[status]}
                 </h2>
-                <span className="bg-glass-strong text-text-mute rounded-md px-1.5 py-0.5 text-[11px] font-semibold tabular-nums">
+                <span className="bg-glass-strong text-text-mute rounded-md px-1.5 py-0.5 text-xs font-semibold tabular-nums">
                   {cards.length}
                 </span>
                 <span className="text-text-mute ml-auto text-xs tabular-nums">
@@ -195,7 +195,7 @@ export function ApplicationsBoard({
                           <Link
                             href={`/admin/loans/${app.id}`}
                             draggable={false}
-                            className="text-ink-purple font-mono text-[11px] font-semibold hover:underline"
+                            className="text-ink-purple font-mono text-xs font-semibold hover:underline"
                           >
                             {app.reference}
                           </Link>
@@ -224,7 +224,7 @@ export function ApplicationsBoard({
                         />
                         <span className="truncate">{lender?.name ?? 'Unknown lender'}</span>
                       </p>
-                      <div className="border-border text-text-mute mt-2.5 flex items-center justify-between border-t pt-2 text-[11px]">
+                      <div className="border-border text-text-mute mt-2.5 flex items-center justify-between border-t pt-2 text-xs">
                         <span>
                           Score{' '}
                           <span className="text-text font-semibold tabular-nums">

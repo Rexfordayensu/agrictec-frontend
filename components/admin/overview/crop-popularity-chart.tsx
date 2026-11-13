@@ -51,7 +51,7 @@ export function CropPopularityChart({
                   <span className="text-text block text-sm leading-tight font-semibold tabular-nums">
                     {share}%
                   </span>
-                  <span className="text-text-mute block text-[11px] leading-tight tabular-nums">
+                  <span className="text-text-mute block text-xs leading-tight tabular-nums">
                     {c.count}
                   </span>
                   <span className="sr-only"> farmers</span>

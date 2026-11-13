@@ -197,11 +197,24 @@ export function MomoTransactions() {
     { value: 'verified', label: 'Verification' },
   ];
 
-  if (farmStatus === 'error') return <section role="alert" className={dashPanel}>
-    <h2 className="text-text font-semibold">Your transactions could not be refreshed</h2>
-    <p className="text-text-mute mt-2 text-sm">We have hidden the earlier list so it is not mistaken for current data.</p>
-    <Button className="mt-3" variant="ghost" onClick={() => { if (userId) void loadFarm(userId).catch(() => {}); }}>Try again</Button>
-  </section>;
+  if (farmStatus === 'error')
+    return (
+      <section role="alert" className={dashPanel}>
+        <h2 className="text-text font-semibold">Your transactions could not be refreshed</h2>
+        <p className="text-text-mute mt-2 text-sm">
+          We have hidden the earlier list so it is not mistaken for current data.
+        </p>
+        <Button
+          className="mt-3"
+          variant="ghost"
+          onClick={() => {
+            if (userId) void loadFarm(userId).catch(() => {});
+          }}
+        >
+          Try again
+        </Button>
+      </section>
+    );
 
   return (
     <div className="momo-transaction-section space-y-4">
@@ -236,7 +249,7 @@ export function MomoTransactions() {
         <div className="space-y-4 p-4 sm:p-5">
           <div className="flex flex-col gap-3 @3xl:flex-row @3xl:items-start @3xl:justify-between">
             <div>
-              <h2 id="momo-table-title" className="text-text text-[17px] font-bold">
+              <h2 id="momo-table-title" className="text-text text-lg font-bold">
                 Transactions
               </h2>
               <p className="text-text-mute text-xs">Every Mobile Money payment in and out.</p>
@@ -684,9 +697,7 @@ function RowMenu({ t }: { t: MomoTransaction }) {
             <Trash2 size={15} aria-hidden="true" /> Delete
           </button>
           {t.verificationStatus === 'verified' && (
-            <p className="text-text-mute px-3 pt-1 pb-2 text-[11px]">
-              Verified entries are locked.
-            </p>
+            <p className="text-text-mute px-3 pt-1 pb-2 text-xs">Verified entries are locked.</p>
           )}
         </div>
       )}

@@ -190,7 +190,7 @@ function CameraView({
           Cancel
         </Button>
       </div>
-      <p className="text-text-mute text-center text-[11px]">
+      <p className="text-text-mute text-center text-xs">
         The captured photo goes straight to your crop preview and diagnosis.
       </p>
     </div>

@@ -27,17 +27,17 @@
 .momo-wallet > span {
   background: #058b4b88;
   padding: 6px 12px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.3;
 }
 .momo-wallet h2 {
-  font-size: 14px;
+  font-size: var(--text-sm);
   letter-spacing: -0.2px;
   margin-top: 20px;
 }
 .momo-wallet > p {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 41px;
+  font-size: var(--text-stat-lg);
   font-weight: 760;
   letter-spacing: -1.5px;
   line-height: 1.12;
@@ -57,12 +57,12 @@
   padding: 20px;
 }
 .momo-this-month h2 {
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 750;
   margin: 0;
 }
 .momo-this-month h2 > span {
-  font-size: 13px;
+  font-size: var(--text-small);
   color: var(--text);
 }
 .momo-this-month dl {
@@ -85,17 +85,17 @@
   padding-right: 0;
 }
 .momo-this-month dt {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .momo-this-month dd:first-of-type {
-  font-size: 20px;
+  font-size: var(--text-xl);
   font-weight: 740;
   letter-spacing: -0.6px;
   white-space: normal;
   overflow-wrap: anywhere;
 }
 .momo-this-month dd:last-child:not(:first-of-type) {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .momo-summary-tiles {
   gap: 14px;
@@ -107,14 +107,14 @@
   align-items: flex-start;
 }
 .momo-summary-tiles dt {
-  font-size: 12px;
+  font-size: var(--text-xs);
   letter-spacing: -0.25px;
   line-height: 1.5;
   white-space: normal;
 }
 .momo-summary-tiles dd:first-of-type {
   font-family: var(--font-inter), system-ui, sans-serif;
-  font-size: 22px;
+  font-size: var(--text-2xl);
   letter-spacing: -0.7px;
   margin-top: 4px;
   white-space: normal;
@@ -122,13 +122,13 @@
   line-height: 1.3;
 }
 .momo-summary-tiles dd:last-child:not(:first-of-type) {
-  font-size: 11px;
+  font-size: var(--text-xs);
   margin-top: 4px;
   color: var(--text-mute);
   line-height: 1.5;
 }
 .momo-summary-tiles dd > span {
-  font-size: 17px;
+  font-size: var(--text-lg);
   font-weight: 500;
   letter-spacing: 0;
 }
@@ -146,12 +146,12 @@
   padding: 17px 18px;
 }
 .momo-chart-row h2 {
-  font-size: 15px;
+  font-size: var(--text-sm);
   font-weight: 740;
   line-height: 1.4;
 }
 .momo-chart-row h2 + p {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--text-mute);
   line-height: 1.5;
 }
@@ -159,7 +159,7 @@
   margin-bottom: 12px;
 }
 .momo-trend > div:first-child > span {
-  font-size: 10px;
+  font-size: var(--text-xs);
   gap: 13px;
   padding-top: 6px;
 }
@@ -167,9 +167,15 @@
   height: 162px !important;
 }
 .momo-sources .momo-source-content {
-  grid-template-columns: minmax(110px, 0.95fr) minmax(0, 1.2fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 9px;
   margin-top: 16px;
+}
+/* Chart beside its legend only when the card is wide enough for both at full text size. */
+@container (min-width: 23rem) {
+  .momo-sources .momo-source-content {
+    grid-template-columns: minmax(110px, 0.95fr) minmax(0, 1.2fr);
+  }
 }
 .momo-source-donut {
   width: 100%;
@@ -180,13 +186,13 @@
   max-width: 100%;
 }
 .momo-source-content ul {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .momo-source-content ul li {
   gap: 6px;
 }
 .momo-source-content ul li > span:last-child {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .momo-chart-row > section:last-child {
   border-color: #75c8aa42;
@@ -197,16 +203,16 @@
   gap: 10px;
 }
 .momo-chart-row > section:last-child h2 {
-  font-size: 16px;
+  font-size: var(--text-base);
   letter-spacing: -0.5px;
 }
 .momo-chart-row > section:last-child > p {
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.55;
   margin-top: 10px;
 }
 .momo-chart-row > section:last-child > ul {
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.55;
   margin-top: 14px;
   gap: 12px;
@@ -223,7 +229,7 @@
   min-height: 36px;
   padding-inline: 28px;
   border-radius: 22px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   box-shadow: 0 2px 6px #234b580b;
 }
 .momo-transaction-section > [role='tablist'] > button[aria-selected='true'] {
@@ -237,18 +243,18 @@
   padding: 19px 20px 14px;
 }
 .momo-transaction-section h2 {
-  font-size: 17px;
+  font-size: var(--text-lg);
   line-height: 1.4;
 }
 .momo-transaction-section h2 + p {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--text-mute);
 }
 .momo-transaction-section button {
   border-radius: 12px;
 }
 .momo-transaction-section > section > div:first-child > div:first-child > div:last-child > button {
-  font-size: 12px;
+  font-size: var(--text-xs);
   min-height: 39px;
   padding-inline: 15px;
   box-shadow: 0 2px 5px #284d5709;
@@ -261,7 +267,7 @@
 .momo-transaction-section input[type='search'] {
   height: 38px;
   border-radius: 11px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   background: var(--glass);
   box-shadow: 0 2px 5px #274a5d06;
 }
@@ -272,23 +278,23 @@
 .momo-transaction-section thead th {
   padding-top: 7px;
   padding-bottom: 7px;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .momo-transaction-section tbody td {
-  font-size: 12px;
+  font-size: var(--text-xs);
   padding-top: 15px;
   padding-bottom: 15px;
 }
 .momo-transaction-section tbody td:nth-child(2) > span:first-child {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .momo-transaction-section tbody td:nth-child(2) > span:last-child {
-  font-size: 11px;
+  font-size: var(--text-xs);
   color: var(--text-mute);
   margin-top: 3px;
 }
 .momo-transaction-section tbody td > span[class*='rounded-full'] {
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .momo-transaction-section [aria-label='Pages'] button,
 .momo-transaction-section [aria-label='Pages'] > span {
@@ -297,7 +303,7 @@
   border-radius: 10px;
 }
 .momo-transaction-section [aria-live='polite'] {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 @media (min-width: 1200px) {
   body:has(.momo-reference) aside[aria-label='Sidebar'] {
@@ -319,7 +325,7 @@
     height: 70px;
   }
   body:has(.momo-reference) aside nav a {
-    font-size: 13px;
+    font-size: var(--text-small);
   }
 }
 @media (max-width: 1250px) {
@@ -328,13 +334,13 @@
     gap: 9px;
   }
   .momo-summary-tiles dd:first-of-type {
-    font-size: 20px;
+    font-size: var(--text-xl);
   }
   .momo-chart-row > section {
     padding: 16px;
   }
   .momo-wallet > p {
-    font-size: 36px;
+    font-size: var(--text-stat-lg);
   }
 }
 @media (max-width: 900px) {
@@ -342,13 +348,13 @@
     min-height: 185px;
   }
   .momo-wallet > p {
-    font-size: 38px;
+    font-size: var(--text-stat-lg);
   }
   .momo-chart-row > section {
     min-height: 230px;
   }
   .momo-source-content ul {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .momo-trend > div:nth-child(2) {
     height: 190px !important;
@@ -371,7 +377,7 @@
     min-height: 179px;
   }
   .momo-wallet > p {
-    font-size: 34px;
+    font-size: var(--text-stat-lg);
     max-width: 78%;
     overflow-wrap: anywhere;
     letter-spacing: -1px;
@@ -381,7 +387,7 @@
     opacity: 0.65;
   }
   .momo-wallet h2 {
-    font-size: 13px;
+    font-size: var(--text-small);
   }
   .momo-this-month {
     padding: 18px;
@@ -403,13 +409,13 @@
     border: 0;
   }
   .momo-this-month dt {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .momo-this-month dd:first-of-type {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
   .momo-this-month dd:last-child:not(:first-of-type) {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .momo-summary-tiles {
     gap: 10px;
@@ -421,13 +427,13 @@
     padding: 13px;
   }
   .momo-summary-tiles dt {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .momo-summary-tiles dd:first-of-type {
-    font-size: 21px;
+    font-size: var(--text-xl);
   }
   .momo-summary-tiles dd > span {
-    font-size: 15px;
+    font-size: var(--text-sm);
   }
   .momo-summary-tiles > div:last-child {
     flex-direction: row;
@@ -440,26 +446,23 @@
     height: 32px;
   }
   .momo-summary-tiles dd:last-child:not(:first-of-type) {
-    font-size: 10px;
-  }
-  .momo-sources .momo-source-content {
-    grid-template-columns: minmax(110px, 1fr) minmax(0, 1.35fr);
+    font-size: var(--text-xs);
   }
   .momo-trend > div:first-child {
     gap: 8px;
   }
   .momo-trend > div:first-child > span {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
   .momo-chart-row > section:last-child > ul {
     grid-template-columns: 1fr;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .momo-transaction-section > [role='tablist'] {
     gap: 7px;
   }
   .momo-transaction-section > [role='tablist'] > button {
-    font-size: 11px;
+    font-size: var(--text-xs);
     padding-inline: 14px;
     min-height: 35px;
   }
@@ -472,13 +475,13 @@
     > div:first-child
     > div:last-child
     > button {
-    font-size: 11px;
+    font-size: var(--text-xs);
     min-height: 39px;
   }
   .momo-transaction-section input[type='search'] {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .momo-transaction-section [aria-live='polite'] {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 }

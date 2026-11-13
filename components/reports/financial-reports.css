@@ -18,12 +18,12 @@
   padding: 12px 4px 0;
 }
 .financial-reference > header h2 {
-  font-size: 28px;
+  font-size: var(--text-display);
   font-weight: 750;
 }
 .financial-reference > header p {
   margin-top: 5px;
-  font-size: 14px;
+  font-size: var(--text-sm);
 }
 .financial-reference > header select {
   height: 44px;
@@ -48,17 +48,17 @@
   border-radius: 15px;
 }
 .report-stat dt {
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .report-stat dd:first-of-type {
-  font-size: 24px;
+  font-size: var(--text-2xl);
   font-weight: 750;
   letter-spacing: -0.6px;
   margin-top: 5px;
   overflow-wrap: anywhere;
 }
 .report-stat dd:last-child {
-  font-size: 12px;
+  font-size: var(--text-xs);
   margin-top: 5px;
   white-space: normal;
 }
@@ -93,14 +93,14 @@
 .report-recent h2,
 .report-readiness h2,
 .report-download h2 {
-  font-size: 17px;
+  font-size: var(--text-lg);
   font-weight: 750;
   line-height: 1.4;
 }
 .report-cashflow > div:nth-of-type(1) {
   margin-top: 13px;
   gap: 14px;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .report-cashflow > div:nth-of-type(2) {
   height: 200px;
@@ -118,7 +118,7 @@
   max-width: 166px;
 }
 .report-category ul {
-  font-size: 11px;
+  font-size: var(--text-xs);
   white-space: nowrap;
 }
 .report-category li {
@@ -129,7 +129,7 @@
   height: 11px;
 }
 .report-category [class*='text-base'] {
-  font-size: 20px;
+  font-size: var(--text-xl);
   letter-spacing: -0.6px;
 }
 .report-download {
@@ -147,25 +147,25 @@
   border-radius: 11px;
 }
 .report-download p {
-  font-size: 13px;
+  font-size: var(--text-small);
   line-height: 1.5;
   margin-top: 7px;
 }
 .report-download label {
   margin-top: 16px;
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .report-download select {
   height: 40px;
   margin-top: 0;
-  font-size: 12px;
+  font-size: var(--text-xs);
   border-radius: 12px;
 }
 .report-download button {
   margin-top: 14px;
   min-height: 41px;
   border-radius: 12px;
-  font-size: 13px;
+  font-size: var(--text-small);
   background: linear-gradient(135deg, #15ca87, #00a45f);
   color: white;
 }
@@ -177,7 +177,7 @@
   margin-top: 10px;
 }
 .report-readiness > div p {
-  font-size: 13px;
+  font-size: var(--text-small);
   line-height: 1.55;
   color: var(--text);
 }
@@ -185,7 +185,7 @@
   margin-top: 14px;
 }
 .report-readiness > ul > li {
-  font-size: 12px;
+  font-size: var(--text-xs);
   gap: 11px;
 }
 .report-readiness > ul > li > span:first-child {
@@ -196,7 +196,7 @@
   min-height: 40px;
   margin-top: 18px;
   border-radius: 10px;
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .report-recent {
   min-width: 0;
@@ -207,14 +207,14 @@
   margin-bottom: 18px;
 }
 .report-recent > div:first-child a {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .report-recent table {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .report-recent th {
   padding: 10px 9px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .report-recent td {
   padding: 8px 9px;
@@ -223,7 +223,7 @@
   height: 42px;
 }
 .report-recent td > span[class*='rounded'] {
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .report-saved {
   padding: 4px;
@@ -246,7 +246,7 @@
     height: 76px;
   }
   body:has(.financial-reference) aside nav a {
-    font-size: 13px;
+    font-size: var(--text-small);
   }
 }
 @media (max-width: 1250px) {
@@ -259,7 +259,7 @@
     height: 37px;
   }
   .report-stat dd:first-of-type {
-    font-size: 21px;
+    font-size: var(--text-xl);
   }
   .report-body {
     grid-template-columns: minmax(0, 2.3fr) minmax(0, 1fr);
@@ -310,10 +310,10 @@
     padding: 4px 0 0;
   }
   .financial-reference > header h2 {
-    font-size: 25px;
+    font-size: var(--text-display);
   }
   .financial-reference > header p {
-    font-size: 12px;
+    font-size: var(--text-xs);
     line-height: 1.6;
   }
   .financial-reference > header > div:last-child {
@@ -322,10 +322,10 @@
   .financial-reference > header select {
     min-width: 174px;
     height: 42px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .financial-reference > header > div:last-child > span {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .report-stats {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -338,13 +338,13 @@
     gap: 8px;
   }
   .report-stat dt {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .report-stat dd:first-of-type {
-    font-size: 20px;
+    font-size: var(--text-xl);
   }
   .report-stat dd:last-child {
-    font-size: 10px;
+    font-size: var(--text-xs);
     line-height: 1.5;
   }
   .report-body,
@@ -362,7 +362,7 @@
   .report-readiness h2,
   .report-download h2,
   .report-recent h2 {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
   .report-category > div {
     margin-top: 25px;
@@ -377,7 +377,7 @@
     min-height: 160px;
   }
   .report-recent > div:first-child a {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .report-recent > div:first-child {
     margin-bottom: 12px;

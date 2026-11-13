@@ -36,8 +36,8 @@ export function StatCard({ icon: Icon, color, label, value, change, className }:
       >
         <Icon size={20} aria-hidden="true" />
       </div>
-      <p className="text-text-mute text-[11px] font-semibold tracking-wider uppercase">{label}</p>
-      <p className="text-text mt-1 text-[26px] leading-tight font-extrabold break-words">{value}</p>
+      <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">{label}</p>
+      <p className="text-text mt-1 text-2xl leading-tight font-extrabold break-words">{value}</p>
       {change && (
         <p
           className={cn(

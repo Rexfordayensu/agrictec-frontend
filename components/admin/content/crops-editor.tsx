@@ -1,14 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import {
-  CircleAlert,
-  Lightbulb,
-  RotateCcw,
-  Save,
-  Sprout,
-  Store,
-} from 'lucide-react';
+import { CircleAlert, Lightbulb, RotateCcw, Save, Sprout, Store } from 'lucide-react';
 import { toast } from 'sonner';
 import { LastUpdated, ListEditor } from '@/components/admin/content/content-kit';
 import { PRIMARY_CLASS } from '@/components/admin/shared/action-styles';
@@ -50,8 +43,7 @@ const clean = (crop: CropContent): CropContent => ({
   tips: crop.tips.map((t) => t.trim()).filter(Boolean),
 });
 const same = (a: CropContent, b: CropContent) => JSON.stringify(a) === JSON.stringify(b);
-const yieldOf = (crop: CropContent) =>
-  Number.isFinite(crop.yieldPerAcre) ? crop.yieldPerAcre : 0;
+const yieldOf = (crop: CropContent) => (Number.isFinite(crop.yieldPerAcre) ? crop.yieldPerAcre : 0);
 const toDrafts = (crops: CropContent[]) =>
   Object.fromEntries(crops.map((c) => [c.crop, c])) as Record<CropName, CropContent>;
 
@@ -91,7 +83,7 @@ function CropRail({
   const top = Math.max(0.1, ...crops.map((c) => yieldOf(drafts[c])));
   return (
     <nav aria-label="Crops" className="lg:border-border lg:bg-glass lg:rounded-2xl lg:border">
-      <p className="text-text-mute hidden px-4 pt-4 pb-2 text-[11px] font-semibold tracking-wider uppercase lg:block">
+      <p className="text-text-mute hidden px-4 pt-4 pb-2 text-xs font-semibold tracking-wider uppercase lg:block">
         Base yield per acre
       </p>
       <ul className="-mx-4 flex scrollbar-none gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 lg:flex-col lg:gap-0.5 lg:overflow-visible lg:p-2 lg:pt-0 [&::-webkit-scrollbar]:hidden">
@@ -251,7 +243,7 @@ function CropEditorPanel({
               {draft.crop}
             </h2>
             {dirty && (
-              <span className="bg-gold/15 text-ink-gold rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+              <span className="bg-gold/15 text-ink-gold rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase">
                 Unsaved
               </span>
             )}

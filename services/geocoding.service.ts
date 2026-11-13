@@ -16,6 +16,22 @@ export interface PlaceResult {
   zoom: number;
 }
 
+/** GET /geocoding/reverse: what a position is called. Any field can be missing (null). */
+export interface PlaceName {
+  /** Village or hamlet, e.g. "Krapa" (rural places). */
+  village?: string | null;
+  /** Neighbourhood inside a town or city, e.g. "Adum". */
+  area: string | null;
+  /** Town or city, only when OpenStreetMap names one, e.g. "Kumasi". */
+  town: string | null;
+  district: string | null;
+  /** One of Ghana's 16 regions, e.g. "Ashanti"; null outside Ghana or when unknown. */
+  region: string | null;
+  inGhana: boolean;
+  /** "Kumasi, Ashanti, Ghana" */
+  label: string;
+}
+
 const cache = new Map<string, PlaceResult[]>();
 
 export const geocodingService = {
@@ -30,6 +46,11 @@ export const geocodingService = {
     const places = await api<PlaceResult[]>('/geocoding/search', { query: { q }, signal });
     cache.set(key, places);
     return places;
+  },
+
+  /** The town and region at a position (the server rounds it to about 100 m first). */
+  async reverse(lat: number, lng: number, signal?: AbortSignal): Promise<PlaceName> {
+    return api<PlaceName>('/geocoding/reverse', { query: { lat, lng }, signal });
   },
 
   /**

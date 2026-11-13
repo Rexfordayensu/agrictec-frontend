@@ -1,13 +1,14 @@
 import type { Metadata } from 'next';
-import { WeatherCard } from '@/components/market/weather-card';
 import { FeatureGate } from '@/components/shared/feature-gate';
+import { WeatherPage } from '@/components/weather/weather-page';
 
 export const metadata: Metadata = { title: 'Weather' };
 
-export default function WeatherPage() {
+/** The forecast at the farm, with alerts, farm guidance and a seasonal outlook. */
+export default function Page() {
   return (
     <FeatureGate flag="market">
-      <WeatherCard />
+      <WeatherPage />
     </FeatureGate>
   );
 }

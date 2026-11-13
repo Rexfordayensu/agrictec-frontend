@@ -133,7 +133,9 @@ function DraftForm({
   const [purpose, setPurpose] = useState(app.purpose);
   const [letter, setLetter] = useState(app.letter ?? '');
   const [answers, setAnswers] = useState<Record<string, string>>(
-    Object.fromEntries(app.requirements.filter((r) => r.answer).map((r) => [r.key, r.answer as string])),
+    Object.fromEntries(
+      app.requirements.filter((r) => r.answer).map((r) => [r.key, r.answer as string]),
+    ),
   );
   const [saving, setSaving] = useState(false);
   const [consented, setConsented] = useState(false);
@@ -199,13 +201,28 @@ function DraftForm({
         </h3>
         <div className="grid gap-3 sm:grid-cols-3">
           <FormField label="Amount (GHS)" htmlFor="app-amount">
-            <Input id="app-amount" inputMode="decimal" value={amount} onChange={(e) => setAmount(e.target.value)} />
+            <Input
+              id="app-amount"
+              inputMode="decimal"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+            />
           </FormField>
           <FormField label="Repay over (months)" htmlFor="app-months">
-            <Input id="app-months" inputMode="numeric" value={months} onChange={(e) => setMonths(e.target.value)} />
+            <Input
+              id="app-months"
+              inputMode="numeric"
+              value={months}
+              onChange={(e) => setMonths(e.target.value)}
+            />
           </FormField>
           <FormField label="Purpose" htmlFor="app-purpose">
-            <Input id="app-purpose" value={purpose} maxLength={300} onChange={(e) => setPurpose(e.target.value)} />
+            <Input
+              id="app-purpose"
+              value={purpose}
+              maxLength={300}
+              onChange={(e) => setPurpose(e.target.value)}
+            />
           </FormField>
         </div>
       </section>
@@ -252,8 +269,14 @@ function DraftForm({
           onChange={(e) => setLetter(e.target.value)}
           aria-label="Application letter"
         />
-        <p className="text-text-mute text-right text-[11px]">{letter.length} / 4,000</p>
-        <Button variant="ghost" icon={Save} loading={saving} disabled={!dirty} onClick={() => void save()}>
+        <p className="text-text-mute text-right text-xs">{letter.length} / 4,000</p>
+        <Button
+          variant="ghost"
+          icon={Save}
+          loading={saving}
+          disabled={!dirty}
+          onClick={() => void save()}
+        >
           Save changes
         </Button>
       </section>
@@ -281,8 +304,8 @@ function DraftForm({
               ))}
             </ul>
             <p className="text-text-mute mt-2 text-xs">
-              AgriCtec checks your application first and shares it only with this lender, for
-              this application. You can withdraw it at any time before the lender decides.
+              AgriCtec checks your application first and shares it only with this lender, for this
+              application. You can withdraw it at any time before the lender decides.
             </p>
           </div>
         )}
@@ -341,7 +364,13 @@ function AnswerField({
           ))}
         </Select>
       ) : req.fieldType === 'text' ? (
-        <Textarea id={id} rows={2} maxLength={1000} value={value} onChange={(e) => onValue(e.target.value)} />
+        <Textarea
+          id={id}
+          rows={2}
+          maxLength={1000}
+          value={value}
+          onChange={(e) => onValue(e.target.value)}
+        />
       ) : (
         <Input
           id={id}
@@ -393,7 +422,9 @@ function DocumentField({
             <button
               type="button"
               aria-label={`Remove ${doc.filename}`}
-              onClick={async () => onChange(await applicationsService.removeDocument(app.id, doc.id))}
+              onClick={async () =>
+                onChange(await applicationsService.removeDocument(app.id, doc.id))
+              }
               className="text-text-mute hover:text-ink-red inline-flex size-8 items-center justify-center rounded-lg"
             >
               <Trash2 size={14} aria-hidden="true" />
@@ -412,11 +443,15 @@ function DocumentField({
         <input
           type="file"
           className="sr-only"
-          accept={req.allowedFormats.map((f) => (f === 'jpg' ? 'image/jpeg' : f === 'pdf' ? 'application/pdf' : `image/${f}`)).join(',')}
+          accept={req.allowedFormats
+            .map((f) =>
+              f === 'jpg' ? 'image/jpeg' : f === 'pdf' ? 'application/pdf' : `image/${f}`,
+            )
+            .join(',')}
           onChange={(e) => void upload(e.target.files?.[0])}
         />
       </label>
-      <p className="text-text-mute text-[11px]">
+      <p className="text-text-mute text-xs">
         {formats}, up to {req.maxSizeMb ?? 5} MB.
       </p>
     </div>
@@ -464,7 +499,9 @@ function Submitted({
         {app.consent && (
           <Fact label="Consent to share">
             Given {formatGhanaDate(app.consent.givenAt)}
-            {app.consent.withdrawnAt ? `, withdrawn ${formatGhanaDate(app.consent.withdrawnAt)}` : ''}
+            {app.consent.withdrawnAt
+              ? `, withdrawn ${formatGhanaDate(app.consent.withdrawnAt)}`
+              : ''}
           </Fact>
         )}
       </dl>
@@ -477,7 +514,9 @@ function Submitted({
         <Button
           variant="ghost"
           icon={Download}
-          onClick={async () => saveBlob(await applicationsService.pack(app.id), `${app.reference}-application.pdf`)}
+          onClick={async () =>
+            saveBlob(await applicationsService.pack(app.id), `${app.reference}-application.pdf`)
+          }
         >
           Download the application pack
         </Button>
@@ -514,7 +553,12 @@ function Timeline({ app }: { app: LoanApplicationDetail }) {
       <ol className="space-y-3">
         {[...app.timeline].reverse().map((event) => (
           <li key={event.eventId} className="border-border border-l-2 pl-3">
-            <p className={cn('text-sm font-semibold', event.lenderConfirmed ? 'text-ink-green' : 'text-text')}>
+            <p
+              className={cn(
+                'text-sm font-semibold',
+                event.lenderConfirmed ? 'text-ink-green' : 'text-text',
+              )}
+            >
               {event.label}
             </p>
             <p className="text-text-mute text-xs">

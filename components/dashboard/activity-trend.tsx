@@ -26,7 +26,7 @@ export function ActivityTrend({
   return (
     <section aria-labelledby="trend-title" className={cn(dashPanel, 'flex flex-col')}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-        <h2 id="trend-title" className="text-text text-[17px] font-bold">
+        <h2 id="trend-title" className="text-text text-lg font-bold">
           Financial activity trend
         </h2>
         <div className="flex items-center gap-3">
@@ -77,7 +77,7 @@ export function ActivityTrend({
             ]}
             ariaLabel={`Recorded farm income and expenses by month, ${summary.periodLabel}. Income ${formatGHS(summary.income)}; expenses ${formatGHS(summary.expenses)}.`}
           />
-          <p className="text-text-mute mt-2 text-[11px]">
+          <p className="text-text-mute mt-2 text-xs">
             {summary.financialRecordCount === 0
               ? 'Your chart starts with your first sale or expense.'
               : `${summary.periodLabel} · MoMo is tracked separately.`}

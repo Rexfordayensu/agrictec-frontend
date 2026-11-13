@@ -61,7 +61,7 @@ export function AnalyzingState() {
         })}
       </ol>
 
-      <span className="text-ink-purple mt-6 inline-flex items-center gap-1.5 text-[11px]">
+      <span className="text-ink-purple mt-6 inline-flex items-center gap-1.5 text-xs">
         <Sparkles size={13} aria-hidden="true" />
         AI analysis of your photo
       </span>

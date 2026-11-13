@@ -44,7 +44,7 @@ export function OverviewStats({ summary }: { summary: DashboardSummary | null })
           {credit ? (
             <Link href="/loans" className="block">
               <span className="flex items-center justify-between gap-2">
-                <span className="text-text text-[26px] leading-none font-bold tabular-nums">
+                <span className="text-text text-2xl leading-none font-bold tabular-nums">
                   {credit.credit.score}
                   <span className="text-text-mute text-sm font-medium"> / {MAX}</span>
                 </span>
@@ -128,7 +128,7 @@ function Money({
         ) : (
           <span
             className={cn(
-              'block text-[22px] leading-none font-bold tabular-nums sm:text-[26px]',
+              'block text-2xl leading-none font-bold tabular-nums sm:text-2xl',
               valueClass,
             )}
           >

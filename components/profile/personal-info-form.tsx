@@ -13,7 +13,8 @@ import { useT } from '@/lib/i18n';
 import { normalizePhone } from '@/lib/profile';
 import { useProfileStore } from '@/store/profile-store';
 
-export function PersonalInfoForm() {
+/** `onDone`: shown as an editor (Cancel, and closes after saving) instead of an always-open form. */
+export function PersonalInfoForm({ onDone }: { onDone?: () => void } = {}) {
   const profile = useProfileStore((state) => state.profile);
   const save = useProfileStore((state) => state.save);
   const t = useT();
@@ -40,6 +41,7 @@ export function PersonalInfoForm() {
       toast.success('Profile updated');
       if (changedVerifiedPhone)
         toast.warning('Your phone number changed. Please verify your new number.');
+      onDone?.();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Could not update your profile');
     }
@@ -87,16 +89,45 @@ export function PersonalInfoForm() {
             {...register('email')}
           />
         </FormField>
-        <Button
-          mutates
-          type="submit"
-          icon={Save}
-          disabled={!isDirty}
-          loading={isSubmitting}
-          className="w-full"
-        >
-          {t('common.save')}
-        </Button>
+        <div className="flex gap-2">
+          {onDone && (
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={onDone}
+              disabled={isSubmitting}
+              className="flex-1"
+            >
+              Cancel
+            </Button>
+          )}
+          <Button
+            mutates
+            type="submit"
+            icon={Save}
+            disabled={!isDirty}
+            loading={isSubmitting}
+            className={onDone ? 'flex-1' : 'w-full'}
+          >
+            {t('common.save')}
+          </Button>
+        </div>
+        {onDone && profile?.photoDataUrl && (
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                await save({ photoDataUrl: undefined });
+                toast.success('Profile photo removed');
+              } catch (error) {
+                toast.error(error instanceof Error ? error.message : 'Could not remove your photo');
+              }
+            }}
+            className="text-ink-red text-sm font-semibold hover:underline"
+          >
+            Remove profile photo
+          </button>
+        )}
       </form>
     </Card>
   );

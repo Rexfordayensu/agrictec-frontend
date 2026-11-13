@@ -113,7 +113,7 @@ export function LoansHeader() {
           <div className="min-w-0">
             <h2
               id="loans-status-title"
-              className="text-text text-[clamp(20px,2.6vw,26px)] leading-tight font-semibold tracking-[-0.5px] wrap-break-word"
+              className="text-text text-display leading-tight font-semibold tracking-[-0.5px] wrap-break-word"
             >
               {headline}
             </h2>
@@ -159,19 +159,19 @@ export function LoansHeader() {
 }
 
 const Big = ({ children }: { children: ReactNode }) => (
-  <span className="text-text block text-[22px] leading-none font-semibold tracking-[-0.5px] tabular-nums sm:text-[26px]">
+  <span className="text-text block text-2xl leading-none font-semibold tracking-[-0.5px] tabular-nums sm:text-2xl">
     {children}
   </span>
 );
 
 const Small = ({ children }: { children: ReactNode }) => (
-  <span className="text-text-mute mt-1.5 block truncate text-[11px] sm:text-xs">{children}</span>
+  <span className="text-text-mute mt-1.5 block truncate text-xs sm:text-xs">{children}</span>
 );
 
 function Tile({ label, children }: { label: string; children: ReactNode }) {
   return (
     <div className="border-border bg-glass rounded-card min-w-0 border p-3 sm:p-4">
-      <dt className="text-text-dim text-[11px] font-semibold sm:text-xs">{label}</dt>
+      <dt className="text-text-dim text-xs font-semibold sm:text-xs">{label}</dt>
       <dd className="mt-1.5">{children}</dd>
     </div>
   );
@@ -188,10 +188,7 @@ function ApplicationsTile({ latest, count }: { latest?: ApplicationSummary; coun
           onClick={() => setTab('applications')}
           className="hover:bg-glass-strong rounded-card flex h-full w-full flex-col items-start p-3 text-left transition-colors sm:p-4"
         >
-          <span
-            className="text-text-dim block text-[11px] font-semibold sm:text-xs"
-            aria-hidden="true"
-          >
+          <span className="text-text-dim block text-xs font-semibold sm:text-xs" aria-hidden="true">
             Applications
           </span>
           <span className="mt-1.5 block">
@@ -200,7 +197,7 @@ function ApplicationsTile({ latest, count }: { latest?: ApplicationSummary; coun
               <span className="sr-only"> submitted</span>
             </Big>
           </span>
-          <span className={cn(loanUi.sub, 'mt-1.5 block truncate text-[11px] sm:text-xs')}>
+          <span className={cn(loanUi.sub, 'mt-1.5 block truncate text-xs sm:text-xs')}>
             {latest ? latest.statusLabel : 'None yet'}
           </span>
         </button>

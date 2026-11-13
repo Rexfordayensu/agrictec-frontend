@@ -101,12 +101,12 @@ export function VersionHistory({
                     {v.note ?? (v.version === 1 ? 'Default rules' : 'No note')}
                   </p>
                   {isLive && (
-                    <span className="bg-accent/12 text-ink-green rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+                    <span className="bg-accent/12 text-ink-green rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase">
                       Live
                     </span>
                   )}
                   {v.restoredFrom && (
-                    <span className="bg-glass-strong text-text-dim rounded-md px-1.5 py-0.5 text-[11px] font-semibold">
+                    <span className="bg-glass-strong text-text-dim rounded-md px-1.5 py-0.5 text-xs font-semibold">
                       Copy of v{v.restoredFrom}
                     </span>
                   )}

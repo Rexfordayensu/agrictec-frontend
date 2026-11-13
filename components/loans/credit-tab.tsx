@@ -117,7 +117,7 @@ function Boosts({ credit }: { credit: Credit }) {
             <li key={step.key} className="border-border rounded-2xl border p-3">
               <div className="flex items-center justify-between gap-2">
                 <p className="text-text text-sm font-semibold">{step.label}</p>
-                <span className="bg-accent/15 text-ink-green rounded-full px-2 py-0.5 text-[11px] font-bold tabular-nums">
+                <span className="bg-accent/15 text-ink-green rounded-full px-2 py-0.5 text-xs font-bold tabular-nums">
                   +{step.available} pts
                 </span>
               </div>

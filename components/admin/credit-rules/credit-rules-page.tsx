@@ -142,9 +142,7 @@ export function CreditRulesPage() {
     >
       Review & publish
       {dirty && (
-        <span className="rounded-md bg-white/20 px-1.5 text-[11px] tabular-nums">
-          {changes.length}
-        </span>
+        <span className="rounded-md bg-white/20 px-1.5 text-xs tabular-nums">{changes.length}</span>
       )}
     </Button>
   );
@@ -157,9 +155,7 @@ export function CreditRulesPage() {
           <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">
             AgriCtec score engine
           </p>
-          <h1 className="font-display text-text mt-1 text-2xl font-bold sm:text-3xl">
-            Credit rules
-          </h1>
+          <h1 className="font-display text-text text-display mt-1 font-bold">Credit rules</h1>
           <p className="text-text-dim mt-1 flex flex-wrap items-center gap-2 text-sm">
             <span className="bg-accent/12 text-ink-green inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-semibold">
               <span aria-hidden="true" className="bg-accent size-1.5 rounded-full" />
@@ -283,7 +279,7 @@ export function CreditRulesPage() {
                     </p>
                   </div>
                   {dirty && (
-                    <span className="bg-gold/15 text-ink-gold rounded-md px-1.5 py-0.5 text-[10px] font-bold tracking-wide uppercase">
+                    <span className="bg-gold/15 text-ink-gold rounded-md px-1.5 py-0.5 text-xs font-bold tracking-wide uppercase">
                       Draft
                     </span>
                   )}

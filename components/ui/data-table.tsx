@@ -112,7 +112,7 @@ export function DataTable<T extends object>({
                   scope="col"
                   aria-sort={ariaSort}
                   className={cn(
-                    'text-text-mute px-4 py-3 text-[11px] font-semibold tracking-wider uppercase',
+                    'text-text-mute px-4 py-3 text-xs font-semibold tracking-wider uppercase',
                     alignClass[column.align ?? 'left'],
                     column.className,
                   )}

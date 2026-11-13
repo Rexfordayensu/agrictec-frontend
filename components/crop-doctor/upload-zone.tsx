@@ -94,7 +94,7 @@ export function UploadZone({
             Upload photo
           </Button>
         </div>
-        <p className="text-text-mute mt-2 text-center text-[11px] leading-relaxed">
+        <p className="text-text-mute mt-2 text-center text-xs leading-relaxed">
           Use your rear camera for a clear, close-up leaf photo.
         </p>
       </div>

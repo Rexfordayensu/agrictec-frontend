@@ -44,7 +44,7 @@ function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
       <nav aria-label="Admin navigation" className="flex-1 overflow-y-auto px-3 py-4">
         {sections.map((section) => (
           <div key={section.title} className="mb-5 last:mb-0">
-            <p className="text-text-mute mb-2 px-3 text-[10px] font-semibold tracking-wider uppercase">
+            <p className="text-text-mute mb-2 px-3 text-xs font-semibold tracking-wider uppercase">
               {section.title}
             </p>
             <ul className="space-y-1">
@@ -70,7 +70,7 @@ function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
                       {item.badgeKey && count > 0 && (
                         <span
                           className={cn(
-                            'inline-flex min-w-6 items-center justify-center rounded-full px-1.5 text-[11px] leading-5 font-bold tabular-nums',
+                            'inline-flex min-w-6 items-center justify-center rounded-full px-1.5 text-xs leading-5 font-bold tabular-nums',
                             BADGE_TONE[item.badgeKey],
                           )}
                         >

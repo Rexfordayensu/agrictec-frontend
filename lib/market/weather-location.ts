@@ -58,7 +58,7 @@ function position(geolocation: Geolocation, options: PositionOptions) {
   );
 }
 
-/** The browser always controls permission. No reverse-geocoding API call. */
+/** The browser always controls permission. The position is named separately (nameWeatherLocation). */
 export async function requestWeatherLocation(
   geolocation = typeof navigator !== 'undefined' ? navigator.geolocation : undefined,
 ): Promise<WeatherLocation> {
@@ -91,6 +91,52 @@ export async function requestWeatherLocation(
   };
   if (!validWeatherLocation(location)) throw new Error('The device returned an invalid location.');
   return location;
+}
+
+/** Something that names a position (geocodingService.reverse in the app; a stub in tests). */
+type Namer = (
+  lat: number,
+  lng: number,
+) => Promise<{
+  village?: string | null;
+  area?: string | null;
+  town?: string | null;
+  district?: string | null;
+  region?: string | null;
+  inGhana?: boolean;
+  label: string;
+}>;
+
+/**
+ * A position with its real name: town or city, Ghana region and neighbourhood, e.g.
+ * "Kumasi, Ashanti, Ghana". If the lookup fails the position is kept, labelled as before:
+ * the weather still loads, only the name is missing.
+ */
+export async function nameWeatherLocation(
+  location: WeatherLocation,
+  name: Namer,
+): Promise<WeatherLocation> {
+  if (
+    location.kind !== 'coordinates' ||
+    location.latitude === undefined ||
+    location.longitude === undefined
+  )
+    return location;
+  try {
+    const place = await name(location.latitude, location.longitude);
+    const region = place.region && REGIONS.includes(place.region) ? place.region : undefined;
+    return {
+      ...location,
+      label: place.label?.trim() || location.label,
+      region,
+      city: place.town?.trim() || undefined,
+      village: place.village?.trim() || undefined,
+      area: place.area?.trim() || undefined,
+      district: place.district?.trim() || undefined,
+    };
+  } catch {
+    return location;
+  }
 }
 
 const initialRequests = new Map<string, Promise<WeatherLocation | null>>();

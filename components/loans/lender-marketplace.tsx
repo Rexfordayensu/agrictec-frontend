@@ -185,7 +185,7 @@ export function LenderMarketplace() {
                       {productCount(lender.id) === 1 ? 'product' : 'products'} on AgriCtec
                     </span>
                     {lender.partnershipStatus === 'partner' && (
-                      <span className="bg-accent/15 text-ink-green mt-2 inline-block rounded-full px-2 py-0.5 text-[11px] font-semibold">
+                      <span className="bg-accent/15 text-ink-green mt-2 inline-block rounded-full px-2 py-0.5 text-xs font-semibold">
                         {PARTNERSHIP_LABELS.partner}
                       </span>
                     )}

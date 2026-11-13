@@ -114,10 +114,7 @@ export function DiagnosisCard({
                 />
               ))}
             </div>
-            <div
-              className="text-text-mute mt-1 flex justify-between text-[10px]"
-              aria-hidden="true"
-            >
+            <div className="text-text-mute mt-1 flex justify-between text-xs" aria-hidden="true">
               <span>None</span>
               <span>Moderate</span>
               <span>High</span>

@@ -25,6 +25,8 @@ export interface BarChartProps {
   height?: number | 'fill';
   /** The widest a bar may get, in px (default 36). */
   maxBarThickness?: number;
+  /** Keep all month labels visible on a compact annual chart. */
+  showAllLabels?: boolean;
   /** Hide the built-in legend when the card already explains the colours. */
   showLegend?: boolean;
   ariaLabel?: string;
@@ -46,6 +48,7 @@ export function BarChart({
   horizontal = false,
   onBarClick,
   maxBarThickness = 36,
+  showAllLabels = false,
 }: BarChartProps) {
   const { baseOptions } = useChartTheme();
 
@@ -70,6 +73,21 @@ export function BarChart({
       legend: { ...baseOptions.plugins.legend, display: showLegend },
     },
     interaction: { mode: 'index', intersect: false },
+    ...(showAllLabels && {
+      scales: {
+        ...baseOptions.scales,
+        x: {
+          ...baseOptions.scales.x,
+          ticks: {
+            ...baseOptions.scales.x.ticks,
+            autoSkip: false,
+            minRotation: 45,
+            maxRotation: 50,
+            font: { size: 12 },
+          },
+        },
+      },
+    }),
     ...(horizontal && { indexAxis: 'y' as const }),
     ...(onBarClick && {
       onClick: (_event, elements) => {

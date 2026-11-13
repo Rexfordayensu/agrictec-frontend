@@ -116,7 +116,7 @@ export function AssistantTestConsole({
                 setQuestion(sample);
                 void run(sample);
               }}
-              className="border-border text-text-dim hover:bg-glass-strong rounded-lg border px-2 py-1 text-[11px] transition-colors"
+              className="border-border text-text-dim hover:bg-glass-strong rounded-lg border px-2 py-1 text-xs transition-colors"
             >
               {sample}
             </button>

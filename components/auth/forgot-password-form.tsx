@@ -67,7 +67,7 @@ function EmailStep({ onSent }: { onSent: (email: string) => void }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-text text-2xl font-bold">Forgot your password?</h1>
+        <h1 className="font-display text-text text-display font-bold">Forgot your password?</h1>
         <p className="text-text-dim mt-1 text-sm">
           Enter the email you sign in with. We&apos;ll send a 6-digit code to choose a new password.
         </p>
@@ -141,7 +141,7 @@ function ResetStep({ email, onBack }: { email: string; onBack: () => void }) {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="font-display text-text text-2xl font-bold">Enter your code</h1>
+        <h1 className="font-display text-text text-display font-bold">Enter your code</h1>
         <p className="text-text-dim mt-1 text-sm">
           If <span className="text-text font-medium break-all">{email}</span> has an account, a
           6-digit code is on its way by email (and by SMS to a verified phone). It expires in 15

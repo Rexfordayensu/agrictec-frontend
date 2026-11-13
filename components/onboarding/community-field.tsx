@@ -148,7 +148,7 @@ export function CommunityField({
       {results && results.length > 0 && (
         <div className="border-border bg-bg-1 absolute inset-x-0 top-full z-[600] mt-1.5 overflow-hidden rounded-xl border shadow-2xl">
           <div className="border-border flex items-center justify-between border-b px-3.5 py-2">
-            <p className="text-text-mute text-[11px] font-semibold tracking-wider uppercase">
+            <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">
               {results.length} place{results.length === 1 ? '' : 's'} found
             </p>
             <button

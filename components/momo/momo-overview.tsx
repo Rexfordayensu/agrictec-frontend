@@ -101,7 +101,7 @@ function WalletCard({ summary }: { summary: MomoSummary }) {
           <span className="sr-only">Money received minus money sent, from every saved entry.</span>
         </span>
       </h2>
-      <p className="mt-1 text-[clamp(32px,4.2vw,46px)] leading-tight font-extrabold tracking-tight tabular-nums">
+      <p className="text-stat-lg mt-1 leading-tight font-extrabold tracking-tight tabular-nums">
         {negative(net) ? `– ${ghs(net).slice(1)}` : ghs(net)}
       </p>
       <PhoneArt />
@@ -158,7 +158,7 @@ function ThisMonth({ summary }: { summary: MomoSummary }) {
       aria-labelledby="month-title"
       className={cn(dashPanel, 'momo-this-month flex flex-col justify-center')}
     >
-      <h2 id="month-title" className="text-text text-[17px] font-bold">
+      <h2 id="month-title" className="text-text text-lg font-bold">
         This Month{' '}
         <span className="text-text-dim text-sm font-semibold">
           ({monthLabel(thisMonth.month, true)})
@@ -215,7 +215,7 @@ function MonthFigure({
     <div className="flex gap-3 @md:px-4 @md:first:pl-0 @md:last:pr-0">
       <IconTile icon={icon} tone={tone} size="sm" />
       <div className="min-w-0">
-        <dt className="text-text-dim text-[13px] font-medium">{label}</dt>
+        <dt className="text-text-dim text-small font-medium">{label}</dt>
         <dd
           className={cn(
             'mt-1 text-lg leading-tight font-bold whitespace-nowrap tabular-nums @6xl:text-xl',
@@ -291,10 +291,10 @@ function Tile({
     <div className={cn(dashPanel, 'flex flex-col gap-2 sm:flex-row sm:gap-3', className)}>
       <IconTile icon={icon} tone={tone} />
       <div className="min-w-0">
-        <dt className="text-text text-[13px] font-semibold @6xl:text-[12.5px] @6xl:whitespace-nowrap">
+        <dt className="text-text text-small font-semibold @6xl:text-xs @6xl:whitespace-nowrap">
           {label} {sub && <span className="text-text-dim font-normal">{sub}</span>}
         </dt>
-        <dd className="text-text mt-1.5 text-lg font-bold whitespace-nowrap tabular-nums @6xl:text-[22px]">
+        <dd className="text-text mt-1.5 text-lg font-bold whitespace-nowrap tabular-nums @6xl:text-2xl">
           {children}
         </dd>
         {note && <dd className="text-text-dim mt-1 text-xs">{note}</dd>}
@@ -310,7 +310,7 @@ function Trend({ summary }: { summary: MomoSummary }) {
     <section aria-labelledby="momo-trend-title" className={cn(dashPanel, 'momo-trend')}>
       <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
         <div>
-          <h2 id="momo-trend-title" className="text-text text-[17px] font-bold">
+          <h2 id="momo-trend-title" className="text-text text-lg font-bold">
             MoMo Cash Flow Trend
           </h2>
           <p className="text-text-dim text-xs">Monthly money in and money out (last 6 months)</p>
@@ -346,11 +346,11 @@ function Sources({ summary }: { summary: MomoSummary }) {
   const a = summary.allTime;
   return (
     <section aria-labelledby="sources-title" className={cn(dashPanel, 'momo-sources @container')}>
-      <h2 id="sources-title" className="text-text text-[17px] font-bold">
+      <h2 id="sources-title" className="text-text text-lg font-bold">
         Transaction Sources
       </h2>
       <p className="text-text-dim text-xs">By amount (all time)</p>
-      <div className="momo-source-content mt-4 grid grid-cols-1 items-center gap-3 @[16rem]:grid-cols-[7rem_minmax(0,1fr)]">
+      <div className="momo-source-content mt-4 grid grid-cols-1 items-center gap-3 @[23rem]:grid-cols-[7rem_minmax(0,1fr)]">
         <div className="momo-source-donut mx-auto w-28">
           <DoughnutChart
             aspectRatio={1}
@@ -370,18 +370,18 @@ function Sources({ summary }: { summary: MomoSummary }) {
             ariaLabel={`Money moved by network: ${nets.map((n) => `${n.network} ${ghs(n.amount)}`).join(', ')}.`}
             centerLabel={
               <span className="block text-center leading-tight">
-                <span className="text-text block text-[11px] font-bold">GHS</span>
+                <span className="text-text block text-xs font-bold">GHS</span>
                 <span className="text-text block text-base font-extrabold">
                   {ghs(a.moved).replace(/^GHS /, '')}
                 </span>
-                <span className="text-text-dim block text-[10px]">
+                <span className="text-text-dim block text-xs">
                   {movedLabel(a.countIn, a.countOut)}
                 </span>
               </span>
             }
           />
         </div>
-        <ul className="space-y-3 text-[11px]">
+        <ul className="space-y-3 text-xs">
           {nets.map((n) => (
             <li key={n.network} className="grid grid-cols-[auto_1fr_auto_auto] items-center gap-2">
               <i
@@ -419,7 +419,7 @@ function UseRecords({ className }: { className?: string }) {
     >
       <div className="flex items-center gap-3">
         <IconTile icon={Landmark} />
-        <h2 id="use-title" className="text-text text-[17px] font-bold">
+        <h2 id="use-title" className="text-text text-lg font-bold">
           Use your MoMo records
         </h2>
       </div>

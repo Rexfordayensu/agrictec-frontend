@@ -87,7 +87,7 @@ export function CreditTab({ data }: TabProps) {
               <li key={factor.key}>
                 <div className="flex items-center gap-2 text-sm">
                   <span className="text-text font-semibold">{factor.label}</span>
-                  <span className="bg-glass-strong text-text-mute rounded-full px-2 py-0.5 text-[10px] font-semibold">
+                  <span className="bg-glass-strong text-text-mute rounded-full px-2 py-0.5 text-xs font-semibold">
                     {weight}%
                   </span>
                   <span className="text-text ml-auto font-bold tabular-nums">{value}%</span>

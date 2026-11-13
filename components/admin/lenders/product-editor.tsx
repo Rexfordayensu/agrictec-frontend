@@ -166,7 +166,7 @@ export function ProductEditor({ lenderId, productId }: { lenderId: string; produ
 
       <header className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div className="min-w-0">
-          <h1 className="text-text text-xl font-bold wrap-break-word">
+          <h1 className="text-text text-display font-bold wrap-break-word">
             {content.name || 'Untitled'}
           </h1>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-xs">

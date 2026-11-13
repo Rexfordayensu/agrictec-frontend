@@ -34,7 +34,7 @@ export function ScoreRing({ value, max, label, size = 140, className }: ScoreRin
         >
           {value}
         </span>
-        <span className="text-text-mute mt-1 text-[10px] font-semibold tracking-wider uppercase">
+        <span className="text-text-mute mt-1 text-xs font-semibold tracking-wider uppercase">
           {label}
         </span>
       </div>

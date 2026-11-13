@@ -144,7 +144,7 @@ function PublishForm({
                 key={stat.label}
                 className="border-border bg-bg-2/60 rounded-xl border px-3 py-2.5"
               >
-                <p className="text-text-mute text-[11px] font-semibold">{stat.label}</p>
+                <p className="text-text-mute text-xs font-semibold">{stat.label}</p>
                 <div
                   className={`font-display mt-0.5 text-lg font-bold tabular-nums ${stat.tone ?? 'text-text'}`}
                 >
@@ -165,7 +165,7 @@ function PublishForm({
                 key={`${c.section}-${c.label}`}
                 className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3.5 py-2.5 text-sm"
               >
-                <span className="text-text-mute w-20 shrink-0 text-[11px] font-semibold tracking-wider uppercase">
+                <span className="text-text-mute w-20 shrink-0 text-xs font-semibold tracking-wider uppercase">
                   {c.section}
                 </span>
                 <span className="text-text min-w-0 flex-1">{c.label}</span>

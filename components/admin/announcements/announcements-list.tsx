@@ -152,16 +152,16 @@ export function AnnouncementsList({
               <div className="flex items-start gap-3">
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-text text-[15px] font-semibold wrap-anywhere">{a.title}</h3>
+                    <h3 className="text-text text-sm font-semibold wrap-anywhere">{a.title}</h3>
                     <Badge color={meta.color}>{meta.label}</Badge>
                     {state === 'live' && (
-                      <span className="text-ink-green inline-flex items-center gap-1 text-[11px] font-bold tracking-wide uppercase">
+                      <span className="text-ink-green inline-flex items-center gap-1 text-xs font-bold tracking-wide uppercase">
                         <span className="bg-accent size-1.5 rounded-full" aria-hidden="true" />
                         Live
                       </span>
                     )}
                     {!a.dismissible && (
-                      <span className="text-text-mute text-[11px] font-semibold">
+                      <span className="text-text-mute text-xs font-semibold">
                         Can&apos;t be dismissed
                       </span>
                     )}

@@ -12,7 +12,7 @@ export default function NotFound() {
         <div className="bg-accent/15 text-ink-green mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl">
           <Compass size={26} aria-hidden="true" />
         </div>
-        <h1 className="font-display text-text text-xl font-bold">Page not found</h1>
+        <h1 className="font-display text-text text-display font-bold">Page not found</h1>
         <p className="text-text-dim mt-2 text-sm">
           This page doesn&apos;t exist or has moved. Check the address, or start again from the home
           page.

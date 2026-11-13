@@ -77,7 +77,7 @@ export function AdminTopbar() {
           >
             <Search size={16} aria-hidden="true" />
             <span className="hidden md:inline">Search…</span>
-            <kbd className="border-border text-text-mute hidden rounded-md border px-1.5 text-[10px] font-semibold md:inline">
+            <kbd className="border-border text-text-mute hidden rounded-md border px-1.5 text-xs font-semibold md:inline">
               Ctrl K
             </kbd>
           </button>

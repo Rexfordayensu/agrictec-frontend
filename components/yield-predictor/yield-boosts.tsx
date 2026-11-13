@@ -116,7 +116,7 @@ export function YieldBoosts({ input, result }: { input: YieldInput; result: Yiel
                   <p className="text-text flex items-center gap-2 text-sm font-semibold">
                     {title}
                     {i === 0 && upgrades.length > 1 && (
-                      <span className="bg-accent/15 text-ink-green rounded-full px-2 py-0.5 text-[10px] font-bold">
+                      <span className="bg-accent/15 text-ink-green rounded-full px-2 py-0.5 text-xs font-bold">
                         Biggest gain
                       </span>
                     )}

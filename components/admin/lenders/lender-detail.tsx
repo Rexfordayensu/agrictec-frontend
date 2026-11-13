@@ -119,7 +119,7 @@ export function LenderDetail({ id }: { id: string }) {
             size={56}
           />
           <div className="min-w-0">
-            <h1 className="text-text text-xl font-bold wrap-break-word">{current.name}</h1>
+            <h1 className="text-text text-display font-bold wrap-break-word">{current.name}</h1>
             <p className="text-text-mute text-sm">
               {INSTITUTION_TYPE_LABELS[current.institutionType]}
             </p>

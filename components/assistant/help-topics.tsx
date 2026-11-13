@@ -92,8 +92,8 @@ export function HelpTopics() {
               <span className="bg-glass-strong inline-flex size-10 items-center justify-center rounded-xl">
                 <t.icon size={20} aria-hidden="true" className="text-[var(--icon)]" />
               </span>
-              <span className="text-text mt-3 block text-[15px] font-bold">{t.title}</span>
-              <span className="text-text-dim mt-1 block text-[13px] leading-snug">{t.text}</span>
+              <span className="text-text mt-3 block text-sm font-bold">{t.title}</span>
+              <span className="text-text-dim text-small mt-1 block leading-snug">{t.text}</span>
             </button>
           ))}
         </div>
