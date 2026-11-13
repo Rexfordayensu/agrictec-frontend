@@ -18,7 +18,7 @@ export function MessageBubble({ message }: { message: ChatMessage }) {
           'inline-flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9',
           isUser
             ? 'border-emerald-600/30 bg-emerald-700 text-white'
-            : 'border-purple/20 bg-purple/10 text-ink-purple',
+            : 'border-icon/20 bg-icon-bg text-icon',
         )}
       >
         <Icon size={17} />

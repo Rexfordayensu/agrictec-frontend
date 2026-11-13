@@ -29,11 +29,11 @@ export function FarmerDashboard() {
   const error = figures.status === 'error' ? figures.error : null;
 
   return (
-    <div className="flex flex-col gap-4 sm:gap-5">
+    <div className="dashboard-reference flex flex-col gap-4">
       <AnnouncementBanner />
       <DashboardHero />
       <OverviewStats summary={summary} />
-      <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,3fr)_minmax(0,2fr)]">
+      <div className="dash-trend-row">
         <ActivityTrend
           summary={summary}
           range={range}
@@ -43,14 +43,14 @@ export function FarmerDashboard() {
         />
         <LoanReadinessCard />
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:gap-5 xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
+      <div className="dash-transactions-row">
         <RecentTransactions />
         <QuickActions range={range} />
       </div>
-      <div className="grid grid-cols-1 gap-4 sm:gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="dash-bottom-row">
         <NextSteps />
         <div className="min-w-0">
-          <WeatherCard compact />
+          <WeatherCard compact dashboard />
         </div>
         <FarmInsight summary={summary} />
       </div>

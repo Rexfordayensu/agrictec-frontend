@@ -112,7 +112,7 @@ export function IdentityVerificationCard() {
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
-            <Fingerprint size={18} aria-hidden="true" className="text-ink-green" />
+            <Fingerprint size={18} aria-hidden="true" className="text-icon" />
             Ghana Card verification
           </CardTitle>
           <CardSub>
@@ -131,7 +131,13 @@ export function IdentityVerificationCard() {
       {error && !state ? (
         <div role="alert" className="text-sm">
           <p className="text-ink-red">{error}</p>
-          <Button size="sm" variant="ghost" icon={RefreshCw} className="mt-2" onClick={() => void load()}>
+          <Button
+            size="sm"
+            variant="ghost"
+            icon={RefreshCw}
+            className="mt-2"
+            onClick={() => void load()}
+          >
             Try again
           </Button>
         </div>
@@ -223,7 +229,7 @@ function Body({
     return (
       <div className="border-accent/30 bg-accent/5 rounded-2xl border p-4">
         <p className="text-text flex items-center gap-2 font-semibold">
-          <ShieldCheck size={18} aria-hidden="true" className="text-ink-green" />
+          <ShieldCheck size={18} aria-hidden="true" className="text-icon" />
           Your identity is verified
         </p>
         <p className="text-text-dim mt-1 text-sm">
@@ -345,8 +351,8 @@ function Body({
               className="mt-1 size-4 shrink-0"
             />
             <span>
-              I have read the notice and agree that AgriCtec asks the verification service to confirm
-              my identity against my Ghana Card record.
+              I have read the notice and agree that AgriCtec asks the verification service to
+              confirm my identity against my Ghana Card record.
             </span>
           </label>
           {state.provider.simulated && (
@@ -387,9 +393,7 @@ function PrivacyNotice({ version }: { version: string }) {
         How your information is used
       </summary>
       <ul className="text-text-dim mt-3 list-disc space-y-1.5 pl-5">
-        <li>
-          Why: lenders need to know you are the person applying. Verification confirms that.
-        </li>
+        <li>Why: lenders need to know you are the person applying. Verification confirms that.</li>
         <li>
           How: you complete the Ghana Card and face check with the National Identification
           Authority&apos;s approved verification service, not inside AgriCtec.
@@ -420,10 +424,7 @@ function Requirements({ state }: { state: IdentityState }) {
           <li key={r.feature} className="flex flex-wrap items-center justify-between gap-2 text-sm">
             <span className="text-text-dim">{r.label}</span>
             <span
-              className={cn(
-                'text-xs font-semibold',
-                r.met ? 'text-ink-green' : 'text-text-mute',
-              )}
+              className={cn('text-xs font-semibold', r.met ? 'text-ink-green' : 'text-text-mute')}
             >
               {r.required === 'none'
                 ? 'No verification needed'

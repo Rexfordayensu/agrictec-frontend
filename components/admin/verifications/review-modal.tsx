@@ -311,7 +311,7 @@ export function ReviewModal({
               Submitted {KIND_LABEL[request.kind]}
             </h3>
             <div className="border-border flex flex-wrap items-center gap-3 rounded-2xl border px-4 py-3.5">
-              <span className="bg-purple/12 text-ink-purple inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
+              <span className="bg-icon-bg text-icon inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
                 <KindIcon size={18} aria-hidden="true" />
               </span>
               <span className="text-text min-w-0 flex-1 font-mono text-lg font-semibold tracking-wide break-all">
@@ -485,7 +485,11 @@ const IDENTITY_RESULTS: Record<string, { text: string; good: boolean }> = {
 };
 
 /** The identity provider's answer: advice for the reviewer, never a decision. */
-function IdentityCheckNote({ check }: { check: NonNullable<VerificationRequest['identityCheck']> }) {
+function IdentityCheckNote({
+  check,
+}: {
+  check: NonNullable<VerificationRequest['identityCheck']>;
+}) {
   const result = IDENTITY_RESULTS[check.result] ?? IDENTITY_RESULTS.error;
   return (
     <p

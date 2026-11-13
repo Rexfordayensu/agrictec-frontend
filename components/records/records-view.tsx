@@ -33,8 +33,12 @@ const TYPE_LABEL: Record<FarmRecord['type'], string> = {
 };
 
 /** Owns the filter state shared by the summary, toolbar and list. */
-export function RecordsView() {
-  const [view, setView] = useState<'records' | 'transactions'>('records');
+export function RecordsView({
+  initialView = 'records',
+}: {
+  initialView?: 'records' | 'transactions';
+}) {
+  const [view, setView] = useState<'records' | 'transactions'>(initialView);
   const records = useFarmStore((s) => s.records);
   const openModal = useModalStore((s) => s.openModal);
   const [filters, setFilters] = useState<RecordFilters>(DEFAULT_FILTERS);

@@ -9,8 +9,8 @@ export function SettingsSection({ href, children }: { href: string; children: Re
     <section aria-labelledby="settings-page-heading">
       <div className="mb-4 flex items-center gap-3 px-1">
         {Icon && (
-          <span className="bg-accent/15 text-ink-green inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
-            <Icon size={19} aria-hidden="true" />
+          <span className="bg-icon-bg text-icon inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
+            <Icon size={20} aria-hidden="true" />
           </span>
         )}
         <div className="min-w-0">

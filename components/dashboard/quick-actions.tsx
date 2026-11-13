@@ -39,7 +39,7 @@ export function QuickActions({ range }: { range: DashboardRange }) {
 
   return (
     <section aria-labelledby="quick-title" className={dashPanel}>
-      <PanelHeading id="quick-title" icon={Zap} title="Quick actions" />
+      <PanelHeading id="quick-title" icon={Zap} title="Quick Actions" />
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
@@ -48,7 +48,7 @@ export function QuickActions({ range }: { range: DashboardRange }) {
           className={cn(tile, readOnly && READ_ONLY_CLASS)}
         >
           <Mark icon={Leaf} />
-          Add farm record
+          Add Farm Record
         </button>
         <button
           type="button"
@@ -57,7 +57,7 @@ export function QuickActions({ range }: { range: DashboardRange }) {
           className={cn(tile, readOnly && READ_ONLY_CLASS)}
         >
           <Mark icon={Smartphone} />
-          Add transaction
+          Add Transaction
         </button>
         <button type="button" disabled={busy} onClick={() => void report()} className={tile}>
           {busy ? (
@@ -67,12 +67,12 @@ export function QuickActions({ range }: { range: DashboardRange }) {
           ) : (
             <Mark icon={FileText} />
           )}
-          {busy ? 'Preparing PDF…' : `Generate report (PDF, ${range} months)`}
+          {busy ? 'Preparing PDF…' : 'Generate Report (PDF)'}
         </button>
         {loansOn ? (
           <Link href="/loans?tab=lenders" className={tile}>
             <Mark icon={Landmark} />
-            Check loan eligibility
+            Check Loan Eligibility
           </Link>
         ) : (
           <Link href="/reports" className={tile}>

@@ -127,7 +127,7 @@ export function AuditLogView() {
         role="note"
         className="border-purple/30 bg-purple/8 text-text flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm"
       >
-        <span className="bg-purple/15 text-ink-purple inline-flex size-8 shrink-0 items-center justify-center rounded-lg">
+        <span className="bg-icon-bg text-icon inline-flex size-8 shrink-0 items-center justify-center rounded-xl">
           <Lock size={15} aria-hidden="true" />
         </span>
         <span>

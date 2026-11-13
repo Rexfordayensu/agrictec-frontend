@@ -69,7 +69,7 @@ export function Topbar() {
           {Icon && (
             <span
               aria-hidden="true"
-              className="from-accent/25 to-accent/5 text-ink-green hidden size-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br min-[360px]:inline-flex"
+              className="bg-icon-bg text-icon hidden size-10 shrink-0 items-center justify-center rounded-xl min-[360px]:inline-flex"
             >
               <Icon size={20} />
             </span>

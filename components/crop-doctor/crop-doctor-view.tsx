@@ -4,26 +4,23 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   Bug,
-  CircleDot,
-  Focus,
+  Check,
   Grid3x3,
-  Hand,
-  HelpCircle,
   Leaf,
-  ScanLine,
+  Lightbulb,
+  Scan,
   ShieldCheck,
   Stethoscope,
-  Sun,
+  X,
   type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { AnalyzingState } from '@/components/crop-doctor/analyzing-state';
-import { CropScanStats } from '@/components/crop-doctor/crop-doctor-hero';
+import { CropDoctorHero, CropDoctorSteps } from '@/components/crop-doctor/crop-doctor-hero';
 import { DiagnosisCard } from '@/components/crop-doctor/diagnosis-card';
 import { DiagnosisHistory } from '@/components/crop-doctor/diagnosis-history';
 import { ImagePreview } from '@/components/crop-doctor/image-preview';
 import { UploadZone } from '@/components/crop-doctor/upload-zone';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { Select } from '@/components/ui/select';
 import { CROP_TONES, CropIcon } from '@/components/ui/crop-icon';
 import { CROPS } from '@/constants/crops';
@@ -37,18 +34,31 @@ import type { Crop, DiagnosisResult } from '@/types';
 import { useSubscriptionStore } from '@/store/subscription-store';
 import { useSubscription } from '@/hooks/use-subscription';
 
-const PHOTO_TIPS: { icon: LucideIcon; text: string }[] = [
-  { icon: Sun, text: 'Natural daylight, no flash' },
-  { icon: Focus, text: 'Get close to the damaged area' },
-  { icon: Leaf, text: 'One leaf filling the frame' },
-  { icon: Hand, text: 'Hold steady for a sharp photo' },
-];
-
-const CHECKS: { icon: LucideIcon; title: string; text: string }[] = [
-  { icon: CircleDot, title: 'Fungal spots & blight', text: 'Leaf spots, rot and black pod' },
-  { icon: Bug, title: 'Pest damage', text: 'Fall armyworm and chewed leaves' },
-  { icon: Grid3x3, title: 'Viral mosaic', text: 'Yellow patterns and curled leaves' },
-  { icon: Leaf, title: 'Healthy tissue', text: 'Confirms when no issue is found' },
+const CHECKS: { icon: LucideIcon; tone: string; title: string; text: string }[] = [
+  {
+    icon: Leaf,
+    tone: 'bg-icon-bg text-icon',
+    title: 'Fungal spots & blight',
+    text: 'Leaf spots, rot and black pod',
+  },
+  {
+    icon: Bug,
+    tone: 'bg-icon-bg text-icon',
+    title: 'Pest damage',
+    text: 'Fall armyworm and chewed leaves',
+  },
+  {
+    icon: Grid3x3,
+    tone: 'bg-icon-bg text-icon',
+    title: 'Viral mosaic',
+    text: 'Yellow patterns and curled leaves',
+  },
+  {
+    icon: Leaf,
+    tone: 'bg-icon-bg text-icon',
+    title: 'Healthy tissue',
+    text: 'Confirms when no issue is found',
+  },
 ];
 
 export function CropDoctorView() {
@@ -168,59 +178,62 @@ export function CropDoctorView() {
   }
 
   const busy = analyzing || saving;
+  const stage: 1 | 2 | 3 = analyzing ? 2 : result ? 3 : 1;
+  const showResult = analyzing || result !== null;
 
   return (
-    <>
-      <div className="grid grid-cols-1 items-start gap-6 @4xl:grid-cols-2">
-        {/* Scanner */}
-        <Card className="rounded-3xl">
-          <CardHeader>
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <ScanLine size={17} aria-hidden="true" className="text-ink-green" />
-                Scan a crop
-              </CardTitle>
-              <CardSub>Pick the crop, then add a clear photo of the affected leaf</CardSub>
-            </div>
-          </CardHeader>
+    <div className="@container space-y-5">
+      <CropDoctorHero />
+      <CropDoctorSteps stage={stage} />
 
-          <div className="mb-5">
-            <label
-              htmlFor="diagnosis-crop"
-              className="text-text-dim mb-2 block text-xs font-semibold tracking-wide uppercase"
-            >
-              1. Which crop is this?
-            </label>
-            <div className="relative">
-              <span
-                aria-hidden="true"
-                className={cn(
-                  'pointer-events-none absolute top-1/2 left-2 z-10 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-lg',
-                  crop ? CROP_TONES[crop] : 'bg-glass-strong text-text-mute',
-                )}
-              >
-                {crop ? <CropIcon crop={crop} size={15} /> : <HelpCircle size={15} />}
-              </span>
-              <Select
-                id="diagnosis-crop"
-                value={crop}
-                disabled={busy}
-                onChange={(event) => chooseCrop(event.target.value as Crop | '')}
-                className="pl-11"
-              >
-                <option value="">Not sure (detect from photo)</option>
-                {CROPS.filter((c) => c !== 'Other').map((option) => (
-                  <option key={option} value={option}>
-                    {option}
-                  </option>
-                ))}
-              </Select>
+      <div className="grid grid-cols-1 items-start gap-5 @3xl:grid-cols-[minmax(0,1fr)_minmax(0,1.04fr)]">
+        {/* Scanner */}
+        <section
+          aria-labelledby="scan-title"
+          className="rounded-card border-border bg-glass border p-4 sm:p-6"
+        >
+          <div className="flex items-start gap-4">
+            <Scan size={30} aria-hidden="true" className="text-ink-green mt-1 shrink-0" />
+            <div>
+              <h2 id="scan-title" className="text-text text-xl font-bold">
+                Scan a crop
+              </h2>
+              <p className="text-text-dim text-sm">
+                Choose your crop, then add a clear photo of the affected leaf
+              </p>
             </div>
           </div>
 
-          <p className="text-text-dim mb-2 text-xs font-semibold tracking-wide uppercase">
-            2. Add a photo
-          </p>
+          <label htmlFor="diagnosis-crop" className="text-text mt-5 mb-2 block text-sm font-bold">
+            Crop
+          </label>
+          <div className="relative">
+            <span
+              aria-hidden="true"
+              className={cn(
+                'pointer-events-none absolute top-1/2 left-2 z-10 inline-flex size-7 -translate-y-1/2 items-center justify-center rounded-lg',
+                crop ? CROP_TONES[crop] : 'text-text-dim',
+              )}
+            >
+              {crop ? <CropIcon crop={crop} size={15} /> : <Leaf size={17} />}
+            </span>
+            <Select
+              id="diagnosis-crop"
+              value={crop}
+              disabled={busy}
+              onChange={(event) => chooseCrop(event.target.value as Crop | '')}
+              className="pl-11"
+            >
+              <option value="">Select crop (or let the AI tell)</option>
+              {CROPS.filter((c) => c !== 'Other').map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </Select>
+          </div>
+
+          <p className="text-text mt-5 mb-2 text-sm font-bold">Add a photo</p>
           {file ? (
             <ImagePreview
               file={file}
@@ -242,93 +255,164 @@ export function CropDoctorView() {
           <div className="text-text-mute mt-4 space-y-1 text-xs">
             <p className="flex items-center gap-1.5">
               <ShieldCheck size={13} aria-hidden="true" className="text-ink-green shrink-0" />
-              {aiOn
-                ? 'Your photo is sent securely for analysis and is not kept there.'
-                : 'The crop doctor is not available right now. Please check back later.'}
+              {!aiOn
+                ? 'The crop doctor is not available right now. Please check back later.'
+                : noCredits
+                  ? 'A scan needs 5 AI credits. Your credits reset on the 1st, or change plan in Settings.'
+                  : 'Your photo is sent securely for analysis and is not kept there.'}
             </p>
             <p>AI can be wrong. Confirm with your extension officer.</p>
           </div>
-        </Card>
+        </section>
 
-        {/* Result */}
-        <Card className="rounded-3xl @4xl:sticky @4xl:top-28" aria-busy={analyzing}>
-          <CardHeader>
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Stethoscope size={17} aria-hidden="true" className="text-ink-purple" />
-                Diagnosis
-              </CardTitle>
-              <CardSub>Likely issue, confidence and a treatment plan</CardSub>
+        {showResult ? (
+          /* Result */
+          <section
+            aria-labelledby="diagnosis-title"
+            aria-busy={analyzing}
+            className="rounded-card border-border bg-glass border p-4 sm:p-6 @3xl:sticky @3xl:top-28"
+          >
+            <div className="flex items-start gap-4">
+              <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+                <Stethoscope size={24} aria-hidden="true" />
+              </span>
+              <div>
+                <h2 id="diagnosis-title" className="text-text text-xl font-bold">
+                  Diagnosis
+                </h2>
+                <p className="text-text-dim text-sm">
+                  Likely issue, confidence and a treatment plan
+                </p>
+              </div>
             </div>
-          </CardHeader>
-          <div aria-live="polite">
-            {analyzing ? (
-              <AnalyzingState />
-            ) : result ? (
-              <DiagnosisCard
-                result={result}
-                saving={saving}
-                saved={saved}
-                onSave={() => void save()}
-                onScanAnother={reset}
-                onLogTreatment={() => logTreatment(result)}
-                onAskAssistant={() => askAssistant(result)}
-              />
-            ) : (
-              <div className="py-2">
-                <div className="flex flex-col items-center px-4 py-6 text-center">
-                  <span className="border-purple/20 bg-purple/10 text-ink-purple mb-4 inline-flex size-16 items-center justify-center rounded-2xl border">
-                    <ScanLine size={30} strokeWidth={1.5} aria-hidden="true" />
-                  </span>
-                  <p className="font-display text-text text-xl font-bold">
-                    Your diagnosis appears here
-                  </p>
-                  <p className="text-text-dim mt-1 max-w-sm text-sm">
-                    Add a photo to see the likely problem, how confident the AI is, and what to do
-                    next.
+            <div aria-live="polite" className="mt-5">
+              {analyzing ? (
+                <AnalyzingState />
+              ) : result ? (
+                <DiagnosisCard
+                  result={result}
+                  saving={saving}
+                  saved={saved}
+                  onSave={() => void save()}
+                  onScanAnother={reset}
+                  onLogTreatment={() => logTreatment(result)}
+                  onAskAssistant={() => askAssistant(result)}
+                />
+              ) : null}
+            </div>
+          </section>
+        ) : (
+          <div className="space-y-5">
+            <section
+              aria-labelledby="checks-title"
+              className="rounded-card border-border bg-glass @container/checks border p-4 sm:p-6"
+            >
+              <div className="flex items-start gap-4">
+                <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+                  <Stethoscope size={24} aria-hidden="true" />
+                </span>
+                <div>
+                  <h2 id="checks-title" className="text-text text-xl font-bold">
+                    What we check for
+                  </h2>
+                  <p className="text-text-dim text-sm">
+                    The AI can detect common crop diseases and issues.
                   </p>
                 </div>
-                <p className="text-text-mute mb-3 text-xs font-semibold tracking-wider uppercase">
-                  What the Crop Doctor checks
-                </p>
-                <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                  {CHECKS.map(({ icon: Icon, title, text }) => (
-                    <li
-                      key={title}
-                      className="border-border bg-glass flex gap-3 rounded-2xl border p-3.5"
-                    >
-                      <span className="bg-purple/10 text-ink-purple inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
-                        <Icon size={17} aria-hidden="true" />
-                      </span>
-                      <span className="min-w-0">
-                        <span className="text-text block text-sm font-semibold">{title}</span>
-                        <span className="text-text-mute block text-xs">{text}</span>
-                      </span>
-                    </li>
-                  ))}
-                </ul>
               </div>
-            )}
+              <ul className="mt-5 grid grid-cols-1 gap-3 @sm/checks:grid-cols-2">
+                {CHECKS.map(({ icon: Icon, tone, title, text }) => (
+                  <li key={title} className="border-border flex gap-3 rounded-2xl border p-3.5">
+                    <span
+                      className={cn(
+                        'inline-flex size-10 shrink-0 items-center justify-center rounded-xl',
+                        tone,
+                      )}
+                    >
+                      <Icon size={20} aria-hidden="true" />
+                    </span>
+                    <span className="min-w-0">
+                      <span className="text-text block text-sm font-bold">{title}</span>
+                      <span className="text-text-dim block text-sm leading-snug">{text}</span>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+            <PhotoTips />
           </div>
-        </Card>
+        )}
       </div>
-      <details className="border-border bg-glass rounded-2xl border p-4">
-        <summary className="text-text focus-visible:outline-accent cursor-pointer rounded text-sm font-semibold">
-          Tips for a clear leaf photo
-        </summary>
-        <ul className="mt-4 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-          {PHOTO_TIPS.map(({ icon: Icon, text }) => (
-            <li key={text} className="text-text-dim flex items-center gap-2 text-xs">
-              <span className="bg-accent/10 text-ink-green inline-flex size-7 shrink-0 items-center justify-center rounded-lg">
-                <Icon size={14} aria-hidden="true" />
-              </span>
-              {text}
-            </li>
-          ))}
-        </ul>
-      </details>
-      <CropScanStats />
+
       <DiagnosisHistory />
-    </>
+    </div>
+  );
+}
+
+const GOOD = ['Good lighting', 'Close-up (leaf fills frame)', 'Clear and in focus'];
+const BAD = ['Blurry photo', 'Too far away', 'Poor lighting'];
+
+/** A sharp close-up and a blurred, dark one (cut from the page's own field photo). */
+function PhotoTips() {
+  return (
+    <section
+      aria-labelledby="tips-title"
+      className="rounded-card border-border bg-glass @container/tips overflow-hidden border"
+    >
+      <h2
+        id="tips-title"
+        className="bg-accent/10 text-text flex items-center gap-3 px-5 py-4 text-lg font-bold"
+      >
+        <Lightbulb size={22} aria-hidden="true" className="text-icon" />
+        Tips for a clear leaf photo
+      </h2>
+      <div className="grid grid-cols-1 gap-4 p-4 sm:p-5 @md/tips:grid-cols-2">
+        <TipExample good items={GOOD} />
+        <TipExample good={false} items={BAD} />
+      </div>
+    </section>
+  );
+}
+
+function TipExample({ good, items }: { good: boolean; items: string[] }) {
+  return (
+    <div className="flex items-center gap-4">
+      <span className="relative shrink-0">
+        <span
+          role="img"
+          aria-label={
+            good ? 'A good leaf photo: sharp and close' : 'A poor leaf photo: blurry and dark'
+          }
+          className="block size-24 rounded-xl bg-no-repeat"
+          style={{
+            backgroundImage: "url('/images/crop-doctor/crop-doctor-banner.jpg')",
+            backgroundSize: good ? '620%' : '330%',
+            backgroundPosition: good ? '71% 62%' : '74% 70%',
+            filter: good ? undefined : 'blur(2.5px) brightness(0.7)',
+          }}
+        />
+        <span
+          aria-hidden="true"
+          className={cn(
+            'absolute -top-2 -right-2 inline-flex size-7 items-center justify-center rounded-full text-white ring-2 ring-white',
+            good ? 'bg-[#16a34a]' : 'bg-[#dc2626]',
+          )}
+        >
+          {good ? <Check size={16} strokeWidth={3} /> : <X size={16} strokeWidth={3} />}
+        </span>
+      </span>
+      <ul className="space-y-2 text-sm" aria-label={good ? 'Do' : 'Avoid'}>
+        {items.map((item) => (
+          <li key={item} className="text-text flex items-center gap-2">
+            {good ? (
+              <Check size={15} aria-hidden="true" className="text-ink-green shrink-0" />
+            ) : (
+              <X size={15} aria-hidden="true" className="text-ink-red shrink-0" />
+            )}
+            {item}
+          </li>
+        ))}
+      </ul>
+    </div>
   );
 }

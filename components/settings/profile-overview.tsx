@@ -143,7 +143,7 @@ function Banner({ profile, onEdit }: { profile: Profile | null; onEdit: () => vo
         <div className="min-w-0 flex-1">
           <h2
             id="profile-name"
-            className="truncate text-display leading-tight font-extrabold tracking-tight"
+            className="text-display truncate leading-tight font-extrabold tracking-tight"
           >
             {name}
           </h2>
@@ -366,8 +366,8 @@ function Identity({ states }: { states: ReturnType<typeof checkStates> }) {
   return (
     <section aria-labelledby="identity-title" className={dashPanel}>
       <div className="flex flex-wrap items-start gap-3">
-        <span className="bg-accent/12 text-ink-green inline-flex size-12 shrink-0 items-center justify-center rounded-2xl">
-          <ShieldCheck size={26} aria-hidden="true" />
+        <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+          <ShieldCheck size={24} aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
           <h2 id="identity-title" className="text-text text-xl font-bold">

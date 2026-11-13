@@ -56,18 +56,19 @@ function treatmentSteps(text: string): string[] {
 
 export function DiagnosisCard({
   result,
-  saving,
-  saved,
+  saving = false,
+  saved = false,
   onSave,
   onScanAnother,
   onLogTreatment,
   onAskAssistant,
 }: {
   result: DiagnosisResult;
-  saving: boolean;
-  saved: boolean;
-  onSave: () => void;
-  onScanAnother: () => void;
+  saving?: boolean;
+  saved?: boolean;
+  /** Without onSave the card only shows the diagnosis (a saved scan's details). */
+  onSave?: () => void;
+  onScanAnother?: () => void;
   /** Opens a pre-filled expense record for the treatment cost. */
   onLogTreatment?: () => void;
   onAskAssistant?: () => void;
@@ -164,30 +165,32 @@ export function DiagnosisCard({
           </p>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
-          <Button
-            mutates
-            icon={saved ? Check : Save}
-            loading={saving}
-            disabled={saved}
-            onClick={onSave}
-          >
-            {saved ? 'Diagnosis saved' : 'Save Diagnosis'}
-          </Button>
-          <Button variant="ghost" icon={RotateCcw} disabled={saving} onClick={onScanAnother}>
-            Scan another
-          </Button>
-          {onLogTreatment && result.severity !== 'None' && (
-            <Button mutates variant="ghost" size="sm" icon={ReceiptText} onClick={onLogTreatment}>
-              Log treatment cost
+        {onSave && onScanAnother && (
+          <div className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <Button
+              mutates
+              icon={saved ? Check : Save}
+              loading={saving}
+              disabled={saved}
+              onClick={onSave}
+            >
+              {saved ? 'Diagnosis saved' : 'Save Diagnosis'}
             </Button>
-          )}
-          {onAskAssistant && (
-            <Button mutates variant="ghost" size="sm" icon={Bot} onClick={onAskAssistant}>
-              Ask the AI assistant
+            <Button variant="ghost" icon={RotateCcw} disabled={saving} onClick={onScanAnother}>
+              Scan another
             </Button>
-          )}
-        </div>
+            {onLogTreatment && result.severity !== 'None' && (
+              <Button mutates variant="ghost" size="sm" icon={ReceiptText} onClick={onLogTreatment}>
+                Log treatment cost
+              </Button>
+            )}
+            {onAskAssistant && (
+              <Button mutates variant="ghost" size="sm" icon={Bot} onClick={onAskAssistant}>
+                Ask the AI assistant
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

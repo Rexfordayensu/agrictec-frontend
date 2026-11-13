@@ -257,6 +257,8 @@ export interface NotificationSettings {
   aiInsights: boolean;
   weatherAlerts: boolean;
   priceAlerts: boolean;
+  /** Also send alerts by SMS to the farmer's phone (when SMS is set up). The bell always gets them. */
+  smsAlerts: boolean;
 }
 
 // ---------- Phase 3: services & stores ----------
@@ -271,6 +273,8 @@ export interface LoadOptions {
 export interface AppSettings {
   language: Language;
   notifications: NotificationSettings;
+  /** Read-only, from the server: whether this AgriCtec can send SMS at all. */
+  smsAvailable?: boolean;
 }
 
 export interface MonthlySeries {

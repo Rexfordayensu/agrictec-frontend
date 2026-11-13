@@ -23,7 +23,7 @@ export function RulesReference() {
           onClick={() => setOpen(!open)}
           className="flex min-h-14 w-full items-center gap-3 px-5 text-left"
         >
-          <span className="bg-purple/12 text-ink-purple inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
+          <span className="bg-icon-bg text-icon inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
             <BookOpen size={17} aria-hidden="true" />
           </span>
           <span className="min-w-0 flex-1">

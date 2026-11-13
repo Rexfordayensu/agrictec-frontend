@@ -9,8 +9,8 @@ export default function NotFound() {
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="border-border bg-glass shadow-glass w-full max-w-md rounded-3xl border p-8 text-center">
-        <div className="bg-accent/15 text-ink-green mx-auto mb-4 flex size-14 items-center justify-center rounded-2xl">
-          <Compass size={26} aria-hidden="true" />
+        <div className="bg-icon-bg text-icon mx-auto mb-4 flex size-12 items-center justify-center rounded-xl">
+          <Compass size={24} aria-hidden="true" />
         </div>
         <h1 className="font-display text-text text-display font-bold">Page not found</h1>
         <p className="text-text-dim mt-2 text-sm">

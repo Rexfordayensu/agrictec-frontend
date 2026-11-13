@@ -27,6 +27,10 @@ export interface BarChartProps {
   maxBarThickness?: number;
   /** Keep all month labels visible on a compact annual chart. */
   showAllLabels?: boolean;
+  /** Value-axis labels, e.g. (v) => "GHS 1.0K". */
+  formatValue?: (value: number) => string;
+  /** A top for the value axis when every bar is 0 (so the empty grid still reads as money). */
+  emptyMax?: number;
   /** Hide the built-in legend when the card already explains the colours. */
   showLegend?: boolean;
   ariaLabel?: string;
@@ -49,7 +53,10 @@ export function BarChart({
   onBarClick,
   maxBarThickness = 36,
   showAllLabels = false,
+  formatValue,
+  emptyMax,
 }: BarChartProps) {
+  const allZero = datasets.every((ds) => ds.data.every((v) => !v));
   const { baseOptions } = useChartTheme();
 
   const data: ChartData<'bar'> = {
@@ -73,17 +80,29 @@ export function BarChart({
       legend: { ...baseOptions.plugins.legend, display: showLegend },
     },
     interaction: { mode: 'index', intersect: false },
-    ...(showAllLabels && {
+    ...((showAllLabels || formatValue || emptyMax) && {
       scales: {
         ...baseOptions.scales,
-        x: {
-          ...baseOptions.scales.x,
+        x: showAllLabels
+          ? {
+              ...baseOptions.scales.x,
+              ticks: {
+                ...baseOptions.scales.x.ticks,
+                autoSkip: false,
+                minRotation: 0,
+                maxRotation: 50,
+                font: { size: 12 },
+              },
+            }
+          : baseOptions.scales.x,
+        y: {
+          ...baseOptions.scales.y,
+          ...(emptyMax && allZero && { min: 0, suggestedMax: emptyMax }),
           ticks: {
-            ...baseOptions.scales.x.ticks,
-            autoSkip: false,
-            minRotation: 45,
-            maxRotation: 50,
-            font: { size: 12 },
+            ...baseOptions.scales.y.ticks,
+            ...(formatValue && {
+              callback: (value: string | number) => formatValue(Number(value)),
+            }),
           },
         },
       },

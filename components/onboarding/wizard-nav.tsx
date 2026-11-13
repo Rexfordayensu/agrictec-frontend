@@ -39,8 +39,8 @@ export function StepHeader({
   if (!autoFocus) return null;
   return (
     <div className="mb-6 flex items-start gap-3.5">
-      <span className="bg-accent/12 text-ink-green inline-flex size-11 shrink-0 items-center justify-center rounded-2xl">
-        <Icon size={21} aria-hidden="true" />
+      <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+        <Icon size={24} aria-hidden="true" />
       </span>
       <div className="min-w-0">
         <h2

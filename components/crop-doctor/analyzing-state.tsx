@@ -26,7 +26,7 @@ export function AnalyzingState() {
       aria-live="polite"
       className="flex min-h-80 flex-col items-center justify-center px-4 py-8"
     >
-      <span className="animate-pulse-soft border-purple/20 bg-purple/10 text-ink-purple mb-5 inline-flex size-16 items-center justify-center rounded-2xl border motion-reduce:animate-none">
+      <span className="animate-pulse-soft border-icon/20 bg-icon-bg text-icon mb-5 inline-flex size-16 items-center justify-center rounded-xl border motion-reduce:animate-none">
         <ScanLine size={32} strokeWidth={1.5} aria-hidden="true" />
       </span>
       <p className="font-display text-text text-xl font-bold">Analyzing your crop…</p>
@@ -42,7 +42,7 @@ export function AnalyzingState() {
                 className={cn(
                   'inline-flex size-6 shrink-0 items-center justify-center rounded-full border',
                   done && 'border-transparent bg-[#10b981] text-[#022c22]',
-                  active && 'border-purple/50 bg-purple/15 text-ink-purple',
+                  active && 'border-icon/50 bg-icon-bg text-icon',
                   !done && !active && 'border-border text-text-mute',
                 )}
                 aria-hidden="true"

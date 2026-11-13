@@ -4,7 +4,7 @@ import { cn } from '@/lib/utils';
 
 /** The look every dashboard card shares (light and dark themes come from the tokens). */
 export const dashPanel =
-  'rounded-card border-border bg-glass shadow-glass min-w-0 border p-4 sm:p-5';
+  'dash-panel rounded-card border-border bg-glass shadow-glass min-w-0 border p-4 sm:p-5';
 
 export type Tone = 'green' | 'red' | 'gold' | 'blue';
 

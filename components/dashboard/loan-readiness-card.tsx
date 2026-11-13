@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ChevronRight, CircleAlert, CircleCheck, Landmark } from 'lucide-react';
+import { ArrowRight, Check, ChevronRight, CircleAlert, CircleCheck, Landmark } from 'lucide-react';
 import { dashPanel, PanelHeading } from '@/components/dashboard/dashboard-ui';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ export function LoanReadinessCard() {
       <PanelHeading
         id="readiness-title"
         icon={Landmark}
-        title="Loan readiness"
+        title="Loan Readiness"
         sub="How ready your records are for a lender."
         aside={
           loansOn && (
@@ -78,6 +78,7 @@ export function LoanReadinessCard() {
                     )}
                   </span>
                   <span className="sr-only">{item.done ? '(done)' : '(to do)'}</span>
+                  {item.done && <Check size={16} aria-hidden="true" className="text-ink-green" />}
                   {href && <ChevronRight size={16} aria-hidden="true" className="text-text-mute" />}
                 </>
               );

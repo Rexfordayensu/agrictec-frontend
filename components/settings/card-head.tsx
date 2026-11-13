@@ -23,7 +23,7 @@ export function CardHead({
   const readOnly = useReadOnly();
   return (
     <div className="flex items-start gap-3">
-      <span className="bg-accent/12 text-ink-green inline-flex size-12 shrink-0 items-center justify-center rounded-2xl">
+      <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
         <Icon size={24} aria-hidden="true" />
       </span>
       <div className="min-w-0 flex-1">

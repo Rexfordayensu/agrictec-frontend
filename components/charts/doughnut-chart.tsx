@@ -19,7 +19,8 @@ export interface DoughnutChartProps {
   centerLabel?: ReactNode;
   ariaLabel?: string;
   className?: string;
-  emptyLabel?: string;
+  /** Shown in the middle when there is no data; null shows centerLabel instead. */
+  emptyLabel?: string | null;
 }
 
 export function DoughnutChart({
@@ -69,12 +70,12 @@ export function DoughnutChart({
         aria-label={isEmpty ? `${ariaLabel}: no data` : ariaLabel}
         role="img"
       />
-      {!isEmpty && centerLabel && (
+      {(!isEmpty || emptyLabel === null) && centerLabel && (
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
           {centerLabel}
         </div>
       )}
-      {isEmpty && (
+      {isEmpty && emptyLabel !== null && (
         <p className="text-text-mute pointer-events-none absolute inset-0 flex items-center justify-center text-sm">
           {emptyLabel}
         </p>

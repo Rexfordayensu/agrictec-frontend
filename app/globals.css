@@ -34,6 +34,13 @@
   --ink-purple: #c084fc;
   /* The logo's gold seed (AgriCtecMark). */
   --brand-seed: #f5c451;
+  /* Standard green icon tile (IconTile). Dark theme: a lighter green on a deep green tint, so the
+     icon keeps its contrast without a mint square on a dark card. */
+  --agrictec-icon-green: #5fd38a;
+  --agrictec-icon-green-bg: rgba(16, 130, 50, 0.26);
+  /* The same tile on a photo banner, which is dark green in both themes. */
+  --agrictec-icon-green-light: #108232;
+  --agrictec-icon-green-bg-light: #dbf4e7;
   color-scheme: dark;
 }
 
@@ -58,6 +65,8 @@
   --ink-gold: #92400e;
   --ink-purple: #7e22ce;
   --brand-seed: #e0a82e;
+  --agrictec-icon-green: #108232;
+  --agrictec-icon-green-bg: #dbf4e7;
   color-scheme: light;
 }
 
@@ -84,6 +93,11 @@
   --color-ink-blue: var(--ink-blue);
   --color-ink-gold: var(--ink-gold);
   --color-ink-purple: var(--ink-purple);
+  /* Icon tiles: text-icon on bg-icon-bg (photo banners: text-icon-light on bg-icon-light-bg). */
+  --color-icon: var(--agrictec-icon-green);
+  --color-icon-bg: var(--agrictec-icon-green-bg);
+  --color-icon-light: var(--agrictec-icon-green-light);
+  --color-icon-light-bg: var(--agrictec-icon-green-bg-light);
   --font-sans: var(--font-inter);
   --font-display: var(--font-outfit);
   --radius-card: 20px;

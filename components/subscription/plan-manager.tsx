@@ -150,7 +150,7 @@ export function PlanManager() {
           }}
         />
         <div className="flex items-center gap-6">
-          <span className="hidden size-24 shrink-0 items-center justify-center rounded-3xl bg-[#dff5e8] text-[#0b6b40] @md/plans:inline-flex">
+          <span className="bg-icon-light-bg text-icon-light hidden size-24 shrink-0 items-center justify-center rounded-3xl @md/plans:inline-flex">
             <Wallet size={44} aria-hidden="true" />
           </span>
           <span aria-hidden="true" className="hidden h-20 w-px bg-white/40 @md/plans:block" />
@@ -174,8 +174,8 @@ export function PlanManager() {
         className="rounded-card border-accent/25 bg-accent/6 flex flex-wrap items-center gap-x-6 gap-y-4 border p-4 sm:p-5"
       >
         <div className="flex shrink-0 items-center gap-4 whitespace-nowrap">
-          <span className="bg-accent/15 text-ink-green inline-flex size-14 shrink-0 items-center justify-center rounded-2xl">
-            <Crown size={28} aria-hidden="true" />
+          <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+            <Crown size={24} aria-hidden="true" />
           </span>
           <div className="min-w-0">
             <p className="text-text-dim text-sm">Your current plan</p>
@@ -254,8 +254,8 @@ export function PlanManager() {
                     Current Plan
                   </span>
                 )}
-                <span className="bg-accent/12 text-ink-green inline-flex size-11 items-center justify-center rounded-xl">
-                  <Icon size={22} aria-hidden="true" />
+                <span className="bg-icon-bg text-icon inline-flex size-12 items-center justify-center rounded-xl">
+                  <Icon size={24} aria-hidden="true" />
                 </span>
                 <h3 className="text-text mt-3 text-xl font-bold">{plan.name}</h3>
                 <p className="text-text mt-1 flex items-baseline gap-1">
@@ -432,7 +432,7 @@ function Stat({ icon: Icon, value, label }: { icon: LucideIcon; value: string; l
   return (
     <div className="border-border/70 min-w-0 pl-3 first:pl-0 @3xl/plans:pl-5 @3xl/plans:first:pl-0 [&:not(:first-child)]:border-l">
       <p className="text-text flex items-center gap-2 text-xl font-extrabold tabular-nums sm:text-2xl">
-        <Icon size={22} aria-hidden="true" className="text-ink-green shrink-0" />
+        <Icon size={22} aria-hidden="true" className="text-icon shrink-0" />
         {value}
       </p>
       <p className="text-text-dim mt-0.5 text-sm">{label}</p>

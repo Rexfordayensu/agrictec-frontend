@@ -111,7 +111,7 @@ export function ReportBuilder() {
     >
       <header className="border-border flex flex-wrap items-center justify-between gap-3 border-b px-5 py-4">
         <div className="flex items-center gap-3">
-          <span className="bg-purple/12 text-ink-purple inline-flex size-10 items-center justify-center rounded-xl">
+          <span className="bg-icon-bg text-icon inline-flex size-10 items-center justify-center rounded-xl">
             <Table2 size={19} aria-hidden="true" />
           </span>
           <div>

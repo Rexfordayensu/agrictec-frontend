@@ -81,7 +81,7 @@ const shortDate = (iso: string) => {
   return date.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'short',
-    ...(date.getFullYear() !== new Date().getFullYear() && { year: 'numeric' }),
+    year: 'numeric',
   });
 };
 
@@ -100,11 +100,11 @@ export function RecentTransactions({ limit = 5 }: { limit?: number }) {
     <section aria-labelledby="recent-title" className={cn(dashPanel, '@container')}>
       <PanelHeading
         id="recent-title"
-        title="Recent transactions"
-        sub="Your latest Mobile Money and farm entries."
+        title="Recent Transactions"
+        sub="Your latest Mobile Money and farm-related transactions."
         aside={
           <Link
-            href="/records"
+            href="/records?view=all"
             className="border-border text-ink-green hover:bg-glass-strong inline-flex shrink-0 items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold"
           >
             View all <ArrowRight size={13} aria-hidden="true" />

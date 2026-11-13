@@ -1,12 +1,12 @@
 'use client';
 
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, ChartColumn } from 'lucide-react';
 import { BarChart } from '@/components/charts/bar-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { ChartCard } from '@/components/records/chart-card';
 import { useFarmStats } from '@/hooks/use-farm-stats';
 import { sumSeries } from '@/lib/calculations/finance';
-import { formatGHS } from '@/lib/format';
+import { formatCompactGHS, formatGHS } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useFarmStore } from '@/store/farm-store';
 
@@ -28,16 +28,15 @@ export function MonthlyNetChart({ className }: { className?: string }) {
   );
 
   return (
-    <Card className={cn('flex flex-col', className)}>
-      <CardHeader className="flex-wrap">
-        <div>
-          <CardTitle>Monthly Net</CardTitle>
-          <CardSub>Monthly breakdown: income minus expenses</CardSub>
-        </div>
-      </CardHeader>
-
+    <ChartCard
+      id="monthly-net-title"
+      icon={ChartColumn}
+      title="Monthly Net"
+      sub="Monthly breakdown: income minus expenses"
+      className={className}
+    >
       {hasAny && (
-        <dl className="mb-4 flex flex-wrap gap-3">
+        <dl className="mt-4 flex flex-wrap gap-3">
           <div className="border-border bg-glass rounded-xl border px-3 py-2">
             <dt className="text-text-mute text-xs">Net this year</dt>
             <dd className={cn('text-sm font-bold', ytdNet < 0 ? 'text-ink-red' : 'text-text')}>
@@ -56,7 +55,7 @@ export function MonthlyNetChart({ className }: { className?: string }) {
         </dl>
       )}
 
-      <div className="relative mt-auto">
+      <div className="relative mt-4 flex-1">
         {!hasAny && (
           <p className="border-border bg-bg-2 text-text-dim absolute top-1/2 left-1/2 z-10 w-44 -translate-x-1/2 -translate-y-1/2 rounded-xl border px-3 py-3 text-center text-xs leading-relaxed shadow-md">
             <BarChart3 size={18} aria-hidden="true" className="text-text-mute mx-auto mb-1" />
@@ -65,7 +64,9 @@ export function MonthlyNetChart({ className }: { className?: string }) {
         )}
         <BarChart
           showAllLabels
-          height={260}
+          height={280}
+          formatValue={(v) => formatCompactGHS(v)}
+          emptyMax={1000}
           showLegend={false}
           ariaLabel={`Monthly net income for ${year}`}
           labels={MONTHS}
@@ -81,6 +82,6 @@ export function MonthlyNetChart({ className }: { className?: string }) {
           ]}
         />
       </div>
-    </Card>
+    </ChartCard>
   );
 }

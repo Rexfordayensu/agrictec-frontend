@@ -43,9 +43,9 @@
   padding-top: 0;
 }
 .report-stat > span > span {
-  width: 47px;
-  height: 47px;
-  border-radius: 15px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
 }
 .report-stat dt {
   font-size: var(--text-small);
@@ -142,9 +142,9 @@
   gap: 12px;
 }
 .report-download > div > span {
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
 }
 .report-download p {
   font-size: var(--text-small);
@@ -255,8 +255,8 @@
     padding: 14px;
   }
   .report-stat > span > span {
-    width: 37px;
-    height: 37px;
+    width: 40px;
+    height: 40px;
   }
   .report-stat dd:first-of-type {
     font-size: var(--text-xl);

@@ -117,3 +117,27 @@ test('the farm insight is a sentence about the server’s own figures, never sam
   );
   assert.match(farmInsight(base), /GHS 2,950 more than your expenses over the last 6 months/);
 });
+
+test('dashboard weather shows provider readings and never invents unavailable values', () => {
+  const { createElement } = require('react');
+  const { renderToStaticMarkup } = require('react-dom/server');
+  const { DashboardWeather } = require('../components/dashboard/dashboard-weather.tsx');
+  const report = {
+    provider: 'Open-Meteo',
+    updatedAt: '2026-11-13T18:00:00Z',
+    current: { temp: 28.2, description: 'Clear sky', humidity: 75, rainChance: 0, windKph: null },
+    daily: [],
+  };
+  const props = { report, location: 'Ejisu, Ashanti', loading: false, onRetry: () => {} };
+  const html = renderToStaticMarkup(createElement(DashboardWeather, props));
+  assert.match(html, /28.2/);
+  assert.match(html, /75%/);
+  assert.match(html, /0%/);
+  assert.match(html, /Ejisu, Ashanti/);
+  assert.match(html, /Open-Meteo/);
+  assert.doesNotMatch(html, /12 km\/h|26.9|48%/);
+  const missing = renderToStaticMarkup(createElement(DashboardWeather, { ...props, report: null }));
+  assert.match(missing, /unavailable right now/);
+  assert.match(missing, /Try again/);
+  assert.doesNotMatch(missing, /28.2|75%|Clear sky/);
+});

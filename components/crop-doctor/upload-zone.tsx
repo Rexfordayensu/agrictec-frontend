@@ -1,29 +1,17 @@
 'use client';
 
 import { useId, useRef, useState } from 'react';
-import { Camera, CloudUpload, ImagePlus } from 'lucide-react';
+import { Camera, ImagePlus } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { CameraCapture } from '@/components/crop-doctor/camera-capture';
 import { imageValidationError } from '@/lib/image/compress';
 import { cn } from '@/lib/utils';
 
-/** Viewfinder corner accents around the drop zone. */
-function Corners({ active }: { active: boolean }) {
-  const base = cn(
-    'pointer-events-none absolute size-6 transition-colors',
-    active ? 'border-[#34d399]' : 'border-accent/50 group-hover:border-[#34d399]',
-  );
-  return (
-    <span aria-hidden="true">
-      <span className={`${base} top-3 left-3 rounded-tl-xl border-t-[3px] border-l-[3px]`} />
-      <span className={`${base} top-3 right-3 rounded-tr-xl border-t-[3px] border-r-[3px]`} />
-      <span className={`${base} bottom-3 left-3 rounded-bl-xl border-b-[3px] border-l-[3px]`} />
-      <span className={`${base} right-3 bottom-3 rounded-br-xl border-r-[3px] border-b-[3px]`} />
-    </span>
-  );
-}
-
+/**
+ * The dashed photo area: drop a file anywhere on it, click (or Enter on) the prompt to browse,
+ * or use Take photo (live rear camera, falling back to the phone's camera app) / Upload photo.
+ */
 export function UploadZone({
   onFile,
   disabled = false,
@@ -44,6 +32,10 @@ export function UploadZone({
     if (error) return toast.error(error);
     onFile(file);
   }
+
+  const browse = () => {
+    if (!disabled) inputRef.current?.click();
+  };
 
   return (
     <>
@@ -74,45 +66,7 @@ export function UploadZone({
           event.currentTarget.value = '';
         }}
       />
-      <div className="mb-3">
-        <div role="group" aria-label="Crop photo options" className="grid grid-cols-2 gap-2">
-          <Button
-            icon={Camera}
-            disabled={disabled}
-            onClick={() => setCameraOpen(true)}
-            className="min-w-0 px-2 text-xs sm:px-3"
-          >
-            Take photo
-          </Button>
-          <Button
-            variant="ghost"
-            icon={ImagePlus}
-            disabled={disabled}
-            onClick={() => inputRef.current?.click()}
-            className="min-w-0 px-2 text-xs sm:px-3"
-          >
-            Upload photo
-          </Button>
-        </div>
-        <p className="text-text-mute mt-2 text-center text-xs leading-relaxed">
-          Use your rear camera for a clear, close-up leaf photo.
-        </p>
-      </div>
       <div
-        role="button"
-        tabIndex={disabled ? -1 : 0}
-        aria-label="Upload crop image"
-        aria-describedby={hintId}
-        aria-disabled={disabled}
-        onClick={() => {
-          if (!disabled) inputRef.current?.click();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            if (!disabled) inputRef.current?.click();
-          }
-        }}
         onDragEnter={(event) => {
           event.preventDefault();
           if (!disabled) {
@@ -136,25 +90,63 @@ export function UploadZone({
           acceptFile(event.dataTransfer.files[0]);
         }}
         className={cn(
-          'group relative flex min-h-72 flex-col items-center justify-center overflow-hidden rounded-2xl border px-6 py-10 text-center transition-all duration-200',
+          'flex flex-col items-center rounded-2xl border-2 border-dashed px-4 py-7 text-center transition-colors sm:px-6',
           dragging
             ? 'border-accent bg-accent/15 shadow-[0_0_0_4px_var(--accent-glow)]'
-            : 'border-border from-accent/10 to-purple/10 hover:border-accent/50 bg-linear-to-br via-transparent',
-          disabled ? 'cursor-not-allowed opacity-50' : 'cursor-pointer',
+            : 'border-accent/45 bg-accent/5',
+          disabled && 'opacity-60',
         )}
       >
-        <Corners active={dragging} />
-        <span className="relative mb-5 inline-flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-[#10b981] to-[#34d399] text-white shadow-[0_10px_30px_-8px_var(--accent-glow)] transition-transform duration-300 group-hover:scale-110">
-          <CloudUpload size={30} strokeWidth={1.75} aria-hidden="true" />
-        </span>
-        <p className="text-text text-base font-bold">
-          {dragging ? 'Drop your crop image here' : 'Drop a leaf photo here'}
-        </p>
-        <p className="text-text-dim mt-1 text-sm">or click to browse your photos</p>
-        <p
-          id={hintId}
-          className="bg-glass-strong text-text-mute mt-3 rounded-full px-3 py-1 text-xs"
+        <div
+          role="button"
+          tabIndex={disabled ? -1 : 0}
+          aria-label="Upload crop image"
+          aria-describedby={hintId}
+          aria-disabled={disabled}
+          onClick={browse}
+          onKeyDown={(event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              browse();
+            }
+          }}
+          className={cn(
+            'group focus-visible:outline-accent flex flex-col items-center rounded-2xl px-3 py-1 focus-visible:outline-2',
+            disabled ? 'cursor-not-allowed' : 'cursor-pointer',
+          )}
         >
+          <span className="bg-icon-bg text-icon inline-flex size-16 items-center justify-center rounded-xl transition-transform duration-200 group-hover:scale-105">
+            <Camera size={30} strokeWidth={1.8} aria-hidden="true" />
+          </span>
+          <p className="text-text mt-4 text-lg font-bold">
+            {dragging ? 'Drop your leaf photo here' : 'Take or upload a leaf photo'}
+          </p>
+          <p className="text-text-dim mt-1 text-sm">Drop a file here, or choose an option below.</p>
+        </div>
+        <div
+          role="group"
+          aria-label="Crop photo options"
+          className="mt-5 grid w-full max-w-sm grid-cols-2 gap-3"
+        >
+          <Button
+            icon={Camera}
+            disabled={disabled}
+            onClick={() => setCameraOpen(true)}
+            className="min-w-0 px-3"
+          >
+            Take photo
+          </Button>
+          <Button
+            variant="ghost"
+            icon={ImagePlus}
+            disabled={disabled}
+            onClick={browse}
+            className="min-w-0 px-3"
+          >
+            Upload photo
+          </Button>
+        </div>
+        <p id={hintId} className="text-text-mute mt-4 text-xs">
           PNG, JPG or WEBP up to 10MB
         </p>
       </div>

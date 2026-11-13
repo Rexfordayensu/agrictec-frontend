@@ -308,7 +308,7 @@ function CurrentPanel({ report, onChange }: { report: WeatherReport; onChange: (
         <dl className="grid grid-cols-2 gap-3 @2xl:grid-cols-4">
           {metrics.map((m) => (
             <div key={m.label} className="border-border rounded-2xl border p-3.5">
-              <dt className="text-text-dim flex items-center gap-2 text-small">
+              <dt className="text-text-dim text-small flex items-center gap-2">
                 <m.icon size={18} aria-hidden="true" className={m.tone} />
                 {m.label}
               </dt>
@@ -380,8 +380,8 @@ function Guidance({ report, today }: { report: WeatherReport; today: string }) {
           return (
             <li key={item.key} className={cn('rounded-2xl border p-4', tone.card)}>
               <div className="flex items-start gap-3">
-                <span className="bg-glass-strong text-ink-green inline-flex size-11 shrink-0 items-center justify-center rounded-xl">
-                  <Icon size={22} aria-hidden="true" />
+                <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+                  <Icon size={24} aria-hidden="true" />
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="flex flex-wrap items-center justify-between gap-2">
@@ -581,14 +581,13 @@ function Outlook({
       <dl className="mt-4 space-y-4 text-sm">
         <div className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)] items-start gap-3">
           <dt className="text-text-dim flex items-center gap-2">
-            <CalendarDays size={18} aria-hidden="true" className="text-ink-green" /> Current season
+            <CalendarDays size={18} aria-hidden="true" className="text-icon" /> Current season
           </dt>
           <dd className="text-ink-green font-semibold">{seasonFor(region, month)}</dd>
         </div>
         <div className="grid grid-cols-[minmax(0,10rem)_minmax(0,1fr)] items-start gap-3">
           <dt className="text-text-dim flex items-center gap-2">
-            <TrendingUp size={18} aria-hidden="true" className="text-ink-green" /> Outlook (next 7
-            days)
+            <TrendingUp size={18} aria-hidden="true" className="text-icon" /> Outlook (next 7 days)
           </dt>
           <dd className="text-text-dim">{outlookFor(days)}</dd>
         </div>
@@ -611,14 +610,13 @@ function QuickActions() {
           onClick={() => openRecordWithDefaults({ type: 'activity' })}
           className={tile}
         >
-          <CalendarDays size={20} aria-hidden="true" className="text-ink-green" /> Plan field
-          activities
+          <CalendarDays size={20} aria-hidden="true" className="text-icon" /> Plan field activities
         </button>
         <Link href="/settings/preferences" className={tile}>
-          <BellRing size={20} aria-hidden="true" className="text-ink-green" /> Set weather alert
+          <BellRing size={20} aria-hidden="true" className="text-icon" /> Set weather alert
         </Link>
         <Link href={assistant ? '/assistant' : '/crop-doctor'} className={tile}>
-          <FileText size={20} aria-hidden="true" className="text-ink-green" /> Get crop advice
+          <FileText size={20} aria-hidden="true" className="text-icon" /> Get crop advice
         </Link>
       </div>
     </section>
@@ -650,7 +648,7 @@ function Heading({
           {title}{' '}
           {titleNote && <span className="text-text-dim text-sm font-medium">{titleNote}</span>}
         </h2>
-        {sub && <p className="text-text-dim mt-0.5 text-small">{sub}</p>}
+        {sub && <p className="text-text-dim text-small mt-0.5">{sub}</p>}
       </div>
       {aside}
     </div>

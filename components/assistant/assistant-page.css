@@ -187,9 +187,10 @@
 }
 .assistant-sidebar > section > :first-child > svg:first-child {
   box-sizing: content-box;
-  padding: 8px;
-  background: #e6f8d947;
-  border-radius: 13px;
+  padding: 10px;
+  background: var(--agrictec-icon-green-bg);
+  color: var(--agrictec-icon-green);
+  border-radius: 12px;
   width: 20px;
   height: 20px;
 }
@@ -205,11 +206,12 @@
 }
 .assistant-glance li svg {
   box-sizing: content-box;
-  padding: 7px;
-  background: #d2f5e03d;
-  border-radius: 10px;
-  width: 18px;
-  height: 18px;
+  padding: 10px;
+  background: var(--agrictec-icon-green-bg);
+  color: var(--agrictec-icon-green);
+  border-radius: 12px;
+  width: 20px;
+  height: 20px;
 }
 .assistant-glance li span {
   font-size: var(--text-small);
@@ -228,12 +230,13 @@
 }
 .assistant-insights li > a > svg:first-child {
   box-sizing: content-box;
-  padding: 8px;
-  width: 18px;
-  height: 18px;
+  padding: 10px;
+  width: 20px;
+  height: 20px;
   margin: 0;
-  background: #adeda840;
-  border-radius: 11px;
+  background: var(--agrictec-icon-green-bg);
+  color: var(--agrictec-icon-green);
+  border-radius: 12px;
 }
 .assistant-insights li > a > span > span:first-child {
   font-size: var(--text-sm);
@@ -257,9 +260,9 @@
   gap: 12px;
 }
 .assistant-popular li > button > span:first-child {
-  width: 34px;
-  height: 34px;
-  border-radius: 10px;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
 }
 .assistant-popular li > button > span:last-of-type {
   font-size: var(--text-small);

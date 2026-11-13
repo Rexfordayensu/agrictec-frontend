@@ -18,7 +18,8 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { dashPanel, IconTile, type Tone } from '@/components/dashboard/dashboard-ui';
+import { dashPanel } from '@/components/dashboard/dashboard-ui';
+import { IconTile, type Tone } from '@/components/ui/icon-tile';
 import {
   CashFlowPanel,
   CategoryPanel,
@@ -512,7 +513,7 @@ export function EmptyFinancialReport({
   const openModal = useModalStore((s) => s.openModal);
   return (
     <section className={cn(panel, 'space-y-5')} aria-labelledby="empty-report-title">
-      <div className="bg-accent/10 text-ink-green inline-flex size-12 items-center justify-center rounded-2xl">
+      <div className="bg-icon-bg text-icon inline-flex size-12 items-center justify-center rounded-xl">
         <FileText size={24} aria-hidden="true" />
       </div>
       <div>

@@ -104,7 +104,7 @@ function Boosts({ credit }: { credit: Credit }) {
   return (
     <section aria-labelledby="boost-title" className={loanUi.panel}>
       <h3 id="boost-title" className={cn(loanUi.title, 'flex items-center gap-2')}>
-        <TrendingUp size={18} aria-hidden="true" className="text-ink-green" />
+        <TrendingUp size={18} aria-hidden="true" className="text-icon" />
         Raise your score
       </h3>
       {top.length === 0 ? (
@@ -139,7 +139,7 @@ function History({ credit }: { credit: Credit }) {
   return (
     <section aria-labelledby="history-title" className={loanUi.panel}>
       <h3 id="history-title" className={cn(loanUi.title, 'flex items-center gap-2')}>
-        <FileDown size={18} aria-hidden="true" className="text-ink-green" />
+        <FileDown size={18} aria-hidden="true" className="text-icon" />
         Your transaction history
       </h3>
       <p className="text-text-mute mt-1 text-xs">

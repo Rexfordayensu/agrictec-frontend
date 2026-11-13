@@ -51,7 +51,7 @@ export function PersonalInfoForm({ onDone }: { onDone?: () => void } = {}) {
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
-            <UserRound size={18} aria-hidden="true" className="text-ink-green" />
+            <UserRound size={18} aria-hidden="true" className="text-icon" />
             Personal information
           </CardTitle>
           <CardSub>Your name and contact details</CardSub>

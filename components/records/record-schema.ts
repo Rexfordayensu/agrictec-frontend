@@ -16,7 +16,7 @@ export const recordSchema = z
     amount: z.coerce.number({ error: 'Enter a number' }).min(0, 'Amount cannot be negative'),
     date: pastOrTodayDate,
     category: z.string().optional(),
-    direction: z.enum(['in','out']).optional(),
+    direction: z.enum(['in', 'out']).optional(),
     paymentMethod: z.string().max(80).optional(),
     externalReference: z.string().max(120).optional(),
     notes: z.string().max(500).optional(),

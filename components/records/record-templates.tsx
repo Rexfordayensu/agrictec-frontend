@@ -52,17 +52,17 @@ export function RecordTemplates({ className }: { className?: string }) {
       id="record-templates"
       aria-labelledby="templates-title"
       className={cn(
-        'rounded-card border-border bg-glass shadow-glass min-w-0 overflow-hidden border',
+        'rounded-card border-accent/30 bg-accent/6 shadow-glass min-w-0 overflow-hidden border',
         className,
       )}
     >
-      <div className="bg-accent/10 flex items-center gap-3 px-4 py-4 sm:px-5">
-        <Layers size={24} aria-hidden="true" className="text-ink-green shrink-0" />
+      <div className="flex items-center gap-3 px-4 pt-5 pb-2 sm:px-5">
+        <Layers size={30} aria-hidden="true" className="text-ink-green shrink-0" />
         <div>
-          <h2 id="templates-title" className="text-text text-sm font-bold">
+          <h2 id="templates-title" className="text-text text-lg font-bold">
             What you can record
           </h2>
-          <p className="text-text-mute text-xs">Common records for your farm</p>
+          <p className="text-text-dim text-sm">Common records for your farm</p>
         </div>
       </div>
       <ul className="space-y-2 p-3 sm:p-4">
@@ -73,7 +73,7 @@ export function RecordTemplates({ className }: { className?: string }) {
               {...readOnlyProps(readOnly)}
               onClick={readOnly ? undefined : () => openRecordWithDefaults(t.defaults)}
               className={cn(
-                'border-border hover:border-accent/40 hover:bg-glass-strong flex min-h-11 w-full items-center gap-3 rounded-xl border px-3 text-left text-sm transition-colors',
+                'border-border bg-bg-2 hover:border-accent/40 flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 text-left text-sm shadow-sm transition-colors',
                 readOnly && READ_ONLY_CLASS,
               )}
             >

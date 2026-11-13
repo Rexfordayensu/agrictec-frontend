@@ -1,21 +1,20 @@
 'use client';
 
 import Link from 'next/link';
-import { BarChart3, Info, Landmark, Wallet, TrendingDown } from 'lucide-react';
+import { BarChart3, Info, Coins, Wallet, ArrowDownRight } from 'lucide-react';
 import { dashPanel, IconTile, type Tone } from '@/components/dashboard/dashboard-ui';
 import { Skeleton } from '@/components/ui/skeleton';
 import type { DashboardSummary } from '@/lib/dashboard-summary';
-import { formatGHS } from '@/lib/format';
+
 import { SCORE_EXPLANATION } from '@/lib/loans/score-policy';
 import { cn } from '@/lib/utils';
 import { useCreditStore } from '@/store/credit-store';
 import type { LucideIcon } from 'lucide-react';
 
-const MIN = 300;
 const MAX = 850;
 const BAND_TONE: Record<string, string> = {
-  Building: 'bg-danger/80',
-  Fair: 'bg-gold',
+  Building: 'bg-accent',
+  Fair: 'bg-accent',
   Good: 'bg-accent/70',
   Excellent: 'bg-accent',
 };
@@ -28,12 +27,12 @@ export function OverviewStats({ summary }: { summary: DashboardSummary | null })
   const credit = useCreditStore((s) => s.summary);
   const period = summary ? `Last ${summary.months} months` : '';
   return (
-    <dl className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <dl className="dash-stats">
       <div className={cn(dashPanel, 'col-span-2 sm:col-span-1')}>
         <dt className="flex items-center gap-3">
           <IconTile icon={BarChart3} />
           <span className="text-text flex items-center gap-1 text-sm font-semibold">
-            AgriCtec score
+            AgriCtec Financial Score
             <span title={SCORE_EXPLANATION} className="text-text-mute">
               <Info size={14} aria-hidden="true" />
               <span className="sr-only">{SCORE_EXPLANATION}</span>
@@ -56,7 +55,7 @@ export function OverviewStats({ summary }: { summary: DashboardSummary | null })
                 <span
                   className={cn('block h-full rounded-full', BAND_TONE[credit.band] ?? 'bg-accent')}
                   style={{
-                    width: `${((Math.min(MAX, Math.max(MIN, credit.credit.score)) - MIN) / (MAX - MIN)) * 100}%`,
+                    width: `${(Math.min(MAX, Math.max(0, credit.credit.score)) / MAX) * 100}%`,
                   }}
                 />
               </span>
@@ -69,23 +68,23 @@ export function OverviewStats({ summary }: { summary: DashboardSummary | null })
       <Money
         icon={Wallet}
         tone="green"
-        label="Total income"
+        label="Total Income"
         period={period}
         value={summary?.income}
         valueClass="text-ink-green"
       />
       <Money
-        icon={TrendingDown}
+        icon={ArrowDownRight}
         tone="red"
-        label="Total expenses"
+        label="Total Expenses"
         period={period}
         value={summary?.expenses}
         valueClass="text-ink-red"
       />
       <Money
-        icon={Landmark}
-        tone="blue"
-        label="Net cash flow"
+        icon={Coins}
+        tone="green"
+        label="Net Cash Flow"
         wide
         period={period}
         value={summary?.profit}
@@ -132,7 +131,7 @@ function Money({
               valueClass,
             )}
           >
-            {formatGHS(value)}
+            {`${value < 0 ? '-' : ''}GHS ${Math.abs(value).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
           </span>
         )}
       </dd>
