@@ -67,7 +67,7 @@ function FarmGlance() {
   return (
     <section aria-labelledby="glance-title" className={cn(dashPanel, 'assistant-glance')}>
       <Link href="/records" className="group flex items-center gap-3">
-        <Sprout size={22} aria-hidden="true" className="text-ink-green" />
+        <Sprout size={20} aria-hidden="true" className="text-icon" />
         <h2 id="glance-title" className="text-text flex-1 text-lg font-bold">
           Your farm at a glance
         </h2>
@@ -91,7 +91,7 @@ function FarmGlance() {
                 href={r.href}
                 className="hover:bg-glass-strong flex items-center gap-3 px-4 py-3"
               >
-                <r.icon size={18} aria-hidden="true" className="text-ink-green shrink-0" />
+                <r.icon size={20} aria-hidden="true" className="text-icon shrink-0" />
                 <span className="text-text flex-1 text-sm">{r.label}</span>
                 <span className={cn('text-text text-sm tabular-nums', r.strong && 'font-bold')}>
                   {r.value}
@@ -132,7 +132,7 @@ function Insights() {
   return (
     <section aria-labelledby="insights-title" className={cn(dashPanel, 'assistant-insights')}>
       <h2 id="insights-title" className="text-text flex items-center gap-3 text-lg font-bold">
-        <Sparkles size={22} aria-hidden="true" className="text-ink-green" />
+        <Sparkles size={20} aria-hidden="true" className="text-icon" />
         Personalised insights
       </h2>
       {status !== 'ready' ? (
@@ -181,7 +181,7 @@ const POPULAR: { label: string; question: string; icon: LucideIcon; tone: string
     label: 'Crop planning and best practices',
     question: 'What are the best practices for planning my crops this season?',
     icon: Sprout,
-    tone: 'bg-accent/12 text-ink-green',
+    tone: 'bg-icon-bg text-icon',
   },
   {
     label: 'Pest and disease management',
@@ -194,7 +194,7 @@ const POPULAR: { label: string; question: string; icon: LucideIcon; tone: string
     question:
       'What are the current market prices for my crops, and how can I get a better price when I sell?',
     icon: ChartNoAxesColumnIncreasing,
-    tone: 'bg-accent/12 text-ink-green',
+    tone: 'bg-icon-bg text-icon',
   },
   {
     label: 'Financial records and reporting',
@@ -206,7 +206,7 @@ const POPULAR: { label: string; question: string; icon: LucideIcon; tone: string
     label: 'Loan requirements and preparation',
     question: 'What do lenders usually require for a farm loan, and how do I prepare?',
     icon: Landmark,
-    tone: 'bg-purple/12 text-ink-purple',
+    tone: 'bg-icon-bg text-icon',
   },
 ];
 
@@ -216,7 +216,7 @@ function PopularTopics() {
   return (
     <section aria-labelledby="popular-title" className={cn(dashPanel, 'assistant-popular')}>
       <h2 id="popular-title" className="text-text flex items-center gap-3 text-lg font-bold">
-        <Layers size={22} aria-hidden="true" className="text-ink-green" />
+        <Layers size={20} aria-hidden="true" className="text-icon" />
         Popular topics
       </h2>
       <ul className="divide-border mt-3 divide-y">
@@ -230,11 +230,11 @@ function PopularTopics() {
             >
               <span
                 className={cn(
-                  'inline-flex size-9 shrink-0 items-center justify-center rounded-xl',
+                  'inline-flex size-10 shrink-0 items-center justify-center rounded-xl',
                   t.tone,
                 )}
               >
-                <t.icon size={17} aria-hidden="true" />
+                <t.icon size={20} aria-hidden="true" />
               </span>
               <span className="text-text flex-1 text-sm font-medium">{t.label}</span>
               <ChevronRight size={16} aria-hidden="true" className="text-text-mute shrink-0" />

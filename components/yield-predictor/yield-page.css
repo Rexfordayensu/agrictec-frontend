@@ -1,0 +1,608 @@
+.yield-reference {
+  min-width: 0;
+}
+.yield-reference :is(h1, h2, h3) {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.5px;
+}
+.yield-reference .shadow-glass {
+  box-shadow: 0 4px 15px #244c6307;
+}
+.yield-hero {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  align-items: center;
+  gap: 25px;
+  min-height: 149px;
+  padding: 24px 27px;
+  border-radius: 19px;
+  overflow: hidden;
+  color: white;
+  background: #005b37 url('/images/weather/weather-banner.jpg') center 60% / cover;
+}
+.yield-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    90deg,
+    #005537 0%,
+    #005739fb 43%,
+    #005337b0 60%,
+    #e4b55122 87%,
+    #f8c95e30
+  );
+}
+.yield-hero-icon {
+  display: grid;
+  place-items: center;
+  width: 90px;
+  height: 90px;
+  flex-shrink: 0;
+  border-radius: 21px;
+  background: #ddffed;
+  color: #008b39;
+}
+.yield-hero-icon svg {
+  width: 46px;
+  height: 46px;
+  stroke-width: 2;
+}
+.yield-hero h1 {
+  font-size: 32px;
+  line-height: 1.2;
+  font-weight: 750;
+}
+.yield-hero p {
+  margin-top: 8px;
+  max-width: 510px;
+  font-size: 15px;
+  line-height: 1.55;
+}
+.yield-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.02fr) minmax(0, 1fr);
+  align-items: stretch;
+  gap: 12px;
+}
+.yield-plan {
+  padding: 17px !important;
+  border-radius: 22px;
+}
+.yield-plan > div:first-child {
+  margin-bottom: 23px;
+}
+.yield-plan h3 {
+  font-size: 20px;
+  gap: 16px;
+}
+.yield-plan h3 > svg {
+  box-sizing: content-box;
+  padding: 12px;
+  width: 23px;
+  height: 23px;
+  margin-right: 0;
+  border-radius: 14px;
+  background: #eaf9f1;
+  color: #008539;
+}
+.yield-plan h3 + p {
+  margin-left: 63px;
+  margin-top: -10px;
+  line-height: 1.4;
+}
+.yield-plan form {
+  display: flex;
+  flex-direction: column;
+  gap: 17px;
+}
+.yield-plan form > * {
+  margin-block: 0;
+}
+.yield-step-title {
+  font-size: 13px;
+  line-height: 22px;
+  margin-bottom: 6px !important;
+}
+.yield-step-number {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin-right: 8px;
+  border-radius: 50%;
+  background: linear-gradient(#40ba8c, #009652);
+  color: white;
+  font-weight: 700;
+}
+.yield-plan label.relative > span {
+  padding: 8px 10px;
+  gap: 9px;
+  border-radius: 14px;
+  align-items: center;
+}
+.yield-plan label.relative span.text-sm {
+  font-size: 13px;
+  line-height: 1.15;
+}
+.yield-plan label.relative span.text-xs {
+  font-size: 11px;
+  line-height: 1.2;
+}
+.yield-plan label.relative > span > span.size-5:empty {
+  display: none;
+}
+.yield-plan fieldset:first-child label > span {
+  min-height: 39px;
+  font-size: 12px;
+}
+.yield-plan #yield-acres {
+  background: var(--bg-2);
+  min-height: 40px;
+}
+.yield-plan form > button {
+  min-height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(#21bd83, #007e47);
+  box-shadow: 0 4px 10px #00834412;
+}
+.yield-plan [aria-label='Quick acreage'] button {
+  min-height: 30px;
+}
+.yield-estimate {
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: 23px;
+  padding: 8px;
+  background: var(--glass);
+}
+.yield-estimate-top {
+  padding: 18px 10px 12px;
+  background: linear-gradient(110deg, #e8f8f2, #f1fbf7);
+  border-radius: 18px 18px 0 0;
+}
+.yield-section-heading {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin: 0 7px 25px;
+}
+.yield-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  color: #008e36;
+  background: #e9faf1;
+}
+.yield-section-heading > .yield-icon {
+  width: 49px;
+  height: 49px;
+  background: #cdf6e3;
+}
+.yield-section-heading h2 {
+  font-size: 21px;
+  line-height: 1.3;
+  font-weight: 750;
+}
+.yield-section-heading p {
+  font-size: 13px;
+  margin-top: 2px;
+}
+.yield-estimate-figures {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr;
+  gap: 12px;
+  border-radius: 15px;
+  background: #ffffffdb;
+  padding: 20px 14px;
+}
+.yield-estimate-figures > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.yield-estimate-figures > div + div {
+  border-left: 1px solid #dae5eb;
+  padding-left: 16px;
+}
+.yield-estimate-figures svg {
+  width: 35px;
+  height: 35px;
+  color: #009e26;
+  flex-shrink: 0;
+}
+.yield-estimate-figures p {
+  font-size: 12px;
+}
+.yield-estimate-figures strong {
+  display: block;
+  font-size: 25px;
+  line-height: 1.35;
+  margin-top: 4px;
+  letter-spacing: -0.6px;
+  overflow-wrap: anywhere;
+}
+.yield-estimate-figures strong.yield-no-price {
+  font-size: 21px;
+}
+.yield-estimate-figures small {
+  display: block;
+  font-size: 12px;
+  margin-top: 5px;
+}
+.yield-estimate-body {
+  padding: 12px 5px 6px;
+}
+.yield-guidance {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 18px;
+  border-radius: 16px;
+  background: #eaf3ff;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.yield-guidance svg {
+  color: #087cff;
+  width: 20px;
+  flex-shrink: 0;
+}
+.yield-factors {
+  margin-top: 17px;
+  padding: 14px 16px;
+  border: 1px solid var(--border);
+  border-radius: 15px;
+}
+.yield-factors h3 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  font-weight: 750;
+  margin-bottom: 7px;
+}
+.yield-factors ul {
+  list-style: none;
+  padding: 0;
+}
+.yield-factors li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.yield-factors li p {
+  flex: 1;
+  padding: 13px 0;
+  border-bottom: 1px solid var(--border);
+}
+.yield-factors .yield-icon {
+  width: 38px;
+  height: 38px;
+}
+.yield-explanation {
+  margin-top: 17px;
+  padding: 11px 15px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  font-size: 12px;
+}
+.yield-explanation summary {
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+}
+.yield-explanation p {
+  line-height: 1.6;
+  margin-top: 10px;
+}
+.yield-stale {
+  padding: 9px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  background: #fff5d5;
+  border-radius: 10px;
+  color: #735000;
+}
+.yield-growing {
+  padding: 16px 18px !important;
+  border-radius: 20px;
+}
+.yield-growing h3 {
+  font-size: 18px;
+}
+.yield-growing dl {
+  min-width: 0;
+}
+.yield-growing dt {
+  text-transform: none;
+  font-size: 11px;
+  letter-spacing: 0;
+  font-weight: 400;
+}
+.yield-growing dd {
+  font-size: 13px;
+}
+.yield-growing ol {
+  gap: 17px;
+  margin-top: 17px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.yield-growing ol li {
+  background: color-mix(in srgb, var(--glass), #d7f2e5 18%);
+  border-radius: 15px;
+  gap: 12px;
+  padding: 16px;
+}
+.yield-growing ol li > span {
+  padding: 3px 10px;
+  font-size: 11px;
+}
+.yield-growing ol li > p {
+  font-size: 14px;
+  line-height: 1.4;
+}
+.yield-history {
+  border: 1px solid var(--border);
+  background: var(--glass);
+  border-radius: 16px;
+  padding: 12px 20px;
+}
+.yield-history summary {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+}
+.yield-history summary::before {
+  content: '›';
+  font-size: 22px;
+}
+.yield-history[open] summary::before {
+  transform: rotate(90deg);
+}
+.yield-history summary > svg {
+  color: #008a35;
+}
+.yield-history-view {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 400;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 7px 15px;
+}
+.yield-history > p {
+  margin-top: 15px;
+  font-size: 12px;
+  color: var(--text-mute);
+}
+.yield-history li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  align-items: center;
+  padding: 12px 0;
+  border-top: 1px solid var(--border);
+  font-size: 13px;
+}
+.yield-history li button {
+  margin-left: auto;
+  color: #00853f;
+  text-decoration: underline;
+  cursor: pointer;
+}
+:root.dark .yield-estimate-top {
+  background: linear-gradient(110deg, #073c30, #133b31);
+}
+:root.dark .yield-estimate-figures {
+  background: #142f2b;
+}
+:root.dark .yield-guidance {
+  background: #142d42;
+}
+:root.dark .yield-icon {
+  background: #123d2d;
+  color: #49dc91;
+}
+@media (min-width: 900px) {
+  body:has(.yield-reference) main {
+    margin-left: 230px;
+    padding-inline: 16px;
+    padding-top: 4px;
+  }
+  body:has(.yield-reference) aside {
+    width: 210px;
+    left: 5px;
+    top: 4px;
+    bottom: 12px;
+  }
+  body:has(.yield-reference) main > header {
+    min-height: 70px;
+    margin-bottom: 23px;
+    border-radius: 20px;
+  }
+  body:has(.yield-reference) main > header h1 {
+    font-size: 19px;
+  }
+}
+@media (min-width: 1450px) {
+  .yield-plan {
+    padding: 22px !important;
+  }
+  .yield-plan form {
+    gap: 21px;
+  }
+  .yield-hero {
+    min-height: 158px;
+  }
+  .yield-plan label.relative > span {
+    padding: 11px;
+  }
+  .yield-estimate-figures {
+    padding-block: 27px;
+  }
+  .yield-factors li p {
+    padding-block: 18px;
+  }
+}
+@media (max-width: 1120px) {
+  .yield-estimate-figures {
+    gap: 9px;
+    padding: 17px 10px;
+  }
+  .yield-estimate-figures > div {
+    gap: 7px;
+  }
+  .yield-estimate-figures svg {
+    width: 25px;
+  }
+  .yield-estimate-figures strong {
+    font-size: 21px;
+  }
+  .yield-estimate-figures > div + div {
+    padding-left: 9px;
+  }
+  .yield-plan label.relative > span {
+    gap: 6px;
+    padding: 8px;
+  }
+  .yield-plan label.relative > span > span.size-8 {
+    width: 25px;
+    height: 29px;
+  }
+  .yield-plan label.relative > span > span.size-5 {
+    width: 13px;
+  }
+  .yield-plan label.relative span.text-sm {
+    font-size: 12px;
+  }
+}
+@media (max-width: 1000px) {
+  .yield-workspace {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .yield-growing ol {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .yield-estimate-figures {
+    padding: 20px;
+  }
+  .yield-estimate-figures strong {
+    font-size: 26px;
+  }
+}
+@media (max-width: 600px) {
+  .yield-hero {
+    gap: 13px;
+    padding: 20px 16px;
+    min-height: 145px;
+  }
+  .yield-hero-icon {
+    width: 55px;
+    height: 60px;
+    border-radius: 15px;
+  }
+  .yield-hero-icon svg {
+    width: 32px;
+  }
+  .yield-hero h1 {
+    font-size: 24px;
+  }
+  .yield-hero p {
+    font-size: 12px;
+  }
+  .yield-hero::before {
+    background: linear-gradient(90deg, #005537f9, #005537cc);
+  }
+  .yield-plan {
+    padding: 15px !important;
+  }
+  .yield-plan h3 {
+    font-size: 18px;
+  }
+  .yield-plan form {
+    gap: 19px;
+  }
+  .yield-estimate-figures {
+    padding: 15px 10px;
+  }
+  .yield-estimate-figures strong {
+    font-size: 21px;
+  }
+  .yield-estimate-figures svg {
+    display: none;
+  }
+  .yield-section-heading h2 {
+    font-size: 19px;
+  }
+  .yield-factors {
+    padding: 12px;
+  }
+  .yield-growing ol {
+    gap: 10px;
+  }
+  .yield-growing ol li {
+    padding: 12px;
+  }
+  .yield-growing ol li > p {
+    font-size: 12px;
+  }
+  .yield-growing dl {
+    grid-template-columns: 1fr;
+  }
+  .yield-growing dl > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 15px;
+  }
+  .yield-history {
+    padding: 12px;
+  }
+  .yield-history summary {
+    gap: 8px;
+    font-size: 12px;
+  }
+  .yield-history-view {
+    padding: 7px 9px;
+  }
+}
+
+@media (min-width: 900px) {
+  body:has(.yield-reference) aside nav {
+    padding: 14px 8px;
+  }
+  body:has(.yield-reference) aside nav a {
+    font-size: 13px;
+    padding-inline: 10px;
+    gap: 10px;
+    min-height: 39px;
+  }
+  body:has(.yield-reference) aside nav > div {
+    margin-bottom: 17px;
+  }
+  body:has(.yield-reference) aside nav p {
+    font-size: 10px;
+  }
+}
+
+.yield-plan form > button {
+  color: white;
+}
+
+.yield-reference #yield-results-title {
+  scroll-margin-top: 120px;
+}

@@ -3,24 +3,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm, useWatch, type UseFormRegisterReturn } from 'react-hook-form';
-import {
-  Banknote,
-  ChartNoAxesCombined,
-  Check,
-  Gauge,
-  Minus,
-  Plus,
-  SlidersHorizontal,
-  Sparkles,
-  Wheat,
-} from 'lucide-react';
+import { Check, Minus, Plus, SlidersHorizontal, Sparkles, Wheat } from 'lucide-react';
 import { toast } from 'sonner';
-import { YieldResult } from '@/components/yield-predictor/yield-result';
-import { YieldBoosts } from '@/components/yield-predictor/yield-boosts';
+import { YieldEstimatePanel } from '@/components/yield-predictor/yield-estimate-panel';
+import { yieldService, type HarvestEstimate } from '@/services/yield.service';
 import {
   ACRE_PRESETS,
   FERTILIZER_OPTIONS,
-  inputStrength,
   IRRIGATION_OPTIONS,
   SEASON_OPTIONS,
   type YieldOption,
@@ -37,19 +26,25 @@ import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { CROP_TONES, CropIcon } from '@/components/ui/crop-icon';
 import { fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
-import { predictYield } from '@/lib/calculations/yield';
-import { usePlatformStore } from '@/store/platform-store';
 import { cn } from '@/lib/utils';
 import { useProfileStore } from '@/store/profile-store';
-import type { YieldResult as Prediction } from '@/types';
 import { useSubscriptionStore } from '@/store/subscription-store';
 
 interface Estimate {
   input: YieldFormValues;
-  result: Prediction;
+  result: HarvestEstimate;
 }
 
-const legendClass = 'text-text mb-2 text-sm font-semibold';
+const legendClass = 'yield-step-title text-text mb-2 text-sm font-semibold';
+
+function StepLabel({ text }: { text: string }) {
+  return (
+    <>
+      <span className="yield-step-number">{text.slice(0, 1)}</span>
+      {text.slice(3)}
+    </>
+  );
+}
 const activeClass = 'border-accent/50 bg-accent/15 text-ink-green';
 const idleClass = 'border-border bg-glass text-text-dim hover:text-text hover:border-accent/30';
 
@@ -72,7 +67,9 @@ function OptionCards<T extends string>({
 }) {
   return (
     <fieldset>
-      <legend className={legendClass}>{legend}</legend>
+      <legend className={legendClass}>
+        <StepLabel text={legend} />
+      </legend>
       <div className={cn('grid gap-2', columns)}>
         {options.map(({ value, label, hint, icon: Icon }) => {
           const active = selected === value;
@@ -133,8 +130,8 @@ function OptionCards<T extends string>({
 
 export function YieldForm() {
   const profile = useProfileStore((state) => state.profile);
-  const crops = usePlatformStore((s) => s.crops);
-  const prices = usePlatformStore((s) => s.marketPrices);
+  const [history, setHistory] = useState<Estimate[]>([]);
+  const [historyOpen, setHistoryOpen] = useState(false);
   const [estimate, setEstimate] = useState<Estimate | null>(null);
   const resultRef = useRef<HTMLHeadingElement>(null);
 
@@ -166,11 +163,6 @@ export function YieldForm() {
   const stale = Boolean(
     estimate && (!parsed.success || JSON.stringify(parsed.data) !== JSON.stringify(estimate.input)),
   );
-  const strength = inputStrength({
-    season: values.season ?? 'major',
-    fertilizer: values.fertilizer ?? 'both',
-    irrigation: values.irrigation ?? 'rainfed',
-  });
   const acres = Number(values.acres);
   const validAcres = Number.isFinite(acres) && acres > 0 ? acres : 0;
 
@@ -181,15 +173,15 @@ export function YieldForm() {
 
   return (
     <>
-      <div className="grid grid-cols-1 items-start gap-6 @4xl:grid-cols-2">
-        <Card className="rounded-3xl">
+      <div className="yield-workspace">
+        <Card className="yield-plan rounded-3xl">
           <CardHeader>
             <div>
               <CardTitle className="flex items-center gap-2">
                 <SlidersHorizontal size={17} aria-hidden="true" className="text-ink-green" />
                 Plan your harvest
               </CardTitle>
-              <CardSub>Review the selected choices so they match your farm.</CardSub>
+              <CardSub>Provide a few details about your crop and farm to get an estimate.</CardSub>
             </div>
           </CardHeader>
           <form
@@ -198,9 +190,9 @@ export function YieldForm() {
             onSubmit={handleSubmit(async (input) => {
               try {
                 useSubscriptionStore.getState().assertFeature('yieldPredictor');
-                // Await also supports a future API-backed implementation of predictYield.
-                const result = await predictYield(input, crops, prices);
+                const result = await yieldService.predict(input);
                 setEstimate({ input, result });
+                setHistory((items) => [{ input, result }, ...items].slice(0, 10));
               } catch {
                 toast.error('Could not predict your yield. Please try again.');
               }
@@ -208,7 +200,9 @@ export function YieldForm() {
             className="@container scroll-mt-28 space-y-5"
           >
             <fieldset>
-              <legend className={legendClass}>1. What crop are you growing?</legend>
+              <legend className={legendClass}>
+                <StepLabel text="1. What crop are you growing?" />
+              </legend>
               <div className="grid grid-cols-2 gap-2 @sm:grid-cols-4">
                 {YIELD_CROPS.map((option) => {
                   const active = crop === option;
@@ -244,7 +238,7 @@ export function YieldForm() {
 
             <div>
               <label htmlFor="yield-acres" className={cn(legendClass, 'block')}>
-                2. How many acres will you plant?
+                <StepLabel text="2. How many acres will you plant?" />
               </label>
               <div className="flex items-stretch gap-2">
                 <Button
@@ -347,121 +341,65 @@ export function YieldForm() {
               selected={values.irrigation}
               registration={register('irrigation')}
               columns="grid-cols-1 @sm:grid-cols-3"
-              stacked
             />
 
             <Button type="submit" icon={Sparkles} loading={isSubmitting} className="w-full">
               {estimate ? 'Update my estimate' : 'Estimate my harvest'}
             </Button>
-            <p className="text-text-mute text-center text-xs leading-relaxed">
-              This is a planning estimate, not a guaranteed harvest. Weather, pests, soil and prices
-              can change your results. Income shown is before costs.
-            </p>
-
-            <details className="border-border bg-glass rounded-2xl border p-4">
-              <summary className="text-text focus-visible:outline-accent cursor-pointer rounded text-xs font-semibold">
-                How your choices affect this estimate
-              </summary>
-              <p className="text-text-mute mt-3 text-xs leading-relaxed">
-                The model adjusts average crop yields using your season, fertilizer and watering
-                choices. The comparison below explains the model, rather than a guaranteed increase.
-              </p>
-              <div className="mt-3 flex items-center justify-between gap-2 text-xs">
-                <span className="text-text-dim inline-flex items-center gap-1.5 font-semibold">
-                  <Gauge size={14} aria-hidden="true" className="text-ink-green" />
-                  Estimated effect of your choices
-                </span>
-                <span className="text-text font-bold tabular-nums">
-                  +{strength.boost}% vs. baseline
-                </span>
-              </div>
-              <div
-                role="meter"
-                aria-label="Input strength"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(strength.share * 100)}
-                aria-valuetext={`${Math.round(strength.share * 100)}% of the best possible inputs`}
-                className="bg-glass-strong mt-2.5 h-2 overflow-hidden rounded-full"
-              >
-                <div
-                  className="h-full rounded-full bg-linear-to-r from-[#f5c451] to-[#10b981] transition-[width] duration-500"
-                  style={{ width: `${Math.max(4, strength.share * 100)}%` }}
-                />
-              </div>
-              <p className="text-text-mute mt-2 text-xs">
-                {strength.share >= 1
-                  ? 'You’ve chosen the strongest combination of inputs.'
-                  : `${Math.round(strength.share * 100)}% of the best possible inputs.`}
-              </p>
-            </details>
           </form>
         </Card>
 
-        <div
-          role="region"
-          aria-labelledby="yield-results-title"
-          aria-live="polite"
-          className="space-y-4 @4xl:sticky @4xl:top-28"
-        >
-          <h2
-            ref={resultRef}
-            id="yield-results-title"
-            tabIndex={-1}
-            className="text-ink-green font-display focus-visible:outline-accent scroll-mt-28 rounded text-xl font-bold"
-          >
-            Your harvest estimate
-          </h2>
-          {estimate && (
-            <a
-              href="#yield-form"
-              className="text-ink-green focus-visible:outline-accent inline-flex min-h-11 items-center rounded text-sm font-semibold underline underline-offset-4"
-            >
-              Edit my farm choices
-            </a>
-          )}
-          {estimate ? (
-            <>
-              <YieldResult
-                key={JSON.stringify(estimate.input)}
-                input={estimate.input}
-                result={estimate.result}
-                stale={stale}
-              />
-              {!stale && <YieldBoosts input={estimate.input} result={estimate.result} />}
-            </>
-          ) : (
-            <Card className="rounded-3xl">
-              <div className="flex flex-col items-center justify-center px-4 py-8 text-center">
-                <span className="bg-accent/15 text-ink-green inline-flex size-16 items-center justify-center rounded-2xl">
-                  <ChartNoAxesCombined size={30} strokeWidth={1.75} aria-hidden="true" />
-                </span>
-                <h3 className="text-text mt-5 text-lg font-bold">Ready when you are</h3>
-                <p className="text-text-dim mt-1.5 max-w-sm text-sm">
-                  Answer the five questions and select “Estimate my harvest” to see your results
-                  here.
-                </p>
-                <ul className="mt-6 grid w-full max-w-sm gap-2 text-left">
-                  {[
-                    { icon: Wheat, text: 'Harvest range in tonnes' },
-                    { icon: Banknote, text: 'Revenue at the published market price' },
-                    { icon: Sparkles, text: 'Which inputs would raise it most' },
-                  ].map(({ icon: Icon, text }) => (
-                    <li
-                      key={text}
-                      className="border-border bg-glass text-text-dim flex items-center gap-3 rounded-xl border border-dashed px-3 py-2.5 text-xs"
-                    >
-                      <Icon size={15} aria-hidden="true" className="text-ink-green shrink-0" />
-                      {text}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </Card>
-          )}
-        </div>
+        <YieldEstimatePanel
+          input={estimate?.input ?? null}
+          result={estimate?.result ?? null}
+          crop={crop}
+          stale={stale}
+          headingRef={resultRef}
+        />
       </div>
       <YieldTips crop={crop} />
+      <details
+        className="yield-history"
+        open={historyOpen}
+        onToggle={(event) => setHistoryOpen(event.currentTarget.open)}
+      >
+        <summary>
+          <Wheat size={21} aria-hidden="true" />
+          <span>Your recent estimates</span>
+          <span className="yield-history-view">{historyOpen ? 'Hide' : 'View all'} ↗</span>
+        </summary>
+        <p>Estimates from this visit. These are not saved after leaving this page.</p>
+        {history.length ? (
+          <ul>
+            {history.map((item, index) => (
+              <li key={index}>
+                <span>
+                  {item.input.crop} · {item.input.acres} acres · {item.input.season} season
+                </span>
+                <strong>{item.result.expected} tonnes</strong>
+                <button
+                  type="button"
+                  onClick={() => {
+                    for (const key of [
+                      'crop',
+                      'acres',
+                      'season',
+                      'fertilizer',
+                      'irrigation',
+                    ] as const)
+                      setValue(key, item.input[key]);
+                    setEstimate(item);
+                  }}
+                >
+                  View estimate
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>No estimates yet. Plan your harvest above to get started.</p>
+        )}
+      </details>
     </>
   );
 }

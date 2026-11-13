@@ -40,7 +40,7 @@ export function SettingsCard({
           <span
             className={cn(
               'inline-flex size-10 shrink-0 items-center justify-center rounded-xl',
-              danger ? 'bg-danger/15 text-ink-red' : 'bg-purple/12 text-ink-purple',
+              danger ? 'bg-danger/15 text-ink-red' : 'bg-icon-bg text-icon',
             )}
           >
             <Icon size={19} aria-hidden="true" />

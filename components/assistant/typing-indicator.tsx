@@ -5,7 +5,7 @@ export function TypingIndicator() {
     <div role="status" aria-label="Assistant is typing" className="flex items-start gap-2 sm:gap-3">
       <div
         aria-hidden="true"
-        className="border-purple/20 bg-purple/10 text-ink-purple inline-flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9"
+        className="border-icon/20 bg-icon-bg text-icon inline-flex size-8 shrink-0 items-center justify-center rounded-xl border sm:size-9"
       >
         <Bot size={17} />
       </div>

@@ -44,7 +44,7 @@ export function RuleSection({
       )}
     >
       <header className="flex items-start gap-3 px-5 pt-4 pb-3">
-        <span className="bg-purple/12 text-ink-purple inline-flex size-9 shrink-0 items-center justify-center rounded-xl">
+        <span className="bg-icon-bg text-icon inline-flex size-10 shrink-0 items-center justify-center rounded-xl">
           <Icon size={17} aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">

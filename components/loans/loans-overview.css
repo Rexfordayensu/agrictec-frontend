@@ -114,9 +114,9 @@
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #bcefdc70, #dff7ee90);
-  color: var(--ink-green);
+  border-radius: 12px;
+  background: var(--agrictec-icon-green-bg);
+  color: var(--agrictec-icon-green);
   flex-shrink: 0;
 }
 .loans-summary-grid {
@@ -143,8 +143,8 @@
   box-shadow: 0 8px 16px #16544213;
 }
 .loans-summary-card > .loans-icon {
-  width: 45px;
-  height: 45px;
+  width: 48px;
+  height: 48px;
 }
 .loans-summary-card h3 {
   font-size: var(--text-xs);
@@ -222,8 +222,8 @@
   padding: 15px 16px 12px;
 }
 .loans-panel-heading > .loans-icon {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 }
 .loans-panel-heading > div {
   min-width: 0;
@@ -350,8 +350,8 @@
   min-width: 0;
 }
 .loans-score-explanation summary > .loans-icon {
-  width: 36px;
-  height: 36px;
+  width: 40px;
+  height: 40px;
 }
 .loans-score-explanation h3 {
   font-size: var(--text-sm);
@@ -469,7 +469,7 @@
 .loans-history-label .loans-icon {
   width: 27px;
   height: 27px;
-  background: #d8f6e54a;
+  background: var(--agrictec-icon-green-bg);
 }
 .loans-history-label .loans-icon svg {
   width: 17px;
@@ -693,8 +693,8 @@
   border-color: #62bda3;
 }
 .loans-improvement-list > a > .loans-icon {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
 }
 .loans-improvement-list > a > span:nth-child(2) {
   flex: 1;
@@ -892,8 +892,8 @@
     min-height: 113px;
   }
   .loans-summary-card > .loans-icon {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
   }
   .loans-summary-card > .loans-icon svg {
     width: 18px;

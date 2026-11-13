@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState, type FormEvent } from 'react';
+import { useEffect, useId, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import {
   AlertTriangle,
@@ -20,6 +20,7 @@ import {
   XCircle,
   type LucideIcon,
 } from 'lucide-react';
+import { DashboardWeather } from '@/components/dashboard/dashboard-weather';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -43,8 +44,11 @@ import {
   GHANA_WEATHER_PLACES,
   requestWeatherLocation,
   validWeatherLocation,
+  weatherLocationKey,
+  nameWeatherLocation,
 } from '@/lib/market/weather-location';
 import { cn } from '@/lib/utils';
+import { geocodingService } from '@/services/geocoding.service';
 import { sessionStore } from '@/services/storage';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
 import { useProfileStore } from '@/store/profile-store';
@@ -66,9 +70,11 @@ export function farmLocation(gps: { lat: number; lng: number }, region?: string)
 export function WeatherCard({
   scope = 'farmer',
   compact = false,
+  dashboard = false,
 }: {
   scope?: 'farmer' | 'admin';
   compact?: boolean;
+  dashboard?: boolean;
 }) {
   const farmerId = useProfileStore((s) => s.userId);
   const farmRegion = useProfileStore((s) => s.profile?.region);
@@ -84,6 +90,7 @@ export function WeatherCard({
       farm={farm}
       region={scope === 'farmer' ? farmRegion : undefined}
       compact={compact}
+      dashboard={dashboard}
       weatherHref={scope === 'admin' ? '/admin/content/weather' : '/weather'}
     />
   );
@@ -94,12 +101,14 @@ function WeatherPanel({
   farm,
   region: farmRegion,
   compact,
+  dashboard,
   weatherHref,
 }: {
   storageKey: string;
   farm: WeatherLocation | null;
   region?: string;
   compact: boolean;
+  dashboard?: boolean;
   weatherHref: string;
 }) {
   const id = useId();
@@ -165,9 +174,35 @@ function WeatherPanel({
     });
   }
 
+  const [named, setNamed] = useState<{ key: string; label: string } | null>(null);
+  const locationKey = weatherLocationKey(location);
+  useEffect(() => {
+    if (!dashboard || location.kind !== 'coordinates') return;
+    let active = true;
+    void nameWeatherLocation(location, geocodingService.reverse).then((next) => {
+      const label =
+        [next.village || next.city, next.region].filter(Boolean).join(', ') || next.label;
+      if (active) setNamed({ key: locationKey, label });
+    });
+    return () => {
+      active = false;
+    };
+  }, [dashboard, location, locationKey]);
+  const dashboardPlace = named?.key === locationKey ? named.label : location.label;
+
   const report = state.status === 'ready' ? state.data : null;
   const today = ghanaDate();
   const warnings = report ? weatherWarnings(report, seasonRegion, today) : [];
+
+  if (compact && dashboard)
+    return (
+      <DashboardWeather
+        report={report}
+        location={dashboardPlace}
+        loading={state.status === 'loading' || state.status === 'idle'}
+        onRetry={retry}
+      />
+    );
 
   if (compact)
     return (

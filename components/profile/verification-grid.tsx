@@ -137,7 +137,7 @@ export function VerificationGrid() {
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
-            <BadgeCheck size={18} aria-hidden="true" className="text-ink-green" />
+            <BadgeCheck size={18} aria-hidden="true" className="text-icon" />
             Identity & verification
           </CardTitle>
           <CardSub>

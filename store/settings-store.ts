@@ -12,10 +12,14 @@ interface SettingsState {
   userId: string | null;
   language: Language;
   notifications: NotificationSettings;
+  /** Whether this AgriCtec can send SMS at all (from the server). */
+  smsAvailable: boolean;
   status: StoreStatus;
   load: (userId: string, options?: LoadOptions) => Promise<void>;
   setLanguage: (language: Language) => Promise<void>;
   toggleNotification: (key: keyof NotificationSettings) => Promise<void>;
+  /** Saves language and alert choices together (the Preferences page's Save changes). */
+  saveAll: (next: Pick<SettingsState, 'language' | 'notifications'>) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>()((set, get) => {
@@ -37,7 +41,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
       .then(async () => {
         if (get().userId !== userId) return;
         const saved = await settingsService.save(userId, change(get()));
-        if (get().userId === userId) set(saved);
+        if (get().userId === userId) set({ ...saved, smsAvailable: saved.smsAvailable === true });
       });
     saves = task;
     return task;
@@ -47,6 +51,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
     userId: null,
     language: DEFAULT_SETTINGS.language,
     notifications: DEFAULT_SETTINGS.notifications,
+    smsAvailable: false,
     status: 'idle',
 
     load: async (userId, { silent = false } = {}) => {
@@ -54,7 +59,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
       try {
         const settings = await settingsService.get(userId);
         if (get().userId !== userId) return;
-        set({ ...settings, status: 'ready' });
+        set({ ...settings, smsAvailable: settings.smsAvailable === true, status: 'ready' });
       } catch (error) {
         set({ status: 'error' });
         throw error;
@@ -68,5 +73,6 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
         language: current.language,
         notifications: { ...current.notifications, [key]: !current.notifications[key] },
       })),
+    saveAll: (next) => update(() => next),
   };
 });

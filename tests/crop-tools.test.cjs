@@ -76,9 +76,12 @@ test('upload validation rejects PDFs, unsupported images and 15MB photos with ex
     assert.equal(imageValidationError({ type, size: MAX_IMAGE_BYTES }), null);
   }
   // Refused before anything is sent to the API.
-  await assert.rejects(aiService.diagnose(new File(['pdf'], 'leaf.pdf', { type: 'application/pdf' })), {
-    message: unsupported,
-  });
+  await assert.rejects(
+    aiService.diagnose(new File(['pdf'], 'leaf.pdf', { type: 'application/pdf' })),
+    {
+      message: unsupported,
+    },
+  );
   await assert.rejects(
     aiService.diagnose({ name: 'large.jpg', type: 'image/jpeg', size: 15 * 1024 * 1024 }),
     { message: oversized },
@@ -340,7 +343,10 @@ test('yield is repeatable and scales by acreage; revenue only from a published p
       .revenue,
     null,
   );
-  assert.equal(predictYield(yieldInput, undefined, [{ ...maizePrice, priceMax: 450 }]).revenue, null);
+  assert.equal(
+    predictYield(yieldInput, undefined, [{ ...maizePrice, priceMax: 450 }]).revenue,
+    null,
+  );
   for (const crop of YIELD_CROPS) {
     const estimate = predictYield({ ...yieldInput, crop });
     assert.ok(estimate.low <= estimate.expected && estimate.expected <= estimate.high);
@@ -438,4 +444,72 @@ test('upload markup exposes keyboard-accessible controls and diagnosis content s
   assert.match(diagnosis, /AI diagnosis/);
   assert.doesNotMatch(diagnosis, /Mock/);
   assert.doesNotMatch(diagnosis, /<script>|<b>/);
+});
+
+// The server uses separate price provenance fields; the UI consumes priceSource.
+test('yield API maps published price provenance and preserves unavailable revenue', async () => {
+  const { yieldService } = require('../services/yield.service.ts');
+  const original = global.fetch;
+  let body;
+  const answer = {
+    low: 9,
+    expected: 10,
+    high: 11,
+    perAcre: 5,
+    revenue: 40000,
+    pricePerTonne: 4000,
+    priceMarket: 'Ashanti',
+    priceObservedAt: '2026-10-01',
+    insight: 'Use timely inputs.',
+    tips: ['Scout weekly.'],
+  };
+  global.fetch = async (url, options) => {
+    assert.match(url, /\/me\/yield$/);
+    assert.equal(options.method, 'POST');
+    body = JSON.parse(options.body);
+    return new Response(JSON.stringify(answer), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  };
+  try {
+    const result = await yieldService.predict(yieldInput);
+    assert.deepEqual(body, yieldInput);
+    assert.deepEqual(result.priceSource, { where: 'Ashanti', observedAt: '2026-10-01' });
+    assert.deepEqual(result.tips, ['Scout weekly.']);
+    answer.revenue = null;
+    answer.pricePerTonne = null;
+    answer.priceMarket = null;
+    answer.priceObservedAt = null;
+    const noPrice = await yieldService.predict(yieldInput);
+    assert.equal(noPrice.revenue, null);
+    assert.equal(noPrice.priceSource, null);
+  } finally {
+    global.fetch = original;
+  }
+});
+
+test('estimate panel shows actual results, missing prices and stale plan notices', () => {
+  const { YieldEstimatePanel } = require('../components/yield-predictor/yield-estimate-panel.tsx');
+  const props = {
+    input: yieldInput,
+    result: {
+      ...predictYield(yieldInput),
+      insight: 'A planning estimate.',
+      tips: ['Scout weekly.'],
+    },
+    crop: 'Maize',
+    stale: true,
+    headingRef: null,
+  };
+  const html = renderToStaticMarkup(createElement(YieldEstimatePanel, props));
+  assert.match(html, /10.4 tonnes/);
+  assert.match(html, /Not available/);
+  assert.match(html, /Your choices have changed/);
+  assert.match(html, /Scout weekly/);
+  const empty = renderToStaticMarkup(
+    createElement(YieldEstimatePanel, { ...props, input: null, result: null, stale: false }),
+  );
+  assert.match(empty, /Complete your plan/);
+  assert.doesNotMatch(empty, /18,750|12.5 tonnes/);
 });

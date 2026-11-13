@@ -38,7 +38,7 @@ export function DashboardHero() {
           <Leaf size={20} />
         </span>
         <span className="min-w-0">
-          <strong>Farmer profile</strong>
+          <strong>Farmer Profile</strong>
           <small>{complete}% complete</small>
         </span>
         <span

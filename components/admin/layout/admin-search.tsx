@@ -288,7 +288,7 @@ export function AdminSearch() {
                 index === activeIndex && 'bg-glass-strong',
               )}
             >
-              <span className="bg-purple/15 text-ink-purple inline-flex size-8 shrink-0 items-center justify-center rounded-lg">
+              <span className="bg-icon-bg text-icon inline-flex size-8 shrink-0 items-center justify-center rounded-xl">
                 <Icon size={15} aria-hidden="true" />
               </span>
               <span className="min-w-0 flex-1">

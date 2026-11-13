@@ -57,10 +57,10 @@ export function RecordsSummary({ rows, filtered }: { rows: FarmRecord[]; filtere
   const activities = rows.filter((r) => r.type === 'activity').length;
 
   return (
-    <div className="records-summary grid grid-cols-2 gap-3 @4xl:grid-cols-4">
+    <div className="records-summary grid grid-cols-2 gap-3 @3xl:grid-cols-4">
       <SummaryTile
         icon={ArrowUpRight}
-        tone="bg-accent/15 text-ink-green"
+        tone="bg-icon-bg text-icon"
         label="Income"
         value={formatGHS(income)}
         hint={scope}
@@ -74,7 +74,7 @@ export function RecordsSummary({ rows, filtered }: { rows: FarmRecord[]; filtere
       />
       <SummaryTile
         icon={Scale}
-        tone="bg-purple/15 text-ink-purple"
+        tone="bg-icon-bg text-icon"
         label="Net"
         value={formatGHS(net)}
         hint={net >= 0 ? 'Profit' : 'Loss'}

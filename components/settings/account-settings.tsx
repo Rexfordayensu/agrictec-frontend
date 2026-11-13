@@ -19,7 +19,7 @@ export function AccountSettings() {
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
-            <CreditCard size={18} aria-hidden="true" className="text-ink-green" />
+            <CreditCard size={18} aria-hidden="true" className="text-icon" />
             Account
           </CardTitle>
           <CardSub>Your sign-in details</CardSub>

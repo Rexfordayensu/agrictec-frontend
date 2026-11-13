@@ -1,16 +1,21 @@
 'use client';
 
+import { ChartNoAxesCombined } from 'lucide-react';
 import { useProfileStore } from '@/store/profile-store';
 
 export function YieldHero() {
   return (
-    <header>
-      <h1 className="font-display text-ink-green text-display leading-tight font-bold">
-        AI Yield Predictor
-      </h1>
-      <p className="text-text-dim mt-1 text-sm">
-        Estimate your harvest and income. Start with your crop and farm size below.
-      </p>
+    <header className="yield-hero">
+      <span className="yield-hero-icon">
+        <ChartNoAxesCombined aria-hidden="true" />
+      </span>
+      <div>
+        <h1>AI Yield Predictor</h1>
+        <p>
+          Estimate your harvest and income using your crop, farm size and
+          <br className="hidden lg:block" /> farming plan.
+        </p>
+      </div>
     </header>
   );
 }

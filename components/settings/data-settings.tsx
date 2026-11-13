@@ -75,7 +75,7 @@ export function DataSettings() {
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
-            <Database size={18} aria-hidden="true" className="text-ink-green" />
+            <Database size={18} aria-hidden="true" className="text-icon" />
             Your data, your control
           </CardTitle>
           <CardSub>Download a copy of your data, restore one, or delete it</CardSub>

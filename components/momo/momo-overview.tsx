@@ -19,7 +19,8 @@ import {
 import { BarChart } from '@/components/charts/bar-chart';
 import { DoughnutChart } from '@/components/charts/doughnut-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
-import { dashPanel, IconTile, type Tone } from '@/components/dashboard/dashboard-ui';
+import { dashPanel } from '@/components/dashboard/dashboard-ui';
+import { IconTile, type Tone } from '@/components/ui/icon-tile';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useMomoSummary } from '@/hooks/use-momo-summary';
 import { movedLabel, vsLastMonth } from '@/lib/momo-display';
@@ -434,7 +435,7 @@ function UseRecords({ className }: { className?: string }) {
           'Add evidence for a loan application',
         ].map((item) => (
           <li key={item} className="flex items-center gap-2.5">
-            <Check size={18} aria-hidden="true" className="text-ink-green shrink-0" /> {item}
+            <Check size={18} aria-hidden="true" className="text-icon shrink-0" /> {item}
           </li>
         ))}
       </ul>

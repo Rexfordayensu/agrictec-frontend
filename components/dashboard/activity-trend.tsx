@@ -27,7 +27,7 @@ export function ActivityTrend({
     <section aria-labelledby="trend-title" className={cn(dashPanel, 'flex flex-col')}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <h2 id="trend-title" className="text-text text-lg font-bold">
-          Financial activity trend
+          Financial Activity Trend
         </h2>
         <div className="flex items-center gap-3">
           <span className="text-text-dim flex items-center gap-3 text-xs">

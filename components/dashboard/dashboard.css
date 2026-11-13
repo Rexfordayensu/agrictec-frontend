@@ -133,3 +133,696 @@
     align-self: center;
   }
 }
+
+/* Farmer overview reference layout; shared cards on other pages are unaffected. */
+.dashboard-reference {
+  min-width: 0;
+  gap: 17px;
+}
+.dashboard-reference :is(h2, h3) {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.5px;
+}
+.dashboard-reference .dash-panel {
+  border-radius: 19px;
+  padding: 20px;
+  background: var(--glass);
+  box-shadow:
+    0 3px 8px #244c6305,
+    0 8px 20px #244c6308;
+}
+.dashboard-reference .dash-hero {
+  min-height: 182px;
+  border-radius: 19px;
+  padding: 27px 34px;
+  grid-template-columns: minmax(0, 1fr) 255px;
+  background: linear-gradient(100deg, #005c4f, #008558 75%, #005c3e);
+}
+.dashboard-reference .dash-hero-photo {
+  inset: 0 33% 0 12%;
+  opacity: 1;
+  mask-image: linear-gradient(90deg, transparent, #000 28%, #000 85%, transparent);
+}
+.dashboard-reference .dash-hero-photo img {
+  object-position: 82% 0%;
+}
+.dashboard-reference .dash-hero-copy {
+  max-width: 390px;
+}
+.dashboard-reference .dash-hero-eyebrow {
+  font-size: 13px;
+  letter-spacing: 1.6px;
+}
+.dashboard-reference .dash-hero-copy h2 {
+  font-size: 39px;
+  margin-top: 10px;
+}
+.dashboard-reference .dash-hero-copy p:last-child {
+  font-size: 14px;
+  line-height: 1.55;
+  margin-top: 10px;
+}
+.dashboard-reference .dash-hero-profile {
+  padding: 15px 16px;
+  border-radius: 17px;
+  box-shadow: none;
+  gap: 1px 13px;
+}
+.dashboard-reference .dash-hero-profile strong {
+  font-size: 13px;
+}
+.dashboard-reference .dash-hero-profile small {
+  font-size: 12px;
+  color: #1d3343;
+}
+.dashboard-reference .dash-hero-profile-bar {
+  height: 11px;
+  margin-top: 10px;
+  background: #dce2e6;
+}
+.dashboard-reference .dash-hero-profile-bar i {
+  background: linear-gradient(90deg, #008650, #08a75a);
+}
+.dashboard-reference .dash-hero-profile-icon {
+  background: linear-gradient(120deg, #50e2aa, #00a457);
+  width: 42px;
+  height: 42px;
+}
+.dash-stats {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr 1fr;
+  gap: 15px;
+}
+.dashboard-reference .dash-stats > div {
+  grid-column: auto;
+  min-height: 123px;
+  padding: 16px;
+}
+.dashboard-reference .dash-stats dt {
+  gap: 13px;
+}
+.dashboard-reference .dash-stats dt > span:first-child {
+  width: 41px;
+  height: 41px;
+  border-radius: 12px;
+}
+.dashboard-reference .dash-stats dt > span:first-child svg {
+  width: 23px;
+  height: 23px;
+}
+.dashboard-reference .dash-stats dt > span:last-child {
+  font-size: 12px;
+}
+.dashboard-reference .dash-stats dt > span:last-child > span:first-child {
+  font-size: 12px;
+}
+.dashboard-reference .dash-stats dt > span:last-child > span:last-child {
+  margin-top: 2px;
+}
+.dashboard-reference .dash-stats dd {
+  margin-top: 9px;
+  margin-left: 54px;
+}
+.dashboard-reference .dash-stats dd > span {
+  font-size: 26px;
+  line-height: 1.2;
+  letter-spacing: -0.8px;
+  white-space: nowrap;
+}
+.dashboard-reference .dash-stats > div:first-child dd {
+  margin-left: 0;
+  margin-top: -3px;
+}
+.dashboard-reference .dash-stats > div:first-child dd > a > span:first-child {
+  margin-left: 54px;
+}
+.dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
+  font-size: 28px;
+}
+.dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:last-child {
+  font-size: 10px;
+  border: 1px solid #0a9d6a30;
+  padding: 5px 9px;
+}
+.dashboard-reference .dash-stats > div:first-child dd > a > span:last-child {
+  height: 10px;
+  margin-top: 16px;
+  background: #e9eef3;
+}
+.dash-trend-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.22fr) minmax(0, 1fr);
+  gap: 15px;
+}
+.dash-trend-row > section {
+  min-height: 309px;
+}
+.dashboard-reference #trend-title {
+  font-size: 18px;
+}
+.dashboard-reference #trend-title + div {
+  gap: 12px;
+}
+.dashboard-reference #trend-title + div > span {
+  gap: 14px;
+}
+.dashboard-reference #trend-title + div i {
+  width: 13px;
+  height: 13px;
+}
+.dashboard-reference #trend-title + div > select {
+  width: 85px;
+  font-size: 11px;
+  padding-inline: 3px;
+}
+.dashboard-reference [aria-labelledby='trend-title'] > div:first-child {
+  margin-bottom: 18px;
+}
+.dashboard-reference [aria-labelledby='trend-title'] > p:last-child {
+  font-size: 10px;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] > div:first-child {
+  gap: 10px;
+  margin-bottom: 22px;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] > div:first-child > span {
+  background: none;
+  width: 25px;
+  color: #00a860;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] > div:first-child > span svg {
+  width: 25px;
+  height: 25px;
+}
+.dashboard-reference #readiness-title {
+  font-size: 17px;
+}
+.dashboard-reference #readiness-title + p {
+  font-size: 10px;
+  line-height: 1.5;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] > p {
+  font-size: 33px;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] > [role='progressbar'] {
+  height: 13px;
+  background: #e9eef3;
+  margin-top: 10px;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] > [role='progressbar'] > div {
+  background: linear-gradient(90deg, #008e5c, #008552);
+}
+.dashboard-reference [aria-labelledby='readiness-title'] li > :is(div, a) {
+  padding-block: 8px;
+  gap: 12px;
+}
+.dashboard-reference
+  [aria-labelledby='readiness-title']
+  li
+  > :is(div, a)
+  > span
+  > span:first-child {
+  font-size: 12px;
+}
+.dashboard-reference
+  [aria-labelledby='readiness-title']
+  li
+  > :is(div, a)
+  > span
+  > span:nth-child(2) {
+  font-size: 10px;
+}
+.dashboard-reference [aria-labelledby='readiness-title'] li svg:first-child.text-ink-green {
+  fill: #0db264;
+  color: white;
+  stroke-width: 2;
+}
+.dash-transactions-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.97fr) minmax(0, 1fr);
+  gap: 15px;
+}
+.dash-transactions-row > section {
+  min-height: 245px;
+}
+.dashboard-reference [aria-labelledby='recent-title'] {
+  padding-bottom: 13px;
+}
+.dashboard-reference [aria-labelledby='recent-title'] > div:first-child {
+  margin-bottom: 18px;
+}
+.dashboard-reference [aria-labelledby='recent-title'] table {
+  font-size: 12px;
+}
+.dashboard-reference [aria-labelledby='recent-title'] th {
+  font-size: 11px;
+  background: color-mix(in srgb, var(--glass), #cbd5e1 15%);
+}
+.dashboard-reference [aria-labelledby='recent-title'] td {
+  padding-block: 11px;
+}
+.dashboard-reference [aria-labelledby='recent-title'] td span {
+  font-size: 12px;
+}
+.dashboard-reference [aria-labelledby='quick-title'] > div:first-child {
+  gap: 13px;
+}
+.dashboard-reference [aria-labelledby='quick-title'] > div:first-child > span {
+  background: none;
+  color: #009652;
+  width: 23px;
+}
+.dashboard-reference [aria-labelledby='quick-title'] > div:nth-child(2) {
+  gap: 10px;
+}
+.dashboard-reference [aria-labelledby='quick-title'] > div:nth-child(2) > :is(button, a) {
+  min-height: 77px;
+  border-radius: 13px;
+  padding: 10px 5px;
+  font-size: 11px;
+  background: color-mix(in srgb, var(--glass), #d3f3e6 25%);
+  gap: 6px;
+}
+.dashboard-reference [aria-labelledby='quick-title'] > div:nth-child(2) > :is(button, a) > span {
+  background: none;
+  width: 29px;
+  height: 28px;
+}
+.dashboard-reference
+  [aria-labelledby='quick-title']
+  > div:nth-child(2)
+  > :is(button, a)
+  > span
+  svg {
+  width: 23px;
+  height: 23px;
+}
+.dash-bottom-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.18fr) minmax(0, 0.94fr);
+  gap: 15px;
+}
+.dash-bottom-row > section,
+.dash-bottom-row > div {
+  min-height: 277px;
+}
+.dashboard-reference [aria-labelledby='next-title'] > div:first-child {
+  margin-bottom: 10px;
+}
+.dashboard-reference [aria-labelledby='next-title'] li a {
+  gap: 13px;
+  padding-block: 13px;
+}
+.dashboard-reference [aria-labelledby='next-title'] li a > span:first-child {
+  width: 39px;
+  height: 39px;
+}
+.dashboard-reference [aria-labelledby='next-title'] li a > span:nth-child(2) > span:first-child {
+  font-size: 12px;
+}
+.dashboard-reference [aria-labelledby='next-title'] li a > span:nth-child(2) > span:last-child {
+  font-size: 11px;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+.dashboard-reference [aria-labelledby='insight-title'] {
+  padding: 22px;
+  border-radius: 20px;
+  box-shadow: inset 0 0 0 7px var(--glass);
+  background: linear-gradient(135deg, #f2fbf3, #dff8e6);
+}
+.dashboard-reference [aria-labelledby='insight-title'] > div {
+  align-items: center;
+  gap: 13px;
+}
+.dashboard-reference [aria-labelledby='insight-title'] > div > span {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
+  background: #dcf7d4;
+}
+.dashboard-reference [aria-labelledby='insight-title'] > div > span svg {
+  width: 28px;
+  height: 28px;
+}
+.dashboard-reference [aria-labelledby='insight-title'] > p {
+  font-size: 14px;
+  line-height: 1.6;
+}
+.dashboard-reference [aria-labelledby='insight-title'] > svg {
+  width: 135px;
+  height: 135px;
+  right: -14px;
+  bottom: -20px;
+  transform: rotate(-20deg);
+  fill: #39b94b19;
+  stroke-width: 1;
+}
+.dash-weather {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.dash-weather h2 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 17px;
+  font-weight: 750;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--border);
+}
+.dash-weather h2 > svg {
+  width: 23px;
+  height: 23px;
+  color: #3455ff;
+}
+.dash-weather-place {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+  font-size: 13px;
+}
+.dash-weather-place > svg {
+  color: #284dbb;
+  flex-shrink: 0;
+}
+.dash-weather-conditions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-block: 17px 7px;
+}
+.dash-weather-temperature {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.dash-weather-temperature strong {
+  display: block;
+  font-size: 31px;
+  line-height: 1.2;
+  font-weight: 750;
+  letter-spacing: -1px;
+}
+.dash-weather-temperature span {
+  display: block;
+  font-size: 11px;
+  max-width: 145px;
+}
+.dash-weather-conditions dl {
+  display: grid;
+  gap: 7px;
+  font-size: 10px;
+}
+.dash-weather-conditions dl > div {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.dash-weather-conditions dl svg {
+  color: #006bff;
+}
+.dash-weather-conditions dl dd {
+  font-weight: 700;
+}
+.dash-weather-source {
+  font-size: 9px;
+  color: var(--text-mute);
+  margin: 3px 0 10px;
+}
+.dash-weather-link {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 14px 8px;
+  border-radius: 12px;
+  background: #d9f4e8;
+  color: #005b3d;
+  font-size: 13px;
+  font-weight: 700;
+}
+.dash-weather-unavailable {
+  font-size: 13px;
+  line-height: 1.5;
+  padding-block: 15px;
+}
+.dash-weather-unavailable button {
+  margin-top: 8px;
+  color: var(--ink-green);
+  text-decoration: underline;
+  cursor: pointer;
+}
+:root[data-theme='dark'] .dashboard-reference [aria-labelledby='insight-title'] {
+  background: linear-gradient(135deg, #143b2d, #172b26);
+}
+:root[data-theme='dark'] .dashboard-reference [aria-labelledby='insight-title'] > div > span {
+  background: #214d37;
+}
+:root[data-theme='dark'] .dashboard-reference .dash-weather-link {
+  background: #164e3b;
+  color: #baf4d6;
+}
+@media (min-width: 900px) {
+  body:has(.dashboard-reference) main {
+    margin-left: 215px;
+    padding-inline: 16px;
+    padding-top: 0;
+  }
+  body:has(.dashboard-reference) aside {
+    width: 208px;
+    left: 0;
+    top: 0;
+    bottom: 12px;
+  }
+  body:has(.dashboard-reference) aside nav {
+    padding: 13px 11px;
+  }
+  body:has(.dashboard-reference) aside nav a {
+    font-size: 12px;
+    min-height: 39px;
+    padding-inline: 11px;
+    gap: 13px;
+  }
+  body:has(.dashboard-reference) aside nav p {
+    font-size: 10px;
+    padding-left: 13px;
+  }
+  body:has(.dashboard-reference) aside nav > div {
+    margin-bottom: 19px;
+  }
+  body:has(.dashboard-reference) main > header {
+    min-height: 71px;
+    border-radius: 19px;
+    margin-bottom: 22px;
+  }
+  body:has(.dashboard-reference) main > header h1 {
+    font-size: 18px;
+  }
+}
+@media (min-width: 1450px) {
+  .dashboard-reference .dash-hero {
+    min-height: 205px;
+  }
+  .dash-trend-row > section {
+    min-height: 330px;
+  }
+  .dash-transactions-row > section {
+    min-height: 260px;
+  }
+  .dash-bottom-row > section,
+  .dash-bottom-row > div {
+    min-height: 295px;
+  }
+}
+@media (max-width: 1150px) {
+  .dash-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash-trend-row {
+    grid-template-columns: 1fr 1fr;
+  }
+  .dash-transactions-row {
+    grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  }
+  .dash-bottom-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .dash-bottom-row > section:last-child {
+    grid-column: 1/-1;
+    min-height: 180px;
+  }
+  .dashboard-reference .dash-hero {
+    grid-template-columns: minmax(0, 1fr) 220px;
+  }
+  .dashboard-reference .dash-hero-copy {
+    max-width: 320px;
+  }
+  .dashboard-reference .dash-hero-copy h2 {
+    font-size: 34px;
+  }
+  .dashboard-reference .dash-hero-copy p:last-child {
+    font-size: 13px;
+  }
+  .dashboard-reference .dash-panel {
+    padding: 17px;
+  }
+  .dashboard-reference #trend-title {
+    font-size: 16px;
+  }
+}
+@media (max-width: 1000px) {
+  .dash-trend-row,
+  .dash-transactions-row {
+    grid-template-columns: 1fr;
+  }
+  .dash-trend-row > section {
+    min-height: 290px;
+  }
+  .dashboard-reference .dash-hero {
+    grid-template-columns: minmax(0, 1fr) 190px;
+    padding: 22px;
+  }
+  .dashboard-reference .dash-hero-copy {
+    max-width: 290px;
+  }
+}
+@media (max-width: 600px) {
+  .dashboard-reference {
+    gap: 13px;
+  }
+  .dashboard-reference .dash-hero {
+    grid-template-columns: 1fr;
+    padding: 24px 20px;
+    gap: 23px;
+    border-radius: 20px;
+  }
+  .dashboard-reference .dash-hero-copy {
+    max-width: 265px;
+  }
+  .dashboard-reference .dash-hero-copy h2 {
+    font-size: 35px;
+  }
+  .dashboard-reference .dash-hero-photo {
+    inset: 0 0 0 25%;
+    opacity: 0.5;
+  }
+  .dashboard-reference .dash-hero-profile {
+    max-width: none;
+    padding: 13px;
+  }
+  .dash-stats {
+    gap: 11px;
+  }
+  .dashboard-reference .dash-stats > div {
+    padding: 13px;
+    min-height: 132px;
+  }
+  .dashboard-reference .dash-stats dt {
+    gap: 8px;
+    align-items: center;
+  }
+  .dashboard-reference .dash-stats dt > span:first-child {
+    width: 33px;
+    height: 36px;
+  }
+  .dashboard-reference .dash-stats dt > span:last-child {
+    font-size: 11px;
+  }
+  .dashboard-reference .dash-stats dd {
+    margin-left: 0;
+    margin-top: 17px;
+  }
+  .dashboard-reference .dash-stats dd > span {
+    font-size: 22px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+  .dashboard-reference .dash-stats > div:first-child dd {
+    margin-top: 12px;
+  }
+  .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child {
+    margin-left: 0;
+  }
+  .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
+    font-size: 25px;
+  }
+  .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:last-child {
+    font-size: 9px;
+    padding: 4px;
+  }
+  .dashboard-reference .dash-stats > div:first-child dd > a > span:last-child {
+    margin-top: 12px;
+  }
+  .dash-bottom-row {
+    grid-template-columns: 1fr;
+  }
+  .dash-bottom-row > section:last-child {
+    grid-column: auto;
+    min-height: 225px;
+  }
+  .dash-bottom-row > section,
+  .dash-bottom-row > div {
+    min-height: 255px;
+  }
+  .dashboard-reference
+    [aria-labelledby='readiness-title']
+    li
+    > :is(div, a)
+    > span
+    > span:first-child {
+    font-size: 12px;
+  }
+  .dashboard-reference .dash-weather-conditions {
+    margin-block: 25px 12px;
+  }
+  .dash-weather-temperature strong {
+    font-size: 34px;
+  }
+  .dash-weather-conditions dl {
+    font-size: 11px;
+  }
+}
+
+.dashboard-reference .dash-stats dd > span {
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+.dashboard-reference [aria-labelledby='insight-title'] > svg.dash-insight-leaves {
+  width: 160px;
+  height: 160px;
+  right: -5px;
+  bottom: -5px;
+  transform: none;
+  opacity: 0.75;
+}
+
+.dashboard-reference .dash-insight-leaves {
+  position: absolute;
+  pointer-events: none;
+}
+
+.dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
+  white-space: nowrap;
+}
+@media (max-width: 600px) {
+  .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
+    font-size: 22px;
+  }
+  .dashboard-reference
+    .dash-stats
+    > div:first-child
+    dd
+    > a
+    > span:first-child
+    > span:first-child
+    > span {
+    font-size: 12px;
+  }
+}

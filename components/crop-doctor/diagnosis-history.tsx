@@ -3,58 +3,61 @@
 import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import { useRef, useState } from 'react';
 import Image from 'next/image';
-import { History, Leaf, Trash2 } from 'lucide-react';
+import { Bug, Check, ChevronDown, ChevronRight, History, Leaf, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { SEVERITY_COLORS } from '@/components/crop-doctor/diagnosis-card';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { DiagnosisCard } from '@/components/crop-doctor/diagnosis-card';
+import { Button } from '@/components/ui/button';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { EmptyState } from '@/components/ui/empty-state';
+import { Modal } from '@/components/ui/modal';
 import { formatDate } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useFarmStore } from '@/store/farm-store';
 import { safeImageThumb } from '@/lib/profile-photo';
-import type { Diagnosis } from '@/types';
+import type { Diagnosis, Severity } from '@/types';
 
-type Filter = 'all' | 'issues' | 'healthy';
+/** Rows shown before "View all". */
+const FIRST = 3;
 
-const FILTER_LABELS: Record<Filter, string> = {
-  all: 'All',
-  issues: 'Needs attention',
-  healthy: 'Healthy',
+const PILL: Record<Severity, string> = {
+  High: 'bg-danger/10 text-ink-red',
+  Moderate: 'bg-gold/15 text-ink-gold',
+  None: 'bg-accent/12 text-ink-green',
 };
+const LEVEL: Record<Severity, string> = {
+  High: 'bg-danger/15 text-ink-red',
+  Moderate: 'bg-gold/25 text-ink-gold',
+  None: '',
+};
+const PEST = /worm|pest|beetle|aphid|insect|caterpillar|borer|mite|weevil|locust/i;
 
-/** The last 10 saved scans as a thumbnail grid, filterable by outcome. */
+/** The first sentence of the saved treatment, as the row's short advice. */
+function summary(diagnosis: Diagnosis): string {
+  if (diagnosis.severity === 'None') return 'No disease detected. Your crop looks healthy.';
+  const first = diagnosis.treatment.split(/(?<=\.)\s+/)[0]?.trim() ?? '';
+  return first || diagnosis.treatment;
+}
+
+/** The farmer's saved scans (GET /me/diagnoses), newest first, with details and delete. */
 export function DiagnosisHistory() {
   const diagnoses = useFarmStore((state) => state.diagnoses);
   const deleteDiagnosis = useFarmStore((state) => state.deleteDiagnosis);
   const readOnly = useReadOnly();
-  const [selected, setSelected] = useState<Diagnosis | null>(null);
+  const [open, setOpen] = useState<Diagnosis | null>(null);
+  const [confirming, setConfirming] = useState(false);
   const [deleting, setDeleting] = useState(false);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [all, setAll] = useState(false);
   const deleteLock = useRef(false);
 
-  const recent = diagnoses.slice(0, 10);
-  const issues = recent.filter((d) => d.severity !== 'None');
-  const shown =
-    filter === 'issues'
-      ? issues
-      : filter === 'healthy'
-        ? recent.filter((d) => d.severity === 'None')
-        : recent;
-  const counts: Record<Filter, number> = {
-    all: recent.length,
-    issues: issues.length,
-    healthy: recent.length - issues.length,
-  };
+  const shown = all ? diagnoses : diagnoses.slice(0, FIRST);
 
   async function remove() {
-    if (!selected || deleteLock.current) return;
+    if (!open || deleteLock.current) return;
     deleteLock.current = true;
     setDeleting(true);
     try {
-      await deleteDiagnosis(selected.id);
-      setSelected(null);
+      await deleteDiagnosis(open.id);
+      setConfirming(false);
+      setOpen(null);
       toast.success('Diagnosis deleted');
     } catch {
       toast.error('Could not delete the diagnosis. Please try again.');
@@ -65,112 +68,159 @@ export function DiagnosisHistory() {
   }
 
   return (
-    <Card className="@container rounded-3xl">
-      <CardHeader className="flex-wrap">
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <History size={17} aria-hidden="true" className="text-ink-green" />
-            Recent Diagnoses
-          </CardTitle>
-          <CardSub>Your last 10 scans</CardSub>
-        </div>
-        {recent.length > 0 && (
-          <div
-            role="group"
-            aria-label="Filter diagnoses"
-            className="border-border bg-glass inline-flex rounded-xl border p-1"
-          >
-            {(Object.keys(FILTER_LABELS) as Filter[]).map((key) => (
-              <button
-                key={key}
-                type="button"
-                aria-pressed={filter === key}
-                onClick={() => setFilter(key)}
-                className={cn(
-                  'min-h-9 rounded-lg px-3 text-xs font-semibold transition-colors',
-                  filter === key ? 'bg-accent/20 text-ink-green' : 'text-text-dim hover:text-text',
-                )}
-              >
-                {FILTER_LABELS[key]} <span className="opacity-70">({counts[key]})</span>
-              </button>
-            ))}
+    <section
+      aria-labelledby="scans-title"
+      className="rounded-card border-border bg-glass @container/scans border p-4 sm:p-6"
+    >
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-center gap-4">
+          <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+            <History size={24} aria-hidden="true" />
+          </span>
+          <div>
+            <h2 id="scans-title" className="text-text text-xl font-bold">
+              Your crop scans
+            </h2>
+            <p className="text-text-dim text-sm">
+              View your recent diagnoses and treatment advice.
+            </p>
           </div>
+        </div>
+        {diagnoses.length > FIRST && (
+          <Button
+            variant="ghost"
+            icon={all ? ChevronDown : ChevronRight}
+            aria-expanded={all}
+            onClick={() => setAll(!all)}
+          >
+            {all ? 'Show fewer' : `View all (${diagnoses.length})`}
+          </Button>
         )}
-      </CardHeader>
+      </div>
 
-      {recent.length === 0 ? (
-        <EmptyState
-          icon={Leaf}
-          title="No diagnoses yet"
-          description="Save a diagnosis after scanning a crop photo to build your history."
-        />
-      ) : shown.length === 0 ? (
-        <p className="text-text-mute py-8 text-center text-sm">No saved scans in this group.</p>
+      {diagnoses.length === 0 ? (
+        <div className="border-border mt-5 flex flex-col items-center rounded-2xl border border-dashed px-4 py-8 text-center">
+          <span className="bg-icon-bg text-icon inline-flex size-12 items-center justify-center rounded-xl">
+            <Leaf size={24} aria-hidden="true" />
+          </span>
+          <p className="text-text mt-3 font-bold">No scans yet</p>
+          <p className="text-text-dim mt-1 max-w-sm text-sm">
+            Scan a leaf above. Each diagnosis is saved here with its treatment advice.
+          </p>
+        </div>
       ) : (
-        <ul className="grid grid-cols-1 gap-4 @md:grid-cols-2 @3xl:grid-cols-3 @5xl:grid-cols-4">
-          {shown.map((diagnosis) => (
-            <li
-              key={diagnosis.id}
-              className="group border-border bg-glass overflow-hidden rounded-2xl border transition-transform duration-200 hover:-translate-y-0.5"
-            >
-              <div className="bg-bg-2 relative h-36">
-                {safeImageThumb(diagnosis.imageThumb) ? (
-                  <Image
-                    src={safeImageThumb(diagnosis.imageThumb)!}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 300px"
-                    alt={`Saved ${diagnosis.crop ?? 'crop'} photo`}
-                    unoptimized
-                    className="object-cover"
-                  />
-                ) : (
-                  <span className="text-ink-green flex size-full items-center justify-center">
-                    <Leaf size={36} aria-hidden="true" />
-                  </span>
-                )}
-                <span className="absolute top-2.5 left-2.5">
-                  <Badge color={SEVERITY_COLORS[diagnosis.severity]}>{diagnosis.severity}</Badge>
-                </span>
-                <button
-                  type="button"
-                  aria-label={`Delete ${diagnosis.disease} diagnosis`}
-                  {...readOnlyProps(readOnly)}
-                  onClick={readOnly ? undefined : () => setSelected(diagnosis)}
-                  className={cn(
-                    'hover:bg-danger absolute top-2 right-2 inline-flex size-9 items-center justify-center rounded-lg bg-black/55 text-white backdrop-blur transition-colors',
-                    readOnly && READ_ONLY_CLASS,
-                  )}
-                >
-                  <Trash2 size={15} aria-hidden="true" />
-                </button>
-              </div>
-              <div className="p-3.5">
-                <p className="text-text truncate text-sm font-semibold">{diagnosis.disease}</p>
-                <p className="text-text-mute mt-1 text-xs">
-                  {formatDate(diagnosis.date)}
-                  {diagnosis.crop ? ` · ${diagnosis.crop}` : ''}
-                </p>
-                <div className="mt-2.5 flex items-center gap-2">
-                  <div
-                    className="bg-glass-strong h-1.5 flex-1 overflow-hidden rounded-full"
-                    aria-hidden="true"
-                  >
-                    <div
-                      className="bg-accent h-full rounded-full"
-                      style={{ width: `${diagnosis.confidence}%` }}
+        <ul className="mt-5 space-y-3">
+          {shown.map((diagnosis) => {
+            const thumb = safeImageThumb(diagnosis.imageThumb);
+            const healthy = diagnosis.severity === 'None';
+            const Icon = healthy ? Check : PEST.test(diagnosis.disease) ? Bug : Leaf;
+            return (
+              <li
+                key={diagnosis.id}
+                className="border-border grid grid-cols-[4rem_minmax(0,1fr)] items-center gap-x-4 gap-y-3 rounded-2xl border p-3 @2xl/scans:grid-cols-[4rem_8rem_minmax(0,1fr)_auto]"
+              >
+                <span className="bg-bg-2 relative size-16 overflow-hidden rounded-xl">
+                  {thumb ? (
+                    <Image
+                      src={thumb}
+                      fill
+                      sizes="64px"
+                      alt={`${diagnosis.crop ?? 'Crop'} leaf photo`}
+                      unoptimized
+                      className="object-cover"
                     />
-                  </div>
-                  <span className="text-text-dim text-xs tabular-nums">
-                    {diagnosis.confidence}% confidence
+                  ) : (
+                    <span className="text-ink-green flex size-full items-center justify-center">
+                      <Leaf size={26} aria-hidden="true" />
+                    </span>
+                  )}
+                </span>
+                <span className="min-w-0">
+                  <span className="text-text block font-bold">{diagnosis.crop ?? 'Crop'}</span>
+                  <span className="text-text-dim block text-sm">{formatDate(diagnosis.date)}</span>
+                </span>
+                <span className="col-span-2 flex min-w-0 flex-col gap-2 @2xl/scans:col-span-1 @5xl/scans:flex-row @5xl/scans:items-center @5xl/scans:gap-5">
+                  <span
+                    className={cn(
+                      'flex w-full min-w-0 items-center gap-2.5 rounded-xl px-3 py-2 @5xl/scans:w-[46%] @5xl/scans:shrink-0',
+                      PILL[diagnosis.severity],
+                    )}
+                  >
+                    <Icon size={18} aria-hidden="true" className="shrink-0" />
+                    <span className="min-w-0 flex-1 text-sm font-bold wrap-break-word">
+                      {healthy ? 'Healthy tissue' : diagnosis.disease}
+                    </span>
+                    {!healthy && (
+                      <span
+                        className={cn(
+                          'shrink-0 rounded-full px-2.5 py-0.5 text-xs font-semibold',
+                          LEVEL[diagnosis.severity],
+                        )}
+                      >
+                        {diagnosis.severity}
+                      </span>
+                    )}
                   </span>
-                </div>
-              </div>
-            </li>
-          ))}
+                  <span className="text-text-dim min-w-0 text-sm leading-snug">
+                    {summary(diagnosis)}
+                  </span>
+                </span>
+                <Button
+                  variant="ghost"
+                  icon={ChevronRight}
+                  onClick={() => setOpen(diagnosis)}
+                  aria-label={`View details: ${diagnosis.disease}, ${formatDate(diagnosis.date)}`}
+                  className="col-span-2 min-w-0 @2xl/scans:col-span-1"
+                >
+                  View details
+                </Button>
+              </li>
+            );
+          })}
         </ul>
       )}
+
+      <Modal
+        open={open !== null && !confirming}
+        onClose={() => setOpen(null)}
+        title={open ? `${open.crop ?? 'Crop'} scan` : 'Crop scan'}
+        description={open ? `Scanned ${formatDate(open.date)}` : undefined}
+        size="lg"
+        footer={
+          <div className="flex w-full flex-wrap justify-between gap-2">
+            <Button
+              variant="ghost"
+              icon={Trash2}
+              {...readOnlyProps(readOnly)}
+              onClick={readOnly ? undefined : () => setConfirming(true)}
+              className={cn('text-ink-red', readOnly && READ_ONLY_CLASS)}
+            >
+              Delete scan
+            </Button>
+            <Button onClick={() => setOpen(null)}>Close</Button>
+          </div>
+        }
+      >
+        {open && (
+          <div className="space-y-4">
+            {safeImageThumb(open.imageThumb) && (
+              <span className="bg-bg-2 relative block h-48 overflow-hidden rounded-2xl">
+                <Image
+                  src={safeImageThumb(open.imageThumb)!}
+                  fill
+                  sizes="600px"
+                  alt={`${open.crop ?? 'Crop'} leaf photo`}
+                  unoptimized
+                  className="object-cover"
+                />
+              </span>
+            )}
+            <DiagnosisCard result={open} />
+          </div>
+        )}
+      </Modal>
       <ConfirmDialog
-        open={selected !== null}
+        open={confirming}
         title="Delete diagnosis?"
         message="This removes the saved diagnosis and its thumbnail from your history."
         confirmLabel="Delete diagnosis"
@@ -178,9 +228,9 @@ export function DiagnosisHistory() {
         loading={deleting}
         onConfirm={() => void remove()}
         onCancel={() => {
-          if (!deleting) setSelected(null);
+          if (!deleting) setConfirming(false);
         }}
       />
-    </Card>
+    </section>
   );
 }

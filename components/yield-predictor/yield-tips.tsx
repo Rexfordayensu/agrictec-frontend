@@ -9,9 +9,9 @@ import { usePlatformStore } from '@/store/platform-store';
 import type { YieldCrop } from '@/types';
 
 export function YieldTips({ crop }: { crop: YieldCrop }) {
-  // The admin's crop data, falling back to the built-in figures for a crop it has removed.
+  // Published crop content supplies the baseline and guidance.
   const crops = usePlatformStore((s) => s.crops);
-  const data = findCrop(crop, crops) ?? findCrop(crop);
+  const data = findCrop(crop, crops);
   const yieldPerAcre = data?.yieldPerAcre ?? 0;
   // Only a published market price, never a built-in one.
   const price = cropMarketPrice(
@@ -19,7 +19,7 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
     usePlatformStore((s) => s.marketPrices),
   )?.perTonne;
   const facts = [
-    { label: 'Average yield', value: `${yieldPerAcre} t/acre` },
+    { label: 'Average yield', value: data ? `${yieldPerAcre} t/acre` : 'Not published' },
     { label: 'Market price', value: price ? `${formatGHS(price)}/t` : 'Not published' },
     {
       label: 'Average revenue',
@@ -28,7 +28,7 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
   ];
 
   return (
-    <Card className="@container rounded-3xl">
+    <Card className="yield-growing @container rounded-3xl">
       <div className="flex flex-col gap-5 @3xl:flex-row @3xl:items-start @3xl:justify-between">
         <div className="flex items-center gap-3">
           <CropTile crop={crop} />
@@ -62,12 +62,6 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
             key={tip}
             className="border-border bg-bg-2/40 hover:border-accent/30 relative flex flex-col gap-3 overflow-hidden rounded-2xl border p-4 transition-colors"
           >
-            <span
-              aria-hidden="true"
-              className="text-accent/10 font-display pointer-events-none absolute -top-3 -right-1 text-6xl font-extrabold"
-            >
-              {String(index + 1).padStart(2, '0')}
-            </span>
             <span className="text-ink-green bg-accent/10 inline-flex w-fit items-center rounded-full px-2.5 py-1 text-xs font-bold tracking-wide uppercase">
               Step {index + 1}
             </span>

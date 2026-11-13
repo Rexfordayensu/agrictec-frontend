@@ -105,7 +105,7 @@ export function FarmInsight({ summary }: { summary: DashboardSummary | null }) {
       aria-labelledby="insight-title"
       className="rounded-card border-accent/25 from-accent/12 to-accent/4 relative min-w-0 overflow-hidden border bg-linear-to-br p-4 sm:p-5"
     >
-      <PanelHeading id="insight-title" icon={Sprout} title="Farm insight" />
+      <PanelHeading id="insight-title" icon={Sprout} title="Farm Insight" />
       {summary ? (
         <p className="text-text-dim relative z-10 text-sm leading-relaxed">
           {farmInsight(summary)}
@@ -113,11 +113,18 @@ export function FarmInsight({ summary }: { summary: DashboardSummary | null }) {
       ) : (
         <Skeleton className="h-16 w-full rounded-xl" />
       )}
-      <Sprout
-        size={110}
-        aria-hidden="true"
-        className="text-accent/15 pointer-events-none absolute -right-4 -bottom-6"
-      />
+      <svg className="dash-insight-leaves" viewBox="0 0 150 150" fill="none" aria-hidden="true">
+        <path
+          d="M76 151C78 105 101 66 139 30M79 146C61 107 42 99 17 92M91 111C95 83 83 62 70 46"
+          stroke="#79ca84"
+          strokeWidth="3"
+        />
+        <path d="M103 85C101 55 118 22 149 10C151 48 132 75 103 85Z" fill="#b8edb9" />
+        <path d="M84 118C49 122 25 108 4 94C41 78 64 91 84 118Z" fill="#9cdca1" />
+        <path d="M93 108C120 102 135 82 149 58C113 63 95 81 93 108Z" fill="#8ed997" />
+        <path d="M85 91C65 79 61 59 69 40C86 57 94 73 85 91Z" fill="#b3e9b2" />
+        <path d="M76 146C51 141 29 144 16 150H76Z" fill="#b9e9b9" />
+      </svg>
     </section>
   );
 }

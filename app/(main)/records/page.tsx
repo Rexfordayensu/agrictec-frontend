@@ -12,14 +12,24 @@ export const metadata: Metadata = { title: 'Farm Records' };
  * The farmer's records (GET /me/records): totals, the list and charts, all from the saved
  * records. `@container`: the layout responds to the content width (which depends on the sidebar).
  */
-export default function RecordsPage() {
+export default async function RecordsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ view?: string }>;
+}) {
+  const { view } = await searchParams;
   return (
     <div className="records-reference @container space-y-5">
-      <RecordsView />
-      <div className="records-charts grid grid-cols-1 gap-5 @2xl:grid-cols-2 @7xl:grid-cols-4">
-        <CropDistributionChart className="records-crop-chart" />
-        <ExpenseBreakdown className="records-expense-chart" />
-        <MonthlyNetChart className="records-net-chart" />
+      <RecordsView
+        key={view === 'all' ? 'transactions' : 'records'}
+        initialView={view === 'all' ? 'transactions' : 'records'}
+      />
+      <div className="grid grid-cols-1 gap-5 @3xl:grid-cols-2">
+        <CropDistributionChart />
+        <ExpenseBreakdown />
+      </div>
+      <div className="grid grid-cols-1 gap-5 @3xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <MonthlyNetChart />
         <RecordTemplates />
       </div>
     </div>

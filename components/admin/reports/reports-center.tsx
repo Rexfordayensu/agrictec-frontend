@@ -30,11 +30,11 @@ import {
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
 
 const ICONS: Record<ReportId, { icon: LucideIcon; tone: string }> = {
-  platform: { icon: LayoutDashboard, tone: 'bg-purple/12 text-ink-purple' },
-  regions: { icon: Map, tone: 'bg-accent/12 text-ink-green' },
+  platform: { icon: LayoutDashboard, tone: 'bg-icon-bg text-icon' },
+  regions: { icon: Map, tone: 'bg-icon-bg text-icon' },
   loans: { icon: Landmark, tone: 'bg-gold/15 text-ink-gold' },
   credit: { icon: Gauge, tone: 'bg-info/12 text-ink-blue' },
-  verifications: { icon: BadgeCheck, tone: 'bg-accent/12 text-ink-green' },
+  verifications: { icon: BadgeCheck, tone: 'bg-icon-bg text-icon' },
   risk: { icon: ShieldAlert, tone: 'bg-danger/12 text-ink-red' },
 };
 
@@ -100,11 +100,11 @@ export function ReportsCenter() {
                 <div className="flex items-start gap-3">
                   <span
                     className={cn(
-                      'inline-flex size-11 shrink-0 items-center justify-center rounded-xl',
+                      'inline-flex size-12 shrink-0 items-center justify-center rounded-xl',
                       tone,
                     )}
                   >
-                    <Icon size={20} aria-hidden="true" />
+                    <Icon size={24} aria-hidden="true" />
                   </span>
                   <div className="min-w-0">
                     <h3 className="text-text text-sm font-semibold">{meta.title}</h3>

@@ -65,7 +65,7 @@ function WelcomeBubble() {
     <div className="assistant-welcome flex items-start gap-3">
       <span
         aria-hidden="true"
-        className="bg-accent/12 text-ink-green inline-flex size-10 shrink-0 items-center justify-center rounded-full"
+        className="bg-icon-bg text-icon inline-flex size-10 shrink-0 items-center justify-center rounded-full"
       >
         <Bot size={20} />
       </span>

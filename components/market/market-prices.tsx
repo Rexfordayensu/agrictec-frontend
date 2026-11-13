@@ -308,8 +308,8 @@ export function MarketPrices({
 function Stat({ icon: Icon, label, value }: { icon: LucideIcon; label: string; value: string }) {
   return (
     <div className="bg-accent/6 border-accent/15 flex items-center gap-3 rounded-2xl border px-4 py-3">
-      <span className="bg-accent/12 text-ink-green inline-flex size-11 shrink-0 items-center justify-center rounded-xl">
-        <Icon size={22} aria-hidden="true" />
+      <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+        <Icon size={24} aria-hidden="true" />
       </span>
       <div>
         <p className="text-text-dim text-small">{label}</p>

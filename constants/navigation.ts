@@ -75,7 +75,7 @@ export const NAV_SECTIONS: NavSection[] = [
 export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   '/dashboard': {
     title: 'Dashboard',
-    subtitle: 'Welcome. Start building your digital financial identity.',
+    subtitle: 'Welcome back. Track your farm, finances and loan readiness.',
   },
   '/records': {
     title: 'Farm Records',
@@ -106,7 +106,8 @@ export const PAGE_META: Record<string, { title: string; subtitle: string }> = {
   },
   '/loans': {
     title: 'Loans & Credit',
-      subtitle: 'Track your financial health, prepare your records, and apply through verified lenders.',
+    subtitle:
+      'Track your financial health, prepare your records, and apply through verified lenders.',
   },
   '/market': {
     title: 'Market Prices',

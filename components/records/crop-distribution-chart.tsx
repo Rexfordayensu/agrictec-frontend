@@ -1,94 +1,95 @@
 'use client';
 
-import { Info } from 'lucide-react';
+import { Leaf } from 'lucide-react';
 import { DoughnutChart } from '@/components/charts/doughnut-chart';
-import { useChartTheme } from '@/components/charts/use-chart-theme';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
-import { CropTile } from '@/components/ui/crop-icon';
+import { ChartCard } from '@/components/records/chart-card';
 import { useFarmStats } from '@/hooks/use-farm-stats';
 import { formatCompactGHS, formatGHS } from '@/lib/format';
-import type { Crop } from '@/types';
+import { cn } from '@/lib/utils';
+import { useProfileStore } from '@/store/profile-store';
 
-/** Doughnut of income per crop, with an icon legend showing amounts and shares. */
-export function CropDistributionChart({ className }: { className?: string }) {
-  const { incomeByCrop, income } = useFarmStats();
-  const { palette } = useChartTheme();
-  const colors = [
-    palette.accent,
-    palette.gold,
-    palette.purple,
-    palette.info,
-    palette.warning,
-    palette.danger,
-  ];
+/** Greens from strongest to palest: the biggest earner gets the strongest. */
+const SHADES = ['#0b7a46', '#3fbf74', '#a3e3b8', '#d6f3df'];
 
-  // Largest share first, so the biggest earner always gets the brand colour.
-  const entries = (Object.entries(incomeByCrop) as [Crop, number][])
+interface Row {
+  name: string;
+  total: number;
+}
+
+/**
+ * The three crops that earn the most, then everything else as "Others". Before any income is
+ * recorded it lists the farmer's own main crops (from their profile) at GHS 0.
+ */
+export function cropRows(incomeByCrop: Record<string, number>, primaryCrops: string[]): Row[] {
+  const earned = Object.entries(incomeByCrop)
     .filter(([, total]) => total > 0)
     .sort((a, b) => b[1] - a[1]);
+  if (earned.length === 0) {
+    return [
+      ...primaryCrops.slice(0, 3).map((name) => ({ name, total: 0 })),
+      { name: 'Others', total: 0 },
+    ];
+  }
+  const top = earned.slice(0, 3).map(([name, total]) => ({ name, total }));
+  const rest = earned.slice(3).reduce((sum, [, total]) => sum + total, 0);
+  return [...top, { name: 'Others', total: rest }];
+}
+
+/** Income per crop: a doughnut with the total in the middle and a legend of amounts and shares. */
+export function CropDistributionChart({ className }: { className?: string }) {
+  const { incomeByCrop, income } = useFarmStats();
+  const profile = useProfileStore((s) => s.profile);
+  const rows = cropRows(incomeByCrop, profile?.primaryCrops ?? []);
 
   return (
-    <Card className={className}>
-      <CardHeader>
-        <div>
-          <CardTitle>Income by Crop</CardTitle>
-          <CardSub>Crop distribution of all income</CardSub>
-        </div>
-      </CardHeader>
-
-      <div className="mx-auto max-w-60">
-        <DoughnutChart
-          emptyLabel="No data yet"
-          ariaLabel="Income by crop"
-          aspectRatio={1}
-          showLegend={false}
-          labels={entries.map(([crop]) => crop)}
-          data={entries.map(([, total]) => total)}
-          colors={entries.map((_, i) => colors[i % colors.length])}
-          centerLabel={
-            entries.length === 0 ? (
-              <span className="text-text-dim text-sm">No data yet</span>
-            ) : (
+    <ChartCard
+      id="income-by-crop-title"
+      icon={Leaf}
+      title="Income by Crop"
+      sub="Crop distribution of all income"
+      className={cn('@container/crop', className)}
+    >
+      <div className="mt-4 grid flex-1 grid-cols-1 items-center gap-5 @sm/crop:grid-cols-[9.5rem_minmax(0,1fr)]">
+        <div className="mx-auto w-full max-w-40">
+          <DoughnutChart
+            emptyLabel={null}
+            ariaLabel="Income by crop"
+            aspectRatio={1}
+            showLegend={false}
+            labels={rows.map((r) => r.name)}
+            data={rows.map((r) => r.total)}
+            colors={rows.map((_, i) => SHADES[i % SHADES.length])}
+            centerLabel={
               <>
-                <span className="text-text-mute text-xs">Total</span>
-                <span className="text-text text-lg font-extrabold">{formatCompactGHS(income)}</span>
+                <span className="text-text text-xl font-extrabold tabular-nums">
+                  {formatCompactGHS(income)}
+                </span>
+                <span className="text-text-dim text-xs">Total Income</span>
               </>
-            )
-          }
-        />
-      </div>
-
-      {entries.length === 0 && (
-        <p className="bg-glass-strong text-text-dim mt-5 flex gap-2 rounded-xl px-3 py-2.5 text-xs leading-relaxed">
-          <Info size={15} aria-hidden="true" className="mt-0.5 shrink-0" />
-          Add income records (e.g. crop sales) to see the income mix by crop.
-        </p>
-      )}
-      {entries.length > 0 && (
-        <ul className="mt-5 space-y-2.5">
-          {entries.map(([crop, total], i) => (
-            <li key={crop} className="flex items-center gap-3">
-              <CropTile crop={crop} size="sm" />
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center justify-between gap-2 text-sm">
-                  <span className="text-text flex items-center gap-2 font-medium">
-                    <span
-                      aria-hidden="true"
-                      className="size-2 rounded-full"
-                      style={{ backgroundColor: colors[i % colors.length] }}
-                    />
-                    {crop}
-                  </span>
-                  <span className="text-text font-semibold tabular-nums">{formatGHS(total)}</span>
-                </div>
-                <p className="text-text-mute text-xs">
-                  {Math.round((total / income) * 100)}% of income
-                </p>
-              </div>
+            }
+          />
+        </div>
+        <ul className="divide-border divide-y" aria-label="Income by crop">
+          {rows.map((row, i) => (
+            <li key={row.name} className="flex items-center gap-3 py-2.5">
+              <span
+                aria-hidden="true"
+                className="size-4 shrink-0 rounded"
+                style={{ backgroundColor: SHADES[i % SHADES.length] }}
+              />
+              <span className="text-text min-w-0 flex-1 truncate text-sm font-semibold">
+                {row.name}
+              </span>
+              <span className="text-text-dim w-10 shrink-0 text-right text-sm tabular-nums">
+                {income > 0 ? Math.round((row.total / income) * 100) : 0}%
+              </span>
+              <span className="text-text min-w-16 shrink-0 text-right text-sm font-semibold tabular-nums">
+                {formatGHS(row.total)}
+              </span>
             </li>
           ))}
         </ul>
-      )}
-    </Card>
+      </div>
+    </ChartCard>
   );
 }

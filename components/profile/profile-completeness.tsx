@@ -12,8 +12,8 @@ export function ProfileCompleteness() {
   return (
     <Card className="rounded-3xl">
       <div className="flex items-center gap-3">
-        <span className="bg-accent/10 text-ink-green inline-flex size-11 shrink-0 items-center justify-center rounded-2xl">
-          <ShieldCheck size={22} aria-hidden="true" />
+        <span className="bg-icon-bg text-icon inline-flex size-12 shrink-0 items-center justify-center rounded-xl">
+          <ShieldCheck size={24} aria-hidden="true" />
         </span>
         <div className="min-w-0 flex-1">
           <h2 className="text-text text-base font-bold">Profile {complete}% complete</h2>
