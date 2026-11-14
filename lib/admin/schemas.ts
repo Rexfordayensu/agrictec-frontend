@@ -36,6 +36,8 @@ export const creditConfigInputSchema = z
       recordsForFull: z.number().int().min(1).max(1000),
       momoForFull: z.number().int().min(1).max(1000),
       monthsWindow: z.number().int().min(1).max(24),
+      // Rules saved before this setting existed read as 50%.
+      unverifiedWeight: z.number().int().min(0).max(100).default(50),
     }),
     bands: z.object({ fair: score, good: score, excellent: score }),
     eligibility: z.object({

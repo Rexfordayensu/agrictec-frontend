@@ -224,6 +224,23 @@ export function LoansOverview() {
               <p>{SCORE_EXPLANATION}</p>
               <p>{LOAN_REVIEW_EXPLANATION}</p>
               <ScoreFactors steps={credit.steps} bestKey={credit.best?.key ?? null} />
+              {/* The server's list (GET /me/credit), e.g. entries still counting at the unchecked %. */}
+              {credit.missing.length > 0 && (
+                <div>
+                  <h4 className="text-text text-sm font-semibold">Still missing</h4>
+                  <ul className="mt-2 space-y-1.5">
+                    {credit.missing.map((item) => (
+                      <li key={item} className="text-text-dim flex gap-2 text-xs leading-relaxed">
+                        <span
+                          aria-hidden="true"
+                          className="bg-gold mt-1.5 size-1.5 shrink-0 rounded-full"
+                        />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </details>
 

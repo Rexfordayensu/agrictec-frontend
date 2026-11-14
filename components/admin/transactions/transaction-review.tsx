@@ -16,7 +16,7 @@ import {
 } from '@/lib/transactions';
 import { transactionsService } from '@/services/transactions.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
-import type { ReviewItem, ReviewPage } from '@/types/transactions';
+import type { ReviewItem, ReviewPage, TransactionItem } from '@/types/transactions';
 
 const columns: AdminColumn<ReviewItem>[] = [
   {
@@ -70,6 +70,8 @@ export function TransactionReview() {
   const [version, setVersion] = useState(0);
   const [selected, setSelected] = useState<ReviewItem>();
   const [reason, setReason] = useState('');
+  // What the reviewer confirmed on the receipt (all required before Verify).
+  const [checked, setChecked] = useState<Record<string, boolean>>({});
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);
   const sync = useAdminDataStore((s) => s.syncVersion);
@@ -97,7 +99,12 @@ export function TransactionReview() {
     setBusy(true);
     setError('');
     try {
-      await transactionsService.decide(selected.entry.kind, selected.entry.id, action, reason);
+      const confirmed = action === 'verify' ? checklist(selected.entry).map((c) => c.label) : [];
+      // The confirmations go into the decision reason (the entry's history and the audit trail).
+      const fullReason = confirmed.length
+        ? `${reason.trim()}\nChecked on the receipt: ${confirmed.join('; ')}.`
+        : reason;
+      await transactionsService.decide(selected.entry.kind, selected.entry.id, action, fullReason);
       setSelected(undefined);
       setVersion((v) => v + 1);
       await useAdminDataStore.getState().refresh();
@@ -108,6 +115,8 @@ export function TransactionReview() {
     }
   }
   const t = selected?.entry;
+  const items = t ? checklist(t) : [];
+  const allChecked = items.every((c) => checked[c.key]);
   return (
     <div className="space-y-5">
       <div>
@@ -131,6 +140,7 @@ export function TransactionReview() {
           onRowClick={(r) => {
             setSelected(r);
             setReason('');
+            setChecked({});
           }}
           loading={!data}
         />
@@ -168,7 +178,8 @@ export function TransactionReview() {
             </Button>
             <Button
               loading={busy}
-              disabled={!reason.trim() || !t?.evidence.length}
+              disabled={!reason.trim() || !t?.evidence.length || !allChecked}
+              title={!allChecked ? 'Confirm each point on the receipt first' : undefined}
               onClick={() => void decide('verify')}
             >
               Verify
@@ -233,6 +244,24 @@ export function TransactionReview() {
                 ))}
               </ul>
             </details>
+            {t.evidence.length > 0 && (
+              <fieldset className="border-border space-y-2 rounded-xl border p-3">
+                <legend className="px-1 text-sm font-semibold">
+                  Before verifying, confirm on the receipt:
+                </legend>
+                {items.map((c) => (
+                  <label key={c.key} className="flex min-h-9 items-start gap-2.5 text-sm">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(checked[c.key])}
+                      onChange={(e) => setChecked((s) => ({ ...s, [c.key]: e.target.checked }))}
+                      className="accent-accent mt-0.5 size-4 shrink-0"
+                    />
+                    <span>{c.label}</span>
+                  </label>
+                ))}
+              </fieldset>
+            )}
             <label className="block space-y-2 text-sm">
               Decision reason (required)
               <Textarea
@@ -251,4 +280,24 @@ export function TransactionReview() {
       </Modal>
     </div>
   );
+}
+
+/** What the receipt must show for the entry to be verified, from what the farmer entered. */
+function checklist(t: TransactionItem): { key: string; label: string }[] {
+  const items = [
+    { key: 'amount', label: `the amount is ${formatTransactionMoney(t.amount, t.currency)}` },
+    { key: 'date', label: `the date is ${t.date} (or within a day of it)` },
+  ];
+  if (t.kind === 'momo')
+    items.push({
+      key: 'party',
+      label: `the money ${t.direction === 'out' ? 'went to' : 'came from'} ${t.counterparty ?? 'the person entered'}`,
+    });
+  else items.push({ key: 'party', label: `it is for: ${t.description ?? 'the entry described'}` });
+  const reference = t.reference ?? t.externalReference;
+  if (reference) items.push({ key: 'reference', label: `the transaction ID is ${reference}` });
+  if (t.network) items.push({ key: 'network', label: `the network is ${t.network}` });
+  if (t.bankName) items.push({ key: 'bank', label: `the bank is ${t.bankName}` });
+  items.push({ key: 'owner', label: "the receipt belongs to this farmer's account or phone" });
+  return items;
 }

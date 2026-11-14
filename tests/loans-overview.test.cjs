@@ -43,6 +43,10 @@ const credit = {
   verifiedEntries: 0,
   steps: [],
   best: null,
+  // GET /me/credit's own list of what is missing, shown as it comes.
+  missing: [
+    '1 entry is not verified yet, so it counts for 50% of the score until AgriCtec checks the receipt.',
+  ],
 };
 const steps = ['records', 'evidence', 'ghana-card', 'apply'].map((key) => ({
   key,
@@ -88,6 +92,8 @@ test('the reference overview renders real empty states without mockup financial 
   assert.match(html, /GHS 0.00/);
   assert.doesNotMatch(html, /GHS 2,400|GHS 1,620|GHS 780/);
   assert.match(html, /does not qualify or disqualify/);
+  assert.match(html, /Still missing/);
+  assert.match(html, /counts for 50% of the score until AgriCtec checks the receipt/);
   assert.match(html, /disabled=""[^>]*>.*?Download PDF statement/);
 });
 

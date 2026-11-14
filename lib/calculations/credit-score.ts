@@ -1,7 +1,6 @@
 import { differenceInCalendarDays, isSameMonth, startOfMonth, subMonths } from 'date-fns';
 import { DEFAULT_CREDIT_CONFIG } from '@/lib/admin/defaults';
 import { parseISODate } from '@/lib/format';
-import { profitMargin, totalExpenses, totalIncome } from '@/lib/calculations/finance';
 import type { CreditScoreBreakdown, FarmRecord, MomoTransaction, Profile } from '@/types';
 import type { CreditConfig } from '@/types/admin';
 
@@ -32,23 +31,67 @@ export function isProfileComplete(profile: Profile | null): boolean {
   );
 }
 
-/** How many of the last `months` months (including this one) have a record or MoMo entry. */
-function activeMonths(records: FarmRecord[], momo: MomoTransaction[], months: number): number {
-  const dates = [...records, ...momo].map((item) => parseISODate(item.date));
+/** Rules saved before the setting existed count unchecked entries at 50%. */
+export const DEFAULT_UNVERIFIED_WEIGHT = 50;
+
+/** Statuses that take an entry out of the score: AgriCtec rejected it, or it is in dispute. */
+const NOT_COUNTED = new Set(['rejected', 'disputed']);
+
+/**
+ * How much one entry counts (app/domain/credit.py entry_weight): 1 when AgriCtec verified it
+ * from its receipt, 0 when rejected or disputed, and `unverifiedWeight`% while nobody has
+ * checked it (self-reported or waiting for review).
+ */
+export function entryWeight(
+  item: { verificationStatus?: string },
+  unverifiedWeight: number = DEFAULT_UNVERIFIED_WEIGHT,
+): number {
+  const status = item.verificationStatus ?? 'self_reported';
+  if (status === 'verified') return 1;
+  if (NOT_COUNTED.has(status)) return 0;
+  return clamp(unverifiedWeight, 0, 100) / 100;
+}
+
+/**
+ * The last `months` months (including this one) with an entry: a month counts in full when one
+ * of its entries is verified, and by the best of its weights otherwise.
+ */
+function activeMonths(
+  items: (FarmRecord | MomoTransaction)[],
+  unverifiedWeight: number,
+  months: number,
+): number {
   const thisMonth = startOfMonth(new Date());
   let active = 0;
   for (let i = 0; i < months; i++) {
     const month = subMonths(thisMonth, i);
-    if (dates.some((date) => isSameMonth(date, month))) active++;
+    let best = 0;
+    for (const item of items)
+      if (isSameMonth(parseISODate(item.date), month))
+        best = Math.max(best, entryWeight(item, unverifiedWeight));
+    active += best;
   }
   return active;
 }
 
-function incomeStabilityFactor(records: FarmRecord[]): number {
-  const income = totalIncome(records);
+/** Income counts by its entry's weight; costs count in full unless rejected or disputed. */
+function incomeStabilityFactor(records: FarmRecord[], unverifiedWeight: number): number {
+  const income = records.reduce(
+    (sum, r) => sum + (r.type === 'income' ? r.amount * entryWeight(r, unverifiedWeight) : 0),
+    0,
+  );
   if (income <= 0) return 0;
-  const expenses = totalExpenses(records);
-  if (income >= expenses) return Math.min(100, 50 + profitMargin(records));
+  const expenses = records.reduce(
+    (sum, r) =>
+      sum +
+      (r.type === 'expense' && !NOT_COUNTED.has(r.verificationStatus ?? 'self_reported')
+        ? r.amount
+        : 0),
+    0,
+  );
+  if (income >= expenses)
+    // The same 1-decimal profit margin as finance.profitMargin.
+    return Math.min(100, 50 + Math.round(((income - expenses) / income) * 1000) / 10);
   return Math.max(0, 50 - (expenses / income - 1) * 100);
 }
 
@@ -56,6 +99,8 @@ function incomeStabilityFactor(records: FarmRecord[]): number {
  * THE single credit score used everywhere (dashboard, loans, reports, admin).
  * Five factors from 0 to 100 are weighted by the admin's credit rules, then mapped onto 300–850.
  * The default config reproduces the original fixed weights exactly (30/25/25/10/10).
+ * Entries count by what AgriCtec checked (entryWeight): typed-in sales that never happened
+ * can't buy a good score.
  */
 export function calculateCreditScore(
   records: FarmRecord[],
@@ -65,16 +110,21 @@ export function calculateCreditScore(
 ): CreditScoreBreakdown {
   const { weights, targets } = config;
   const window = Math.max(1, targets.monthsWindow);
+  const unverified = targets.unverifiedWeight ?? DEFAULT_UNVERIFIED_WEIGHT;
   // Only entries typed in on time build history, completeness and MoMo activity.
   const timelyRecords = records.filter(recordedOnTime);
   const timelyMomo = momo.filter(recordedOnTime);
-  const paymentHistory = (activeMonths(timelyRecords, timelyMomo, window) / window) * 100;
+  const counted = (items: (FarmRecord | MomoTransaction)[]) =>
+    items.reduce((sum, item) => sum + entryWeight(item, unverified), 0);
+  const countedMomo = counted(timelyMomo);
+  const paymentHistory =
+    (activeMonths([...timelyRecords, ...timelyMomo], unverified, window) / window) * 100;
   const recordCompleteness = Math.min(
     100,
-    ((timelyRecords.length + timelyMomo.length) / targets.recordsForFull) * 100,
+    ((counted(timelyRecords) + countedMomo) / targets.recordsForFull) * 100,
   );
-  const incomeStability = incomeStabilityFactor(records);
-  const momoActivity = Math.min(100, (timelyMomo.length / targets.momoForFull) * 100);
+  const incomeStability = incomeStabilityFactor(records, unverified);
+  const momoActivity = Math.min(100, (countedMomo / targets.momoForFull) * 100);
 
   const checks = [
     isProfileComplete(profile),

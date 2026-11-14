@@ -15,22 +15,26 @@ export const FACTORS: { key: WeightKey; label: string; description: string }[] =
   {
     key: 'paymentHistory',
     label: 'Payment history',
-    description: 'Months with any record or MoMo activity, within the consistency window.',
+    description:
+      'Months with any record or MoMo activity, within the consistency window (a month with only unchecked entries counts at the unchecked %).',
   },
   {
     key: 'recordCompleteness',
     label: 'Record completeness',
-    description: 'Records and MoMo entries kept, up to the number needed for full marks.',
+    description:
+      'Records and MoMo entries kept, up to the number needed for full marks. Verified entries count in full, unchecked ones at the unchecked %.',
   },
   {
     key: 'incomeStability',
     label: 'Income stability',
-    description: 'Profit margin: income above expenses scores higher; losses score lower.',
+    description:
+      'Profit margin: income above expenses scores higher; losses score lower. Unchecked income counts at the unchecked %.',
   },
   {
     key: 'momoActivity',
     label: 'MoMo activity',
-    description: 'Mobile Money transactions logged, up to the number needed for full marks.',
+    description:
+      'Mobile Money transactions logged, up to the number needed for full marks (unchecked ones at the unchecked %).',
   },
   {
     key: 'verification',
@@ -47,6 +51,7 @@ export const LIMITS = {
   recordsForFull: { min: 1, max: 1000 },
   momoForFull: { min: 1, max: 1000 },
   monthsWindow: { min: 1, max: 24 },
+  unverifiedWeight: { min: 0, max: 100 },
   minRecords: { min: 0, max: 1000 },
   maxProfitMultiplier: { min: 0.5, max: 20 },
 } as const;
@@ -94,6 +99,11 @@ export function draftIssues(draft: CreditConfigInput): DraftIssues {
     !inRange(t.monthsWindow, LIMITS.monthsWindow)
   ) {
     issues.targets = 'Records and MoMo targets are 1–1000; the window is 1–24 months.';
+  } else if (
+    !Number.isInteger(t.unverifiedWeight) ||
+    !inRange(t.unverifiedWeight, LIMITS.unverifiedWeight)
+  ) {
+    issues.targets = 'Unchecked entries count for a whole number from 0% to 100%.';
   }
 
   const { fair, good, excellent } = draft.bands;
@@ -129,6 +139,7 @@ const TARGET_LABELS: Record<keyof CreditConfig['targets'], [string, (v: number) 
   recordsForFull: ['Records for full completeness', (v) => `${v}`],
   momoForFull: ['MoMo for full activity', (v) => `${v}`],
   monthsWindow: ['Consistency window', (v) => `${v} months`],
+  unverifiedWeight: ['Unchecked entries count', (v) => `${v}%`],
 };
 const BAND_LABELS: Record<keyof CreditConfig['bands'], string> = {
   fair: 'Fair from',
