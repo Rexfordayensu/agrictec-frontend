@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Ban, BadgeCheck, MapPin, RotateCcw, Smartphone } from 'lucide-react';
@@ -95,7 +97,7 @@ export function FarmerQuickViewModal({
                 </Button>
               ))}
             <Link
-              href={`/admin/farmers/${account.userId}`}
+              href={adminPath(`/admin/farmers/${account.userId}`)}
               className="group inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-[#7c3aed] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#6d28d9]"
             >
               Open full profile

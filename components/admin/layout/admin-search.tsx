@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ClipboardList, Landmark, Search, UserRound, type LucideIcon } from 'lucide-react';
@@ -84,7 +86,7 @@ export function searchConsole(
         .map((f) => ({
           kind: 'farmer' as const,
           id: f.userId,
-          href: `/admin/farmers/${f.userId}`,
+          href: adminPath(`/admin/farmers/${f.userId}`),
           title: f.profile.name || f.email,
           detail: [f.email, f.profile.region].filter(Boolean).join(' · '),
           status: f.status,
@@ -98,7 +100,7 @@ export function searchConsole(
         .map((a) => ({
           kind: 'application' as const,
           id: a.id,
-          href: `/admin/loans/${a.id}`,
+          href: adminPath(`/admin/loans/${a.id}`),
           title: a.reference,
           detail: `${names.get(a.userId) ?? 'Farmer'} · ${formatGHS(a.amount)}`,
           status: a.status,
@@ -112,7 +114,7 @@ export function searchConsole(
         .map((l) => ({
           kind: 'lender' as const,
           id: l.id,
-          href: `/admin/lenders/${encodeURIComponent(l.id)}`,
+          href: adminPath(`/admin/lenders/${encodeURIComponent(l.id)}`),
           title: l.name,
           detail: `${INSTITUTION_TYPE_LABELS[l.institutionType]} · ${l.listed ? 'listed' : 'not listed'}`,
         }))

@@ -1,3 +1,4 @@
+import { adminPath } from '@/lib/admin-path';
 // The audit log's action groups (phase A14), for its filter and its labels. Pure.
 
 import type { AuditEntry } from '@/types/admin';
@@ -51,19 +52,19 @@ export function targetHref(entry: Pick<AuditEntry, 'targetType' | 'targetId'>): 
   if (!entry.targetId) return null;
   switch (entry.targetType) {
     case 'farmer':
-      return `/admin/farmers/${entry.targetId}`;
+      return adminPath(`/admin/farmers/${entry.targetId}`);
     case 'loan':
-      return `/admin/loans?open=${encodeURIComponent(entry.targetId)}`;
+      return adminPath(`/admin/loans?open=${encodeURIComponent(entry.targetId)}`);
     case 'lender':
-      return '/admin/lenders';
+      return adminPath('/admin/lenders');
     case 'config':
-      return '/admin/credit-rules';
+      return adminPath('/admin/credit-rules');
     case 'announcement':
-      return '/admin/announcements';
+      return adminPath('/admin/announcements');
     case 'risk':
-      return '/admin/risk';
+      return adminPath('/admin/risk');
     case 'admin':
-      return '/admin/team';
+      return adminPath('/admin/team');
     default:
       return null;
   }

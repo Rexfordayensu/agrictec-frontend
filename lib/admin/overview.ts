@@ -1,3 +1,4 @@
+import { adminPath } from '@/lib/admin-path';
 // The admin overview's numbers (phase A6). Pure functions over the cached admin data, so the
 // dashboard, its tests and a future backend all agree.
 
@@ -29,7 +30,8 @@ import type {
 } from '@/types/admin';
 
 /** The farmers list filtered to one region (the region chart's bars link here). */
-export const regionHref = (region: string) => `/admin/farmers?region=${encodeURIComponent(region)}`;
+export const regionHref = (region: string) =>
+  adminPath(`/admin/farmers?region=${encodeURIComponent(region)}`);
 
 export type DateRange = '30d' | '90d' | '12m' | 'all';
 
@@ -298,7 +300,7 @@ export function needsAttention(
       key: 'maintenance',
       count: 1,
       text: 'Maintenance mode is ON. Farmers can’t use the app.',
-      href: '/admin/settings',
+      href: adminPath('/admin/settings'),
       urgent: true,
       actionable: allowed('settings.manage'),
     });
@@ -310,7 +312,7 @@ export function needsAttention(
       key: 'risk',
       count: high,
       text: `${high} high-risk ${plural(high, 'flag needs', 'flags need')} review`,
-      href: '/admin/risk?severity=high&status=open',
+      href: adminPath('/admin/risk?severity=high&status=open'),
       actionable: true,
     });
   }
@@ -324,7 +326,7 @@ export function needsAttention(
       key: 'verifications',
       count: pending.length,
       text: `${pending.length} ${plural(pending.length, 'verification', 'verifications')} pending (oldest ${oldest} ${plural(oldest, 'day', 'days')})`,
-      href: '/admin/verifications',
+      href: adminPath('/admin/verifications'),
       actionable: true,
     });
   }
@@ -339,7 +341,7 @@ export function needsAttention(
       key: 'loans',
       count: waiting,
       text: `${waiting} loan ${plural(waiting, 'application', 'applications')} waiting more than ${LOAN_WAIT_HOURS}h`,
-      href: '/admin/loans?status=submitted',
+      href: adminPath('/admin/loans?status=submitted'),
       actionable: true,
     });
   }
@@ -350,7 +352,7 @@ export function needsAttention(
       key: 'appeals',
       count: appeals,
       text: `${appeals} suspended ${plural(appeals, 'farmer', 'farmers')} appealed`,
-      href: '/admin/farmers?status=suspended&tag=appeal',
+      href: adminPath('/admin/farmers?status=suspended&tag=appeal'),
       actionable: true,
     });
   }

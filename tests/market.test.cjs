@@ -489,7 +489,15 @@ test('market and weather have distinct desktop/mobile destinations and dashboard
   assert.equal(getAdminPageMeta(adminWeather.href).title, 'Weather');
   assert.equal(isAdminNavActive(adminWeather.href, adminMarket), false);
   for (const scope of ['farmer', 'admin']) {
-    const html = renderToStaticMarkup(createElement(WeatherCard, { scope, compact: true }));
+    // The console passes its own forecast link: the card is shared with the farmer app, which
+    // never holds the console's address.
+    const html = renderToStaticMarkup(
+      createElement(WeatherCard, {
+        scope,
+        compact: true,
+        ...(scope === 'admin' ? { weatherHref: adminWeather.href } : {}),
+      }),
+    );
     assert.match(html, /View weather forecast/);
     assert.ok(html.includes(`href="${scope === 'admin' ? adminWeather.href : weather.href}"`));
     assert.doesNotMatch(html, /<form|Use my current location|<select/);

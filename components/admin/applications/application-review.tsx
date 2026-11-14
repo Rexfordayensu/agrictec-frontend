@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
@@ -40,7 +42,11 @@ const money = (value: string | number | null | undefined) =>
   value === null || value === undefined || value === ''
     ? '—'
     : `GHS ${Number(value).toLocaleString('en-GH', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-const IDENTITY = { none: 'Not verified', reviewed: 'Reviewed by AgriCtec', nia_verified: 'NIA verified' };
+const IDENTITY = {
+  none: 'Not verified',
+  reviewed: 'Reviewed by AgriCtec',
+  nia_verified: 'NIA verified',
+};
 const WITH_LENDER: ApplicationStatus[] = ['sent_to_lender', ...LENDER_STATUSES.slice(0, 3)];
 const LENDER_STATUS_LABEL: Record<LenderConfirmedStatus, string> = {
   received_by_lender: 'Received by the lender',
@@ -89,7 +95,9 @@ export function ApplicationReview({ id }: { id: string }) {
       if (next.sendResult === 'manual')
         toast.info('Approved. This lender has no agreed email: hand it over and record how.');
       else if (next.sendResult === 'failed')
-        toast.error(`Approved, but the email failed: ${next.sendError ?? 'try again or record how it was sent'}`);
+        toast.error(
+          `Approved, but the email failed: ${next.sendError ?? 'try again or record how it was sent'}`,
+        );
       else toast.success(done);
       void refreshConsole();
     } catch (cause) {
@@ -119,7 +127,7 @@ export function ApplicationReview({ id }: { id: string }) {
   return (
     <div className="space-y-5">
       <Link
-        href="/admin/applications"
+        href={adminPath('/admin/applications')}
         className="text-text-dim hover:text-text inline-flex items-center gap-1 text-sm"
       >
         <ArrowLeft size={14} aria-hidden="true" /> All applications
@@ -141,7 +149,11 @@ export function ApplicationReview({ id }: { id: string }) {
         {canManage && (
           <div className="flex flex-wrap gap-2">
             {status === 'submitted' && (
-              <Button icon={PlayCircle} loading={busy} onClick={() => void act(() => svc.startReview(app.id), 'Review started')}>
+              <Button
+                icon={PlayCircle}
+                loading={busy}
+                onClick={() => void act(() => svc.startReview(app.id), 'Review started')}
+              >
                 Start review
               </Button>
             )}
@@ -158,7 +170,11 @@ export function ApplicationReview({ id }: { id: string }) {
             {status === 'approved_for_sending' && (
               <>
                 {app.lender.canReceive && (
-                  <Button icon={Mail} loading={busy} onClick={() => void act(() => svc.send(app.id), 'Sent to the lender')}>
+                  <Button
+                    icon={Mail}
+                    loading={busy}
+                    onClick={() => void act(() => svc.send(app.id), 'Sent to the lender')}
+                  >
                     Email it to the lender
                   </Button>
                 )}
@@ -198,7 +214,10 @@ export function ApplicationReview({ id }: { id: string }) {
             </thead>
             <tbody>
               {app.tally.lines.map((line) => (
-                <tr key={line.label} className={cn('border-border border-t', !line.same && 'text-ink-gold')}>
+                <tr
+                  key={line.label}
+                  className={cn('border-border border-t', !line.same && 'text-ink-gold')}
+                >
                   <td className="py-1.5">{line.label}</td>
                   <td className="py-1.5 tabular-nums">{fmt(line.label, line.atSubmission)}</td>
                   <td className="py-1.5 tabular-nums">{fmt(line.label, line.now)}</td>
@@ -209,8 +228,8 @@ export function ApplicationReview({ id }: { id: string }) {
           <p className="text-text-mute text-xs">{app.tally.note}</p>
           {app.assessment && (
             <p className="text-text-dim text-sm">
-              <span className="font-semibold">Preliminary check:</span> {app.assessment.outcomeLabel}.{' '}
-              {app.assessment.summary}
+              <span className="font-semibold">Preliminary check:</span>{' '}
+              {app.assessment.outcomeLabel}. {app.assessment.summary}
             </p>
           )}
           <div className="flex flex-wrap gap-2">
@@ -218,7 +237,9 @@ export function ApplicationReview({ id }: { id: string }) {
               <Button
                 variant="ghost"
                 icon={Download}
-                onClick={() => void download(() => svc.statement(app.id), `${app.reference}-statement.pdf`)}
+                onClick={() =>
+                  void download(() => svc.statement(app.id), `${app.reference}-statement.pdf`)
+                }
               >
                 Transaction statement ({app.tally.statement.periodMonths} months)
               </Button>
@@ -226,7 +247,9 @@ export function ApplicationReview({ id }: { id: string }) {
             <Button
               variant="ghost"
               icon={Download}
-              onClick={() => void download(() => svc.pack(app.id), `${app.reference}-application.pdf`)}
+              onClick={() =>
+                void download(() => svc.pack(app.id), `${app.reference}-application.pdf`)
+              }
             >
               Application pack
             </Button>
@@ -239,7 +262,10 @@ export function ApplicationReview({ id }: { id: string }) {
           </h3>
           <dl className="grid gap-2 text-sm sm:grid-cols-2">
             <Fact label="Name">
-              <Link href={`/admin/farmers/${app.userId}`} className="text-ink-green font-semibold">
+              <Link
+                href={adminPath(`/admin/farmers/${app.userId}`)}
+                className="text-ink-green font-semibold"
+              >
                 {app.farmer.name}
               </Link>
             </Fact>
@@ -256,7 +282,8 @@ export function ApplicationReview({ id }: { id: string }) {
             </Fact>
             {app.sentAt && (
               <Fact label="Sent">
-                {formatGhanaDate(app.sentAt)} · {app.sentVia === 'email' ? `by email to ${app.sentTo}` : app.sentTo}
+                {formatGhanaDate(app.sentAt)} ·{' '}
+                {app.sentVia === 'email' ? `by email to ${app.sentTo}` : app.sentTo}
               </Fact>
             )}
           </dl>
@@ -269,12 +296,17 @@ export function ApplicationReview({ id }: { id: string }) {
         </h3>
         <ul className="divide-border divide-y">
           {app.requirements.map((req) => (
-            <li key={req.key} className="flex flex-wrap items-start justify-between gap-2 py-2 text-sm">
+            <li
+              key={req.key}
+              className="flex flex-wrap items-start justify-between gap-2 py-2 text-sm"
+            >
               <span className="min-w-0">
                 <span className="text-text font-semibold">{req.name}</span>
                 {!req.required && <span className="text-text-mute"> (optional)</span>}
                 {req.checkedByAgriCtec && (
-                  <span className="text-text-mute block text-xs">Checked from the farmer’s records</span>
+                  <span className="text-text-mute block text-xs">
+                    Checked from the farmer’s records
+                  </span>
                 )}
               </span>
               <span className="text-text-dim text-right">
@@ -285,7 +317,9 @@ export function ApplicationReview({ id }: { id: string }) {
                         <button
                           key={doc.id}
                           type="button"
-                          onClick={() => void download(() => svc.document(app.id, doc.id), doc.filename)}
+                          onClick={() =>
+                            void download(() => svc.document(app.id, doc.id), doc.filename)
+                          }
                           className="text-ink-green block font-semibold hover:underline"
                         >
                           {doc.filename}
@@ -293,7 +327,7 @@ export function ApplicationReview({ id }: { id: string }) {
                       ))
                   : req.fieldType === 'none'
                     ? null
-                    : req.answer ?? '—'}
+                    : (req.answer ?? '—')}
               </span>
             </li>
           ))}
@@ -324,7 +358,10 @@ export function ApplicationReview({ id }: { id: string }) {
                 <button
                   type="button"
                   onClick={() =>
-                    void download(() => svc.proof(app.id, event.eventId), event.proofName ?? 'lender-confirmation')
+                    void download(
+                      () => svc.proof(app.id, event.eventId),
+                      event.proofName ?? 'lender-confirmation',
+                    )
                   }
                   className="text-ink-green mt-1 text-xs font-semibold hover:underline"
                 >
@@ -344,7 +381,9 @@ export function ApplicationReview({ id }: { id: string }) {
         required
         busy={busy}
         onClose={() => setDialog(null)}
-        onSubmit={(note) => void act(() => svc.requestChanges(app.id, note), 'Sent back to the farmer')}
+        onSubmit={(note) =>
+          void act(() => svc.requestChanges(app.id, note), 'Sent back to the farmer')
+        }
       />
       <NoteDialog
         open={dialog === 'approve'}
@@ -358,7 +397,9 @@ export function ApplicationReview({ id }: { id: string }) {
         }
         busy={busy}
         onClose={() => setDialog(null)}
-        onSubmit={(note) => void act(() => svc.approve(app.id, note || undefined), 'Approved and sent to the lender')}
+        onSubmit={(note) =>
+          void act(() => svc.approve(app.id, note || undefined), 'Approved and sent to the lender')
+        }
       />
       <NoteDialog
         open={dialog === 'recorded'}
@@ -368,7 +409,9 @@ export function ApplicationReview({ id }: { id: string }) {
         required
         busy={busy}
         onClose={() => setDialog(null)}
-        onSubmit={(how) => void act(() => svc.recordSent(app.id, how), 'Recorded as sent to the lender')}
+        onSubmit={(how) =>
+          void act(() => svc.recordSent(app.id, how), 'Recorded as sent to the lender')
+        }
       />
       <LenderStatusDialog
         open={dialog === 'lender'}
@@ -435,8 +478,18 @@ function NoteDialog({
   return (
     <Modal open onClose={onClose} title={title} description={description}>
       <div className="space-y-4">
-        <FormField label={label} htmlFor="review-note" hint={required ? 'At least 5 characters.' : undefined}>
-          <Textarea id="review-note" rows={4} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />
+        <FormField
+          label={label}
+          htmlFor="review-note"
+          hint={required ? 'At least 5 characters.' : undefined}
+        >
+          <Textarea
+            id="review-note"
+            rows={4}
+            maxLength={1000}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </FormField>
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={onClose}>
@@ -475,7 +528,11 @@ function LenderStatusDialog({
     >
       <div className="space-y-4">
         <FormField label="What the lender confirmed" htmlFor="lender-status">
-          <Select id="lender-status" value={status} onChange={(e) => setStatus(e.target.value as LenderConfirmedStatus)}>
+          <Select
+            id="lender-status"
+            value={status}
+            onChange={(e) => setStatus(e.target.value as LenderConfirmedStatus)}
+          >
             {(LENDER_STATUSES as LenderConfirmedStatus[]).map((s) => (
               <option key={s} value={s}>
                 {LENDER_STATUS_LABEL[s]}
@@ -484,7 +541,13 @@ function LenderStatusDialog({
           </Select>
         </FormField>
         <FormField label="Note for the farmer" htmlFor="lender-note" hint="At least 5 characters.">
-          <Textarea id="lender-note" rows={3} maxLength={1000} value={note} onChange={(e) => setNote(e.target.value)} />
+          <Textarea
+            id="lender-note"
+            rows={3}
+            maxLength={1000}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </FormField>
         <FormField label="The lender’s confirmation (PDF or image)" htmlFor="lender-proof">
           <Input

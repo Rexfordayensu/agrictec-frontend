@@ -1,3 +1,4 @@
+import { adminPath } from '@/lib/admin-path';
 import Link from 'next/link';
 import { ArrowUpRight, Ban, CircleCheck, ShieldAlert, UserRound } from 'lucide-react';
 import { InitialsAvatar } from '@/components/admin/shared/initials-avatar';
@@ -65,7 +66,7 @@ export function RiskSummary({ flags, farmers }: { flags: RiskFlag[]; farmers: Fa
         </p>
         {top && mostFlagged ? (
           <Link
-            href={`/admin/farmers/${top.userId}`}
+            href={adminPath(`/admin/farmers/${top.userId}`)}
             className="group mt-1.5 flex min-h-11 items-center gap-2.5 rounded-lg"
           >
             <InitialsAvatar name={top.profile.name || top.email} />

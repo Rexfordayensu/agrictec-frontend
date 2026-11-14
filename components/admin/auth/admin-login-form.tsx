@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { AlertCircle, Clock, Info, LogIn } from 'lucide-react';
+import { AlertCircle, Clock, Info, LockKeyhole, LogIn, Mail } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import {
@@ -20,7 +20,7 @@ import {
   useSignInLock,
 } from '@/components/auth/sign-in-lock';
 import { Button } from '@/components/ui/button';
-import { FormField, fieldErrorId } from '@/components/ui/form-field';
+import { fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { ADMIN_IDLE_MINUTES } from '@/lib/admin/admin-session';
 import { useAdminAuthStore } from '@/store/admin/admin-auth-store';
@@ -80,13 +80,13 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-text text-display font-bold">AgriCtec Admin</h1>
-        <p className="text-text-dim mt-1 text-sm">Sign in with your staff account.</p>
+    <div>
+      <div className="admin-login-heading">
+        <h1>AgriCtec Admin</h1>
+        <p>Sign in with your staff account.</p>
       </div>
 
-      <form noValidate onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form noValidate onSubmit={handleSubmit(onSubmit)} className="admin-login-form">
         {reason && !formError && !locked && (
           <div
             role="status"
@@ -103,21 +103,34 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
         {locked && lockedUntil && <SignInLockAlert until={lockedUntil} remaining={remaining} />}
         {formError && !locked && <FormAlert icon={AlertCircle}>{formError}</FormAlert>}
 
-        <fieldset disabled={locked || isSubmitting} className="space-y-4">
-          <FormField label="Email" htmlFor="admin-email" error={errors.email?.message}>
+        <fieldset disabled={locked || isSubmitting} className="flex flex-col gap-5">
+          <div className="admin-login-field">
+            <label htmlFor="admin-email">
+              <Mail aria-hidden="true" />
+              Email
+            </label>
             <Input
               id="admin-email"
               type="email"
               autoComplete="username"
               inputMode="email"
-              placeholder="you@agrictec.app"
+              placeholder="admin@agrictec.app"
               error={Boolean(errors.email)}
               aria-describedby={errors.email ? fieldErrorId('admin-email') : undefined}
               {...register('email')}
             />
-          </FormField>
+            {errors.email && (
+              <p id={fieldErrorId('admin-email')} role="alert" className="admin-login-error">
+                {errors.email.message}
+              </p>
+            )}
+          </div>
 
-          <FormField label="Password" htmlFor="admin-password" error={errors.password?.message}>
+          <div className="admin-login-field">
+            <label htmlFor="admin-password">
+              <LockKeyhole aria-hidden="true" />
+              Password
+            </label>
             <PasswordInput
               id="admin-password"
               autoComplete="current-password"
@@ -125,7 +138,12 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
               aria-describedby={errors.password ? fieldErrorId('admin-password') : undefined}
               {...register('password')}
             />
-          </FormField>
+            {errors.password && (
+              <p id={fieldErrorId('admin-password')} role="alert" className="admin-login-error">
+                {errors.password.message}
+              </p>
+            )}
+          </div>
         </fieldset>
 
         <Button
@@ -133,7 +151,7 @@ export function AdminLoginForm({ next, reason }: { next: string; reason?: AdminL
           icon={LogIn}
           loading={isSubmitting}
           disabled={locked}
-          className="w-full"
+          className="admin-login-submit"
         >
           {isSubmitting ? 'Signing in…' : 'Sign in'}
         </Button>

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useState } from 'react';
 import Link from 'next/link';
 import {
@@ -71,7 +73,7 @@ function FarmerRow({ farmer }: { farmer: FarmerImpact }) {
   return (
     <li>
       <Link
-        href={`/admin/farmers/${farmer.userId}`}
+        href={adminPath(`/admin/farmers/${farmer.userId}`)}
         className="hover:bg-glass-strong -mx-2 flex min-h-9 items-center gap-2 rounded-lg px-2 text-sm transition-colors"
       >
         <span className="text-text min-w-0 flex-1 truncate">{farmer.name}</span>

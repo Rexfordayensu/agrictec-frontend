@@ -357,3 +357,58 @@ test('the demo reminds the guest every 10 minutes, across reloads, with somethin
     leaveBrowser();
   }
 });
+
+test('the app tour has six explained steps, each pointing at the real place', () => {
+  const { tourSteps } = require('../lib/tour.ts');
+  const farmer = tourSteps({ guest: false, loans: true });
+  assert.deepEqual(
+    farmer.map((s) => s.id),
+    ['welcome', 'records', 'momo', 'score', 'loans', 'settings'],
+  );
+  for (const step of farmer) assert.ok(step.title && step.body.length > 60, step.id);
+  assert.deepEqual(farmer[0].targets, [], 'the welcome is a card in the middle');
+  assert.ok(farmer[1].targets.some((t) => t.includes('a[href="/records"]')));
+  assert.deepEqual(farmer[3].targets, ['[data-tour="score"]']);
+  assert.match(farmer[2].elsewhere, /under Menu/, 'a phone is told where MoMo is');
+  // A turned-off feature isn't described.
+  assert.equal(
+    tourSteps({ guest: false, loans: false }).some((s) => s.id === 'loans'),
+    false,
+  );
+  // Guests hear about the one-day demo and are invited to create an account.
+  const guest = tourSteps({ guest: true, loans: true });
+  assert.match(guest[0].body, /one day/);
+  assert.match(guest.at(-1).title, /start for real/);
+});
+
+test('finishing or skipping the tour: a guest on the phone (sent nowhere), a farmer on the account', async () => {
+  const items = fakeBrowser();
+  const { recordTourSeen, guestSawTour } = require('../lib/tour.ts');
+  const originalFetch = global.fetch;
+  const sent = [];
+  global.fetch = async (url, options) => {
+    sent.push(`${options.method} ${url}`);
+    return {
+      ok: true,
+      status: 200,
+      headers: new Headers(),
+      text: async () => '{"tourSeenAt":"2026-11-14T09:00:00Z"}',
+    };
+  };
+  try {
+    startDemo();
+    assert.equal(guestSawTour(), false);
+    assert.equal(await recordTourSeen(true), null);
+    assert.equal(guestSawTour(), true);
+    assert.deepEqual(sent, [], 'a guest sends nothing');
+    endDemo();
+    assert.equal(items.has('agrictec:demo-tour'), false, 'it goes with the demo');
+
+    const saved = await recordTourSeen(false);
+    assert.equal(saved.tourSeenAt, '2026-11-14T09:00:00Z');
+    assert.deepEqual(sent, ['POST /api/v1/me/tour']);
+  } finally {
+    global.fetch = originalFetch;
+    leaveBrowser();
+  }
+});

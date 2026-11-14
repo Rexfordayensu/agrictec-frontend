@@ -21,6 +21,7 @@ import { sessionStore, userKey } from '@/services/storage';
 import { useAuthStore } from '@/store/auth-store';
 import { useModalStore } from '@/store/modal-store';
 import { useProfileStore } from '@/store/profile-store';
+import { useTourStore } from '@/store/tour-store';
 
 const scheduleKey = (userId: string) => userKey(userId, 'ghana-card-reminder');
 /** The three choices: tall, rounded, bold, sharing the row (stacked on phones). */
@@ -66,7 +67,8 @@ export function GhanaCardReminder() {
     let timer: ReturnType<typeof setTimeout>;
     let cancelled = false;
     const attempt = () => {
-      if (formOpen || document.visibilityState !== 'visible') {
+      // Also while the app tour is open: one thing at a time for a new farmer.
+      if (formOpen || useTourStore.getState().open || document.visibilityState !== 'visible') {
         timer = setTimeout(attempt, BUSY_RETRY_MS);
         return;
       }

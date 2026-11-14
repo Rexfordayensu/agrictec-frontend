@@ -12,6 +12,7 @@ import {
 import { BrandLogo } from '@/components/layout/brand-logo';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
+import { TakeTourButton } from '@/components/tour/take-tour-button';
 import { IconTile } from '@/components/ui/icon-tile';
 
 const benefits = [
@@ -71,6 +72,8 @@ export function AboutCard() {
               You control your data
             </Badge>
           </div>
+          {/* New to AgriCtec, or want a reminder: the 6-step tour of the app. */}
+          <TakeTourButton className="about-tour-button mt-4" />
         </div>
         <svg className="about-leaf" viewBox="0 0 140 200" fill="none" aria-hidden="true">
           <path

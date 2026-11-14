@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import { BadgeCheck, Bell, ClipboardList, ShieldAlert, type LucideIcon } from 'lucide-react';
@@ -32,7 +34,7 @@ export function AdminNotifications() {
         icon: ShieldAlert,
         count: badges.openRisk,
         label: 'open risk flags',
-        href: '/admin/risk',
+        href: adminPath('/admin/risk'),
         permission: 'risk.review',
       },
       {
@@ -40,7 +42,7 @@ export function AdminNotifications() {
         icon: BadgeCheck,
         count: badges.pendingVerifications,
         label: 'verifications waiting',
-        href: '/admin/verifications',
+        href: adminPath('/admin/verifications'),
         permission: 'verifications.review',
       },
       {
@@ -48,7 +50,7 @@ export function AdminNotifications() {
         icon: ClipboardList,
         count: badges.newApplications,
         label: 'new loan applications',
-        href: '/admin/loans?status=submitted',
+        href: adminPath('/admin/loans?status=submitted'),
         permission: 'loans.view',
       },
     ] satisfies Alert[]

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ban, Download, Megaphone, Tag } from 'lucide-react';
@@ -53,7 +55,9 @@ export function FarmersBulkActions({
    */
   function announce() {
     const regions = [...new Set(selected.map((f) => f.profile.region))].sort();
-    router.push(`/admin/announcements?new=1&regions=${encodeURIComponent(regions.join(','))}`);
+    router.push(
+      adminPath(`/admin/announcements?new=1&regions=${encodeURIComponent(regions.join(','))}`),
+    );
   }
 
   return (

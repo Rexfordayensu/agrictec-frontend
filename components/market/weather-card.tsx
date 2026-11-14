@@ -71,10 +71,16 @@ export function WeatherCard({
   scope = 'farmer',
   compact = false,
   dashboard = false,
+  weatherHref = '/weather',
 }: {
   scope?: 'farmer' | 'admin';
   compact?: boolean;
   dashboard?: boolean;
+  /**
+   * Where "View full forecast" goes. The console passes its own page: this card is also in the
+   * farmer app, which never holds the console's address (lib/admin-path.ts).
+   */
+  weatherHref?: string;
 }) {
   const farmerId = useProfileStore((s) => s.userId);
   const farmRegion = useProfileStore((s) => s.profile?.region);
@@ -91,7 +97,7 @@ export function WeatherCard({
       region={scope === 'farmer' ? farmRegion : undefined}
       compact={compact}
       dashboard={dashboard}
-      weatherHref={scope === 'admin' ? '/admin/content/weather' : '/weather'}
+      weatherHref={weatherHref}
     />
   );
 }

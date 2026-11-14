@@ -1,3 +1,4 @@
+import { adminPath } from '@/lib/admin-path';
 import {
   ADMIN_NAV_SECTIONS,
   findAdminNavItem,
@@ -26,13 +27,13 @@ export function adminBreadcrumbs(
 
   const id = decodeURIComponent(pathname.slice(item.href.length + 1).split('/')[0]);
   const detail =
-    item.href === '/admin/settings'
+    item.href === adminPath('/admin/settings')
       ? getAdminPageMeta(pathname).title
-      : item.href === '/admin/farmers'
+      : item.href === adminPath('/admin/farmers')
         ? data.farmers.find((f) => f.userId === id)?.profile.name
-        : item.href === '/admin/loans'
+        : item.href === adminPath('/admin/loans')
           ? data.applications.find((a) => a.id === id)?.reference
-          : item.href === '/admin/lenders'
+          : item.href === adminPath('/admin/lenders')
             ? id // a readable slug of the lender's name
             : undefined;
   return [

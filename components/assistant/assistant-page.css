@@ -271,13 +271,13 @@
 @media (min-width: 1200px) {
   body:has(.assistant-reference) aside[aria-label='Sidebar'] {
     width: 240px;
-    top: 0;
+    top: 16px;
     bottom: 6px;
-    left: 4px;
+    left: 16px;
   }
   body:has(.assistant-reference) main {
-    margin-left: 252px;
-    padding: 0 12px 24px;
+    margin-left: 264px;
+    padding: 16px 12px 24px;
   }
   body:has(.assistant-reference) main > header {
     margin-bottom: 20px;

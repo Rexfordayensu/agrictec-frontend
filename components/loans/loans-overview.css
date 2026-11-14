@@ -743,15 +743,15 @@
 @media (min-width: 1200px) {
   body:has(.loans-reference) aside[aria-label='Sidebar'] {
     width: 230px;
-    left: 10px;
-    top: 10px;
+    left: 16px;
+    top: 16px;
     bottom: 10px;
   }
   body:has(.loans-reference) main {
-    margin-left: 250px;
+    margin-left: 256px;
     padding-left: 12px;
     padding-right: 16px;
-    padding-top: 12px;
+    padding-top: 16px;
   }
   body:has(.loans-reference) main > header {
     margin-bottom: 14px;

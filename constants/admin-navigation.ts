@@ -1,3 +1,4 @@
+import { adminPath } from '@/lib/admin-path';
 import { SYSTEM_SETTINGS_SECTIONS } from '@/constants/admin-settings';
 import {
   LayoutDashboard,
@@ -22,7 +23,8 @@ import {
 import { can } from '@/lib/admin/permissions';
 import type { Permission, Role } from '@/types/admin';
 
-export type AdminBadgeKey = 'pendingTransactions' | 'pendingVerifications' | 'openRisk' | 'newApplications';
+export type AdminBadgeKey =
+  'pendingTransactions' | 'pendingVerifications' | 'openRisk' | 'newApplications';
 
 export interface AdminNavItem {
   label: string;
@@ -41,7 +43,7 @@ export interface AdminNavSection {
   items: AdminNavItem[];
 }
 
-export const ADMIN_HOME = '/admin';
+export const ADMIN_HOME = adminPath('/admin');
 
 /** Admin spec Section 7. */
 export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
@@ -60,18 +62,29 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
     title: 'Farmers',
     items: [
-      { label: 'Transactions review', href: '/admin/transactions', icon: ClipboardList, permission: 'transactions.review', badgeKey: 'pendingTransactions' },
-      { label: 'All Farmers', href: '/admin/farmers', icon: Users, permission: 'farmers.view' },
+      {
+        label: 'Transactions review',
+        href: adminPath('/admin/transactions'),
+        icon: ClipboardList,
+        permission: 'transactions.review',
+        badgeKey: 'pendingTransactions',
+      },
+      {
+        label: 'All Farmers',
+        href: adminPath('/admin/farmers'),
+        icon: Users,
+        permission: 'farmers.view',
+      },
       {
         label: 'Verifications',
-        href: '/admin/verifications',
+        href: adminPath('/admin/verifications'),
         icon: BadgeCheck,
         permission: 'verifications.review',
         badgeKey: 'pendingVerifications',
       },
       {
         label: 'Risk & Fraud',
-        href: '/admin/risk',
+        href: adminPath('/admin/risk'),
         icon: ShieldAlert,
         permission: 'risk.review',
         badgeKey: 'openRisk',
@@ -83,15 +96,20 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     items: [
       {
         label: 'Loan Applications',
-        href: '/admin/applications',
+        href: adminPath('/admin/applications'),
         icon: ClipboardList,
         permission: 'loans.view',
         badgeKey: 'newApplications',
       },
-      { label: 'Lenders', href: '/admin/lenders', icon: Landmark, permission: 'lenders.manage' },
+      {
+        label: 'Lenders',
+        href: adminPath('/admin/lenders'),
+        icon: Landmark,
+        permission: 'lenders.manage',
+      },
       {
         label: 'Credit Rules',
-        href: '/admin/credit-rules',
+        href: adminPath('/admin/credit-rules'),
         icon: SlidersHorizontal,
         permission: 'credit.configure',
       },
@@ -102,37 +120,37 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     items: [
       {
         label: 'Market Price Management',
-        href: '/admin/content/market',
+        href: adminPath('/admin/content/market'),
         icon: Store,
         permission: 'content.manage',
       },
       {
         label: 'Weather',
-        href: '/admin/content/weather',
+        href: adminPath('/admin/content/weather'),
         icon: CloudSun,
         permission: 'content.manage',
       },
       {
         label: 'Crops & Yields',
-        href: '/admin/content/crops',
+        href: adminPath('/admin/content/crops'),
         icon: Wheat,
         permission: 'content.manage',
       },
       {
         label: 'AI Assistant',
-        href: '/admin/content/assistant',
+        href: adminPath('/admin/content/assistant'),
         icon: Bot,
         permission: 'content.manage',
       },
       {
         label: 'Crop Diagnoses',
-        href: '/admin/content/diagnoses',
+        href: adminPath('/admin/content/diagnoses'),
         icon: Stethoscope,
         permission: 'content.manage',
       },
       {
         label: 'Announcements',
-        href: '/admin/announcements',
+        href: adminPath('/admin/announcements'),
         icon: Megaphone,
         permission: 'announcements.send',
       },
@@ -143,7 +161,7 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
     items: [
       {
         label: 'Reports & Analytics',
-        href: '/admin/reports',
+        href: adminPath('/admin/reports'),
         icon: ChartColumn,
         permission: 'reports.export',
       },
@@ -152,11 +170,21 @@ export const ADMIN_NAV_SECTIONS: AdminNavSection[] = [
   {
     title: 'System',
     items: [
-      { label: 'Team & Roles', href: '/admin/team', icon: UserCog, permission: 'admins.manage' },
-      { label: 'Audit Log', href: '/admin/audit-log', icon: ScrollText, permission: 'audit.view' },
+      {
+        label: 'Team & Roles',
+        href: adminPath('/admin/team'),
+        icon: UserCog,
+        permission: 'admins.manage',
+      },
+      {
+        label: 'Audit Log',
+        href: adminPath('/admin/audit-log'),
+        icon: ScrollText,
+        permission: 'audit.view',
+      },
       {
         label: 'System Settings',
-        href: '/admin/settings',
+        href: adminPath('/admin/settings'),
         icon: Settings,
         permission: 'settings.manage',
       },
@@ -168,76 +196,79 @@ export const ADMIN_NAV_ITEMS: AdminNavItem[] = ADMIN_NAV_SECTIONS.flatMap((s) =>
 
 /** Title and subtitle per admin route. Nested routes (e.g. /admin/farmers/[id]) use their parent's. */
 export const ADMIN_PAGE_META: Record<string, { title: string; subtitle: string }> = {
-  '/admin': {
+  [adminPath('/admin')]: {
     title: 'Overview',
     subtitle: 'Platform health, growth and activity at a glance.',
   },
-  '/admin/farmers': {
+  [adminPath('/admin/farmers')]: {
     title: 'All Farmers',
     subtitle: 'Search, filter and manage every farmer account.',
   },
-  '/admin/transactions': { title: 'Transactions review', subtitle: 'Review submitted financial evidence and disputes.' },
-  '/admin/verifications': {
+  [adminPath('/admin/transactions')]: {
+    title: 'Transactions review',
+    subtitle: 'Review submitted financial evidence and disputes.',
+  },
+  [adminPath('/admin/verifications')]: {
     title: 'Verifications',
     subtitle: 'Approve or reject phone, location and Ghana Card checks.',
   },
-  '/admin/risk': {
+  [adminPath('/admin/risk')]: {
     title: 'Risk & Fraud',
     subtitle: 'Review suspicious activity flagged by the detection rules.',
   },
-  '/admin/applications': {
+  [adminPath('/admin/applications')]: {
     title: 'Loan Applications',
     subtitle: 'Check farmers’ applications against their records, then send them to the lender.',
   },
-  '/admin/loans': {
+  [adminPath('/admin/loans')]: {
     title: 'Earlier applications',
     subtitle: 'Read-only history from before applications were prepared through AgriCtec.',
   },
-  '/admin/lenders': {
+  [adminPath('/admin/lenders')]: {
     title: 'Lenders',
     subtitle: 'Manage lending partners, their rates and limits.',
   },
-  '/admin/credit-rules': {
+  [adminPath('/admin/credit-rules')]: {
     title: 'Credit Rules',
     subtitle: 'Tune the AgriCtec score: weights, bands and the records guidance.',
   },
-  '/admin/content/market': {
+  [adminPath('/admin/content/market')]: {
     title: 'Market Price Management',
     subtitle: 'Review and publish source-backed Ghana crop prices.',
   },
-  '/admin/content/weather': {
+  [adminPath('/admin/content/weather')]: {
     title: 'Weather',
     subtitle: 'View weather for your current location or another place in Ghana.',
   },
-  '/admin/content/crops': {
+  [adminPath('/admin/content/crops')]: {
     title: 'Crops & Yields',
     subtitle: 'Edit crop yields, prices and growing tips.',
   },
-  '/admin/content/assistant': {
+  [adminPath('/admin/content/assistant')]: {
     title: 'AI Assistant',
     subtitle: 'Manage the keywords and replies the assistant uses.',
   },
-  '/admin/content/diagnoses': {
+  [adminPath('/admin/content/diagnoses')]: {
     title: 'Crop Diagnoses',
     subtitle: 'Manage the diseases and treatments the crop doctor reports.',
   },
-  '/admin/announcements': {
+  [adminPath('/admin/announcements')]: {
     title: 'Announcements',
     subtitle: 'Send banners to all farmers, or by region or crop.',
   },
-  '/admin/reports': {
+  [adminPath('/admin/reports')]: {
     title: 'Reports & Analytics',
     subtitle: 'Platform-wide analytics and data exports.',
   },
-  '/admin/team': {
+  [adminPath('/admin/team')]: {
     title: 'Team & Roles',
     subtitle: 'Invite staff and control what each role can do.',
   },
-  '/admin/audit-log': {
+  [adminPath('/admin/audit-log')]: {
     title: 'Audit Log',
     subtitle: 'An append-only record of every admin action.',
   },
-  '/admin/settings': {
+  [adminPath('/admin/settings')]: {
     title: 'System Settings',
     subtitle: 'Feature flags, maintenance mode, plans and backups.',
   },

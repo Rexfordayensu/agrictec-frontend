@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState } from 'react';
 import { formatDistanceToNowStrict } from 'date-fns';
 import { ScrollText } from 'lucide-react';
@@ -46,7 +48,7 @@ export function RecentAdminActivity({ className }: { className?: string }) {
     <Panel
       title="Recent activity"
       description="Latest actions in the audit log"
-      action={<PanelLink href="/admin/audit-log">Audit log</PanelLink>}
+      action={<PanelLink href={adminPath('/admin/audit-log')}>Audit log</PanelLink>}
       className={className}
     >
       {entries === null ? (

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import Link from 'next/link';
 import { ArrowRight, ClipboardList } from 'lucide-react';
 import type { TabProps } from '@/components/admin/farmers/detail/types';
@@ -21,7 +23,7 @@ export function LoansTab({ data }: TabProps) {
       {apps.map((app) => (
         <li key={app.id}>
           <Link
-            href={`/admin/loans/${app.id}`}
+            href={adminPath(`/admin/loans/${app.id}`)}
             className="group border-border bg-glass hover:border-purple/50 block rounded-2xl border p-4 transition-colors"
           >
             <div className="flex items-start justify-between gap-3">

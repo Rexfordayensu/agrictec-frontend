@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useEffectEvent, useState } from 'react';
 import Link from 'next/link';
 import { formatDistanceStrict } from 'date-fns';
@@ -281,7 +283,7 @@ export function ReviewModal({
                 </p>
                 {farmer && (
                   <Link
-                    href={`/admin/farmers/${farmer.userId}`}
+                    href={adminPath(`/admin/farmers/${farmer.userId}`)}
                     className="text-ink-purple mt-1.5 inline-flex items-center gap-1 text-xs font-semibold hover:underline"
                   >
                     Open full profile <ArrowUpRight size={13} aria-hidden="true" />
@@ -380,7 +382,7 @@ export function ReviewModal({
                   {duplicates.map((d) => (
                     <Link
                       key={d.userId}
-                      href={`/admin/farmers/${d.userId}`}
+                      href={adminPath(`/admin/farmers/${d.userId}`)}
                       className="text-ink-gold inline-flex items-center gap-1 text-xs font-semibold hover:underline"
                     >
                       View {d.name} <ArrowUpRight size={13} aria-hidden="true" />

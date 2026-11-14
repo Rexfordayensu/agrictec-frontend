@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import Link from 'next/link';
 import { format } from 'date-fns';
 import { Construction } from 'lucide-react';
@@ -29,7 +31,7 @@ export function MaintenanceBanner() {
       </p>
       {canManage && (
         <Link
-          href="/admin/settings/maintenance"
+          href={adminPath('/admin/settings/maintenance')}
           className="inline-flex min-h-9 items-center rounded-lg bg-white/15 px-3 text-xs font-bold hover:bg-white/25"
         >
           Manage

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { formatDistanceToNowStrict } from 'date-fns';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -30,7 +32,7 @@ export function SystemStatus({ status }: { status: PlatformStatus | null }) {
     <Panel
       title="System"
       description="What farmers can use right now"
-      action={canSettings && <PanelLink href="/admin/settings">Settings</PanelLink>}
+      action={canSettings && <PanelLink href={adminPath('/admin/settings')}>Settings</PanelLink>}
     >
       {!status ? (
         <div className="space-y-2" role="status" aria-label="Loading system status">

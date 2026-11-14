@@ -22,6 +22,8 @@ export const DEMO_DAY_MS = 24 * 60 * 60 * 1000;
 /** localStorage keys (stored as "agrictec:demo" and "agrictec:demo-entries"). */
 const DEMO_KEY = 'demo';
 export const DEMO_ENTRIES_KEY = 'demo-entries';
+/** Set once the guest finished or skipped the app tour in this demo (lib/tour.ts). */
+export const DEMO_TOUR_KEY = 'demo-tour';
 /** A clock a little ahead of this phone's still counts as "now". */
 const CLOCK_SLACK_MS = 5 * 60 * 1000;
 
@@ -121,6 +123,7 @@ export function endDemo(): void {
     storage.remove(DEMO_KEY);
     storage.remove(DEMO_ENTRIES_KEY);
     storage.remove(DEMO_REMINDER_KEY);
+    storage.remove(DEMO_TOUR_KEY);
   } catch {
     // Read-only tab ("View as farmer"): it has no demo to end.
   }

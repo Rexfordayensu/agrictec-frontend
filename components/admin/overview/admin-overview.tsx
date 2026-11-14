@@ -12,6 +12,7 @@ import { ScoreDistributionChart } from '@/components/admin/overview/score-distri
 import { SignupsChart } from '@/components/admin/overview/signups-chart';
 import { SystemStatus } from '@/components/admin/overview/system-status';
 import { WeatherCard } from '@/components/market/weather-card';
+import { adminPath } from '@/lib/admin-path';
 import { useCan } from '@/hooks/admin/use-can';
 import { useOverview } from '@/hooks/admin/use-overview';
 import { usePlatformStatus } from '@/hooks/admin/use-platform-status';
@@ -101,7 +102,7 @@ export function AdminOverview() {
       ) : (
         <KpiGrid range={range} bands={bands} kpis={data.kpis} />
       )}
-      <WeatherCard scope="admin" compact />
+      <WeatherCard scope="admin" weatherHref={adminPath('/admin/content/weather')} compact />
 
       {data && (
         <>

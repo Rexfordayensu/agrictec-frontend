@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, RotateCcw } from 'lucide-react';
@@ -32,7 +34,7 @@ export default function AdminError({
           Try again
         </Button>
         <Link
-          href="/admin"
+          href={adminPath('/admin')}
           className="border-border bg-glass text-text hover:bg-glass-strong inline-flex min-h-11 items-center justify-center rounded-xl border px-5 text-sm font-semibold transition-colors"
         >
           Back to Overview

@@ -10,7 +10,7 @@ export function Sidebar() {
   return (
     <aside
       aria-label="Sidebar"
-      className="glass shadow-glass fixed inset-y-3 left-3 z-40 hidden w-[260px] flex-col overflow-hidden rounded-3xl backdrop-blur-xl min-[900px]:flex"
+      className="glass shadow-glass fixed inset-y-4 left-4 z-40 hidden w-[260px] flex-col overflow-hidden rounded-3xl backdrop-blur-xl min-[900px]:flex"
     >
       <BrandLogo
         subtitle="Digital Identity"

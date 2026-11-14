@@ -50,7 +50,7 @@ and is tested there; `tests/` keeps the suites for the pure helpers in `lib/` an
 
 ## Admin Console
 
-The console lives at **`/admin`** and has its own sign-in at **`/admin-login`**. Farmer and admin
+The console lives at the path configured by **`ADMIN_PATH`** and has its own sign-in at **`ADMIN_PATH` + `/login`**. Farmer and admin
 sessions are completely separate: a farmer session never opens the console, and signing in or out
 on one side never touches the other.
 
@@ -160,3 +160,7 @@ Password-reset codes and scheduled email reports need email, and SMS for codes b
 [`deploy/`](deploy/README.md) runs the app on one Linux server with Docker Compose:
 PostgreSQL, the API, this app and Caddy, which provides automatic HTTPS. Its README walks
 through the first deployment, updates, backups and switching on the optional services.
+
+### Admin console URL
+
+Set `ADMIN_PATH` in the frontend environment (for example `/staff-console`). That path opens the console, and its `/login` child opens staff sign-in. The old `/admin` and `/admin-login` addresses return 404. Internal admin API endpoints and session checks are unchanged. Restart development after changing the value; rebuild/redeploy production because browser links use the configured build value. In `.env` files, escape a literal dollar sign as `\$`. Without `ADMIN_PATH`, the console is unavailable.

@@ -1,3 +1,4 @@
+import { consoleReturn } from '@/lib/admin/console-return';
 // "View as farmer" (phase A8), backed by the API:
 // 1. The console calls startImpersonation(): the API checks farmers.impersonate, logs it, and
 //    returns a single-use token valid for one minute; the farmer app opens with ?impersonate=…
@@ -108,7 +109,7 @@ export function exitImpersonation(): void {
     window.close();
     // Still open (not opened by a script): a full page load also clears the in-memory stores.
     setTimeout(() => {
-      window.location.assign(farmerId ? `/admin/farmers/${farmerId}` : '/admin/farmers');
+      window.location.assign(consoleReturn(farmerId ? `/farmers/${farmerId}` : '/farmers'));
     }, 150);
   });
 }
