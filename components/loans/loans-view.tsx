@@ -3,7 +3,9 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { AlertTriangle, RotateCw } from 'lucide-react';
+import { LenderMarketplace } from '@/components/loans/lender-marketplace';
 import { LoanWorkspace } from '@/components/loans/loan-workspace';
+import { DemoNote, useDemo } from '@/components/shared/demo-note';
 import { LoansOverview } from '@/components/loans/loans-overview';
 import { loanUi } from '@/components/loans/loan-ui';
 import { GhanaCardModal } from '@/components/profile/ghana-card-modal';
@@ -19,6 +21,23 @@ import { useLoanStore } from '@/store/loan-store';
  * a retry: the page never shows a score or limit the server did not give.
  */
 export function LoansView() {
+  return useDemo() ? <DemoLoans /> : <AccountLoans />;
+}
+
+/** The guest demo: the published lenders and products are public; a score needs an account. */
+function DemoLoans() {
+  return (
+    <div className="@container flex flex-col gap-5">
+      <DemoNote title="Your AgriCtec score and loan readiness">
+        Your score and readiness come from your own saved records, and applying needs an account.
+        You can still compare the lenders published on AgriCtec below.
+      </DemoNote>
+      <LenderMarketplace />
+    </div>
+  );
+}
+
+function AccountLoans() {
   const summary = useCreditStore((s) => s.summary);
   const status = useCreditStore((s) => s.status);
   const ghanaCardOpen = useLoanStore((s) => s.ghanaCardOpen);

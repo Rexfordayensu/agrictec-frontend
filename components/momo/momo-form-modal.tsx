@@ -27,6 +27,7 @@ import {
 } from '@/lib/transactions';
 import { todayISO } from '@/lib/format';
 import { cn } from '@/lib/utils';
+import { isDemoUser, notifyDemoEntry } from '@/lib/demo-entries';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import { ApiError } from '@/services/api';
@@ -103,7 +104,7 @@ export function MomoFormModal() {
             Cancel
           </Button>
           <Button
-            mutates
+            mutates="entries"
             type="submit"
             form={formId}
             loading={saving}
@@ -185,8 +186,14 @@ function MomoForm({
       date: values.date,
     };
     onSavingChange(true);
+    // The guest demo: the entry stays on this screen only; its receipt is never uploaded.
+    const demo = isDemoUser(useFarmStore.getState().userId);
     try {
-      if (editing) {
+      if (demo) {
+        if (editing) await updateMomo(editing.id, input);
+        else await addMomo(input, receipt!);
+        notifyDemoEntry('Transaction', Boolean(editing));
+      } else if (editing) {
         await updateMomo(editing.id, input);
         toast.success('Transaction updated');
       } else {
@@ -232,7 +239,7 @@ function MomoForm({
             A possible duplicate has the same date, amount, direction and category. Is this a
             separate entry?
           </p>
-          <Button mutates type="button" onClick={() => void onSubmit(duplicate, true)}>
+          <Button mutates="entries" type="button" onClick={() => void onSubmit(duplicate, true)}>
             Save anyway
           </Button>
           <Button variant="ghost" type="button" onClick={() => setDuplicate(undefined)}>

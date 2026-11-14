@@ -21,6 +21,7 @@ import { CROPS } from '@/constants/crops';
 import { useDebounce } from '@/hooks/use-debounce';
 import { downloadFile, toCSV } from '@/lib/export/csv';
 import { todayISO } from '@/lib/format';
+import { DemoNote, useDemo } from '@/components/shared/demo-note';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import type { FarmRecord } from '@/types';
@@ -39,6 +40,7 @@ export function RecordsView({
   initialView?: 'records' | 'transactions';
 }) {
   const [view, setView] = useState<'records' | 'transactions'>(initialView);
+  const demo = useDemo();
   const records = useFarmStore((s) => s.records);
   const openModal = useModalStore((s) => s.openModal);
   const [filters, setFilters] = useState<RecordFilters>(DEFAULT_FILTERS);
@@ -118,7 +120,14 @@ export function RecordsView({
 
         {view === 'transactions' ? (
           <div className="border-border border-t p-4 sm:p-5">
-            <TransactionsView />
+            {demo ? (
+              <DemoNote title="All transactions" compact>
+                The full history, with the receipts and AgriCtec&apos;s reviews behind each entry,
+                is kept on your account. What you add in the demo is under Farm records.
+              </DemoNote>
+            ) : (
+              <TransactionsView />
+            )}
           </div>
         ) : (
           <div className="border-border border-t">

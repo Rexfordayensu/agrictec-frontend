@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { isReadOnly, READ_ONLY_MESSAGE } from '@/lib/read-only';
+import { isReadOnly, readOnlyMessage } from '@/lib/read-only';
 import { platformService } from '@/services/platform.service';
 import { defaultProfile, profileService } from '@/services/profile.service';
 import type { LoadOptions, Profile, StoreStatus } from '@/types';
@@ -27,7 +27,7 @@ interface ProfileState {
 
 export const useProfileStore = create<ProfileState>()((set, get) => {
   function persist(partial: ProfileUpdate, expectedPhone?: string): Promise<Profile> {
-    if (isReadOnly()) return Promise.reject(new Error(READ_ONLY_MESSAGE));
+    if (isReadOnly()) return Promise.reject(new Error(readOnlyMessage()));
     const userId = get().userId;
     if (!userId) return Promise.reject(new Error('You need to sign in first'));
     const operation = saveQueue
@@ -83,14 +83,14 @@ export const useProfileStore = create<ProfileState>()((set, get) => {
 
     save: (partial) => persist(partial),
     sendPhoneCode: async () => {
-      if (isReadOnly()) throw new Error(READ_ONLY_MESSAGE);
+      if (isReadOnly()) throw new Error(readOnlyMessage());
       const userId = get().userId;
       if (!userId) throw new Error('You need to sign in first');
       await waitForProfileSaves();
       return platformService.sendPhoneCode(userId);
     },
     verifyPhone: async (phone, code) => {
-      if (isReadOnly()) throw new Error(READ_ONLY_MESSAGE);
+      if (isReadOnly()) throw new Error(readOnlyMessage());
       const userId = get().userId;
       if (!userId) throw new Error('You need to sign in first');
       await waitForProfileSaves();

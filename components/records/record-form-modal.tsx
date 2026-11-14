@@ -34,6 +34,7 @@ import { todayISO } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { ApiError } from '@/services/api';
 import { transactionsService } from '@/services/transactions.service';
+import { isDemoUser, notifyDemoEntry } from '@/lib/demo-entries';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import type { FarmRecord, NewRecordInput } from '@/types';
@@ -114,7 +115,7 @@ export function RecordFormModal() {
             Cancel
           </Button>
           <Button
-            mutates
+            mutates="entries"
             type="submit"
             form={formId}
             loading={saving}
@@ -222,8 +223,14 @@ function RecordForm({
     // A receipt goes with money records only (an activity has nothing to prove).
     const withReceipt = paid ? (receipt ?? undefined) : undefined;
     onSavingChange(true);
+    // The guest demo: the entry stays on this screen only; its receipt is never uploaded.
+    const demo = isDemoUser(useFarmStore.getState().userId);
     try {
-      if (editing) {
+      if (demo) {
+        if (editing) await updateRecord(editing.id, input);
+        else await addRecord(input);
+        notifyDemoEntry('Record', Boolean(editing));
+      } else if (editing) {
         // The receipt goes first, so a switch to mobile money is accepted with it on file.
         if (withReceipt)
           await transactionsService.upload('farm', editing.id, withReceipt, 'receipt', () => {});
@@ -240,7 +247,7 @@ function RecordForm({
           });
         else toast.success(withReceipt ? 'Record saved with its receipt' : 'Record saved');
       }
-      if (withReceipt || editing) {
+      if (!demo && (withReceipt || editing)) {
         const { userId, load } = useFarmStore.getState();
         if (userId) await load(userId, { silent: true });
       }
@@ -280,7 +287,7 @@ function RecordForm({
             A possible duplicate has the same date, amount, type and category. Is this a separate
             entry?
           </p>
-          <Button mutates type="button" onClick={() => void onSubmit(duplicate, true)}>
+          <Button mutates="entries" type="button" onClick={() => void onSubmit(duplicate, true)}>
             Save anyway
           </Button>
           <Button variant="ghost" type="button" onClick={() => setDuplicate(undefined)}>

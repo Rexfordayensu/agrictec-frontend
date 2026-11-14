@@ -8,7 +8,7 @@ import { ChatWindow } from '@/components/assistant/chat-window';
 import { HelpTopics } from '@/components/assistant/help-topics';
 import { Card } from '@/components/ui/card';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { notifyReadOnly, readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 import { useChatStore } from '@/store/chat-store';
 
@@ -52,7 +52,7 @@ export function AssistantChat() {
             type="button"
             {...readOnlyProps(readOnly)}
             disabled={isTyping || status !== 'ready' || isClearing}
-            onClick={readOnly ? undefined : () => setConfirmOpen(true)}
+            onClick={readOnly ? notifyReadOnly : () => setConfirmOpen(true)}
             className={cn(
               'border-border bg-bg-2 text-text-mute hover:text-text absolute top-3 right-4 z-10 inline-flex min-h-8 items-center gap-1.5 rounded-lg border px-2.5 text-xs font-semibold disabled:opacity-50',
               readOnly && READ_ONLY_CLASS,

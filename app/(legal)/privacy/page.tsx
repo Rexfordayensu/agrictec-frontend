@@ -72,8 +72,10 @@ export default function PrivacyPage() {
           </li>
         </LegalList>
         <p>
-          You can also try the app as a guest, without a name or email. A guest account is linked to
-          your phone or browser so you can come back to it.
+          You can also try the app as a guest for one day, without a name or email. There is no
+          guest account: nothing you enter as a guest is sent to us. What you try out stays on your
+          phone or browser and is deleted after 24 hours, or sooner when you sign out, sign in or
+          create an account.
         </p>
       </LegalSection>
 

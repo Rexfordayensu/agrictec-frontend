@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -22,18 +22,21 @@ import { FormField, fieldErrorId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { PasswordChangeRequiredError, SUSPENDED_MESSAGE } from '@/services/auth.service';
 import { onboardingService } from '@/services/onboarding.service';
+import { demoJustEnded } from '@/lib/demo';
 import { useAuthStore } from '@/store/auth-store';
 import { usePlatformStore } from '@/store/platform-store';
 import type { Session } from '@/types';
 import './login.css';
 
 /** Why the app sent the farmer back here (set by DataLoader). */
-export type LoginReason = 'suspended' | 'deleted' | 'expired';
+export type LoginReason = 'suspended' | 'deleted' | 'expired' | 'demo_ended';
 
 const REASON_MESSAGES: Record<LoginReason, string> = {
   suspended: SUSPENDED_MESSAGE,
   deleted: 'This account no longer exists. Create a new account or contact support.',
   expired: 'You were signed out after a week without using AgriCtec. Sign in again to continue.',
+  demo_ended:
+    'Your guest demo has ended: a demo lasts one day, and what you tried was deleted from this phone. Create a free account to keep your farm records.',
 };
 
 export function LoginForm({ next, reason }: { next: string; reason?: LoginReason }) {
@@ -49,6 +52,11 @@ export function LoginForm({ next, reason }: { next: string; reason?: LoginReason
     setFormError(null);
   }, []);
   const remaining = useSignInLock(lockedUntil, unlock);
+  // A guest demo past its day, found when the guest comes back: say why it is gone.
+  useEffect(() => {
+    if (!reason && demoJustEnded())
+      router.replace(`/login?reason=demo_ended&next=${encodeURIComponent(next)}`);
+  }, [reason, next, router]);
   const locked = remaining !== null;
   // Signed in with a temporary password from support: choose a new one first.
   const [temporary, setTemporary] = useState<{ email: string; password: string } | null>(null);

@@ -123,3 +123,76 @@ test('long-running writes are not timed out or retried by the read deadline', as
     global.fetch = originalFetch;
   }
 });
+
+// A free Render API that is waking up or switching deploys can drop a request: the dev or Vercel
+// proxy then answers 500/502/503 without JSON. Reads try again; writes never repeat.
+const reply = (status, body = 'Internal Server Error') => ({
+  ok: status < 400,
+  status,
+  headers: new Headers(),
+  json: async () => JSON.parse(body),
+  text: async () => body,
+});
+
+async function settle(t, pending) {
+  // Let each attempt finish, then move the clock past the next retry pause.
+  // Seen as handled now: the test checks the rejection after the clock has moved.
+  pending.catch(() => {});
+  for (let i = 0; i < 12; i++) {
+    await new Promise((resolve) => setImmediate(resolve));
+    t.mock.timers.tick(1_000);
+  }
+  return pending;
+}
+
+test('a read retries a dropped proxy answer and then succeeds', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const originalFetch = global.fetch;
+  const answers = [reply(500), reply(503), reply(200, '{"signupOpen":true}')];
+  let calls = 0;
+  global.fetch = async () => answers[calls++];
+  try {
+    assert.deepEqual(await settle(t, api('/platform/flags')), { signupOpen: true });
+    assert.equal(calls, 3);
+  } finally {
+    global.fetch = originalFetch;
+  }
+});
+
+test('a read gives up after two retries; writes and request errors are never repeated', async (t) => {
+  t.mock.timers.enable({ apis: ['setTimeout'] });
+  const originalFetch = global.fetch;
+  let calls = 0;
+  try {
+    global.fetch = async () => (calls++, reply(502));
+    await assert.rejects(settle(t, api('/platform/flags')), (e) => e.status === 502);
+    assert.equal(calls, 3);
+
+    calls = 0;
+    global.fetch = async () => (calls++, reply(500));
+    await assert.rejects(
+      settle(t, api('/me/records', { method: 'POST', body: {} })),
+      (e) => e.status === 500,
+    );
+    assert.equal(calls, 1, 'a write is sent once');
+
+    calls = 0;
+    global.fetch = async () => (calls++, reply(404, '{"detail":"Not found"}'));
+    await assert.rejects(
+      settle(t, api('/me/records/x')),
+      (e) => e.status === 404 && e.message === 'Not found',
+    );
+    assert.equal(calls, 1, 'a request the server refused is not retried');
+
+    calls = 0;
+    global.fetch = async () => {
+      calls++;
+      if (calls === 1) throw new TypeError('fetch failed');
+      return reply(200, '[]');
+    };
+    assert.deepEqual(await settle(t, api('/me/records')), []);
+    assert.equal(calls, 2, 'a dropped connection is retried');
+  } finally {
+    global.fetch = originalFetch;
+  }
+});

@@ -17,7 +17,17 @@ import {
 import { ApiError, isSignedOut } from '@/services/api';
 import { authService } from '@/services/auth.service';
 import { onboardingService } from '@/services/onboarding.service';
-import { loadAllStores, signOutAndReset, useAuthStore, usePlatformStore } from '@/store';
+import { useDemoReminder } from '@/components/providers/use-demo-reminder';
+import { currentDemo, endDemo } from '@/lib/demo';
+import {
+  forgetOtherAccount,
+  loadAllStores,
+  loadDemoStores,
+  resetAllStores,
+  signOutAndReset,
+  useAuthStore,
+  usePlatformStore,
+} from '@/store';
 
 type LoadState = 'loading' | 'ready' | 'error' | 'maintenance';
 
@@ -36,6 +46,10 @@ export function DataLoader({ children }: { children: ReactNode }) {
   const maintenanceMessage = usePlatformStore((s) => s.flags.maintenanceMessage);
   // Admin changes made in another tab (lenders, rates, loan decisions…) show up here at once.
   usePlatformSync(state === 'ready');
+  // A guest demo lasts one day: an open tab ends it on time.
+  useDemoDayEnd(state === 'ready');
+  // And every 10 minutes it reminds the guest what a free account adds.
+  useDemoReminder(state === 'ready');
 
   const router = useRouter();
 
@@ -64,6 +78,7 @@ export function DataLoader({ children }: { children: ReactNode }) {
           status: 'ready',
           impersonation: view,
         });
+        forgetOtherAccount(view.farmerId);
         try {
           await loadAllStores(view.farmerId);
         } catch (error) {
@@ -78,9 +93,16 @@ export function DataLoader({ children }: { children: ReactNode }) {
       const session = await useAuthStore.getState().init();
       if (!session) {
         const next = encodeURIComponent(window.location.pathname);
-        // Unused for a week: say so on the sign-in page.
-        const reason = useAuthStore.getState().sessionExpired ? 'reason=expired&' : '';
+        // Unused for a week, or a guest demo past its day: say so on the sign-in page.
+        const { sessionExpired, demoEnded } = useAuthStore.getState();
+        const reason = demoEnded ? 'reason=demo_ended&' : sessionExpired ? 'reason=expired&' : '';
         return { redirect: `/login?${reason}next=${next}` };
+      }
+      // The guest demo: no account to check and no farm data, only the public information.
+      if (session.isGuest) {
+        forgetOtherAccount(session.userId);
+        await loadDemoStores();
+        return 'ready';
       }
       // An admin may have suspended or deleted the account since this session started.
       const status = await authService.checkAccount(session.userId);
@@ -90,6 +112,8 @@ export function DataLoader({ children }: { children: ReactNode }) {
       }
       // The proxy's cookie is only a hint: the profile decides. No app page until the farm
       // setup is finished (it resumes on the step where the farmer stopped).
+      // A guest who signed in or created an account starts from that account's own data.
+      forgetOtherAccount(session.userId);
       if (!(await onboardingService.isComplete(session.userId))) return { redirect: '/onboarding' };
       await loadAllStores(session.userId);
       return 'ready';
@@ -145,6 +169,26 @@ export function DataLoader({ children }: { children: ReactNode }) {
   if (state === 'loading') return <AppSkeleton />;
 
   return <>{children}</>;
+}
+
+/**
+ * Ends the guest demo when its 24 hours are up, even in a tab left open: the token is deleted,
+ * nothing of the demo stays in memory, and the guest is back at sign-in with a note.
+ */
+function useDemoDayEnd(enabled: boolean) {
+  useEffect(() => {
+    if (!enabled || !useAuthStore.getState().session?.isGuest) return;
+    const demo = currentDemo();
+    if (!demo) return;
+    const end = () => {
+      endDemo();
+      resetAllStores();
+      window.location.replace('/login?reason=demo_ended');
+    };
+    // Timers can't wait more than ~24.8 days; a demo never lasts more than one.
+    const timer = window.setTimeout(end, Math.max(0, Date.parse(demo.expiresAt) - Date.now()));
+    return () => window.clearTimeout(timer);
+  }, [enabled]);
 }
 
 /** The whole screen while the farmer's data loads: the animated AgriCtec mark. */

@@ -5,6 +5,7 @@
 // is needed. Set NEXT_PUBLIC_API_URL only to call the API on another origin directly.
 
 import { sessionStore } from '@/services/storage';
+import { DEMO_MESSAGE, isDemoBrowser, needsAccount } from '@/lib/demo';
 
 const BASE = (process.env.NEXT_PUBLIC_API_URL ?? '/api/v1').replace(/\/$/, '');
 
@@ -97,7 +98,54 @@ async function withReadTimeout<T>(
   }
 }
 
-async function send({ method = 'GET', body, query, signal }: RequestOptions, path: string) {
+/**
+ * How long a read waits before each retry. A free Render API that is waking up or switching to a
+ * new deploy can drop a request (the proxy then answers 500/502/503 with no JSON); a moment
+ * later the same read works. Writes are never repeated: they might already have been applied.
+ */
+const READ_RETRY_DELAYS_MS = [800, 2_000];
+
+/** A read worth trying again: the server or the connection failed, not the request itself. */
+const isTransient = (error: unknown) =>
+  error instanceof ApiError && (error.code === 'network' || error.status >= 500);
+
+/** Resolves after `ms`, or rejects at once when the caller cancels. */
+function pause(ms: number, signal?: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) return reject(signal.reason);
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(signal?.reason);
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+async function send(options: RequestOptions, path: string): Promise<Response> {
+  const read = !options.method || options.method === 'GET';
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await sendOnce(options, path);
+    } catch (error) {
+      const delay = READ_RETRY_DELAYS_MS[attempt];
+      if (!read || delay === undefined || !isTransient(error) || options.signal?.aborted)
+        throw error;
+      await pause(delay, options.signal);
+    }
+  }
+}
+
+/** The guest demo never sends an account's request: nothing of a guest is stored by the API. */
+function refuseInDemo(path: string): void {
+  if (isDemoBrowser() && needsAccount(path)) throw new ApiError(DEMO_MESSAGE, 403, 'demo');
+}
+
+async function sendOnce({ method = 'GET', body, query, signal }: RequestOptions, path: string) {
+  refuseInDemo(path);
   const headers: Record<string, string> = { Accept: 'application/json' };
   const token = typeof window === 'undefined' ? null : impersonationToken.get();
   if (token) headers['X-Impersonation-Token'] = token;
@@ -190,22 +238,30 @@ export async function apiFile(
 export const isSignedOut = (error: unknown) =>
   error instanceof ApiError && (error.status === 401 || error.code === 'account_suspended');
 
-
 /** Binary evidence, authenticated exactly like JSON calls. */
 export async function apiBlob(path: string): Promise<Blob> {
-  return withReadTimeout({}, async options => (await send(options, path)).blob());
+  return withReadTimeout({}, async (options) => (await send(options, path)).blob());
 }
 
 /** Evidence upload with real byte progress, preserving credentials and read-only context. */
-export function apiUpload<T>(path: string, form: FormData, onProgress: (value: number) => void): Promise<T> {
+export function apiUpload<T>(
+  path: string,
+  form: FormData,
+  onProgress: (value: number) => void,
+): Promise<T> {
   return new Promise((resolve, reject) => {
+    if (isDemoBrowser() && needsAccount(path))
+      return reject(new ApiError(DEMO_MESSAGE, 403, 'demo'));
     const xhr = new XMLHttpRequest();
     xhr.open('POST', apiUrl(path));
     xhr.withCredentials = true;
     const token = impersonationToken.get();
     if (token) xhr.setRequestHeader('X-Impersonation-Token', token);
-    xhr.upload.onprogress = event => { if (event.lengthComputable) onProgress(Math.round(event.loaded / event.total * 100)); };
-    xhr.onerror = () => reject(new ApiError('Upload failed. Check your connection and try again.', 0, 'network'));
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onerror = () =>
+      reject(new ApiError('Upload failed. Check your connection and try again.', 0, 'network'));
     xhr.timeout = 120_000;
     xhr.ontimeout = () => reject(new ApiError('Upload timed out. Please try again.', 0, 'timeout'));
     xhr.onload = () => {
@@ -213,7 +269,9 @@ export function apiUpload<T>(path: string, form: FormData, onProgress: (value: n
         const data = JSON.parse(xhr.responseText, reviver);
         if (xhr.status >= 200 && xhr.status < 300) resolve(data as T);
         else reject(new ApiError(data.detail ?? 'Upload failed.', xhr.status, data.code ?? null));
-      } catch { reject(new ApiError('The server could not accept the file. Try again.', xhr.status, null)); }
+      } catch {
+        reject(new ApiError('The server could not accept the file. Try again.', xhr.status, null));
+      }
     };
     xhr.send(form);
   });

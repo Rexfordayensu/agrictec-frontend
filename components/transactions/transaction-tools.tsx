@@ -15,6 +15,7 @@ import {
   TRANSACTION_STATUSES,
 } from '@/lib/transactions';
 import { useReadOnly } from '@/lib/read-only';
+import { DemoNote, useDemo } from '@/components/shared/demo-note';
 import { transactionsService } from '@/services/transactions.service';
 import { api } from '@/services/api';
 import { useFarmStore } from '@/store/farm-store';
@@ -156,6 +157,18 @@ export function TransactionReviewModal({
 }
 
 function TransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) {
+  // The guest demo's entries are only on the screen: no receipts are kept and nobody reviews them.
+  if (useDemo())
+    return (
+      <DemoNote title="Evidence & review">
+        With an account, you attach receipts here and AgriCtec reviews them so lenders can trust
+        your records. The guest demo keeps no receipts.
+      </DemoNote>
+    );
+  return <AccountTransactionDetail kind={kind} id={id} />;
+}
+
+function AccountTransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) {
   const [item, setItem] = useState<TransactionItem>();
   const [error, setError] = useState('');
   const [busy, setBusy] = useState(false);

@@ -26,6 +26,7 @@ import { useMomoSummary } from '@/hooks/use-momo-summary';
 import { movedLabel, vsLastMonth } from '@/lib/momo-display';
 import { formatSignedMoney } from '@/lib/transactions';
 import { cn } from '@/lib/utils';
+import { DemoNote, useDemo } from '@/components/shared/demo-note';
 import type { MomoSummary } from '@/types/momo-summary';
 
 export const ghs = formatSignedMoney;
@@ -50,6 +51,17 @@ const NETWORK_COLORS: Record<string, string> = {
  * (GET /me/momo/summary): nothing is added up in the browser.
  */
 export function MomoOverview() {
+  return useDemo() ? (
+    <DemoNote title="Your MoMo totals" compact>
+      Money in, money out and this month&apos;s totals come from your saved MoMo transactions.
+      With an account, AgriCtec works these out from your saved MoMo transactions.
+    </DemoNote>
+  ) : (
+    <AccountMomoOverview />
+  );
+}
+
+function AccountMomoOverview() {
   const { summary, status, error, retry } = useMomoSummary();
   if (!summary)
     return status === 'error' ? (

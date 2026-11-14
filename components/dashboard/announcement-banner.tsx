@@ -1,6 +1,6 @@
 'use client';
 
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { notifyReadOnly, readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import { CircleAlert, CircleCheck, Info, TriangleAlert, X, type LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -107,7 +107,7 @@ export function AnnouncementCard({
         <button
           type="button"
           {...readOnlyProps(readOnly)}
-          onClick={readOnly ? undefined : onDismiss}
+          onClick={readOnly ? notifyReadOnly : onDismiss}
           aria-label={`Dismiss announcement: ${announcement.title}`}
           className={cn(
             'hover:bg-glass-strong -mt-1 -mr-2 inline-flex size-9 shrink-0 items-center justify-center rounded-lg transition-colors',

@@ -6,7 +6,6 @@ import { UserRound } from 'lucide-react';
 import { toast } from 'sonner';
 import { DEFAULT_AFTER_LOGIN } from '@/components/auth/auth-schemas';
 import { Button } from '@/components/ui/button';
-import { onboardingService } from '@/services/onboarding.service';
 import { useAuthStore } from '@/store/auth-store';
 
 export function GuestButton({ next = DEFAULT_AFTER_LOGIN }: { next?: string }) {
@@ -17,10 +16,9 @@ export function GuestButton({ next = DEFAULT_AFTER_LOGIN }: { next?: string }) {
   async function handleClick() {
     setLoading(true);
     try {
-      // Reuses the one guest account on this device, so demo data never disappears.
-      const session = await continueAsGuest();
-      // Guests go through onboarding too (with a "Fill with demo details" shortcut).
-      router.replace(await onboardingService.destinationAfterSignIn(session.userId, next));
+      // The demo has no account: nothing is sent to AgriCtec or stored (lib/demo.ts).
+      await continueAsGuest();
+      router.replace(next);
       router.refresh();
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Could not start guest mode');
@@ -39,7 +37,9 @@ export function GuestButton({ next = DEFAULT_AFTER_LOGIN }: { next?: string }) {
       >
         Continue as guest (demo)
       </Button>
-      <p className="text-text-mute mt-2 text-xs">Guest data is saved on this device only.</p>
+      <p className="text-text-mute mt-2 text-xs">
+        Try AgriCtec for one day. What you enter stays on this phone and is never sent to us.
+      </p>
     </div>
   );
 }

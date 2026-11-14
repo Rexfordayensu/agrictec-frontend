@@ -2,7 +2,7 @@
 
 import { forwardRef, type ButtonHTMLAttributes } from 'react';
 import { Loader2, type LucideIcon } from 'lucide-react';
-import { READ_ONLY_MESSAGE, useReadOnly } from '@/lib/read-only';
+import { notifyReadOnly, readOnlyMessage, useEntriesReadOnly, useReadOnly } from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 
 type ButtonVariant = 'primary' | 'ghost' | 'danger';
@@ -16,9 +16,11 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /**
    * The button creates, edits, deletes or submits farmer data. While an admin views the app as
    * a farmer it then does nothing, looks disabled and explains why in a tooltip. (aria-disabled
-   * rather than disabled, because disabled buttons don't show tooltips.)
+   * rather than disabled, because disabled buttons don't show tooltips.) The guest demo is
+   * read-only too, except for 'entries': farm records and MoMo entries, which the demo may try
+   * out in the browser's memory (never sent or stored).
    */
-  mutates?: boolean;
+  mutates?: boolean | 'entries';
 }
 
 const variants: Record<ButtonVariant, string> = {
@@ -53,7 +55,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   ref,
 ) {
   const iconSize = size === 'sm' ? 14 : 16;
-  const readOnly = useReadOnly() && mutates;
+  const readOnlyAll = useReadOnly();
+  const readOnlyEntries = useEntriesReadOnly();
+  const readOnly = mutates === 'entries' ? readOnlyEntries : readOnlyAll && mutates;
   return (
     <button
       ref={ref}
@@ -62,8 +66,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       aria-disabled={readOnly || undefined}
-      title={readOnly ? READ_ONLY_MESSAGE : title}
-      onClick={readOnly ? undefined : onClick}
+      title={readOnly ? readOnlyMessage() : title}
+      onClick={readOnly ? notifyReadOnly : onClick}
       className={cn(
         'inline-flex items-center justify-center rounded-xl font-semibold whitespace-nowrap transition-all duration-200',
         'disabled:pointer-events-none disabled:opacity-60',
