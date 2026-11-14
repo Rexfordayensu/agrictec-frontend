@@ -6,9 +6,9 @@ import { CropTile } from '@/components/ui/crop-icon';
 import { cropMarketPrice, findCrop } from '@/lib/calculations/yield';
 import { formatGHS } from '@/lib/format';
 import { usePlatformStore } from '@/store/platform-store';
-import type { YieldCrop } from '@/types';
+import type { Crop } from '@/types';
 
-export function YieldTips({ crop }: { crop: YieldCrop }) {
+export function YieldTips({ crop, cropName = crop }: { crop: Crop; cropName?: string }) {
   // Published crop content supplies the baseline and guidance.
   const crops = usePlatformStore((s) => s.crops);
   const data = findCrop(crop, crops);
@@ -34,7 +34,7 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
           <CropTile crop={crop} />
           <div>
             <h3 className="text-text flex items-center gap-2 text-sm font-bold">
-              Growing tips for {crop}
+              Growing tips for {cropName}
               <Lightbulb size={16} aria-hidden="true" className="text-ink-gold" />
             </h3>
             <p className="text-text-mute mt-0.5 text-xs">
@@ -56,6 +56,11 @@ export function YieldTips({ crop }: { crop: YieldCrop }) {
         </dl>
       </div>
 
+      {!data && (
+        <p className="text-text-mute mt-4 text-xs">
+          Growing guidance has not been published for {cropName} yet.
+        </p>
+      )}
       <ol className="mt-5 grid gap-3 @2xl:grid-cols-2 @5xl:grid-cols-4">
         {(data?.tips ?? []).map((tip, index) => (
           <li

@@ -2,10 +2,11 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Database, Download, FileUp, Trash2 } from 'lucide-react';
+import { Download, ShieldAlert, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
+import { IconTile } from '@/components/ui/icon-tile';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
 import { createDataBackup, deleteUserData, importDataBackup } from '@/lib/data/backup';
@@ -18,6 +19,7 @@ export function DataSettings() {
   const fileRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
   const [busy, setBusy] = useState(false);
+  const [exporting, setExporting] = useState(false);
   // The validated backup, and the file as read (its records and MoMo go back unchanged).
   const [pending, setPending] = useState<{
     checked: DataBackup;
@@ -26,6 +28,26 @@ export function DataSettings() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmation, setConfirmation] = useState('');
 
+  async function exportData() {
+    if (lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    setExporting(true);
+    try {
+      downloadFile(
+        JSON.stringify(await createDataBackup(), null, 2),
+        `AgriCtec_Data_${todayISO()}.json`,
+        'application/json',
+      );
+      toast.success('Data exported');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not export your data');
+    } finally {
+      lock.current = false;
+      setBusy(false);
+      setExporting(false);
+    }
+  }
   async function readFile(file?: File) {
     if (!file || lock.current) return;
     if (!/\.json$/i.test(file.name)) return toast.error('Choose an AgriCtec .json export.');
@@ -76,16 +98,7 @@ export function DataSettings() {
     }
   }
   return (
-    <Card className="rounded-3xl">
-      <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <Database size={18} aria-hidden="true" className="text-icon" />
-            Your data, your control
-          </CardTitle>
-          <CardSub>Download a copy of your data, restore one, or delete it</CardSub>
-        </div>
-      </CardHeader>
+    <>
       <input
         ref={fileRef}
         type="file"
@@ -98,63 +111,67 @@ export function DataSettings() {
           event.currentTarget.value = '';
         }}
       />
-      <div className="divide-border divide-y">
-        <div className="flex flex-col gap-3 pb-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-text text-sm font-semibold">Export my data</p>
-            <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
-              Download a file with your profile, farm records, MoMo transactions, crop diagnoses,
-              assistant chat, settings and loan applications. Photo thumbnails, receipts and
-              transaction review history are left out.
-            </p>
-          </div>
+      <div className="account-transfer-grid">
+        <Card className="account-transfer-card" aria-labelledby="account-export-title">
+          <header className="account-card-heading">
+            <IconTile icon={Download} size="lg" />
+            <div>
+              <h3 id="account-export-title">Export my data</h3>
+              <p>
+                Download a copy of your profile, farm records, MoMo transactions, crop diagnoses,
+                chat, settings and loan applications.
+              </p>
+            </div>
+          </header>
           <Button
-            variant="ghost"
             icon={Download}
             disabled={busy}
-            onClick={async () => {
-              try {
-                downloadFile(
-                  JSON.stringify(await createDataBackup(), null, 2),
-                  `AgriCtec_Data_${todayISO()}.json`,
-                  'application/json',
-                );
-                toast.success('Data exported');
-              } catch (error) {
-                toast.error(error instanceof Error ? error.message : 'Could not export your data');
-              }
-            }}
-            className="shrink-0"
+            loading={exporting}
+            onClick={() => void exportData()}
+            className="account-export-button"
           >
             Export my data
           </Button>
-        </div>
-        <div className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
-          <div>
-            <p className="text-text text-sm font-semibold">Import data</p>
-            <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
-              Restore an AgriCtec export: your profile, farm records, MoMo transactions and settings
-              are replaced. Crop diagnoses, assistant chat, verifications and loan applications stay
-              as they are. Imported transactions become self-reported; receipts and transaction
-              reviews are not restored. The file is checked before anything changes.
-            </p>
-          </div>
+        </Card>
+        <Card className="account-transfer-card" aria-labelledby="account-import-title">
+          <header className="account-card-heading">
+            <IconTile icon={Upload} size="lg" />
+            <div>
+              <h3 id="account-import-title">Import data</h3>
+              <p>
+                Restore an AgriCtec export file (e.g. your profile, farm records and settings). You
+                can review the file before it is applied.
+              </p>
+            </div>
+          </header>
           <Button
             variant="ghost"
-            icon={FileUp}
+            icon={Upload}
             mutates
             disabled={busy}
             onClick={() => fileRef.current?.click()}
-            className="shrink-0"
+            className="account-import-button"
           >
             Import data
           </Button>
-        </div>
-        <div className="flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between">
+        </Card>
+      </div>
+      <Card className="account-danger-zone" aria-labelledby="account-danger-title">
+        <header className="account-card-heading">
+          <IconTile icon={ShieldAlert} tone="red" size="lg" />
           <div>
-            <p className="text-ink-red text-sm font-semibold">Delete all my data</p>
-            <p className="text-text-mute mt-1 max-w-xl text-xs leading-relaxed">
-              Clear your farm data and preferences from your account. Your sign-in stays active.
+            <h3 id="account-danger-title">Danger Zone</h3>
+            <p>Actions that permanently affect your saved information.</p>
+          </div>
+        </header>
+        <div className="account-delete-row">
+          <IconTile icon={Trash2} tone="red" size="lg" />
+          <div>
+            <h3>Delete all my data</h3>
+            <p>
+              Remove your farm data, transactions and preferences from your account.
+              <br />
+              Your account will remain active.
             </p>
           </div>
           <Button
@@ -166,12 +183,11 @@ export function DataSettings() {
               setConfirmation('');
               setDeleteOpen(true);
             }}
-            className="shrink-0"
           >
             Delete all my data
           </Button>
         </div>
-      </div>
+      </Card>
       <ConfirmDialog
         open={pending !== null}
         title="Replace your current data?"
@@ -213,6 +229,6 @@ export function DataSettings() {
           className="mt-2"
         />
       </ConfirmDialog>
-    </Card>
+    </>
   );
 }

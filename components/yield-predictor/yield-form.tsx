@@ -17,6 +17,7 @@ import {
 import {
   YIELD_CROPS,
   yieldSchema,
+  resolveYieldCrop,
   type YieldFormInput,
   type YieldFormValues,
 } from '@/components/yield-predictor/yield-schema';
@@ -151,6 +152,7 @@ export function YieldForm() {
     resolver: zodResolver(yieldSchema),
     defaultValues: {
       crop: defaultCrop,
+      otherCrop: '',
       acres: profile && profile.acres > 0 ? profile.acres : 1,
       season: 'major',
       fertilizer: 'both',
@@ -159,6 +161,10 @@ export function YieldForm() {
   });
   const values = useWatch({ control });
   const crop = values.crop ?? defaultCrop;
+  const customName = values.otherCrop?.trim() ?? '';
+  const supportedCrop = resolveYieldCrop(crop, customName);
+  // A typed name that matches a listed crop shows as that crop ("rIcE" → "Rice").
+  const displayCrop = supportedCrop ?? (crop === 'Other' ? customName || 'your crop' : crop);
   const parsed = yieldSchema.safeParse(values);
   const stale = Boolean(
     estimate && (!parsed.success || JSON.stringify(parsed.data) !== JSON.stringify(estimate.input)),
@@ -190,7 +196,18 @@ export function YieldForm() {
             onSubmit={handleSubmit(async (input) => {
               try {
                 useSubscriptionStore.getState().assertFeature('yieldPredictor');
-                const result = await yieldService.predict(input);
+                const resolvedCrop = resolveYieldCrop(input.crop, input.otherCrop);
+                if (!resolvedCrop) {
+                  toast.info('Yield data has not been published for this crop yet.');
+                  return;
+                }
+                const result = await yieldService.predict({
+                  crop: resolvedCrop,
+                  acres: input.acres,
+                  season: input.season,
+                  fertilizer: input.fertilizer,
+                  irrigation: input.irrigation,
+                });
                 setEstimate({ input, result });
                 setHistory((items) => [{ input, result }, ...items].slice(0, 10));
               } catch {
@@ -204,7 +221,7 @@ export function YieldForm() {
                 <StepLabel text="1. What crop are you growing?" />
               </legend>
               <div className="grid grid-cols-2 gap-2 @sm:grid-cols-4">
-                {YIELD_CROPS.map((option) => {
+                {[...YIELD_CROPS, 'Other' as const].map((option) => {
                   const active = crop === option;
                   return (
                     <label key={option} className="relative">
@@ -225,7 +242,7 @@ export function YieldForm() {
                           size={16}
                           className={active ? undefined : CROP_TONES[option].split(' ')[1]}
                         />
-                        {option}
+                        {option === 'Other' ? 'Other crop' : option}
                         {active && (
                           <Check size={14} aria-hidden="true" className="ml-auto shrink-0" />
                         )}
@@ -234,6 +251,47 @@ export function YieldForm() {
                   );
                 })}
               </div>
+              {crop === 'Other' && (
+                <div className="mt-3">
+                  <label
+                    htmlFor="yield-other-crop"
+                    className="text-text mb-1.5 block text-sm font-semibold"
+                  >
+                    Crop name
+                  </label>
+                  <Input
+                    id="yield-other-crop"
+                    placeholder="e.g. Cucumber"
+                    maxLength={80}
+                    autoComplete="off"
+                    error={Boolean(errors.otherCrop)}
+                    aria-describedby={cn(
+                      'yield-other-crop-hint',
+                      errors.otherCrop && fieldErrorId('yield-other-crop'),
+                    )}
+                    {...register('otherCrop')}
+                  />
+                  <p id="yield-other-crop-hint" className="text-text-mute mt-2 text-xs">
+                    Enter a crop that is not listed. Estimates need published yield data for that
+                    crop.
+                  </p>
+                  {errors.otherCrop && (
+                    <p
+                      id={fieldErrorId('yield-other-crop')}
+                      role="alert"
+                      className="text-ink-red mt-1.5 text-xs"
+                    >
+                      {errors.otherCrop.message}
+                    </p>
+                  )}
+                  {customName && !supportedCrop && (
+                    <p role="status" className="text-ink-gold mt-2 text-xs">
+                      An estimate for {customName} is not available yet. No yield data has been
+                      published for this crop.
+                    </p>
+                  )}
+                </div>
+              )}
             </fieldset>
 
             <div>
@@ -343,21 +401,29 @@ export function YieldForm() {
               columns="grid-cols-1 @sm:grid-cols-3"
             />
 
-            <Button type="submit" icon={Sparkles} loading={isSubmitting} className="w-full">
+            <Button
+              type="submit"
+              icon={Sparkles}
+              loading={isSubmitting}
+              className="w-full"
+              disabled={crop === 'Other' && !supportedCrop}
+            >
               {estimate ? 'Update my estimate' : 'Estimate my harvest'}
             </Button>
           </form>
         </Card>
 
         <YieldEstimatePanel
-          input={estimate?.input ?? null}
-          result={estimate?.result ?? null}
-          crop={crop}
-          stale={stale}
+          input={supportedCrop ? (estimate?.input ?? null) : null}
+          result={supportedCrop ? (estimate?.result ?? null) : null}
+          crop={supportedCrop ?? 'Other'}
+          cropName={displayCrop}
+          unavailable={crop === 'Other' && !supportedCrop}
+          stale={Boolean(supportedCrop) && stale}
           headingRef={resultRef}
         />
       </div>
-      <YieldTips crop={crop} />
+      <YieldTips crop={supportedCrop ?? 'Other'} cropName={displayCrop} />
       <details
         className="yield-history"
         open={historyOpen}
@@ -374,7 +440,8 @@ export function YieldForm() {
             {history.map((item, index) => (
               <li key={index}>
                 <span>
-                  {item.input.crop} · {item.input.acres} acres · {item.input.season} season
+                  {resolveYieldCrop(item.input.crop, item.input.otherCrop) ?? item.input.otherCrop}{' '}
+                  · {item.input.acres} acres · {item.input.season} season
                 </span>
                 <strong>{item.result.expected} tonnes</strong>
                 <button
@@ -382,6 +449,7 @@ export function YieldForm() {
                   onClick={() => {
                     for (const key of [
                       'crop',
+                      'otherCrop',
                       'acres',
                       'season',
                       'fertilizer',

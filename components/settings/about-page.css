@@ -1,0 +1,347 @@
+.about-reference {
+  min-width: 0;
+}
+.about-reference :is(h2, h3, h4) {
+  font-family: var(--font-inter), system-ui, sans-serif;
+  letter-spacing: -0.45px;
+  font-weight: 700;
+}
+.about-page-heading {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 0 16px;
+  margin-bottom: 17px;
+}
+.about-page-heading > span {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+}
+.about-page-heading > span svg {
+  width: 32px;
+  height: 32px;
+}
+.about-page-heading h2 {
+  font-size: var(--text-2xl);
+  line-height: 1.2;
+}
+.about-page-heading p {
+  font-size: var(--text-sm);
+  color: var(--text-dim);
+  margin-top: 4px;
+}
+.about-content {
+  display: grid;
+  gap: 15px;
+}
+.about-reference .rounded-card {
+  border-radius: 23px;
+}
+.about-reference .shadow-glass {
+  box-shadow: 0 5px 18px #234e6108;
+}
+.about-reference .about-hero {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  min-height: 280px;
+  padding: 28px 36px 24px;
+  border: 7px solid var(--glass);
+  background: var(--glass);
+  outline: 1px solid var(--border);
+}
+.about-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 30%;
+  z-index: -1;
+  background: url('/images/weather/weather-banner.jpg') center / cover no-repeat;
+  mask-image: linear-gradient(90deg, transparent 0%, #0003 40%, #000 100%);
+}
+.about-hero::before {
+  display: none;
+}
+.about-hero-content {
+  position: relative;
+  z-index: 1;
+}
+.about-brand > svg {
+  width: 64px;
+  height: 64px;
+}
+.about-brand > div > p:first-child {
+  font-size: var(--text-3xl);
+}
+.about-brand > div > p:last-child {
+  font-size: var(--text-small);
+  letter-spacing: 1.8px;
+}
+.about-hero-content > p {
+  max-width: 480px;
+  margin-top: 23px;
+  font-size: var(--text-sm);
+  line-height: 1.65;
+}
+.about-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 21px;
+}
+.about-badges > span {
+  font-size: var(--text-xs);
+  min-height: 39px;
+  padding: 8px 15px;
+  border-radius: 18px;
+  gap: 8px;
+}
+.about-badges > span > span {
+  font-size: var(--text-base);
+}
+.about-leaf {
+  position: absolute;
+  right: 8px;
+  bottom: -5px;
+  width: 130px;
+  height: 190px;
+  color: #c8ffe2;
+  transform: rotate(8deg);
+}
+.about-reference .about-benefits {
+  padding: 18px 20px;
+}
+.about-benefits > h3 {
+  font-size: var(--text-xl);
+  margin-bottom: 15px;
+}
+.about-benefit-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 13px;
+}
+.about-benefit {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 17px 15px;
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  background: var(--glass);
+  box-shadow: 0 3px 8px #234e6106;
+}
+.about-benefit h4 {
+  font-size: var(--text-sm);
+  line-height: 1.35;
+}
+.about-benefit p {
+  font-size: var(--text-small);
+  line-height: 1.5;
+  margin-top: 5px;
+  color: var(--text-dim);
+}
+.about-bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.05fr;
+  gap: 15px;
+  align-items: stretch;
+}
+.about-reference :is(.about-policies, .about-company) {
+  padding: 22px;
+}
+.about-card-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 15px;
+}
+.about-card-heading h3 {
+  font-size: var(--text-lg);
+  line-height: 1.3;
+}
+.about-card-heading p {
+  font-size: var(--text-small);
+  line-height: 1.5;
+  margin-top: 4px;
+  color: var(--text-dim);
+}
+.about-policies nav {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--glass);
+  margin-top: 14px;
+  padding: 0 17px;
+  box-shadow: 0 3px 8px #234e6106;
+}
+.about-policies nav a {
+  display: flex;
+  align-items: center;
+  gap: 17px;
+  min-height: 51px;
+  font-size: var(--text-sm);
+}
+.about-policies nav a + a {
+  border-top: 1px solid var(--border);
+}
+.about-policies nav a span {
+  flex: 1;
+}
+.about-policies nav a:hover {
+  color: var(--ink-green);
+}
+.about-reference .about-company {
+  background: linear-gradient(
+    135deg,
+    var(--glass) 30%,
+    color-mix(in srgb, var(--glass), var(--agrictec-icon-green-bg) 38%)
+  );
+}
+.about-company .about-card-heading {
+  align-items: center;
+}
+.about-company > p {
+  font-size: var(--text-small);
+  line-height: 1.6;
+  color: var(--text-dim);
+  margin-top: 13px;
+}
+@media (max-width: 1300px) {
+  .about-benefit {
+    flex-direction: column;
+  }
+}
+@media (max-width: 700px) {
+  .about-page-heading {
+    padding: 0;
+    gap: 14px;
+  }
+  .about-page-heading > span {
+    width: 48px;
+    height: 48px;
+  }
+  .about-page-heading p {
+    font-size: var(--text-small);
+  }
+  .about-reference .about-hero {
+    padding: 23px 18px;
+  }
+  .about-hero-content > p {
+    max-width: 100%;
+  }
+  .about-hero::after {
+    opacity: 0.35;
+    inset-inline-start: 0;
+  }
+  .about-brand > svg {
+    width: 50px;
+    height: 50px;
+  }
+  .about-benefit-grid,
+  .about-bottom-grid {
+    grid-template-columns: 1fr;
+  }
+  .about-benefit {
+    flex-direction: row;
+  }
+  .about-reference :is(.about-benefits, .about-policies, .about-company) {
+    padding: 18px;
+  }
+}
+
+@media (min-width: 1200px) {
+  body:has(.about-reference) main {
+    margin-left: 278px;
+    padding: 8px 17px 35px 12px;
+  }
+  body:has(.about-reference) aside[aria-label='Sidebar'] {
+    width: 252px;
+    left: 14px;
+    top: 8px;
+    bottom: 17px;
+  }
+  body:has(.about-reference) main > header {
+    min-height: 80px;
+    border-radius: 23px;
+    margin-bottom: 26px;
+  }
+  body:has(.about-reference) .settings-layout-grid {
+    grid-template-columns: 293px minmax(0, 1fr);
+    gap: 24px;
+    align-items: start;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] {
+    position: sticky;
+    top: 110px;
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    background: var(--glass);
+    padding: 14px 15px 16px;
+    box-shadow: 0 10px 25px #2246530b;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] > div {
+    display: block;
+    padding: 10px 11px 18px;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] > div h2 {
+    font-size: var(--text-xl);
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] > div p {
+    font-size: var(--text-small);
+
+    line-height: 1.45;
+    margin-top: 2px;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] > ul {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding-top: 13px;
+    overflow: visible;
+    margin-inline: 0;
+    padding-inline: 0;
+    border-top: 1px solid var(--border);
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] li > a {
+    min-height: 78px;
+    border-radius: 16px;
+    white-space: normal;
+    gap: 18px;
+    padding: 13px 18px;
+    border-color: transparent;
+    background: transparent;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] li > a[aria-current] {
+    background: var(--agrictec-icon-green-bg);
+    border-color: color-mix(in srgb, var(--agrictec-icon-green), transparent 74%);
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] li > a > svg {
+    width: 26px;
+    height: 26px;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] li > a > span > span:first-child {
+    font-size: var(--text-sm);
+
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] li > a > span > span:last-child {
+    font-size: var(--text-xs);
+    display: block;
+
+    line-height: 1.4;
+    margin-top: 2px;
+  }
+  body:has(.about-reference) aside nav a {
+    gap: 16px;
+  }
+}
+@media (min-width: 1200px) and (max-width: 1400px) {
+  body:has(.about-reference) .settings-layout-grid {
+    grid-template-columns: 240px minmax(0, 1fr);
+    gap: 18px;
+  }
+  body:has(.about-reference) nav[aria-label='Settings pages'] li > a {
+    padding-inline: 13px;
+    gap: 12px;
+  }
+}

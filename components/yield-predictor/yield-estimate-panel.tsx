@@ -16,19 +16,23 @@ import { findCrop } from '@/lib/calculations/yield';
 import { formatGHS } from '@/lib/format';
 import { usePlatformStore } from '@/store/platform-store';
 import { inputStrength } from './yield-options';
-import type { YieldCrop, YieldInput } from '@/types';
+import type { Crop, YieldInput } from '@/types';
 import type { HarvestEstimate } from '@/services/yield.service';
 
 export function YieldEstimatePanel({
   input,
   result,
   crop,
+  cropName = crop,
+  unavailable = false,
   stale,
   headingRef,
 }: {
   input: YieldInput | null;
   result: HarvestEstimate | null;
-  crop: YieldCrop;
+  crop: Crop;
+  cropName?: string;
+  unavailable?: boolean;
   stale: boolean;
   headingRef: Ref<HTMLHeadingElement>;
 }) {
@@ -48,9 +52,11 @@ export function YieldEstimatePanel({
               Your harvest estimate
             </h2>
             <p>
-              {result
-                ? 'Based on the details you provided.'
-                : 'Complete your plan to see your harvest estimate.'}
+              {unavailable
+                ? `Yield data for ${cropName} has not been published yet.`
+                : result
+                  ? 'Based on the details you provided.'
+                  : 'Complete your plan to see your harvest estimate.'}
             </p>
           </div>
         </header>
@@ -64,11 +70,19 @@ export function YieldEstimatePanel({
             <Wheat aria-hidden="true" />
             <div>
               <p>Estimated yield</p>
-              <strong>{result ? `${result.expected.toLocaleString()} tonnes` : '—'}</strong>
+              <strong>
+                {result
+                  ? `${result.expected.toLocaleString()} tonnes`
+                  : unavailable
+                    ? 'Not available'
+                    : '—'}
+              </strong>
               <small>
                 {result
                   ? `(≈ ${result.perAcre.toLocaleString()} t/acre)`
-                  : 'Choose your crop and farm size'}
+                  : unavailable
+                    ? 'No estimate calculated'
+                    : 'Choose your crop and farm size'}
               </small>
             </div>
           </div>
@@ -81,7 +95,9 @@ export function YieldEstimatePanel({
                   ? formatGHS(result.revenue)
                   : result
                     ? 'Not available'
-                    : '—'}
+                    : unavailable
+                      ? 'Not available'
+                      : '—'}
               </strong>
               <small>
                 {result?.pricePerTonne != null
