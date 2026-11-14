@@ -2,7 +2,12 @@
 
 import { useRef } from 'react';
 import { FileText, LayoutGrid, Plus } from 'lucide-react';
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import {
+  notifyReadOnly,
+  readOnlyProps,
+  READ_ONLY_CLASS,
+  useEntriesReadOnly,
+} from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
@@ -19,7 +24,7 @@ export function RecordsHero() {
   const hasRecords = useFarmStore((s) => s.records.length > 0);
   const openModal = useModalStore((s) => s.openModal);
   const openRecordWithReceipt = useModalStore((s) => s.openRecordWithReceipt);
-  const readOnly = useReadOnly();
+  const readOnly = useEntriesReadOnly();
   const fileInput = useRef<HTMLInputElement>(null);
 
   function showTemplates() {
@@ -67,7 +72,7 @@ export function RecordsHero() {
           <button
             type="button"
             {...readOnlyProps(readOnly)}
-            onClick={readOnly ? undefined : () => openModal('record')}
+            onClick={readOnly ? notifyReadOnly : () => openModal('record')}
             className={cn(
               'inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#b9f5cf] px-4 text-sm font-bold text-[#064e2c] shadow-sm transition-colors hover:bg-[#a3efbf]',
               readOnly && READ_ONLY_CLASS,
@@ -79,7 +84,7 @@ export function RecordsHero() {
           <button
             type="button"
             {...readOnlyProps(readOnly)}
-            onClick={readOnly ? undefined : () => fileInput.current?.click()}
+            onClick={readOnly ? notifyReadOnly : () => fileInput.current?.click()}
             className={cn(outline, readOnly && READ_ONLY_CLASS)}
           >
             <FileText size={17} aria-hidden="true" /> Import receipt

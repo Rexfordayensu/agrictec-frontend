@@ -1,6 +1,6 @@
 'use client';
 
-import { READ_ONLY_MESSAGE, useReadOnly } from '@/lib/read-only';
+import { readOnlyMessage, useReadOnly } from '@/lib/read-only';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { CornerDownLeft, Info, Mic, Paperclip, SendHorizontal, Square } from 'lucide-react';
@@ -103,7 +103,7 @@ export function ChatInput() {
           aria-label="Message the assistant"
           aria-describedby={text.length > 400 ? 'chat-character-count' : undefined}
           placeholder={
-            readOnly ? READ_ONLY_MESSAGE : 'Ask a question about your farm, finances or loans...'
+            readOnly ? readOnlyMessage() : 'Ask a question about your farm, finances or loans...'
           }
           value={text}
           maxLength={500}

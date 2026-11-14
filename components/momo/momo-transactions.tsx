@@ -39,7 +39,7 @@ import { downloadFile, toCSV } from '@/lib/export/csv';
 import { financialReportError } from '@/lib/financial-report-state';
 import { formatDate, parseISODate, todayISO } from '@/lib/format';
 import { saveBlob } from '@/lib/loans/application-status';
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { readOnlyProps, READ_ONLY_CLASS, useEntriesReadOnly } from '@/lib/read-only';
 import {
   categoryLabel,
   SOURCE_LABELS,
@@ -269,7 +269,7 @@ export function MomoTransactions() {
                 Download Statement (PDF)
               </Button>
               <Button
-                mutates
+                mutates="entries"
                 icon={Plus}
                 onClick={() => openModal('momo')}
                 className="@md:col-span-2 @2xl:col-span-1"
@@ -369,7 +369,7 @@ export function MomoTransactions() {
             icon={Smartphone}
             text="No MoMo transactions yet. Log the payments you send and receive for the farm."
             action={
-              <Button mutates icon={Plus} onClick={() => openModal('momo')}>
+              <Button mutates="entries" icon={Plus} onClick={() => openModal('momo')}>
                 Add your first transaction
               </Button>
             }
@@ -597,7 +597,7 @@ function Empty({
 function RowMenu({ t }: { t: MomoTransaction }) {
   const openModal = useModalStore((s) => s.openModal);
   const deleteMomo = useFarmStore((s) => s.deleteMomo);
-  const readOnly = useReadOnly();
+  const readOnly = useEntriesReadOnly();
   const locked = readOnly || t.verificationStatus === 'verified';
   const [open, setOpen] = useState(false);
   const [review, setReview] = useState(false);

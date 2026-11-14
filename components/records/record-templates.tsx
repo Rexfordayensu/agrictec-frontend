@@ -10,7 +10,12 @@ import {
   Users,
   type LucideIcon,
 } from 'lucide-react';
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import {
+  notifyReadOnly,
+  readOnlyProps,
+  READ_ONLY_CLASS,
+  useEntriesReadOnly,
+} from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 import { useModalStore } from '@/store/modal-store';
 import type { NewRecordInput } from '@/types';
@@ -46,7 +51,7 @@ export const RECORD_TEMPLATES: {
 
 export function RecordTemplates({ className }: { className?: string }) {
   const openRecordWithDefaults = useModalStore((s) => s.openRecordWithDefaults);
-  const readOnly = useReadOnly();
+  const readOnly = useEntriesReadOnly();
   return (
     <section
       id="record-templates"
@@ -71,7 +76,7 @@ export function RecordTemplates({ className }: { className?: string }) {
             <button
               type="button"
               {...readOnlyProps(readOnly)}
-              onClick={readOnly ? undefined : () => openRecordWithDefaults(t.defaults)}
+              onClick={readOnly ? notifyReadOnly : () => openRecordWithDefaults(t.defaults)}
               className={cn(
                 'border-border bg-bg-2 hover:border-accent/40 flex min-h-12 w-full items-center gap-3 rounded-xl border px-4 text-left text-sm shadow-sm transition-colors',
                 readOnly && READ_ONLY_CLASS,

@@ -48,7 +48,8 @@ const FLAGS: Record<FlagKey, FlagMeta> = {
   guestMode: {
     label: 'Guest mode',
     icon: UserRound,
-    description: 'Try the app with a demo account, without signing up.',
+    description:
+      'Try the app for one day without signing up. Nothing a guest enters reaches AgriCtec: it stays on their phone and is deleted after 24 hours.',
     whenOff: '“Continue as guest” disappears from the sign-in and sign-up pages.',
   },
   aiAssistant: {

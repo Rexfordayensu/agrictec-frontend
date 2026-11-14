@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { IconTile } from '@/components/ui/icon-tile';
+import { currentDemo } from '@/lib/demo';
 import { useAuthStore } from '@/store/auth-store';
 import { useSubscription } from '@/hooks/use-subscription';
 
@@ -15,6 +16,8 @@ export function AccountSettings() {
   const session = useAuthStore((state) => state.session);
   const { signOut, signingOut } = useSignOut();
   const { plan, ready } = useSubscription();
+  // The guest demo lasts one day (lib/demo.ts): when it ends.
+  const demoEnds = session?.isGuest ? currentDemo()?.expiresAt : undefined;
   const PlanIcon = plan.id === 'free' ? CreditCard : Crown;
   return (
     <Card className="account-information" aria-labelledby="account-information-title">
@@ -34,7 +37,21 @@ export function AccountSettings() {
             </strong>
             {session?.isGuest && (
               <div className="account-guest-note">
-                <p>Create an account to keep your data safe.</p>
+                <p>
+                  This is the guest demo: what you add stays on this phone only and is never
+                  sent to AgriCtec. Create an account to keep your records.
+                </p>
+                {demoEnds && (
+                  <p>
+                    The demo lasts one day: it ends{' '}
+                    {new Date(demoEnds).toLocaleString('en-GB', {
+                      weekday: 'short',
+                      hour: 'numeric',
+                      minute: '2-digit',
+                    })}
+                    .
+                  </p>
+                )}
                 <Link href="/signup">
                   <UserPlus size={15} aria-hidden="true" />
                   Create an account

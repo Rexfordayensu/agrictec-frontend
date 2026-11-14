@@ -2,7 +2,7 @@
 
 import { toast } from 'sonner';
 import { useSubscription } from '@/hooks/use-subscription';
-import { READ_ONLY_MESSAGE, useReadOnly } from '@/lib/read-only';
+import { notifyReadOnly, useReadOnly } from '@/lib/read-only';
 import { useChatStore } from '@/store/chat-store';
 
 /**
@@ -21,7 +21,7 @@ export function useAsk() {
 
   function ask(question: string) {
     if (readOnly) {
-      toast.info(READ_ONLY_MESSAGE);
+      notifyReadOnly();
       return;
     }
     if (disabled) return;

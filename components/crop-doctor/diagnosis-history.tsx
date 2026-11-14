@@ -1,6 +1,6 @@
 'use client';
 
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { notifyReadOnly, readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import { useRef, useState } from 'react';
 import Image from 'next/image';
 import { Bug, Check, ChevronDown, ChevronRight, History, Leaf, Trash2 } from 'lucide-react';
@@ -192,7 +192,7 @@ export function DiagnosisHistory() {
               variant="ghost"
               icon={Trash2}
               {...readOnlyProps(readOnly)}
-              onClick={readOnly ? undefined : () => setConfirming(true)}
+              onClick={readOnly ? notifyReadOnly : () => setConfirming(true)}
               className={cn('text-ink-red', readOnly && READ_ONLY_CLASS)}
             >
               Delete scan

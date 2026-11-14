@@ -1,6 +1,5 @@
 import { create } from 'zustand';
-import { toast } from 'sonner';
-import { isReadOnly, READ_ONLY_MESSAGE } from '@/lib/read-only';
+import { isEntriesReadOnly, notifyReadOnly } from '@/lib/read-only';
 import type { NewMomoInput, NewRecordInput } from '@/types';
 
 export type GlobalModal = 'record' | 'momo';
@@ -22,10 +21,13 @@ interface ModalState {
 }
 
 /** Which app-wide form modal is open. The modals are mounted once in app/(main)/layout.tsx. */
-/** True (with a note) when forms must not open because the app is read-only. */
+/**
+ * True (with a note) when the record or MoMo form must not open: while an admin views the app
+ * as a farmer. The guest demo may open them (entries stay in the browser's memory).
+ */
 function blocked(): boolean {
-  if (!isReadOnly()) return false;
-  toast.info(READ_ONLY_MESSAGE);
+  if (!isEntriesReadOnly()) return false;
+  notifyReadOnly();
   return true;
 }
 

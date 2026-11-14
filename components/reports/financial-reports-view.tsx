@@ -36,6 +36,7 @@ import { formatGhanaDate } from '@/lib/format';
 import { saveBlob } from '@/lib/loans/application-status';
 import { formatSignedMoney } from '@/lib/transactions';
 import { cn } from '@/lib/utils';
+import { DemoNote, useDemo } from '@/components/shared/demo-note';
 import { financialService } from '@/services/financial.service';
 import { useModalStore } from '@/store/modal-store';
 import type { FinancialReport, FinancialSummary, ReportMonths } from '@/types/financial';
@@ -57,6 +58,32 @@ export function reportRangeLabel(months: number, today = new Date(), compact = f
  * the server. Not a bank statement and not a loan decision.
  */
 export function FinancialReportsView() {
+  return useDemo() ? <DemoReports /> : <AccountReports />;
+}
+
+/** The guest demo: reports are built from a farmer's saved records on their account. */
+function DemoReports() {
+  return (
+    <div className="financial-reference @container space-y-5">
+      <header className="report-hero">
+        <div className="min-w-0">
+          <h2 className="text-text text-display leading-tight font-bold tracking-tight">
+            Your financial report at a glance.
+          </h2>
+          <p className="text-text-dim mt-1.5 text-sm">
+            A summary of your recorded farm transactions and financial performance.
+          </p>
+        </div>
+      </header>
+      <DemoNote title="Financial reports">
+        Income, expenses, cash flow and the PDF reports lenders ask for are worked out from your own
+        saved records. Create a free account to start recording and see them here.
+      </DemoNote>
+    </div>
+  );
+}
+
+function AccountReports() {
   const [months, setMonths] = useState<ReportMonths>(6);
   const figures = useFinancialSummary(months);
   const summary = figures.summary?.period.months === months ? figures.summary : null;

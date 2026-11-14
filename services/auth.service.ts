@@ -29,12 +29,16 @@ const signedIn = ({ session }: SignedIn): Session => session;
 export const authService = {
   /** Refused (403) while the admin has closed sign-ups. */
   async signUp(email: string, password: string): Promise<Session> {
-    return signedIn(await api<SignedIn>('/auth/signup', { method: 'POST', body: { email, password } }));
+    return signedIn(
+      await api<SignedIn>('/auth/signup', { method: 'POST', body: { email, password } }),
+    );
   },
 
   async signIn(email: string, password: string): Promise<Session> {
     try {
-      return signedIn(await api<SignedIn>('/auth/login', { method: 'POST', body: { email, password } }));
+      return signedIn(
+        await api<SignedIn>('/auth/login', { method: 'POST', body: { email, password } }),
+      );
     } catch (error) {
       if (error instanceof ApiError && error.code === 'password_change_required')
         throw new PasswordChangeRequiredError();
@@ -81,11 +85,6 @@ export const authService = {
     );
   },
 
-  /** One guest per device: the API remembers it with a long-lived cookie. */
-  async continueAsGuest(): Promise<Session> {
-    return signedIn(await api<SignedIn>('/auth/guest', { method: 'POST' }));
-  },
-
   /** The signed-in farmer, or null (signed out, suspended or deleted). */
   async getSession(): Promise<Session | null> {
     return (await authService.sessionState()).session;
@@ -96,7 +95,11 @@ export const authService = {
     try {
       return { session: await api<Session>('/auth/session'), expired: false };
     } catch (error) {
-      if (error instanceof ApiError && (error.status === 401 || error.status === 403))
+      if (
+        error instanceof ApiError &&
+        error.code !== 'demo' &&
+        (error.status === 401 || error.status === 403)
+      )
         return { session: null, expired: error.code === 'session_expired' };
       throw error;
     }

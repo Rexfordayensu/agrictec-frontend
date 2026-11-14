@@ -54,6 +54,11 @@ export function usePlatformSync(enabled: boolean): void {
       const { session, impersonation } = useAuthStore.getState();
       const userId = session?.userId;
       if (!userId) return;
+      // The guest demo has no account: only the public information can change.
+      if (session.isGuest && !impersonation) {
+        if (changes.platform) await usePlatformStore.getState().refresh();
+        return;
+      }
 
       // The admin's read-only view has no farmer session of its own; only its data can change.
       if ((changes.account || changes.own) && !impersonation) {

@@ -23,8 +23,16 @@ const BAND_TONE: Record<string, string> = {
  * The four headline figures: the AgriCtec score (GET /me/credit) and the period's income,
  * expenses and net cash flow (GET /me/financial-summary). All are the server's figures.
  */
-export function OverviewStats({ summary }: { summary: DashboardSummary | null }) {
+export function OverviewStats({
+  summary,
+  score,
+}: {
+  summary: DashboardSummary | null;
+  /** The guest demo's score, worked out in the browser from its entries (lib/demo-summary.ts). */
+  score?: { score: number; band: string };
+}) {
   const credit = useCreditStore((s) => s.summary);
+  const shown = score ?? (credit ? { score: credit.credit.score, band: credit.band } : null);
   const period = summary ? `Last ${summary.months} months` : '';
   return (
     <dl className="dash-stats">
@@ -40,22 +48,22 @@ export function OverviewStats({ summary }: { summary: DashboardSummary | null })
           </span>
         </dt>
         <dd className="mt-3">
-          {credit ? (
+          {shown ? (
             <Link href="/loans" className="block">
               <span className="flex items-center justify-between gap-2">
                 <span className="text-text text-2xl leading-none font-bold tabular-nums">
-                  {credit.credit.score}
+                  {shown.score}
                   <span className="text-text-mute text-sm font-medium"> / {MAX}</span>
                 </span>
                 <span className="bg-accent/12 text-ink-green rounded-lg px-2 py-0.5 text-xs font-semibold">
-                  {credit.band}
+                  {shown.band}
                 </span>
               </span>
               <span className="bg-border mt-3 block h-1.5 overflow-hidden rounded-full">
                 <span
-                  className={cn('block h-full rounded-full', BAND_TONE[credit.band] ?? 'bg-accent')}
+                  className={cn('block h-full rounded-full', BAND_TONE[shown.band] ?? 'bg-accent')}
                   style={{
-                    width: `${(Math.min(MAX, Math.max(0, credit.credit.score)) / MAX) * 100}%`,
+                    width: `${(Math.min(MAX, Math.max(0, shown.score)) / MAX) * 100}%`,
                   }}
                 />
               </span>

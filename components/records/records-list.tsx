@@ -1,6 +1,11 @@
 'use client';
 
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import {
+  notifyReadOnly,
+  readOnlyProps,
+  READ_ONLY_CLASS,
+  useEntriesReadOnly,
+} from '@/lib/read-only';
 import { TransactionTools } from '@/components/transactions/transaction-tools';
 import { useState } from 'react';
 import { isToday, isYesterday } from 'date-fns';
@@ -68,7 +73,7 @@ function RecordRow({
   onEdit: (record: FarmRecord) => void;
   onDelete: (record: FarmRecord) => void;
 }) {
-  const readOnly = useReadOnly() || record.verificationStatus === 'verified';
+  const readOnly = useEntriesReadOnly() || record.verificationStatus === 'verified';
   const badge = TYPE_BADGE[record.type];
   return (
     <li className="group hover:bg-glass focus-within:bg-glass flex items-start gap-3 rounded-2xl px-3 py-3 transition-colors sm:items-center">
@@ -98,7 +103,7 @@ function RecordRow({
           <button
             type="button"
             {...readOnlyProps(readOnly)}
-            onClick={readOnly ? undefined : () => onEdit(record)}
+            onClick={readOnly ? notifyReadOnly : () => onEdit(record)}
             aria-label={`Edit record: ${record.description}`}
             className={cn(actionClass, 'hover:text-text', readOnly && READ_ONLY_CLASS)}
           >
@@ -107,7 +112,7 @@ function RecordRow({
           <button
             type="button"
             {...readOnlyProps(readOnly)}
-            onClick={readOnly ? undefined : () => onDelete(record)}
+            onClick={readOnly ? notifyReadOnly : () => onDelete(record)}
             aria-label={`Delete record: ${record.description}`}
             className={cn(actionClass, 'hover:text-ink-red', readOnly && READ_ONLY_CLASS)}
           >
@@ -195,7 +200,12 @@ export function RecordsList({
             Add your first income, expense, activity or financing record to build your farm history
             and unlock useful reports.
           </p>
-          <Button mutates icon={Plus} onClick={() => openModal('record')} className="mt-4">
+          <Button
+            mutates="entries"
+            icon={Plus}
+            onClick={() => openModal('record')}
+            className="mt-4"
+          >
             Add your first record
           </Button>
         </div>

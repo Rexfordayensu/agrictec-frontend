@@ -1,5 +1,13 @@
 import { create } from 'zustand';
-import { assertWritable } from '@/lib/read-only';
+import {
+  assertDemoRoom,
+  demoMomo,
+  demoRecord,
+  demoUpdate,
+  isDemoUser,
+  saveDemoEntries,
+} from '@/lib/demo-entries';
+import { assertEntriesWritable, assertWritable } from '@/lib/read-only';
 import { diagnosesService } from '@/services/diagnoses.service';
 import { momoService } from '@/services/momo.service';
 import { recordsService } from '@/services/records.service';
@@ -39,7 +47,14 @@ const byNewest = <T extends { date: string; createdAt: string }>(a: T, b: T) =>
 
 // Every action calls the service first, then updates state.
 // Errors are not caught here: they reach the caller, which shows a toast.
+// The guest demo (lib/demo-entries.ts) keeps its records and MoMo entries in this store only:
+// nothing is sent to the API, so nothing of a guest is stored.
 export const useFarmStore = create<FarmState>()((set, get) => {
+  const inDemo = () => isDemoUser(get().userId);
+  /** The demo keeps its entries for its day (localStorage only, never sent). */
+  const keepDemo = () => {
+    if (inDemo()) saveDemoEntries(get().records, get().momo);
+  };
   const requireUser = (): string => {
     const { userId } = get();
     if (!userId) throw new Error('You need to sign in first');
@@ -54,6 +69,8 @@ export const useFarmStore = create<FarmState>()((set, get) => {
     status: 'idle',
 
     load: async (userId, { silent = false } = {}) => {
+      // The demo's entries exist only here: there is nothing to load (or reload) from the API.
+      if (isDemoUser(userId)) return;
       set(silent ? { userId } : { userId, status: 'loading' });
       try {
         const [records, momo, diagnoses] = await Promise.all([
@@ -71,49 +88,69 @@ export const useFarmStore = create<FarmState>()((set, get) => {
     },
 
     addRecord: async (input, receipt) => {
-      assertWritable();
-      const record = receipt
-        ? await recordsService.createWithReceipt(requireUser(), input, receipt)
-        : await recordsService.create(requireUser(), input);
+      assertEntriesWritable();
+      if (inDemo()) assertDemoRoom(get().records.length);
+      const record = inDemo()
+        ? demoRecord(input)
+        : receipt
+          ? await recordsService.createWithReceipt(requireUser(), input, receipt)
+          : await recordsService.create(requireUser(), input);
       set((state) => ({ records: [record, ...state.records].sort(byNewest) }));
+      keepDemo();
       return record;
     },
 
     updateRecord: async (id, patch) => {
-      assertWritable();
-      const updated = await recordsService.update(requireUser(), id, patch);
+      assertEntriesWritable();
+      const current = get().records.find((r) => r.id === id);
+      const updated =
+        inDemo() && current
+          ? demoUpdate(current, patch)
+          : await recordsService.update(requireUser(), id, patch);
       set((state) => ({
         records: state.records.map((r) => (r.id === id ? updated : r)).sort(byNewest),
       }));
+      keepDemo();
       return updated;
     },
 
     deleteRecord: async (id) => {
-      assertWritable();
-      await recordsService.remove(requireUser(), id);
+      assertEntriesWritable();
+      if (!inDemo()) await recordsService.remove(requireUser(), id);
       set((state) => ({ records: state.records.filter((r) => r.id !== id) }));
+      keepDemo();
     },
 
     addMomo: async (input, receipt) => {
-      assertWritable();
-      const transaction = await momoService.create(requireUser(), input, receipt);
+      assertEntriesWritable();
+      if (inDemo()) assertDemoRoom(get().momo.length);
+      const transaction = inDemo()
+        ? demoMomo(input)
+        : await momoService.create(requireUser(), input, receipt);
       set((state) => ({ momo: [transaction, ...state.momo].sort(byNewest) }));
+      keepDemo();
       return transaction;
     },
 
     updateMomo: async (id, patch) => {
-      assertWritable();
-      const updated = await momoService.update(requireUser(), id, patch);
+      assertEntriesWritable();
+      const current = get().momo.find((t) => t.id === id);
+      const updated =
+        inDemo() && current
+          ? demoUpdate(current, patch)
+          : await momoService.update(requireUser(), id, patch);
       set((state) => ({
         momo: state.momo.map((t) => (t.id === id ? updated : t)).sort(byNewest),
       }));
+      keepDemo();
       return updated;
     },
 
     deleteMomo: async (id) => {
-      assertWritable();
-      await momoService.remove(requireUser(), id);
+      assertEntriesWritable();
+      if (!inDemo()) await momoService.remove(requireUser(), id);
       set((state) => ({ momo: state.momo.filter((t) => t.id !== id) }));
+      keepDemo();
     },
 
     receiveDiagnosis: (diagnosis) => {

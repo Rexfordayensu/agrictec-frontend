@@ -16,6 +16,8 @@ const IMPERSONATION_COOKIE = 'agrictec_impersonating';
 /** Set once the farmer finishes onboarding (services/onboarding.service.ts). */
 const ONBOARDED_COOKIE = 'agrictec_onboarded';
 const ONBOARDING = '/onboarding';
+/** The guest demo (lib/demo.ts): no account and nothing stored, only this marker. */
+const DEMO_COOKIE = 'agrictec_demo';
 
 const isAdminPath = (pathname: string) => pathname === '/admin' || pathname.startsWith('/admin/');
 
@@ -127,7 +129,9 @@ export function proxy(request: NextRequest) {
     (request.cookies.has(IMPERSONATION_COOKIE) ||
       request.nextUrl.searchParams.has(IMPERSONATE_PARAM));
   const hasFarmerSession = request.cookies.has(SESSION_COOKIE);
-  const hasSession = hasFarmerSession || viewingAsFarmer;
+  // A real session wins over a leftover demo marker.
+  const inDemo = !hasFarmerSession && request.cookies.get(DEMO_COOKIE)?.value === '1';
+  const hasSession = hasFarmerSession || viewingAsFarmer || inDemo;
   const isAuthPage = AUTH_PAGES.some((p) => pathname.startsWith(p));
 
   const onboarded = request.cookies.has(ONBOARDED_COOKIE);
@@ -141,6 +145,9 @@ export function proxy(request: NextRequest) {
   }
   // Keep farmer sign-in accessible even when a cookie remains from an expired session.
   // Cookie presence alone cannot establish that the API still accepts the session.
+
+  // The demo has no farm to set up: it opens the app pages directly.
+  if (inDemo && isOnboarding) return NextResponse.redirect(new URL('/dashboard', request.url));
 
   // ---- Onboarding: the app stays closed until the farm setup is finished ----
   // The DataLoader checks the profile itself; this cookie is only a redirect hint.

@@ -13,7 +13,7 @@ let loadVersion = 0;
  * Shown above every conversation, never saved: the conversation is written by the API only
  * (Claude reads it back as earlier turns, so the browser must not be able to plant replies).
  */
-function welcomeMessage(): ChatMessage {
+export function welcomeMessage(): ChatMessage {
   return {
     id: 'welcome',
     role: 'ai',

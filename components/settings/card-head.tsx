@@ -1,7 +1,7 @@
 'use client';
 
 import { Pencil, type LucideIcon } from 'lucide-react';
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import { notifyReadOnly, readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 
 /** A profile card's heading: icon, title, a short line, and an Edit button. */
@@ -36,7 +36,7 @@ export function CardHead({
         <button
           type="button"
           {...readOnlyProps(readOnly)}
-          onClick={readOnly ? undefined : onEdit}
+          onClick={readOnly ? notifyReadOnly : onEdit}
           className={cn(
             'bg-accent/10 text-ink-green hover:bg-accent/15 inline-flex min-h-9 shrink-0 items-center gap-1.5 rounded-lg px-3 text-sm font-semibold',
             readOnly && READ_ONLY_CLASS,

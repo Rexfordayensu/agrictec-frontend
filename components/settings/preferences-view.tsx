@@ -24,7 +24,7 @@ import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/select';
 import { Switch } from '@/components/ui/switch';
 import { useMounted } from '@/hooks/use-mounted';
-import { READ_ONLY_MESSAGE, useReadOnly } from '@/lib/read-only';
+import { readOnlyMessage, useReadOnly } from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 import { DEFAULT_SETTINGS } from '@/services/settings.service';
 import { useSettingsStore } from '@/store/settings-store';
@@ -213,7 +213,7 @@ export function PreferencesView() {
                   : 'en'
               }
               disabled={locked}
-              title={readOnly ? READ_ONLY_MESSAGE : undefined}
+              title={readOnly ? readOnlyMessage() : undefined}
               className="mt-2"
               onChange={(event) =>
                 edit((current) => ({ ...current, language: event.target.value as Language }))

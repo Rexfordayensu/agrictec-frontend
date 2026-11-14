@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { assertWritable } from '@/lib/read-only';
+import { DEMO_USER_ID } from '@/lib/demo';
 import {
   DEFAULT_ASSISTANT_KB,
   DEFAULT_CREDIT_CONFIG,
@@ -113,6 +114,12 @@ export const usePlatformStore = create<PlatformState>()((set, get) => ({
   refresh: async () => {
     const userId = get().userId;
     if (!userId || get().status !== 'ready') return;
+    // The guest demo has no account: only the public information can change.
+    if (userId === DEMO_USER_ID) {
+      const snapshot = await platformService.load();
+      if (get().userId === userId) set(snapshot);
+      return;
+    }
     const [snapshot, verifications, underReview] = await Promise.all([
       platformService.load(),
       platformService.listVerifications(userId),

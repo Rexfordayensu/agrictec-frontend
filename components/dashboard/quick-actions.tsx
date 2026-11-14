@@ -8,7 +8,12 @@ import { dashPanel, PanelHeading } from '@/components/dashboard/dashboard-ui';
 import type { DashboardRange } from '@/lib/dashboard-summary';
 import { financialReportError } from '@/lib/financial-report-state';
 import { saveBlob } from '@/lib/loans/application-status';
-import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
+import {
+  notifyReadOnly,
+  readOnlyProps,
+  READ_ONLY_CLASS,
+  useEntriesReadOnly,
+} from '@/lib/read-only';
 import { cn } from '@/lib/utils';
 import { financialService } from '@/services/financial.service';
 import { useModalStore } from '@/store/modal-store';
@@ -21,7 +26,7 @@ const tile =
 export function QuickActions({ range }: { range: DashboardRange }) {
   const openModal = useModalStore((state) => state.openModal);
   const loansOn = usePlatformStore((state) => state.flags.loans);
-  const readOnly = useReadOnly();
+  const readOnly = useEntriesReadOnly();
   const [busy, setBusy] = useState(false);
 
   async function report() {
@@ -44,7 +49,7 @@ export function QuickActions({ range }: { range: DashboardRange }) {
         <button
           type="button"
           {...readOnlyProps(readOnly)}
-          onClick={readOnly ? undefined : () => openModal('record')}
+          onClick={readOnly ? notifyReadOnly : () => openModal('record')}
           className={cn(tile, readOnly && READ_ONLY_CLASS)}
         >
           <Mark icon={Leaf} />
@@ -53,7 +58,7 @@ export function QuickActions({ range }: { range: DashboardRange }) {
         <button
           type="button"
           {...readOnlyProps(readOnly)}
-          onClick={readOnly ? undefined : () => openModal('momo')}
+          onClick={readOnly ? notifyReadOnly : () => openModal('momo')}
           className={cn(tile, readOnly && READ_ONLY_CLASS)}
         >
           <Mark icon={Smartphone} />
