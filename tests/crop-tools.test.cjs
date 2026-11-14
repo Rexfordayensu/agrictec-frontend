@@ -40,7 +40,11 @@ const {
   MAX_IMAGE_BYTES,
 } = require('../lib/image/compress.ts');
 const { predictYield, yieldInsight } = require('../lib/calculations/yield.ts');
-const { yieldSchema, YIELD_CROPS } = require('../components/yield-predictor/yield-schema.ts');
+const {
+  yieldSchema,
+  YIELD_CROPS,
+  resolveYieldCrop,
+} = require('../components/yield-predictor/yield-schema.ts');
 const { UploadZone } = require('../components/crop-doctor/upload-zone.tsx');
 const { DiagnosisCard } = require('../components/crop-doctor/diagnosis-card.tsx');
 const { YieldTips } = require('../components/yield-predictor/yield-tips.tsx');
@@ -281,7 +285,7 @@ test('thumbnail failure paths always revoke URLs and invalid options fail before
   });
 });
 
-test('yield schema coerces acreage, rejects zero and invalid inputs, and excludes Other', () => {
+test('yield schema coerces acreage, rejects zero and invalid inputs, and requires a name for Other', () => {
   assert.equal(yieldSchema.parse({ ...yieldInput, acres: '2' }).acres, 2);
   const zero = yieldSchema.safeParse({ ...yieldInput, acres: 0 });
   assert.equal(zero.success, false);
@@ -512,4 +516,44 @@ test('estimate panel shows actual results, missing prices and stale plan notices
   );
   assert.match(empty, /Complete your plan/);
   assert.doesNotMatch(empty, /18,750|12.5 tonnes/);
+});
+
+test('custom crop names are validated and only supported names resolve to an estimate crop', () => {
+  const custom = yieldSchema.parse({ ...yieldInput, crop: 'Other', otherCrop: '  Cucumber  ' });
+  assert.equal(custom.otherCrop, 'Cucumber');
+  assert.equal(resolveYieldCrop(custom.crop, custom.otherCrop), null);
+  assert.equal(resolveYieldCrop('Other', '  rIcE  '), 'Rice');
+  assert.equal(resolveYieldCrop('Maize', 'Cucumber'), 'Maize');
+  assert.equal(
+    yieldSchema.safeParse({ ...yieldInput, crop: 'Other', otherCrop: '   ' }).success,
+    false,
+  );
+  assert.equal(
+    yieldSchema.safeParse({ ...yieldInput, crop: 'Other', otherCrop: 'x'.repeat(81) }).success,
+    false,
+  );
+});
+
+test('a custom crop without data shows an unavailable estimate instead of invented figures', () => {
+  const { YieldEstimatePanel } = require('../components/yield-predictor/yield-estimate-panel.tsx');
+  const html = renderToStaticMarkup(
+    createElement(YieldEstimatePanel, {
+      input: null,
+      result: null,
+      crop: 'Other',
+      cropName: 'Cucumber',
+      unavailable: true,
+      stale: false,
+      headingRef: null,
+    }),
+  );
+  assert.match(html, /Yield data for Cucumber has not been published yet/);
+  assert.match(html, /Not available/);
+  assert.match(html, /No estimate calculated/);
+  assert.doesNotMatch(html, /0 tonnes|GHS 0/);
+  const tips = renderToStaticMarkup(
+    createElement(YieldTips, { crop: 'Other', cropName: 'Cucumber' }),
+  );
+  assert.match(tips, /Growing tips for Cucumber/);
+  assert.match(tips, /Growing guidance has not been published/);
 });

@@ -2,7 +2,15 @@ import type { ReactNode } from 'react';
 import { SETTINGS_PAGES } from '@/components/settings/settings-sections';
 
 /** Heading and content of one settings page, looked up by its route. */
-export function SettingsSection({ href, children }: { href: string; children: ReactNode }) {
+export function SettingsSection({
+  href,
+  children,
+  description,
+}: {
+  href: string;
+  children: ReactNode;
+  description?: string;
+}) {
   const meta = SETTINGS_PAGES.find((page) => page.href === href);
   const Icon = meta?.icon;
   return (
@@ -17,7 +25,7 @@ export function SettingsSection({ href, children }: { href: string; children: Re
           <h2 id="settings-page-heading" className="text-text text-lg leading-tight font-bold">
             {meta?.label}
           </h2>
-          <p className="text-text-mute text-xs">{meta?.description}</p>
+          <p className="text-text-mute text-xs">{description ?? meta?.description}</p>
         </div>
       </div>
       {children}

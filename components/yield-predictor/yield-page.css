@@ -209,13 +209,13 @@
   min-width: 0;
 }
 .yield-estimate-figures > div + div {
-  border-left: 1px solid #dae5eb;
+  border-left: 1px solid var(--border);
   padding-left: 16px;
 }
 .yield-estimate-figures svg {
   width: 35px;
   height: 35px;
-  color: #009e26;
+  color: var(--agrictec-icon-green);
   flex-shrink: 0;
 }
 .yield-estimate-figures p {
@@ -251,7 +251,7 @@
   line-height: 1.5;
 }
 .yield-guidance svg {
-  color: #087cff;
+  color: var(--ink-blue);
   width: 20px;
   flex-shrink: 0;
 }
@@ -403,16 +403,19 @@
   text-decoration: underline;
   cursor: pointer;
 }
-:root.dark .yield-estimate-top {
+/* The app uses data-theme on <html>; no attribute also defaults to dark. */
+:root:not([data-theme='light']) .yield-estimate-top {
+  color: var(--text);
   background: linear-gradient(110deg, #073c30, #133b31);
 }
-:root.dark .yield-estimate-figures {
+:root:not([data-theme='light']) .yield-estimate-figures {
   background: #142f2b;
 }
-:root.dark .yield-guidance {
+:root:not([data-theme='light']) .yield-guidance {
+  color: var(--text);
   background: #142d42;
 }
-:root.dark .yield-icon {
+:root:not([data-theme='light']) .yield-icon {
   background: #123d2d;
   color: #49dc91;
 }
