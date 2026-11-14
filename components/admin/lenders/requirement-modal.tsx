@@ -133,7 +133,8 @@ export function RequirementModal({
     problems.push('Choose at least one value for the check.');
   if (dependsOn && !equals) problems.push('Choose the answer that shows this requirement.');
   const financialRule = hasCheck && FINANCIAL_METRICS.has(metric);
-  if (financialRule && !effectiveFrom) problems.push('Enter the date this lender rule took effect.');
+  if (financialRule && !effectiveFrom)
+    problems.push('Enter the date this lender rule took effect.');
   if (financialRule && !reviewedOn)
     problems.push('Enter the date this rule was last confirmed with the lender.');
   if (reviewedOn && reviewBy && reviewBy < reviewedOn)

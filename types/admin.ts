@@ -267,10 +267,14 @@ export interface AuditEntry {
     | 'farmer'
     | 'loan'
     | 'lender'
+    | 'loan_product'
     | 'config'
+    | 'settings'
     | 'content'
     | 'announcement'
     | 'risk'
+    | 'transaction'
+    | 'evidence'
     | 'admin'
     | 'system';
   targetId?: string;

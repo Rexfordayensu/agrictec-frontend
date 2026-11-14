@@ -4,7 +4,7 @@ import { adminPath } from '@/lib/admin-path';
 
 import { useEffect, useState } from 'react';
 import { formatDistanceToNowStrict } from 'date-fns';
-import { ScrollText } from 'lucide-react';
+import { Activity, ScrollText } from 'lucide-react';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
 import { InitialsAvatar } from '@/components/admin/shared/initials-avatar';
 import { EmptyState } from '@/components/ui/empty-state';
@@ -47,6 +47,7 @@ export function RecentAdminActivity({ className }: { className?: string }) {
   return (
     <Panel
       title="Recent activity"
+      icon={Activity}
       description="Latest actions in the audit log"
       action={<PanelLink href={adminPath('/admin/audit-log')}>Audit log</PanelLink>}
       className={className}

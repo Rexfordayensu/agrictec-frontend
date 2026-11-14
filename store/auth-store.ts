@@ -7,6 +7,7 @@ import {
   isDemoBrowser,
   startDemo,
 } from '@/lib/demo';
+import { announceAuthChange } from '@/lib/tab-sync';
 import { authService } from '@/services/auth.service';
 import type { Session, StoreStatus } from '@/types';
 
@@ -75,6 +76,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   signIn: async (email, password) => {
     const session = await authService.signIn(email, password);
     endDemo();
+    announceAuthChange('signed-in');
     set({ session, status: 'ready' });
     return session;
   },
@@ -82,6 +84,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   replaceTemporaryPassword: async (email, temporary, next) => {
     const session = await authService.replaceTemporaryPassword(email, temporary, next);
     endDemo();
+    announceAuthChange('signed-in');
     set({ session, status: 'ready' });
     return session;
   },
@@ -89,6 +92,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   resetPassword: async (email, code, next) => {
     const session = await authService.resetPassword(email, code, next);
     endDemo();
+    announceAuthChange('signed-in');
     set({ session, status: 'ready' });
     return session;
   },
@@ -96,6 +100,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   signUp: async (email, password) => {
     const session = await authService.signUp(email, password);
     endDemo();
+    announceAuthChange('signed-in');
     set({ session, status: 'ready' });
     return session;
   },
@@ -103,6 +108,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   continueAsGuest: async () => {
     // Carries on a demo opened earlier today rather than restarting its 24 hours.
     const session = demoSession(startDemo());
+    announceAuthChange('demo-started');
     set({ session, status: 'ready', sessionExpired: false, demoEnded: false });
     return session;
   },
@@ -110,6 +116,7 @@ export const useAuthStore = create<AuthState>()((set) => ({
   signOut: async () => {
     if (isDemoBrowser()) endDemo();
     else await authService.signOut();
+    announceAuthChange('signed-out');
     set({ session: null, status: 'ready' });
   },
 }));

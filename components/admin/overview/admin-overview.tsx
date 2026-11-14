@@ -2,15 +2,15 @@
 
 import { useState } from 'react';
 import { format } from 'date-fns';
+import { Hand } from 'lucide-react';
 import { CropPopularityChart } from '@/components/admin/overview/crop-popularity-chart';
 import { KpiGrid } from '@/components/admin/overview/kpi-grid';
 import { LoanFunnel } from '@/components/admin/overview/loan-funnel';
-import { NeedsAttention } from '@/components/admin/overview/needs-attention';
 import { RecentAdminActivity } from '@/components/admin/overview/recent-admin-activity';
 import { RegionChart } from '@/components/admin/overview/region-chart';
 import { ScoreDistributionChart } from '@/components/admin/overview/score-distribution-chart';
 import { SignupsChart } from '@/components/admin/overview/signups-chart';
-import { SystemStatus } from '@/components/admin/overview/system-status';
+import { StatusSummary } from '@/components/admin/overview/status-summary';
 import { WeatherCard } from '@/components/market/weather-card';
 import { adminPath } from '@/lib/admin-path';
 import { useCan } from '@/hooks/admin/use-can';
@@ -33,10 +33,11 @@ const greeting = (hour: number) =>
   hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
 /**
- * The console's home: key figures first, then growth and the to-do list, the loan pipeline and
- * credit scores, then where farmers are, what they grow and what staff did. The period changes
- * the figures' deltas, the growth chart and the pipeline; regions, crops and scores always
- * describe all farmers today.
+ * The console's home: key figures first, the weather beside the platform's status and to-do
+ * list, then growth, the loan pipeline and credit scores side by side, then where farmers are,
+ * what they grow and what staff did. Every figure comes live from the API (GET /admin/overview).
+ * The period changes the figures' deltas, the growth chart and the pipeline; regions, crops and
+ * scores always describe all farmers today.
  */
 export function AdminOverview() {
   const [range, setRange] = useState<DateRange>('12m');
@@ -57,12 +58,14 @@ export function AdminOverview() {
           <p className="text-text-mute text-xs font-semibold tracking-wider uppercase">
             {format(now, 'EEEE, d MMMM')}
           </p>
-          <h1 className="font-display text-text text-display mt-1 leading-tight font-bold">
+          <h1 className="font-display text-text text-display mt-1 flex items-center gap-2 leading-tight font-bold">
             {greeting(now.getHours())}
             {name ? `, ${name}` : ''}
+            <Hand aria-hidden="true" className="text-ink-gold size-[0.85em] -rotate-12" />
           </h1>
           <p className="text-text-dim mt-1 text-sm">
-            The health of the platform, and what needs you next.
+            Here&apos;s the latest on AgriCtec: platform health, farmer activity, lending, and what
+            needs your attention.
           </p>
         </div>
         <div
@@ -102,52 +105,29 @@ export function AdminOverview() {
       ) : (
         <KpiGrid range={range} bands={bands} kpis={data.kpis} />
       )}
-      <WeatherCard scope="admin" weatherHref={adminPath('/admin/content/weather')} compact />
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
+        <WeatherCard scope="admin" weatherHref={adminPath('/admin/content/weather')} compact />
+        <StatusSummary status={status} items={data?.needsAttention ?? []} />
+      </div>
 
       {data && (
         <>
-          <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
+            {canFarmers && <SignupsChart range={range} series={data.signups} kpis={data.kpis} />}
+            {canLoans && <LoanFunnel range={range} reach={data.loanStages} />}
             {canFarmers && (
-              <SignupsChart
-                range={range}
-                series={data.signups}
-                kpis={data.kpis}
-                className="xl:col-span-2"
+              <ScoreDistributionChart
+                bands={bands}
+                buckets={data.scoreDistribution}
+                averageScore={data.kpis.averageScore}
+                evidence={data.evidenceCoverage}
+                className="lg:col-span-2 xl:col-span-1"
               />
             )}
-            <div className={cn('grid gap-6', !canFarmers && 'xl:col-span-3 xl:grid-cols-2')}>
-              <NeedsAttention items={data.needsAttention} />
-              <SystemStatus status={status} />
-            </div>
           </div>
 
-          {(canLoans || canFarmers) && (
-            <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
-              {canLoans && (
-                <LoanFunnel
-                  range={range}
-                  reach={data.loanStages}
-                  className={canFarmers ? 'xl:col-span-2' : 'xl:col-span-3'}
-                />
-              )}
-              {canFarmers && (
-                <ScoreDistributionChart
-                  bands={bands}
-                  buckets={data.scoreDistribution}
-                  averageScore={data.kpis.averageScore}
-                  evidence={data.evidenceCoverage}
-                  className={canLoans ? '' : 'xl:col-span-3'}
-                />
-              )}
-            </div>
-          )}
-
-          <div
-            className={cn(
-              'grid grid-cols-1 gap-6 md:grid-cols-2',
-              canFarmers && canAudit && 'xl:grid-cols-3',
-            )}
-          >
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
             {canFarmers && <RegionChart regions={data.farmersByRegion} />}
             {canFarmers && (
               <CropPopularityChart crops={data.cropPopularity} growers={data.cropGrowers} />

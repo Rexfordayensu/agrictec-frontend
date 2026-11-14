@@ -3,6 +3,7 @@
 import { adminPath } from '@/lib/admin-path';
 
 import Link from 'next/link';
+import { ChartColumn } from 'lucide-react';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
 import { useCan } from '@/hooks/admin/use-can';
 import type { OverviewData } from '@/services/admin/overview.service';
@@ -37,6 +38,7 @@ export function ScoreDistributionChart({
   return (
     <Panel
       title="AgriCtec scores"
+      icon={ChartColumn}
       description="All farmers, by score band"
       action={canCredit && <PanelLink href={adminPath('/admin/credit-rules')}>Rules</PanelLink>}
       className={className}

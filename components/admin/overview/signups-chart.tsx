@@ -2,7 +2,7 @@
 
 import { adminPath } from '@/lib/admin-path';
 
-import { TrendingDown, TrendingUp } from 'lucide-react';
+import { Sprout, TrendingDown, TrendingUp } from 'lucide-react';
 import { BarChart } from '@/components/charts/bar-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
@@ -37,6 +37,7 @@ export function SignupsChart({
   return (
     <Panel
       title="Farmer growth"
+      icon={Sprout}
       description={`New sign-ups ${UNIT_LABEL[series.unit]}, ${rangeLabel}`}
       action={canFarmers && <PanelLink href={adminPath('/admin/farmers')}>All farmers</PanelLink>}
       className={className}
@@ -84,7 +85,7 @@ export function SignupsChart({
           </div>
         </dl>
       </div>
-      {/* Fills the card's height (it sits beside the to-do column), never under 240px. */}
+      {/* Fills the card's height (beside the pipeline and the scores), never under 240px. */}
       <div className="relative min-h-60 flex-1">
         <div className="absolute inset-0">
           <BarChart
@@ -92,6 +93,7 @@ export function SignupsChart({
             datasets={[{ label: 'New farmers', data: series.counts, color: palette.purple }]}
             height="fill"
             maxBarThickness={22}
+            flatLabels
             showLegend={false}
             ariaLabel={`Sign-ups ${UNIT_LABEL[series.unit]}, ${rangeLabel}: ${total} in total`}
           />

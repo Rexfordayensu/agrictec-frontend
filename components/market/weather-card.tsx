@@ -212,47 +212,55 @@ function WeatherPanel({
 
   if (compact)
     return (
-      // Laid out by its own width: side by side when wide, stacked in a narrow column.
-      <Card className="@container h-full min-w-0 rounded-3xl">
-        <div className="flex h-full flex-col gap-4 @lg:flex-row @lg:items-center @lg:justify-between">
-          <div className="min-w-0">
-            <CardTitle className="flex items-center gap-2">
-              {report ? (
-                <WeatherIcon
-                  condition={conditionOf(report.current.description, report.daily[0]?.storm)}
-                  size={22}
-                />
-              ) : (
-                <Sun size={18} aria-hidden="true" className="text-ink-gold" />
+      // The console overview's card (the farmer dashboard has its own): a large weather mark,
+      // today's reading, and the forecast link. Laid out by its own width.
+      <Card className="@container h-full min-w-0 rounded-2xl">
+        <div className="flex h-full flex-col gap-4 @xl:flex-row @xl:items-center">
+          <span className="bg-purple/10 text-ink-purple inline-flex size-20 shrink-0 items-center justify-center rounded-2xl @max-xl:hidden">
+            {report ? (
+              <WeatherIcon
+                condition={conditionOf(report.current.description, report.daily[0]?.storm)}
+                size={44}
+              />
+            ) : (
+              <Sun size={36} aria-hidden="true" className="text-ink-gold" />
+            )}
+          </span>
+          <div className="min-w-0 flex-1">
+            <CardTitle className="flex items-center gap-2 text-base">
+              {report && (
+                <span className="@xl:hidden">
+                  <WeatherIcon
+                    condition={conditionOf(report.current.description, report.daily[0]?.storm)}
+                    size={22}
+                  />
+                </span>
               )}
               Local weather
             </CardTitle>
-            <p className="text-text-dim mt-2 flex items-center gap-1.5 text-sm break-words">
-              <MapPin size={14} aria-hidden="true" className="text-ink-green shrink-0" />
+            <p className="text-text-dim mt-1 flex items-center gap-1.5 text-sm break-words">
+              <MapPin size={14} aria-hidden="true" className="text-text-mute shrink-0" />
               {location.label}
             </p>
-            <div className="text-text mt-2 text-sm" aria-live="polite">
+            <div className="text-text mt-1.5" aria-live="polite">
               {report ? (
                 <>
-                  <p className="font-semibold">
+                  <p className="text-lg font-bold">
                     {report.current.temp}°C · {report.current.description}
                   </p>
                   {warnings[0] ? (
-                    <p className="text-ink-gold mt-1 flex items-center gap-1.5 font-semibold">
+                    <p className="text-ink-gold mt-0.5 flex items-center gap-1.5 text-sm font-semibold">
                       <AlertTriangle size={14} aria-hidden="true" className="shrink-0" />
                       {warnings[0].title}
                     </p>
                   ) : (
-                    <p className="text-text-dim mt-1">
+                    <p className="text-text-dim mt-0.5 text-sm">
                       Rain chance now: {chanceLabel(report.current.rainChance)}
                     </p>
                   )}
-                  <p className="text-text-mute mt-1 text-xs">
-                    {report.provider} · updated {updatedLabel(report.updatedAt)} (Ghana time)
-                  </p>
                 </>
               ) : (
-                <p>
+                <p className="text-sm">
                   {state.status === 'loading' || state.status === 'idle'
                     ? 'Loading weather…'
                     : 'The weather service didn’t answer. Open Weather to try again.'}
@@ -260,12 +268,19 @@ function WeatherPanel({
               )}
             </div>
           </div>
-          <Link
-            href={weatherHref}
-            className="border-border text-ink-green hover:bg-glass-strong mt-auto inline-flex min-h-11 shrink-0 items-center justify-center rounded-xl border px-4 text-center text-sm font-semibold @lg:mt-0"
-          >
-            View weather forecast
-          </Link>
+          <div className="flex shrink-0 flex-col gap-2 @xl:items-end @xl:justify-between @xl:self-stretch">
+            {report && (
+              <p className="text-text-mute text-xs">
+                {report.provider} · updated {updatedLabel(report.updatedAt)}
+              </p>
+            )}
+            <Link
+              href={weatherHref}
+              className="border-border text-ink-green hover:bg-glass-strong inline-flex min-h-11 items-center justify-center rounded-xl border px-4 text-center text-sm font-semibold"
+            >
+              View weather forecast
+            </Link>
+          </div>
         </div>
       </Card>
     );

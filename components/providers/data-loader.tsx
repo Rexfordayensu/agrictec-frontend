@@ -21,6 +21,7 @@ import { authService } from '@/services/auth.service';
 import { onboardingService } from '@/services/onboarding.service';
 import { useDemoReminder } from '@/components/providers/use-demo-reminder';
 import { currentDemo, endDemo } from '@/lib/demo';
+import { onOtherTabAuthChange } from '@/lib/tab-sync';
 import {
   forgetOtherAccount,
   loadAllStores,
@@ -52,6 +53,8 @@ export function DataLoader({ children }: { children: ReactNode }) {
   useDemoDayEnd(state === 'ready');
   // And every 10 minutes it reminds the guest what a free account adds.
   useDemoReminder(state === 'ready');
+  // Another tab signed in, signed out or opened the guest demo: start again in the right place.
+  useOtherTabAuthChange(state === 'ready');
 
   const router = useRouter();
 
@@ -190,6 +193,21 @@ function useDemoDayEnd(enabled: boolean) {
     // Timers can't wait more than ~24.8 days; a demo never lasts more than one.
     const timer = window.setTimeout(end, Math.max(0, Date.parse(demo.expiresAt) - Date.now()));
     return () => window.clearTimeout(timer);
+  }, [enabled]);
+}
+
+/**
+ * Several tabs share one browser's sign-in: when another tab changes it, this one reloads, so it
+ * never keeps showing the previous account or the wrong mode. An admin's "View as farmer" tab
+ * belongs to the admin and stays as it is.
+ */
+function useOtherTabAuthChange(enabled: boolean) {
+  useEffect(() => {
+    if (!enabled || useAuthStore.getState().impersonation) return;
+    return onOtherTabAuthChange(() => {
+      resetAllStores();
+      window.location.reload();
+    });
   }, [enabled]);
 }
 

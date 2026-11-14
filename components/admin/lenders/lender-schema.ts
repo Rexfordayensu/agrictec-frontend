@@ -26,66 +26,71 @@ const optional = (max: number, label: string) =>
  * show as "Not provided"); nothing is filled in for the admin.
  */
 export function lenderFormSchema(otherNames: string[]) {
-  return z.object({
-    name: z
-      .string()
-      .trim()
-      .min(2, 'Enter the institution’s official name.')
-      .max(160, 'Keep the name under 160 characters.')
-      .refine((name) => !otherNames.some((other) => sameLenderName(other, name)), {
-        message: 'A lender with this name already exists.',
-      }),
-    institutionType: z.enum([
-      'universal_bank',
-      'rural_community_bank',
-      'savings_and_loans',
-      'microfinance',
-      'finance_house',
-      'credit_union',
-      'development_finance',
-      'other',
-    ]),
-    registeredName: optional(200, 'registered name'),
-    description: optional(2000, 'description'),
-    color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Pick a colour.'),
-    regulator: optional(120, 'regulator'),
-    licenceRef: optional(120, 'licence reference'),
-    website: z
-      .string()
-      .trim()
-      .max(300)
-      .refine(
-        (v) => !v || /^https?:\/\/\S+\.\S+/.test(v),
-        'Enter the full address, e.g. https://…',
-      ),
-    email: z
-      .string()
-      .trim()
-      .max(160)
-      .refine((v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address.'),
-    phone: z
-      .string()
-      .trim()
-      .max(40)
-      .refine((v) => !v || /^\+?[0-9][0-9 ()-]{5,38}$/.test(v), 'Enter a valid phone number.'),
-    address: optional(500, 'address'),
-    region: z.string().refine((v) => !v || REGIONS.includes(v), 'Choose a region.'),
-    offersAgriLoans: z.enum(['unknown', 'yes', 'no']),
-    supportedRegions: z.array(z.string()),
-    partnershipStatus: z.enum(['none', 'in_discussion', 'partner']),
-    submissionEmail: z
-      .string()
-      .trim()
-      .max(160)
-      .refine((v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address.'),
-    submissionAgreedOn: z
-      .string()
-      .refine((v) => !v || v <= new Date().toISOString().slice(0, 10), 'The date can’t be in the future.'),
-    submissionNote: optional(500, 'note'),
-  }).refine((f) => !f.submissionEmail.trim() || f.submissionAgreedOn, {
-    path: ['submissionAgreedOn'],
-    message: 'Enter the date the lender agreed to receive applications by email.',
-  });
+  return z
+    .object({
+      name: z
+        .string()
+        .trim()
+        .min(2, 'Enter the institution’s official name.')
+        .max(160, 'Keep the name under 160 characters.')
+        .refine((name) => !otherNames.some((other) => sameLenderName(other, name)), {
+          message: 'A lender with this name already exists.',
+        }),
+      institutionType: z.enum([
+        'universal_bank',
+        'rural_community_bank',
+        'savings_and_loans',
+        'microfinance',
+        'finance_house',
+        'credit_union',
+        'development_finance',
+        'other',
+      ]),
+      registeredName: optional(200, 'registered name'),
+      description: optional(2000, 'description'),
+      color: z.string().regex(/^#[0-9a-fA-F]{6}$/, 'Pick a colour.'),
+      regulator: optional(120, 'regulator'),
+      licenceRef: optional(120, 'licence reference'),
+      website: z
+        .string()
+        .trim()
+        .max(300)
+        .refine(
+          (v) => !v || /^https?:\/\/\S+\.\S+/.test(v),
+          'Enter the full address, e.g. https://…',
+        ),
+      email: z
+        .string()
+        .trim()
+        .max(160)
+        .refine((v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address.'),
+      phone: z
+        .string()
+        .trim()
+        .max(40)
+        .refine((v) => !v || /^\+?[0-9][0-9 ()-]{5,38}$/.test(v), 'Enter a valid phone number.'),
+      address: optional(500, 'address'),
+      region: z.string().refine((v) => !v || REGIONS.includes(v), 'Choose a region.'),
+      offersAgriLoans: z.enum(['unknown', 'yes', 'no']),
+      supportedRegions: z.array(z.string()),
+      partnershipStatus: z.enum(['none', 'in_discussion', 'partner']),
+      submissionEmail: z
+        .string()
+        .trim()
+        .max(160)
+        .refine((v) => !v || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v), 'Enter a valid email address.'),
+      submissionAgreedOn: z
+        .string()
+        .refine(
+          (v) => !v || v <= new Date().toISOString().slice(0, 10),
+          'The date can’t be in the future.',
+        ),
+      submissionNote: optional(500, 'note'),
+    })
+    .refine((f) => !f.submissionEmail.trim() || f.submissionAgreedOn, {
+      path: ['submissionAgreedOn'],
+      message: 'Enter the date the lender agreed to receive applications by email.',
+    });
 }
 
 export type LenderFormValues = z.infer<ReturnType<typeof lenderFormSchema>>;

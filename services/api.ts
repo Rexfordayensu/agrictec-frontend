@@ -141,6 +141,9 @@ async function send(options: RequestOptions, path: string): Promise<Response> {
 
 /** The guest demo never sends an account's request: nothing of a guest is stored by the API. */
 function refuseInDemo(path: string): void {
+  // An admin's "View as farmer" tab reads that farmer's data with the admin's own permission
+  // (the X-Impersonation-Token header), even in a browser where a guest demo is open.
+  if (typeof window !== 'undefined' && impersonationToken.get()) return;
   if (isDemoBrowser() && needsAccount(path)) throw new ApiError(DEMO_MESSAGE, 403, 'demo');
 }
 

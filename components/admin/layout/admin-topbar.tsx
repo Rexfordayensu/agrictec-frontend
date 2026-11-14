@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { ChevronRight, Menu, Search } from 'lucide-react';
 import { adminBreadcrumbs } from '@/components/admin/layout/admin-breadcrumbs';
 import { AdminNameChip } from '@/components/admin/layout/admin-name';
@@ -11,7 +11,7 @@ import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import { useAdminUiStore } from '@/store/admin/admin-ui-store';
 
 export function AdminTopbar() {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const farmers = useAdminDataStore((s) => s.farmers);
   const applications = useAdminDataStore((s) => s.applications);
   const openSidebar = useAdminUiStore((s) => s.openSidebar);

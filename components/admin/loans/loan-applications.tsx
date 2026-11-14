@@ -1,7 +1,8 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { Columns3, Download, Rows3, Search, SlidersHorizontal, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/admin/layout/page-header';
@@ -50,7 +51,7 @@ const FILTER_LABELS: Record<LoanFilterName, string> = {
  */
 export function LoanApplications() {
   const id = useId();
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const params = useSearchParams();
   // Earlier applications are read-only history: the API no longer moves them (410).
   const canManage = false;

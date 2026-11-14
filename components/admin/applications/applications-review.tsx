@@ -4,7 +4,8 @@ import { adminPath } from '@/lib/admin-path';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { ArrowRight, History } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { LogoLoader } from '@/components/ui/logo-loader';
@@ -47,7 +48,7 @@ const money = (value: string) =>
  */
 export function ApplicationsReview() {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const params = useSearchParams();
   const syncVersion = useAdminDataStore((s) => s.syncVersion);
   const group = (GROUPS.find((g) => g.key === params.get('group'))?.key ??
