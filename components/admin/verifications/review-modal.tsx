@@ -91,6 +91,8 @@ export function ReviewModal({
   const farmer = request && farmers.find((f) => f.userId === request.userId);
   const name = nameOf(farmer);
   const actionable = Boolean(canReview && request?.status === 'pending');
+  // The same card already verified on another account can't be approved (the server refuses it too).
+  const cardElsewhere = Boolean(request?.kind === 'ghanaCard' && request.cardOnOtherAccounts);
   const index = request ? queue.findIndex((v) => v.id === request.id) : -1;
   const previousId = request ? neighborId(queue, request.id, -1) : null;
   const nextId = request ? neighborId(queue, request.id, 1) : null;
@@ -130,7 +132,7 @@ export function ReviewModal({
     } else if (key === 'k' && previousId) {
       event.preventDefault();
       onNavigate(previousId);
-    } else if (key === 'a' && actionable) {
+    } else if (key === 'a' && actionable && !cardElsewhere) {
       event.preventDefault();
       void approve();
     } else if (key === 'r' && actionable) {
@@ -237,6 +239,10 @@ export function ReviewModal({
                 <Button
                   icon={Check}
                   loading={busy}
+                  disabled={cardElsewhere}
+                  title={
+                    cardElsewhere ? 'This Ghana Card is verified on another account' : undefined
+                  }
                   onClick={() => void approve()}
                   className={APPROVE_CLASS}
                 >
@@ -332,6 +338,17 @@ export function ReviewModal({
             {request.kind === 'ghanaCard' && (
               <p className="text-text-mute text-xs">
                 Only the last four digits are shown. The full number is never stored.
+              </p>
+            )}
+            {cardElsewhere && (
+              <p
+                role="alert"
+                className="border-danger/40 bg-danger/10 text-ink-red rounded-xl border p-3 text-sm font-medium"
+              >
+                This Ghana Card is already verified on {request.cardOnOtherAccounts} other account
+                {request.cardOnOtherAccounts === 1 ? '' : 's'}. One card belongs to one person, so
+                it can&apos;t be approved here: reject it, or check under Risk &amp; Fraud which
+                account the card really belongs to.
               </p>
             )}
             {request.kind === 'ghanaCard' && request.identityCheck && (

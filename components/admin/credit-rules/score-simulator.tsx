@@ -30,8 +30,9 @@ const asConfig = (values: CreditConfigInput): CreditConfig => ({
 
 const COUNT_FIELDS: { key: keyof ScoreCounts; label: string; max: number; step?: number }[] = [
   { key: 'activeMonths', label: 'Active months (recent)', max: 24 },
-  { key: 'records', label: 'Farm records', max: 500 },
-  { key: 'momo', label: 'MoMo transactions', max: 500 },
+  // Typed-in numbers are scored as verified entries (a real farmer's unchecked ones count less).
+  { key: 'records', label: 'Verified farm records', max: 500 },
+  { key: 'momo', label: 'Verified MoMo', max: 500 },
   { key: 'income', label: 'Income (GHS)', max: 10_000_000, step: 100 },
   { key: 'expenses', label: 'Expenses (GHS)', max: 10_000_000, step: 100 },
   { key: 'verifiedChecks', label: 'Checks passed (of 4)', max: 4 },
@@ -152,10 +153,16 @@ export function ScoreSimulator({
           <>
             <FarmerCombobox farmers={farmers} value={userId} onChange={setUserId} />
             {farmer && (
-              <dl className="grid grid-cols-3 gap-2 text-xs">
+              <dl className="grid grid-cols-2 gap-2 text-xs">
                 {[
                   ['Records', farmer.records.length],
                   ['MoMo', farmer.momo.length],
+                  [
+                    'Verified',
+                    [...farmer.records, ...farmer.momo].filter(
+                      (e) => e.verificationStatus === 'verified',
+                    ).length,
+                  ],
                   ['Region', farmer.profile.region],
                 ].map(([label, v]) => (
                   <div key={label} className="bg-bg-2/60 rounded-lg px-2.5 py-2">

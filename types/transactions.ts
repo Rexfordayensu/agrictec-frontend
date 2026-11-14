@@ -43,6 +43,8 @@ export interface TransactionItem extends TransactionMetadata {
   counterparty?: string;
   reference?: string;
   network?: string;
+  /** A farm record paid by bank: the bank's name. */
+  bankName?: string | null;
   crop?: string;
   evidence: Evidence[];
   referenceDuplicate?: boolean;

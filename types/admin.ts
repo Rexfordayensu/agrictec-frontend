@@ -108,6 +108,8 @@ export interface VerificationRequest {
     names?: string;
     checkedAt: string;
   };
+  /** Admins only: other accounts on which this same Ghana Card is already verified. */
+  cardOnOtherAccounts?: number;
 }
 
 export type LoanStatus =
@@ -159,7 +161,13 @@ export interface CreditConfig {
     momoActivity: number;
     verification: number;
   };
-  targets: { recordsForFull: number; momoForFull: number; monthsWindow: number };
+  targets: {
+    recordsForFull: number;
+    momoForFull: number;
+    monthsWindow: number;
+    /** % an entry nobody has checked counts towards the score (a verified one counts 100%). */
+    unverifiedWeight: number;
+  };
   /** Score thresholds, e.g. 500 / 650 / 750. */
   bands: { fair: number; good: number; excellent: number };
   /**
