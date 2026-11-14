@@ -1,8 +1,9 @@
+import { adminPath } from '@/lib/admin-path';
 import { z } from 'zod';
 import { safeNextPath } from '@/components/auth/auth-schemas';
 import { ADMIN_PASSWORD_RULES } from '@/lib/admin/passwords';
 
-export const ADMIN_HOME_PATH = '/admin';
+export const ADMIN_HOME_PATH = adminPath('/admin');
 
 export const adminLoginSchema = z.object({
   email: z.string().trim().email('Enter a valid email address'),

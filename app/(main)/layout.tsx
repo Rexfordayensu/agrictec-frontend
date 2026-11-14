@@ -10,6 +10,7 @@ import { GhanaCardReminder } from '@/components/profile/ghana-card-reminder';
 import { AiCreditsWarning } from '@/components/subscription/ai-credits-warning';
 import { RecordFormModal } from '@/components/records/record-form-modal';
 import { DataLoader } from '@/components/providers/data-loader';
+import { AppTour } from '@/components/tour/app-tour';
 import { SubscriptionSync } from '@/components/providers/subscription-sync';
 import { OptionalDataBoundary } from '@/components/providers/optional-data-boundary';
 
@@ -23,12 +24,14 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         <div className="flex min-h-screen">
           <Sidebar />
           <MobileNavOverlay />
-          {/* 900px matches the sidebar; 272px = 12px inset + 260px floating sidebar.
+          {/* 900px matches the sidebar; 276px = 16px inset + 260px floating sidebar.
               Below 900px the bottom padding clears the mobile bar and the device safe area.
-              pt-3 = the top bar's sticky offset, so it starts level with the sidebar. */}
-          <main className="min-w-0 flex-1 px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] min-[900px]:ml-[272px] min-[900px]:pt-3 min-[900px]:pb-16 md:px-8">
+              pt-4 = the top bar's sticky offset, so it starts level with the sidebar. */}
+          <main className="min-w-0 flex-1 px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] min-[900px]:ml-[276px] min-[900px]:pt-4 min-[900px]:pb-16 md:px-8">
             <Topbar />
-            <PageContainer><OptionalDataBoundary>{children}</OptionalDataBoundary></PageContainer>
+            <PageContainer>
+              <OptionalDataBoundary>{children}</OptionalDataBoundary>
+            </PageContainer>
           </main>
           <MobileNav />
         </div>
@@ -39,6 +42,8 @@ export default function MainLayout({ children }: { children: ReactNode }) {
         <GhanaCardReminder />
         {/* At 90% of the month's AI credits, and when they run out: an upgrade warning. */}
         <AiCreditsWarning />
+        {/* The 6-step app tour: once for a new farmer or a guest, replayable from Settings. */}
+        <AppTour />
       </DataLoader>
     </>
   );

@@ -2,11 +2,12 @@
 
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import Link from 'next/link';
-import { ChevronsUpDown, LogOut, Settings, User } from 'lucide-react';
+import { ChevronsUpDown, Compass, LogOut, Settings, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { ProfileAvatar } from '@/components/profile/profile-avatar';
 import { cn } from '@/lib/utils';
 import { useSignOut } from '@/components/layout/use-sign-out';
+import { useStartTour } from '@/components/tour/use-start-tour';
 import { useAuthStore, useProfileStore } from '@/store';
 import { useUiStore } from '@/store/ui-store';
 
@@ -22,6 +23,9 @@ export function UserMenu() {
   const { signOut, signingOut } = useSignOut();
 
   const session = useAuthStore((s) => s.session);
+  // An admin's read-only "View as farmer" has no tour to take.
+  const readOnlyView = useAuthStore((s) => s.impersonation !== null);
+  const startTour = useStartTour();
   const profile = useProfileStore((s) => s.profile);
   const closeMobileNav = useUiStore((s) => s.closeMobileNav);
 
@@ -135,6 +139,21 @@ export function UserMenu() {
             <Settings size={16} aria-hidden="true" />
             Settings
           </Link>
+          {!readOnlyView && (
+            <button
+              type="button"
+              role="menuitem"
+              tabIndex={-1}
+              onClick={() => {
+                setOpen(false);
+                startTour();
+              }}
+              className={cn(itemClass, 'text-text-dim hover:text-text')}
+            >
+              <Compass size={16} aria-hidden="true" />
+              Take the tour
+            </button>
+          )}
           <button
             type="button"
             role="menuitem"

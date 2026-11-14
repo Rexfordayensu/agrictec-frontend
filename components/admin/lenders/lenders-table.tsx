@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle, CircleCheck, Eye, EyeOff, Landmark, Plus } from 'lucide-react';
@@ -25,7 +27,7 @@ import { useAdminTable } from '@/hooks/admin/use-admin-table';
 import { INSTITUTION_TYPE_LABELS } from '@/lib/lenders';
 import type { AdminLender } from '@/types/admin';
 
-const lenderHref = (l: AdminLender) => `/admin/lenders/${encodeURIComponent(l.id)}`;
+const lenderHref = (l: AdminLender) => adminPath(`/admin/lenders/${encodeURIComponent(l.id)}`);
 
 /**
  * The lender register. Farmers see a lender only when it is published, its licence check is

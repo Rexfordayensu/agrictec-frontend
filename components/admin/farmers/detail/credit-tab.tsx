@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import Link from 'next/link';
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
 import { FinancialPanel } from '@/components/admin/farmers/detail/financial-panel';
@@ -59,7 +61,10 @@ export function CreditTab({ data }: TabProps) {
                 </span>
               </p>
               <p className="text-text-mute text-xs">
-                <Link href={`/admin/loans/${last.id}`} className="text-ink-purple font-semibold">
+                <Link
+                  href={adminPath(`/admin/loans/${last.id}`)}
+                  className="text-ink-purple font-semibold"
+                >
                   {last.reference}
                 </Link>{' '}
                 · {formatDate(new Date(last.createdAt))}

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
@@ -261,7 +263,7 @@ export function FarmersTable() {
       {
         label: 'View details',
         icon: UserRound,
-        onSelect: () => router.push(`/admin/farmers/${farmer.userId}`),
+        onSelect: () => router.push(adminPath(`/admin/farmers/${farmer.userId}`)),
       },
       { label: 'Quick view', icon: AppWindow, onSelect: () => setQuickView(farmer) },
       ...(abilities.suspend

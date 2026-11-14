@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
@@ -17,9 +19,21 @@ import {
 import type { ApplicationSummary } from '@/types/applications';
 
 const GROUPS: { key: ApplicationGroup; label: string; hint: string }[] = [
-  { key: 'to_review', label: 'To review', hint: 'Submitted by farmers: check them against their records.' },
-  { key: 'ready_to_send', label: 'Ready to send', hint: 'Approved by AgriCtec, not yet with the lender.' },
-  { key: 'with_lender', label: 'With the lender', hint: 'Sent. Record the lender’s progress only with its confirmation.' },
+  {
+    key: 'to_review',
+    label: 'To review',
+    hint: 'Submitted by farmers: check them against their records.',
+  },
+  {
+    key: 'ready_to_send',
+    label: 'Ready to send',
+    hint: 'Approved by AgriCtec, not yet with the lender.',
+  },
+  {
+    key: 'with_lender',
+    label: 'With the lender',
+    hint: 'Sent. Record the lender’s progress only with its confirmation.',
+  },
   { key: 'returned', label: 'Returned to farmer', hint: 'AgriCtec asked the farmer for changes.' },
   { key: 'closed', label: 'Closed', hint: 'Decided by the lender, or withdrawn by the farmer.' },
 ];
@@ -36,9 +50,16 @@ export function ApplicationsReview() {
   const pathname = usePathname();
   const params = useSearchParams();
   const syncVersion = useAdminDataStore((s) => s.syncVersion);
-  const group = (GROUPS.find((g) => g.key === params.get('group'))?.key ?? 'to_review') as ApplicationGroup;
-  const [rows, setRows] = useState<{ group: ApplicationGroup; list: ApplicationSummary[] } | null>(null);
-  const [counts, setCounts] = useState<{ needsAttention: number; withLender: number; total: number } | null>(null);
+  const group = (GROUPS.find((g) => g.key === params.get('group'))?.key ??
+    'to_review') as ApplicationGroup;
+  const [rows, setRows] = useState<{ group: ApplicationGroup; list: ApplicationSummary[] } | null>(
+    null,
+  );
+  const [counts, setCounts] = useState<{
+    needsAttention: number;
+    withLender: number;
+    total: number;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -49,9 +70,13 @@ export function ApplicationsReview() {
         setRows({ group, list });
         setError(null);
       },
-      (cause: unknown) => active && setError(cause instanceof Error ? cause.message : 'Could not load'),
+      (cause: unknown) =>
+        active && setError(cause instanceof Error ? cause.message : 'Could not load'),
     );
-    adminApplicationsService.counts().then((c) => active && setCounts(c), () => undefined);
+    adminApplicationsService.counts().then(
+      (c) => active && setCounts(c),
+      () => undefined,
+    );
     return () => {
       active = false;
     };
@@ -105,7 +130,7 @@ export function ApplicationsReview() {
             {list.map((app) => (
               <li key={app.id}>
                 <Link
-                  href={`/admin/applications/${app.id}`}
+                  href={adminPath(`/admin/applications/${app.id}`)}
                   className="hover:bg-glass flex flex-wrap items-center justify-between gap-3 px-4 py-3"
                 >
                   <span className="min-w-0">
@@ -129,7 +154,7 @@ export function ApplicationsReview() {
       </section>
 
       <Link
-        href="/admin/loans"
+        href={adminPath('/admin/loans')}
         className="text-text-dim hover:text-text inline-flex items-center gap-1.5 text-sm"
       >
         <History size={14} aria-hidden="true" /> Earlier applications (read-only history)

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { ChevronsUpDown, KeyRound, LogOut, UserPen } from 'lucide-react';
@@ -82,7 +84,7 @@ export function AdminUserMenu() {
     setSigningOut(true);
     try {
       await signOut('manual');
-      router.replace('/admin-login?reason=signed-out');
+      router.replace(adminPath('/admin-login?reason=signed-out'));
     } catch {
       toast.error('Could not sign out. Please try again.');
       setSigningOut(false);

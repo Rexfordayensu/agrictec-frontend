@@ -338,13 +338,13 @@
 }
 @media (min-width: 1150px) {
   body:has(.verification-reference) main {
-    margin-left: 270px;
-    padding: 12px 12px 35px;
+    margin-left: 274px;
+    padding: 16px 12px 35px;
   }
   body:has(.verification-reference) aside[aria-label='Sidebar'] {
     width: 250px;
-    left: 12px;
-    top: 12px;
+    left: 16px;
+    top: 16px;
     bottom: 12px;
   }
   body:has(.verification-reference) main > header {

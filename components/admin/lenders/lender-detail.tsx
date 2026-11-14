@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -367,7 +369,7 @@ export function LenderDetail({ id }: { id: string }) {
         onConfirm={() =>
           step(async () => {
             await lendersService.remove(current.id);
-            router.push('/admin/lenders');
+            router.push(adminPath('/admin/lenders'));
           }, `${current.name} deleted`)
         }
       />
@@ -378,7 +380,7 @@ export function LenderDetail({ id }: { id: string }) {
 function BackLink() {
   return (
     <Link
-      href="/admin/lenders"
+      href={adminPath('/admin/lenders')}
       className="text-text-dim hover:text-text inline-flex min-h-9 items-center gap-1.5 text-sm"
     >
       <ArrowLeft size={15} aria-hidden="true" /> Lenders

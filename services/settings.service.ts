@@ -12,6 +12,7 @@ function normalize(saved: AppSettings): AppSettings {
     language: saved.language ?? DEFAULT_SETTINGS.language,
     notifications: { ...DEFAULT_SETTINGS.notifications, ...saved.notifications },
     smsAvailable: saved.smsAvailable === true,
+    tourSeenAt: saved.tourSeenAt ?? null,
   };
 }
 

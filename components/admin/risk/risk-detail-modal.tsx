@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useId, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { format } from 'date-fns';
@@ -79,7 +81,7 @@ function Evidence({ related }: { related: RiskRelated }) {
               ))}
             </dl>
             <Link
-              href={`/admin/farmers/${account.userId}`}
+              href={adminPath(`/admin/farmers/${account.userId}`)}
               className="text-ink-purple mt-3 inline-flex min-h-9 items-center gap-1 text-xs font-semibold hover:underline"
             >
               Open account
@@ -318,7 +320,7 @@ function Detail({
       footer={
         <div className="flex w-full flex-col-reverse gap-2 sm:flex-row sm:items-center">
           <Link
-            href={`/admin/farmers/${flag.userId}`}
+            href={adminPath(`/admin/farmers/${flag.userId}`)}
             className="text-text-dim hover:text-text inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold sm:mr-auto"
           >
             <ExternalLink size={15} aria-hidden="true" />

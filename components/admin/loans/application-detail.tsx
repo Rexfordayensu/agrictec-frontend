@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { SCORE_EXPLANATION, LOAN_REVIEW_EXPLANATION } from '@/lib/loans/score-policy';
 
 import { useEffect, useState } from 'react';
@@ -144,7 +146,7 @@ export function ApplicationDetail({ id }: { id: string }) {
           }
           action={
             <Link
-              href="/admin/loans"
+              href={adminPath('/admin/loans')}
               className="text-ink-purple inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
             >
               <ArrowLeft size={16} aria-hidden="true" /> All applications
@@ -182,7 +184,7 @@ export function ApplicationDetail({ id }: { id: string }) {
     <div className="space-y-6">
       <div>
         <Link
-          href="/admin/loans"
+          href={adminPath('/admin/loans')}
           className="text-text-mute hover:text-text inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold"
         >
           <ArrowLeft size={15} aria-hidden="true" /> Loan applications
@@ -274,7 +276,7 @@ export function ApplicationDetail({ id }: { id: string }) {
                       {account.profile.farmName || 'Farm'} · {account.profile.acres} acres
                     </p>
                     <Link
-                      href={`/admin/farmers/${account.userId}`}
+                      href={adminPath(`/admin/farmers/${account.userId}`)}
                       className="text-ink-purple mt-2 inline-flex items-center gap-1 text-xs font-semibold hover:underline"
                     >
                       Open full profile <ArrowUpRight size={13} aria-hidden="true" />

@@ -36,7 +36,7 @@ export function OverviewStats({
   const period = summary ? `Last ${summary.months} months` : '';
   return (
     <dl className="dash-stats">
-      <div className={cn(dashPanel, 'col-span-2 sm:col-span-1')}>
+      <div className={cn(dashPanel, 'col-span-2 sm:col-span-1')} data-tour="score">
         <dt className="flex items-center gap-3">
           <IconTile icon={BarChart3} />
           <span className="text-text flex items-center gap-1 text-sm font-semibold">

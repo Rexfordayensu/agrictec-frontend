@@ -34,6 +34,8 @@ test('an older server without the SMS fields gets SMS on by default and not avai
     language: 'en',
     notifications: { aiInsights: true, weatherAlerts: false, priceAlerts: true, smsAlerts: true },
     smsAvailable: false,
+    // And no tour date: the tour opens once.
+    tourSeenAt: null,
   });
 });
 

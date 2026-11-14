@@ -590,14 +590,14 @@
 }
 @media (min-width: 900px) {
   body:has(.dashboard-reference) main {
-    margin-left: 215px;
+    margin-left: 231px;
     padding-inline: 16px;
-    padding-top: 0;
+    padding-top: 16px;
   }
   body:has(.dashboard-reference) aside {
     width: 208px;
-    left: 0;
-    top: 0;
+    left: 16px;
+    top: 16px;
     bottom: 12px;
   }
   body:has(.dashboard-reference) aside nav {

@@ -421,14 +421,14 @@
 }
 @media (min-width: 900px) {
   body:has(.yield-reference) main {
-    margin-left: 230px;
+    margin-left: 241px;
     padding-inline: 16px;
-    padding-top: 4px;
+    padding-top: 16px;
   }
   body:has(.yield-reference) aside {
     width: 210px;
-    left: 5px;
-    top: 4px;
+    left: 16px;
+    top: 16px;
     bottom: 12px;
   }
   body:has(.yield-reference) main > header {

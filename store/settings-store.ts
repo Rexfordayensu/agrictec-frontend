@@ -14,6 +14,8 @@ interface SettingsState {
   notifications: NotificationSettings;
   /** Whether this AgriCtec can send SMS at all (from the server). */
   smsAvailable: boolean;
+  /** When the farmer finished or skipped the app tour (null: it opens once). */
+  tourSeenAt: string | null;
   status: StoreStatus;
   load: (userId: string, options?: LoadOptions) => Promise<void>;
   setLanguage: (language: Language) => Promise<void>;
@@ -52,6 +54,7 @@ export const useSettingsStore = create<SettingsState>()((set, get) => {
     language: DEFAULT_SETTINGS.language,
     notifications: DEFAULT_SETTINGS.notifications,
     smsAvailable: false,
+    tourSeenAt: null,
     status: 'idle',
 
     load: async (userId, { silent = false } = {}) => {

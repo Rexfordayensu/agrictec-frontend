@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Plus } from 'lucide-react';
@@ -73,12 +75,14 @@ export function AnnouncementsManager() {
 
   useEffect(() => {
     let active = true;
-    Promise.all([announcementsService.list(), announcementsService.audience()]).then(([list, accounts]) => {
-      if (!active) return;
-      setItems(list);
-      setFarmers(accounts);
-      setNow(new Date());
-    });
+    Promise.all([announcementsService.list(), announcementsService.audience()]).then(
+      ([list, accounts]) => {
+        if (!active) return;
+        setItems(list);
+        setFarmers(accounts);
+        setNow(new Date());
+      },
+    );
     return () => {
       active = false;
     };
@@ -93,7 +97,7 @@ export function AnnouncementsManager() {
   // The pre-fill is read once; drop it from the URL so a reload doesn't reopen the form.
   const hasPrefill = params.get('new') === '1';
   useEffect(() => {
-    if (hasPrefill) replaceQuery('/admin/announcements', '');
+    if (hasPrefill) replaceQuery(adminPath('/admin/announcements'), '');
   }, [hasPrefill]);
 
   const reload = () => setVersion((v) => v + 1);

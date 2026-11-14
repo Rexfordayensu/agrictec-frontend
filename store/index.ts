@@ -73,6 +73,7 @@ export async function loadDemoStores(): Promise<void> {
     userId,
     language: DEFAULT_SETTINGS.language,
     notifications: DEFAULT_SETTINGS.notifications,
+    tourSeenAt: null,
     status: 'ready',
   });
   useChatStore.setState({ userId, messages: [welcomeMessage()], isTyping: false, status: 'ready' });
@@ -117,6 +118,7 @@ export function resetAllStores(): void {
     userId: null,
     language: DEFAULT_SETTINGS.language,
     notifications: DEFAULT_SETTINGS.notifications,
+    tourSeenAt: null,
     status: 'idle',
   });
   useUiStore.setState({ mobileNavOpen: false });

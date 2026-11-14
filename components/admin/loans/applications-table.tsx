@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { ArrowRight, Ban, FileText } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import {
@@ -46,7 +48,7 @@ export function ApplicationsTable({
     {
       label: 'Open application',
       icon: FileText,
-      onSelect: () => router.push(`/admin/loans/${app.id}`),
+      onSelect: () => router.push(adminPath(`/admin/loans/${app.id}`)),
     },
     ...(canManage
       ? nextStatuses(app.status, farmerDeleted(app)).map((to) => ({
@@ -198,7 +200,7 @@ export function ApplicationsTable({
       columns={columns}
       getRowId={(app) => app.id}
       caption="Loan applications"
-      rowHref={(app) => `/admin/loans/${app.id}`}
+      rowHref={(app) => adminPath(`/admin/loans/${app.id}`)}
       loading={loading}
       mobileCard={mobileCard}
     />

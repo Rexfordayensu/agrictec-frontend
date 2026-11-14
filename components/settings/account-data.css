@@ -304,13 +304,13 @@
 }
 @media (min-width: 1200px) {
   body:has(.account-data-reference) main {
-    margin-left: 278px;
-    padding: 8px 17px 35px 12px;
+    margin-left: 280px;
+    padding: 16px 17px 35px 12px;
   }
   body:has(.account-data-reference) aside[aria-label='Sidebar'] {
     width: 252px;
-    left: 14px;
-    top: 8px;
+    left: 16px;
+    top: 16px;
     bottom: 17px;
   }
   body:has(.account-data-reference) main > header {

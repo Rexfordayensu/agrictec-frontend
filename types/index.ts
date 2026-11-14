@@ -279,6 +279,8 @@ export interface AppSettings {
   notifications: NotificationSettings;
   /** Read-only, from the server: whether this AgriCtec can send SMS at all. */
   smsAvailable?: boolean;
+  /** Read-only: when the farmer finished or skipped the app tour (null: not yet). */
+  tourSeenAt?: string | null;
 }
 
 export interface MonthlySeries {

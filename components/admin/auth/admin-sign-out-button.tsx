@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { LogOut } from 'lucide-react';
@@ -20,7 +22,7 @@ export function AdminSignOutButton(props: Omit<ButtonProps, 'onClick' | 'loading
     setBusy(true);
     try {
       await signOut('manual');
-      router.replace('/admin-login?reason=signed-out');
+      router.replace(adminPath('/admin-login?reason=signed-out'));
     } catch {
       toast.error('Could not sign out. Please try again.');
       setBusy(false);

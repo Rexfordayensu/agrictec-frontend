@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Clock, LogOut } from 'lucide-react';
@@ -66,7 +68,7 @@ export function SessionTimeout() {
     if (ending.current) return;
     if (signedOutElsewhere) {
       ending.current = true;
-      router.replace('/admin-login?reason=signed-out');
+      router.replace(adminPath('/admin-login?reason=signed-out'));
     } else if (remaining <= 0) {
       ending.current = true;
       // Another console tab may have been active: ask the API before signing out.
@@ -79,7 +81,9 @@ export function SessionTimeout() {
             setStored(fresh);
             return;
           }
-          return signOut('timeout').finally(() => router.replace('/admin-login?reason=timeout'));
+          return signOut('timeout').finally(() =>
+            router.replace(adminPath('/admin-login?reason=timeout')),
+          );
         });
     }
   }, [signedOutElsewhere, remaining, signOut, syncSession, router]);
@@ -98,7 +102,7 @@ export function SessionTimeout() {
   async function signOutNow() {
     ending.current = true;
     await signOut('manual');
-    router.replace('/admin-login?reason=signed-out');
+    router.replace(adminPath('/admin-login?reason=signed-out'));
   }
 
   return (

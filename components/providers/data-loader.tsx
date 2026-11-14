@@ -1,5 +1,7 @@
 'use client';
 
+import { consoleReturn } from '@/lib/admin/console-return';
+
 import { useEffect, useState, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { AlertTriangle } from 'lucide-react';
@@ -69,7 +71,7 @@ export function DataLoader({ children }: { children: ReactNode }) {
         const claimed = await claimImpersonation(token);
         url.searchParams.delete('impersonate');
         window.history.replaceState(null, '', url.pathname + url.search);
-        if (!claimed) return { redirect: '/admin/farmers?impersonation=expired' };
+        if (!claimed) return { redirect: consoleReturn('/farmers?impersonation=expired') };
       }
       const view = activeImpersonation();
       if (view) {
@@ -85,7 +87,7 @@ export function DataLoader({ children }: { children: ReactNode }) {
           // The admin signed out, lost the permission, or the view ended.
           if (!isSignedOut(error)) throw error;
           await endImpersonation();
-          return { redirect: '/admin/farmers?impersonation=expired' };
+          return { redirect: consoleReturn('/farmers?impersonation=expired') };
         }
         return 'ready';
       }

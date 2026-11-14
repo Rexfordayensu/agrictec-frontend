@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { TrendingDown, TrendingUp } from 'lucide-react';
 import { BarChart } from '@/components/charts/bar-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
@@ -36,7 +38,7 @@ export function SignupsChart({
     <Panel
       title="Farmer growth"
       description={`New sign-ups ${UNIT_LABEL[series.unit]}, ${rangeLabel}`}
-      action={canFarmers && <PanelLink href="/admin/farmers">All farmers</PanelLink>}
+      action={canFarmers && <PanelLink href={adminPath('/admin/farmers')}>All farmers</PanelLink>}
       className={className}
       bodyClassName="flex flex-col"
     >

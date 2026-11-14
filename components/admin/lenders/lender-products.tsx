@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -26,7 +28,9 @@ const STATUS: Record<ProductStatus, { label: string; color: BadgeColor }> = {
 };
 
 export const productHref = (lenderId: string, productId: string) =>
-  `/admin/lenders/${encodeURIComponent(lenderId)}/products/${encodeURIComponent(productId)}`;
+  adminPath(
+    `/admin/lenders/${encodeURIComponent(lenderId)}/products/${encodeURIComponent(productId)}`,
+  );
 
 /** A lender's loan products on its console page, and "Add product". */
 export function LenderProducts({

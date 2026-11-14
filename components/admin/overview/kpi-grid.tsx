@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import Link from 'next/link';
 import {
   ArrowUpRight,
@@ -94,7 +96,7 @@ export function KpiGrid({
       hint: `+${k.newInRange} ${rangeLabel}`,
       delta: k.newDelta,
       trend: k.farmersTrend,
-      href: '/admin/farmers',
+      href: adminPath('/admin/farmers'),
       needs: 'farmers.view',
       linkNeeds: 'farmers.view',
     },
@@ -104,7 +106,7 @@ export function KpiGrid({
       icon: UserCheck,
       value: k.active30.toLocaleString(),
       hint: `${k.activeShare}% of farmers`,
-      href: '/admin/farmers?active=30',
+      href: adminPath('/admin/farmers?active=30'),
       needs: 'farmers.view',
       linkNeeds: 'farmers.view',
     },
@@ -114,7 +116,7 @@ export function KpiGrid({
       icon: Gauge,
       value: String(k.averageScore),
       hint: k.totalFarmers ? `${scoreLabel(k.averageScore, bands)} band` : 'No farmers yet',
-      href: '/admin/credit-rules',
+      href: adminPath('/admin/credit-rules'),
       needs: 'farmers.view',
       linkNeeds: 'credit.configure',
     },
@@ -124,7 +126,7 @@ export function KpiGrid({
       icon: Wallet,
       value: formatCompactGHS(k.incomeTracked),
       hint: `${k.earningFarmers} earning farmers`,
-      href: '/admin/reports',
+      href: adminPath('/admin/reports'),
       needs: 'farmers.view',
       linkNeeds: 'reports.export',
     },
@@ -136,7 +138,7 @@ export function KpiGrid({
       hint: `${k.loanCount} application${k.loanCount === 1 ? '' : 's'} ${rangeLabel}`,
       delta: k.loanDelta,
       trend: k.loanTrend,
-      href: '/admin/loans',
+      href: adminPath('/admin/loans'),
       needs: 'loans.view',
       linkNeeds: 'loans.view',
     },
@@ -146,7 +148,7 @@ export function KpiGrid({
       icon: Percent,
       value: k.approvalRate === null ? '—' : `${k.approvalRate}%`,
       hint: k.decidedCount ? `${k.approvedCount} of ${k.decidedCount} decided` : 'None decided',
-      href: '/admin/loans?status=approved',
+      href: adminPath('/admin/loans?status=approved'),
       needs: 'loans.view',
       linkNeeds: 'loans.view',
     },
@@ -160,7 +162,7 @@ export function KpiGrid({
           ? 'Queue is clear'
           : `Oldest ${k.oldestPendingDays} day${k.oldestPendingDays === 1 ? '' : 's'}`,
       hintTone: (k.oldestPendingDays ?? 0) >= 3 ? 'warn' : undefined,
-      href: '/admin/verifications',
+      href: adminPath('/admin/verifications'),
       needs: 'verifications.review',
       linkNeeds: 'verifications.review',
     },
@@ -172,7 +174,7 @@ export function KpiGrid({
       hint: k.openHighFlags ? `${k.openHighFlags} high severity` : 'None high',
       hintTone: k.openHighFlags ? 'danger' : undefined,
       lowerIsBetter: true,
-      href: '/admin/risk',
+      href: adminPath('/admin/risk'),
       needs: 'risk.review',
       linkNeeds: 'risk.review',
     },

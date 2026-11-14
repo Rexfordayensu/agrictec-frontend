@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useRef, useState, type DragEvent } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Ban, GripVertical } from 'lucide-react';
@@ -193,7 +195,7 @@ export function ApplicationsBoard({
                         )}
                         <div className="min-w-0 flex-1">
                           <Link
-                            href={`/admin/loans/${app.id}`}
+                            href={adminPath(`/admin/loans/${app.id}`)}
                             draggable={false}
                             className="text-ink-purple font-mono text-xs font-semibold hover:underline"
                           >

@@ -419,13 +419,13 @@
 @media (min-width: 1200px) {
   body:has(.financial-reference) aside[aria-label='Sidebar'] {
     width: 220px;
-    left: 10px;
-    top: 7px;
+    left: 16px;
+    top: 16px;
     bottom: 10px;
   }
   body:has(.financial-reference) main {
-    margin-left: 232px;
-    padding: 7px 12px 24px;
+    margin-left: 238px;
+    padding: 16px 12px 24px;
   }
   body:has(.financial-reference) main > header {
     min-height: 69px;

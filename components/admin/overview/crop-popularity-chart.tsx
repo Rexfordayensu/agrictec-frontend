@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import Link from 'next/link';
 import { MeterBar, Panel } from '@/components/admin/overview/panel';
 import { CROP_TONES, CropIcon, cropFromName } from '@/components/ui/crop-icon';
@@ -33,7 +35,7 @@ export function CropPopularityChart({
           return (
             <li key={c.crop}>
               <Link
-                href={`/admin/farmers?crop=${encodeURIComponent(c.crop)}`}
+                href={adminPath(`/admin/farmers?crop=${encodeURIComponent(c.crop)}`)}
                 className="hover:bg-glass-strong -mx-2 grid min-h-10 grid-cols-[1.75rem_minmax(0,5.5rem)_minmax(0,1fr)_2.75rem] items-center gap-2.5 rounded-lg px-2 transition-colors"
               >
                 <span

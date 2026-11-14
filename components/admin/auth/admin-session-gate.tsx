@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
@@ -36,14 +38,14 @@ export function AdminSessionGate({ children }: { children: ReactNode }) {
         setState('redirecting');
         router.replace(
           expired
-            ? '/admin-login?reason=timeout'
-            : `/admin-login?next=${encodeURIComponent(window.location.pathname)}`,
+            ? adminPath('/admin-login?reason=timeout')
+            : adminPath(`/admin-login?next=${encodeURIComponent(window.location.pathname)}`),
         );
       })
       .catch(() => {
         if (cancelled) return;
         setState('redirecting');
-        router.replace('/admin-login');
+        router.replace(adminPath('/admin-login'));
       });
     return () => {
       cancelled = true;
@@ -53,7 +55,7 @@ export function AdminSessionGate({ children }: { children: ReactNode }) {
   // Signed out while here (another tab, or the session ended): leave the console.
   useEffect(() => {
     if (state === 'ready' && !admin)
-      router.replace(`/admin-login?next=${encodeURIComponent(pathname)}`);
+      router.replace(adminPath(`/admin-login?next=${encodeURIComponent(pathname)}`));
   }, [state, admin, pathname, router]);
 
   if (state !== 'ready' || !admin) {

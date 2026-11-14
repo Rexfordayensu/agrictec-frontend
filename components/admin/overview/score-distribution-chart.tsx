@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import Link from 'next/link';
 import { Panel, PanelLink } from '@/components/admin/overview/panel';
 import { useCan } from '@/hooks/admin/use-can';
@@ -36,7 +38,7 @@ export function ScoreDistributionChart({
     <Panel
       title="AgriCtec scores"
       description="All farmers, by score band"
-      action={canCredit && <PanelLink href="/admin/credit-rules">Rules</PanelLink>}
+      action={canCredit && <PanelLink href={adminPath('/admin/credit-rules')}>Rules</PanelLink>}
       className={className}
     >
       <p className="flex items-baseline gap-2">
@@ -79,7 +81,7 @@ export function ScoreDistributionChart({
         {buckets.map((b) => (
           <li key={b.band}>
             <Link
-              href={`/admin/farmers?band=${b.band.toLowerCase()}`}
+              href={adminPath(`/admin/farmers?band=${b.band.toLowerCase()}`)}
               className="hover:bg-glass-strong -mx-2 flex min-h-10 items-center gap-3 rounded-lg px-2 transition-colors"
             >
               <span

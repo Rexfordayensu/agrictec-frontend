@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -594,7 +596,7 @@ export function ProductEditor({ lenderId, productId }: { lenderId: string; produ
           run(
             () => loanProductsService.remove(current.id),
             'Product deleted',
-            () => router.push(`/admin/lenders/${encodeURIComponent(lenderId)}`),
+            () => router.push(adminPath(`/admin/lenders/${encodeURIComponent(lenderId)}`)),
           )
         }
       />
@@ -612,7 +614,7 @@ function move<T>(list: T[], index: number, by: number): T[] {
 function BackLink({ lenderId }: { lenderId: string }) {
   return (
     <Link
-      href={`/admin/lenders/${encodeURIComponent(lenderId)}`}
+      href={adminPath(`/admin/lenders/${encodeURIComponent(lenderId)}`)}
       className="text-text-dim hover:text-text inline-flex min-h-9 items-center gap-1.5 text-sm"
     >
       <ArrowLeft size={15} aria-hidden="true" /> Back to the lender

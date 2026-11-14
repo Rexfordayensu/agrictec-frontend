@@ -1,4 +1,5 @@
 import type { NextConfig } from 'next';
+import { normalizeAdminPath } from './lib/admin-path';
 
 /**
  * Where the AgriCtec API (the agrictec-backend repository) runs. The app calls /api/v1 on its
@@ -74,6 +75,7 @@ const SECURITY_HEADERS = [
 ];
 
 const nextConfig: NextConfig = {
+  env: { NEXT_PUBLIC_ADMIN_PATH: normalizeAdminPath(process.env.ADMIN_PATH) },
   reactCompiler: true, // stable in Next.js 16: automatic memoization
   experimental: {
     // Forwarded API calls may wait this long for an answer: a crop doctor photo read by Claude

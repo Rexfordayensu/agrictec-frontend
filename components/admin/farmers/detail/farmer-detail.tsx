@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -116,7 +118,7 @@ export function FarmerDetail({ id }: { id: string }) {
           }
           action={
             <Link
-              href="/admin/farmers"
+              href={adminPath('/admin/farmers')}
               className="text-ink-purple inline-flex min-h-11 items-center gap-2 text-sm font-semibold"
             >
               <ArrowLeft size={16} aria-hidden="true" /> Back to all farmers
@@ -161,7 +163,20 @@ export function FarmerDetail({ id }: { id: string }) {
         }}
       />
 
-      <Card><h2 className="text-sm font-semibold">Transaction verification</h2><p className="text-text-mute my-2 text-xs">Financial details are available only in the permitted transaction review queue.</p><dl className="flex flex-wrap gap-4 text-xs">{Object.entries(data.detail.transactionStatusCounts ?? {}).map(([status,count])=><div key={status}><dt>{status.replaceAll('_',' ')}</dt><dd className="font-bold">{count}</dd></div>)}</dl></Card>
+      <Card>
+        <h2 className="text-sm font-semibold">Transaction verification</h2>
+        <p className="text-text-mute my-2 text-xs">
+          Financial details are available only in the permitted transaction review queue.
+        </p>
+        <dl className="flex flex-wrap gap-4 text-xs">
+          {Object.entries(data.detail.transactionStatusCounts ?? {}).map(([status, count]) => (
+            <div key={status}>
+              <dt>{status.replaceAll('_', ' ')}</dt>
+              <dd className="font-bold">{count}</dd>
+            </div>
+          ))}
+        </dl>
+      </Card>
       <Tabs
         tabs={tabs}
         value={tab}
@@ -172,7 +187,7 @@ export function FarmerDetail({ id }: { id: string }) {
       />
       <div role="tabpanel" id={`farmer-panel-${tab}`} aria-labelledby={`farmer-tab-${tab}`}>
         {tab === 'overview' && <OverviewTab {...tabProps} />}
-            {tab === 'credit' && <CreditTab {...tabProps} />}
+        {tab === 'credit' && <CreditTab {...tabProps} />}
         {tab === 'loans' && <LoansTab {...tabProps} />}
         {tab === 'verification' && <VerificationTab {...tabProps} />}
         {tab === 'diagnoses' && <DiagnosesTab {...tabProps} />}
@@ -207,7 +222,7 @@ export function FarmerDetail({ id }: { id: string }) {
           onDeleted={() => {
             close();
             void refreshConsole();
-            router.replace('/admin/farmers');
+            router.replace(adminPath('/admin/farmers'));
           }}
         />
       )}

@@ -1,5 +1,7 @@
 'use client';
 
+import { adminPath } from '@/lib/admin-path';
+
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { Ban, CircleAlert } from 'lucide-react';
@@ -55,14 +57,14 @@ export function LoanFunnel({
     <Panel
       title="Loan pipeline"
       description={`${total} application${total === 1 ? '' : 's'} made ${rangeLabel}`}
-      action={canLoans && <PanelLink href="/admin/loans">Open pipeline</PanelLink>}
+      action={canLoans && <PanelLink href={adminPath('/admin/loans')}>Open pipeline</PanelLink>}
       className={className}
     >
       <ol aria-label="Stages reached">
         {stages.map((stage, index) => (
           <li key={stage.status}>
             {row(
-              `/admin/loans?status=${stage.status}`,
+              adminPath(`/admin/loans?status=${stage.status}`),
               <>
                 <span className="text-text truncate text-sm">{stage.label}</span>
                 <MeterBar
@@ -110,7 +112,7 @@ export function LoanFunnel({
           return canLoans ? (
             <Link
               key={status}
-              href={`/admin/loans?status=${status}`}
+              href={adminPath(`/admin/loans?status=${status}`)}
               className={cn(style, 'hover:bg-glass-strong transition-colors')}
             >
               {content}

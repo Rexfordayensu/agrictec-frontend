@@ -1,4 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
+import { CONSOLE_RETURN, safeConsolePage } from '@/lib/admin/console-return';
+import { normalizeAdminPath } from '@/lib/admin-path';
 
 // Fast redirects only. agrictec_session and agrictec_admin are the API's httpOnly session
 // cookies (opaque tokens); here we only check that one is present, to redirect before a page
@@ -10,7 +12,8 @@ const ADMIN_COOKIE = 'agrictec_admin';
 const AUTH_PAGES = ['/login', '/signup', '/forgot-password'];
 /** Open to everyone, signed in or not, onboarded or not (app/(legal)). */
 const PUBLIC_PAGES = ['/privacy', '/terms'];
-const ADMIN_LOGIN = '/admin-login';
+const ADMIN_PATH = normalizeAdminPath(process.env.ADMIN_PATH ?? process.env.NEXT_PUBLIC_ADMIN_PATH);
+const ADMIN_LOGIN = ADMIN_PATH + '/login';
 /** Set by the farmer tab while an admin views the app as a farmer (read-only, phase A8). */
 const IMPERSONATION_COOKIE = 'agrictec_impersonating';
 /** Set once the farmer finishes onboarding (services/onboarding.service.ts). */
@@ -19,7 +22,8 @@ const ONBOARDING = '/onboarding';
 /** The guest demo (lib/demo.ts): no account and nothing stored, only this marker. */
 const DEMO_COOKIE = 'agrictec_demo';
 
-const isAdminPath = (pathname: string) => pathname === '/admin' || pathname.startsWith('/admin/');
+const isAdminPath = (pathname: string) =>
+  Boolean(ADMIN_PATH) && (pathname === ADMIN_PATH || pathname.startsWith(ADMIN_PATH + '/'));
 
 // The API rate-limits per visitor (and locks admin sign-ins per visitor). Behind Vercel it sees
 // Vercel's shared address, and a visitor's own X-Forwarded-For entries can be made up, so this
@@ -80,40 +84,67 @@ export function apiRequestHeaders(
 /** A "View as farmer" link carries a one-time token: only an admin's browser may use it. */
 const IMPERSONATE_PARAM = 'impersonate';
 
-export function proxy(request: NextRequest) {
+/** Where the API runs (next.config.ts forwards /api/v1 there). */
+const BACKEND_URL = (process.env.BACKEND_URL ?? 'http://127.0.0.1:8000').replace(/\/$/, '');
+
+/** A plain 404 page: the same answer whatever was asked, so nothing is given away. */
+const notFound = (request: NextRequest) =>
+  NextResponse.rewrite(new URL('/_admin-path-not-found', request.url), { status: 404 });
+
+/**
+ * Back to the console from "View as farmer" (lib/admin/console-return.ts). The farmer app never
+ * holds the console's address, so the server sends the admin on, but only after the API
+ * confirms a signed-in admin: a made-up cookie gets the same 404 as anyone else.
+ */
+async function returnToConsole(request: NextRequest): Promise<NextResponse> {
+  const page = safeConsolePage(request.nextUrl.searchParams.get('to'));
+  if (!ADMIN_PATH || !request.cookies.has(ADMIN_COOKIE)) return notFound(request);
+  try {
+    const session = await fetch(`${BACKEND_URL}/api/v1/admin/auth/session`, {
+      headers: { cookie: request.headers.get('cookie') ?? '', accept: 'application/json' },
+      cache: 'no-store',
+    });
+    if (!session.ok) return notFound(request);
+  } catch {
+    return notFound(request);
+  }
+  return NextResponse.redirect(new URL(ADMIN_PATH + (page || ''), request.url));
+}
+
+export function proxy(request: NextRequest): NextResponse | Promise<NextResponse> {
   const { pathname } = request.nextUrl;
 
   // ---- API calls: forwarded to the backend (next.config.ts) with the visitor's address. ----
   if (pathname.startsWith('/api/')) {
     return NextResponse.next({ request: { headers: apiRequestHeaders(request.headers) } });
   }
+  // The old console URLs never reveal the configured entry, even to a signed-in admin.
+  let decodedPath: string;
+  try {
+    decodedPath = decodeURIComponent(pathname);
+  } catch {
+    decodedPath = pathname;
+  }
+  if (/^\/admin(?:\/|$)|^\/admin-login(?:\/|$)/i.test(decodedPath)) return notFound(request);
+  if (decodedPath === CONSOLE_RETURN) return returnToConsole(request);
   if (PUBLIC_PAGES.includes(pathname)) return NextResponse.next();
 
-  // ---- Admin console: its own cookie. A farmer session never grants access. ----
   const hasAdmin = request.cookies.has(ADMIN_COOKIE);
-  if (isAdminPath(pathname)) {
+  if (ADMIN_PATH && decodedPath === ADMIN_LOGIN) {
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin-login';
+    return NextResponse.rewrite(url);
+  }
+  if (isAdminPath(decodedPath)) {
     if (!hasAdmin) {
       const url = new URL(ADMIN_LOGIN, request.url);
       url.searchParams.set('next', pathname);
       return NextResponse.redirect(url);
     }
-    return NextResponse.next();
+    const url = request.nextUrl.clone();
+    url.pathname = '/admin' + decodedPath.slice(ADMIN_PATH.length);
+    return NextResponse.rewrite(url);
   }
-  // The home-screen app starts at "/": an admin (without a farmer session) lands in the console.
-  if (
-    pathname === '/' &&
-    hasAdmin &&
-    !request.cookies.has(SESSION_COOKIE) &&
-    !request.cookies.has(IMPERSONATION_COOKIE)
-  ) {
-    return NextResponse.redirect(new URL('/admin', request.url));
-  }
-  if (pathname === ADMIN_LOGIN) {
-    // Cookie presence cannot prove the API still accepts the session. Keep sign-in reachable
-    // after an idle timeout, revocation or expiry, just like the farmer's sign-in page.
-    return NextResponse.next();
-  }
-
   // ---- Farmer app ----
   // A "View as farmer" token in anyone else's link is dropped before the page runs, so a crafted
   // link can't disturb a farmer's tab (the API would refuse the token anyway).
