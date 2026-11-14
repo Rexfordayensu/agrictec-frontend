@@ -17,14 +17,34 @@ export const recordSchema = z
     date: pastOrTodayDate,
     category: z.string().optional(),
     direction: z.enum(['in', 'out']).optional(),
-    paymentMethod: z.string().max(80).optional(),
-    externalReference: z.string().max(120).optional(),
+    paymentMethod: z.enum(['', 'cash', 'bank', 'mobile_money']).optional(),
+    network: z.enum(['', 'MTN', 'Telecel', 'AirtelTigo']).optional(),
+    bankName: z.string().trim().max(80).optional(),
+    externalReference: z.string().trim().max(120).optional(),
     notes: z.string().max(500).optional(),
   })
   .refine((d) => d.type === 'activity' || d.amount > 0, {
     message: 'Enter an amount greater than 0',
     path: ['amount'],
-  });
+  })
+  // How the money was paid (not for activities): cash; bank with its name and reference; or
+  // mobile money with its network (the receipt is checked by the form).
+  .refine((d) => d.type === 'activity' || Boolean(d.paymentMethod), {
+    message: 'Choose how the money was paid',
+    path: ['paymentMethod'],
+  })
+  .refine((d) => d.type === 'activity' || d.paymentMethod !== 'bank' || Boolean(d.bankName), {
+    message: 'Enter the name of the bank',
+    path: ['bankName'],
+  })
+  .refine(
+    (d) => d.type === 'activity' || d.paymentMethod !== 'bank' || Boolean(d.externalReference),
+    { message: 'Enter the bank reference for this payment', path: ['externalReference'] },
+  )
+  .refine(
+    (d) => d.type === 'activity' || d.paymentMethod !== 'mobile_money' || Boolean(d.network),
+    { message: 'Choose the MoMo network', path: ['network'] },
+  );
 
 /** What the form fields hold (amount is still raw input before coercion). */
 export type RecordFormInput = z.input<typeof recordSchema>;

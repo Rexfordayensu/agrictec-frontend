@@ -9,6 +9,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import {
   categoryLabel,
+  paymentLabel,
   SOURCE_LABELS,
   STATUS_COLORS,
   TRANSACTION_STATUSES,
@@ -166,7 +167,10 @@ function TransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) 
   const readOnly = useReadOnly();
   const fieldId = useId();
   const liveVersion = useFarmStore((state) => {
-    const row = kind === 'farm' ? state.records.find(r => r.id === id) : state.momo.find(r => r.id === id);
+    const row =
+      kind === 'farm'
+        ? state.records.find((r) => r.id === id)
+        : state.momo.find((r) => r.id === id);
     return `${row?.verificationStatus ?? ''}:${row?.updatedAt ?? ''}:${row?.evidenceCount ?? 0}`;
   });
   useEffect(() => {
@@ -175,7 +179,7 @@ function TransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) 
       .get(kind, id, controller.signal)
       .then((value) => {
         setItem(value);
-        setNote(current => current ?? value.notes ?? '');
+        setNote((current) => current ?? value.notes ?? '');
       })
       .catch((err) => {
         if (!controller.signal.aborted) setError(message(err));
@@ -235,7 +239,7 @@ function TransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) 
             </div>
             <div>
               <dt className="text-text-mute">Payment method</dt>
-              <dd>{item.paymentMethod ?? 'Not provided'}</dd>
+              <dd>{paymentLabel(item) ?? 'Not provided'}</dd>
             </div>
           </dl>
           <p className="text-text-mute text-xs">
@@ -302,17 +306,25 @@ function TransactionDetail({ kind, id }: { kind: 'farm' | 'momo'; id: string }) 
               )}
             </div>
           )}
+          {kind === 'momo' && ['self_reported', 'rejected'].includes(status) && (
+            <p className="bg-icon-bg text-icon rounded-xl px-3 py-2 text-xs leading-relaxed font-medium">
+              {status === 'rejected'
+                ? 'Add a clearer MoMo receipt (or correct the details) and it goes back to AgriCtec for review.'
+                : 'Add the MoMo receipt and it goes to AgriCtec for review automatically.'}
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
-            {['self_reported', 'evidence_submitted', 'rejected'].includes(status) && (
-              <Button
-                mutates
-                loading={busy}
-                disabled={!item.evidence.length}
-                onClick={() => void action(() => transactionsService.requestReview(kind, id))}
-              >
-                Request review
-              </Button>
-            )}
+            {kind === 'farm' &&
+              ['self_reported', 'evidence_submitted', 'rejected'].includes(status) && (
+                <Button
+                  mutates
+                  loading={busy}
+                  disabled={!item.evidence.length}
+                  onClick={() => void action(() => transactionsService.requestReview(kind, id))}
+                >
+                  Request review
+                </Button>
+              )}
             {['rejected', 'verified'].includes(status) && (
               <Button mutates variant="ghost" disabled={busy} onClick={() => setDisputing(true)}>
                 Dispute

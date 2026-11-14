@@ -43,6 +43,7 @@ import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
 import {
   categoryLabel,
   SOURCE_LABELS,
+  momoStatusLabel,
   STATUS_COLORS,
   TRANSACTION_STATUSES,
   type VerificationStatus,
@@ -163,7 +164,7 @@ export function MomoTransactions() {
       { header: 'Amount (GHS)', value: (t) => (t.direction === 'in' ? t.amount : -t.amount) },
       {
         header: 'Verification',
-        value: (t) => TRANSACTION_STATUSES[t.verificationStatus ?? 'self_reported'],
+        value: (t) => momoStatusLabel(t.verificationStatus ?? 'self_reported'),
       },
     ]);
     downloadFile(csv, `AgriCtec_MoMo_${todayISO()}.csv`);
@@ -330,7 +331,7 @@ export function MomoTransactions() {
               <option value="all">Verification Status</option>
               {(Object.keys(TRANSACTION_STATUSES) as VerificationStatus[]).map((s) => (
                 <option key={s} value={s}>
-                  {TRANSACTION_STATUSES[s]}
+                  {momoStatusLabel(s)}
                 </option>
               ))}
             </select>
@@ -542,8 +543,8 @@ export function MomoTransactions() {
 function Status({ t }: { t: MomoTransaction }) {
   const s = t.verificationStatus ?? 'self_reported';
   return (
-    <Badge color={STATUS_COLORS[s]}>
-      {s === 'verified' ? 'Verified' : TRANSACTION_STATUSES[s]}
+    <Badge color={s === 'self_reported' ? 'gold' : STATUS_COLORS[s]}>
+      {s === 'verified' ? 'Verified' : momoStatusLabel(s)}
     </Badge>
   );
 }

@@ -7,7 +7,12 @@ import { Modal } from '@/components/ui/modal';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { EvidenceFile, TransactionStatus } from '@/components/transactions/transaction-tools';
-import { categoryLabel, formatTransactionMoney, SOURCE_LABELS } from '@/lib/transactions';
+import {
+  categoryLabel,
+  formatTransactionMoney,
+  paymentLabel,
+  SOURCE_LABELS,
+} from '@/lib/transactions';
 import { transactionsService } from '@/services/transactions.service';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import type { ReviewItem, ReviewPage } from '@/types/transactions';
@@ -184,7 +189,7 @@ export function TransactionReview() {
               </div>
               <div>
                 <dt>Payment method</dt>
-                <dd>{t.paymentMethod ?? 'Not provided'}</dd>
+                <dd>{paymentLabel(t) ?? 'Not provided'}</dd>
               </div>
             </dl>
             {t.notes && <p className="text-sm">Note: {t.notes}</p>}

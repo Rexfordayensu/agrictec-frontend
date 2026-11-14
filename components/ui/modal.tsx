@@ -27,6 +27,13 @@ export interface ModalProps {
   /** Focused when the modal opens (default: the modal itself). */
   initialFocus?: RefObject<HTMLElement | null>;
   className?: string;
+  /** Optional restyling of the title bar, the title and the footer (defaults otherwise). */
+  headerClassName?: string;
+  titleClassName?: string;
+  bodyClassName?: string;
+  footerClassName?: string;
+  /** A decoration drawn behind the title (positioned by the caller, hidden from screen readers). */
+  decoration?: ReactNode;
   children: ReactNode;
 }
 
@@ -55,6 +62,11 @@ export function Modal({
   dirty = false,
   initialFocus,
   className,
+  headerClassName,
+  titleClassName,
+  bodyClassName,
+  footerClassName,
+  decoration,
   children,
 }: ModalProps) {
   const mounted = useMounted();
@@ -102,11 +114,27 @@ export function Modal({
               className,
             )}
           >
-            <div className="border-border flex shrink-0 items-start justify-between gap-3 border-b px-5 py-4 sm:px-6">
+            {decoration && (
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 overflow-hidden"
+              >
+                {decoration}
+              </div>
+            )}
+            <div
+              className={cn(
+                'border-border relative flex shrink-0 items-start justify-between gap-3 border-b px-5 py-4 sm:px-6',
+                headerClassName,
+              )}
+            >
               <div className="min-w-0 flex-1">
                 <h2
                   id={titleId}
-                  className="font-display text-text text-lg leading-snug font-bold wrap-break-word"
+                  className={cn(
+                    'font-display text-text text-lg leading-snug font-bold wrap-break-word',
+                    titleClassName,
+                  )}
                 >
                   {title}
                 </h2>
@@ -126,12 +154,22 @@ export function Modal({
               </button>
             </div>
 
-            <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6">
+            <div
+              className={cn(
+                'relative min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-4 sm:px-6',
+                bodyClassName,
+              )}
+            >
               {children}
             </div>
 
             {footer && (
-              <div className="border-border flex shrink-0 flex-col gap-2 border-t px-5 py-4 *:w-full sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:px-6 sm:*:w-auto">
+              <div
+                className={cn(
+                  'border-border relative flex shrink-0 flex-col gap-2 border-t px-5 py-4 *:w-full sm:flex-row sm:flex-wrap sm:items-center sm:justify-end sm:px-6 sm:*:w-auto',
+                  footerClassName,
+                )}
+              >
                 {footer}
               </div>
             )}

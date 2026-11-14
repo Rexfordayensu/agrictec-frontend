@@ -33,6 +33,10 @@ export interface FarmRecord extends TransactionMetadata {
   amount: number; // activities may be 0
   date: string; // ISO yyyy-MM-dd
   notes?: string;
+  /** Paid by mobile money: the network. */
+  network?: MomoNetwork | null;
+  /** Paid by bank: the bank's name (its reference is externalReference). */
+  bankName?: string | null;
   createdAt: string;
 }
 
