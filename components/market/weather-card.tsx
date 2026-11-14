@@ -270,7 +270,7 @@ function WeatherPanel({
         <CardHeader className="flex-wrap gap-3">
           <div className="min-w-0">
             <CardTitle className="flex items-center gap-2">
-              <MapPin size={18} aria-hidden="true" className="text-ink-green" />
+              <MapPin size={18} aria-hidden="true" className="text-icon" />
               <span className="break-words">{location.label}</span>
             </CardTitle>
             <CardSub>
@@ -441,7 +441,7 @@ function FarmAdviceCard({ report, today }: { report: WeatherReport; today: strin
       <CardHeader>
         <div>
           <CardTitle className="flex items-center gap-2">
-            <Sprout size={18} aria-hidden="true" className="text-ink-green" />
+            <Sprout size={18} aria-hidden="true" className="text-icon" />
             What this means for your farm
           </CardTitle>
           <CardSub>Based on the forecast below: wind, rain chances and temperatures</CardSub>

@@ -72,7 +72,7 @@ export function NextSteps() {
         <Skeleton className="h-40 w-full rounded-xl" />
       ) : steps.length === 0 ? (
         <p className="text-text-dim flex items-center gap-2 text-sm">
-          <CircleCheck size={18} aria-hidden="true" className="text-ink-green" />
+          <CircleCheck size={18} aria-hidden="true" className="text-icon" />
           You’re up to date. Keep recording your farm activity.
         </p>
       ) : (
