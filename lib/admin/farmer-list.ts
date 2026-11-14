@@ -31,6 +31,7 @@ export const SCORE_BANDS: { value: string; label: ScoreLabel }[] = [
 ];
 
 export const VERIFICATION_FILTERS = [
+  { value: 'pending-review', label: 'Waiting for review' },
   { value: 'full', label: 'Fully verified' },
   { value: 'no-card', label: 'Missing Ghana Card' },
   { value: 'no-phone', label: 'Missing phone' },
@@ -68,6 +69,8 @@ export function farmerFilterFns(
       if (value === 'full') return v.phone && v.location && v.ghanaCard;
       if (value === 'no-card') return !v.ghanaCard;
       if (value === 'no-phone') return !v.phone;
+      // Only the API knows which requests wait for review; a card awaiting it is the visible sign.
+      if (value === 'pending-review') return f.profile.ghanaCard.status === 'pending';
       return true;
     },
     // Dates are "yyyy-MM-dd"; both ends are inclusive.

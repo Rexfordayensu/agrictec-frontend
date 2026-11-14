@@ -2,7 +2,12 @@
 // and writes the audit entry in the same transaction as the change.
 
 import { api, apiBlob, apiFile } from '@/services/api';
-import type { FarmerAccount, FarmerDetail } from '@/types/admin';
+import type {
+  FarmerAccount,
+  FarmerDetail,
+  VerificationKind,
+  VerificationRequest,
+} from '@/types/admin';
 import type { FinancialReport, FinancialSummary, ReportMonths } from '@/types/financial';
 
 const farmer = (id: string) => `/admin/farmers/${encodeURIComponent(id)}`;
@@ -14,8 +19,13 @@ export interface FarmerPage {
   page: number;
   pageSize: number;
   pageCount: number;
-  /** Everyone (guests aside), by status: the counts on the status tabs. */
-  summary: Record<'all' | FarmerAccount['status'], number>;
+  /**
+   * Everyone (guests aside), by account status (the tabs), plus pending_review: farmers with a
+   * phone, location or Ghana Card check waiting for an admin's review.
+   */
+  summary: Record<'all' | FarmerAccount['status'] | 'pending_review', number>;
+  /** The checks waiting for review, for the farmers on this page only. */
+  pendingChecks?: Record<string, VerificationKind[]>;
   /** The options the filters offer. */
   facets: { regions: string[]; crops: string[]; tags: string[] };
   /** Every matching ID, only when asked for with ids=1. */
@@ -48,6 +58,11 @@ export const farmersService = {
   /** Records, MoMo, diagnoses, the score breakdown and the live rules it was calculated with. */
   async getDetail(id: string): Promise<FarmerDetail> {
     return api<FarmerDetail>(`${farmer(id)}/detail`);
+  },
+
+  /** Every check this farmer submitted, newest first. */
+  async verifications(id: string): Promise<VerificationRequest[]> {
+    return api<VerificationRequest[]>(`${farmer(id)}/verifications`);
   },
 
   /** The farmer's own figures (farmers.view). Each look is written to the audit log. */
