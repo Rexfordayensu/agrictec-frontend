@@ -73,6 +73,8 @@ export interface ReviewItem {
   farmerName: string;
   region: string;
   entry: TransactionItem;
+  /** Same receipt file or MoMo transaction ID on another farmer's account: check before verifying. */
+  warnings?: string[];
 }
 export interface ReviewPage {
   items: ReviewItem[];
