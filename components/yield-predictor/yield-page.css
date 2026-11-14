@@ -42,8 +42,8 @@
   height: 90px;
   flex-shrink: 0;
   border-radius: 21px;
-  background: #ddffed;
-  color: #008b39;
+  background: var(--agrictec-icon-green-bg-light);
+  color: var(--agrictec-icon-green-light);
 }
 .yield-hero-icon svg {
   width: 46px;
@@ -51,14 +51,14 @@
   stroke-width: 2;
 }
 .yield-hero h1 {
-  font-size: 32px;
+  font-size: var(--text-display);
   line-height: 1.2;
   font-weight: 750;
 }
 .yield-hero p {
   margin-top: 8px;
   max-width: 510px;
-  font-size: 15px;
+  font-size: var(--text-sm);
   line-height: 1.55;
 }
 .yield-workspace {
@@ -75,7 +75,7 @@
   margin-bottom: 23px;
 }
 .yield-plan h3 {
-  font-size: 20px;
+  font-size: var(--text-xl);
   gap: 16px;
 }
 .yield-plan h3 > svg {
@@ -84,9 +84,9 @@
   width: 23px;
   height: 23px;
   margin-right: 0;
-  border-radius: 14px;
-  background: #eaf9f1;
-  color: #008539;
+  border-radius: 12px;
+  background: var(--agrictec-icon-green-bg);
+  color: var(--agrictec-icon-green);
 }
 .yield-plan h3 + p {
   margin-left: 63px;
@@ -102,7 +102,7 @@
   margin-block: 0;
 }
 .yield-step-title {
-  font-size: 13px;
+  font-size: var(--text-small);
   line-height: 22px;
   margin-bottom: 6px !important;
 }
@@ -124,11 +124,11 @@
   align-items: center;
 }
 .yield-plan label.relative span.text-sm {
-  font-size: 13px;
+  font-size: var(--text-small);
   line-height: 1.15;
 }
 .yield-plan label.relative span.text-xs {
-  font-size: 11px;
+  font-size: var(--text-xs);
   line-height: 1.2;
 }
 .yield-plan label.relative > span > span.size-5:empty {
@@ -136,7 +136,7 @@
 }
 .yield-plan fieldset:first-child label > span {
   min-height: 39px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .yield-plan #yield-acres {
   background: var(--bg-2);
@@ -177,21 +177,21 @@
   width: 40px;
   height: 40px;
   border-radius: 12px;
-  color: #008e36;
-  background: #e9faf1;
+  color: var(--agrictec-icon-green);
+  background: var(--agrictec-icon-green-bg);
 }
 .yield-section-heading > .yield-icon {
-  width: 49px;
-  height: 49px;
-  background: #cdf6e3;
+  width: 48px;
+  height: 48px;
+  background: var(--agrictec-icon-green-bg);
 }
 .yield-section-heading h2 {
-  font-size: 21px;
+  font-size: var(--text-xl);
   line-height: 1.3;
   font-weight: 750;
 }
 .yield-section-heading p {
-  font-size: 13px;
+  font-size: var(--text-small);
   margin-top: 2px;
 }
 .yield-estimate-figures {
@@ -219,22 +219,22 @@
   flex-shrink: 0;
 }
 .yield-estimate-figures p {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .yield-estimate-figures strong {
   display: block;
-  font-size: 25px;
+  font-size: var(--text-2xl);
   line-height: 1.35;
   margin-top: 4px;
   letter-spacing: -0.6px;
   overflow-wrap: anywhere;
 }
 .yield-estimate-figures strong.yield-no-price {
-  font-size: 21px;
+  font-size: var(--text-xl);
 }
 .yield-estimate-figures small {
   display: block;
-  font-size: 12px;
+  font-size: var(--text-xs);
   margin-top: 5px;
 }
 .yield-estimate-body {
@@ -247,7 +247,7 @@
   padding: 15px 18px;
   border-radius: 16px;
   background: #eaf3ff;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.5;
 }
 .yield-guidance svg {
@@ -265,7 +265,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 16px;
+  font-size: var(--text-base);
   font-weight: 750;
   margin-bottom: 7px;
 }
@@ -277,7 +277,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   line-height: 1.5;
 }
 .yield-factors li p {
@@ -294,11 +294,11 @@
   padding: 11px 15px;
   border: 1px solid var(--border);
   border-radius: 14px;
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .yield-explanation summary {
   cursor: pointer;
-  font-size: 13px;
+  font-size: var(--text-small);
   font-weight: 700;
 }
 .yield-explanation p {
@@ -308,7 +308,7 @@
 .yield-stale {
   padding: 9px;
   margin-bottom: 10px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   background: #fff5d5;
   border-radius: 10px;
   color: #735000;
@@ -318,19 +318,19 @@
   border-radius: 20px;
 }
 .yield-growing h3 {
-  font-size: 18px;
+  font-size: var(--text-lg);
 }
 .yield-growing dl {
   min-width: 0;
 }
 .yield-growing dt {
   text-transform: none;
-  font-size: 11px;
+  font-size: var(--text-xs);
   letter-spacing: 0;
   font-weight: 400;
 }
 .yield-growing dd {
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .yield-growing ol {
   gap: 17px;
@@ -345,10 +345,10 @@
 }
 .yield-growing ol li > span {
   padding: 3px 10px;
-  font-size: 11px;
+  font-size: var(--text-xs);
 }
 .yield-growing ol li > p {
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.4;
 }
 .yield-history {
@@ -362,12 +362,12 @@
   align-items: center;
   gap: 17px;
   cursor: pointer;
-  font-size: 14px;
+  font-size: var(--text-sm);
   font-weight: 700;
 }
 .yield-history summary::before {
   content: '›';
-  font-size: 22px;
+  font-size: var(--text-2xl);
 }
 .yield-history[open] summary::before {
   transform: rotate(90deg);
@@ -377,7 +377,7 @@
 }
 .yield-history-view {
   margin-left: auto;
-  font-size: 12px;
+  font-size: var(--text-xs);
   font-weight: 400;
   border: 1px solid var(--border);
   border-radius: 12px;
@@ -385,7 +385,7 @@
 }
 .yield-history > p {
   margin-top: 15px;
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: var(--text-mute);
 }
 .yield-history li {
@@ -395,7 +395,7 @@
   align-items: center;
   padding: 12px 0;
   border-top: 1px solid var(--border);
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .yield-history li button {
   margin-left: auto;
@@ -434,7 +434,7 @@
     border-radius: 20px;
   }
   body:has(.yield-reference) main > header h1 {
-    font-size: 19px;
+    font-size: var(--text-xl);
   }
 }
 @media (min-width: 1450px) {
@@ -469,7 +469,7 @@
     width: 25px;
   }
   .yield-estimate-figures strong {
-    font-size: 21px;
+    font-size: var(--text-xl);
   }
   .yield-estimate-figures > div + div {
     padding-left: 9px;
@@ -486,7 +486,7 @@
     width: 13px;
   }
   .yield-plan label.relative span.text-sm {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
 @media (max-width: 1000px) {
@@ -501,7 +501,7 @@
     padding: 20px;
   }
   .yield-estimate-figures strong {
-    font-size: 26px;
+    font-size: var(--text-3xl);
   }
 }
 @media (max-width: 600px) {
@@ -519,10 +519,10 @@
     width: 32px;
   }
   .yield-hero h1 {
-    font-size: 24px;
+    font-size: var(--text-display);
   }
   .yield-hero p {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .yield-hero::before {
     background: linear-gradient(90deg, #005537f9, #005537cc);
@@ -531,7 +531,7 @@
     padding: 15px !important;
   }
   .yield-plan h3 {
-    font-size: 18px;
+    font-size: var(--text-lg);
   }
   .yield-plan form {
     gap: 19px;
@@ -540,13 +540,13 @@
     padding: 15px 10px;
   }
   .yield-estimate-figures strong {
-    font-size: 21px;
+    font-size: var(--text-xl);
   }
   .yield-estimate-figures svg {
     display: none;
   }
   .yield-section-heading h2 {
-    font-size: 19px;
+    font-size: var(--text-xl);
   }
   .yield-factors {
     padding: 12px;
@@ -558,7 +558,7 @@
     padding: 12px;
   }
   .yield-growing ol li > p {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .yield-growing dl {
     grid-template-columns: 1fr;
@@ -574,7 +574,7 @@
   }
   .yield-history summary {
     gap: 8px;
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .yield-history-view {
     padding: 7px 9px;
@@ -586,7 +586,7 @@
     padding: 14px 8px;
   }
   body:has(.yield-reference) aside nav a {
-    font-size: 13px;
+    font-size: var(--text-small);
     padding-inline: 10px;
     gap: 10px;
     min-height: 39px;
@@ -595,7 +595,7 @@
     margin-bottom: 17px;
   }
   body:has(.yield-reference) aside nav p {
-    font-size: 10px;
+    font-size: var(--text-xs);
   }
 }
 

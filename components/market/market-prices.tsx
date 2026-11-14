@@ -237,9 +237,12 @@ export function MarketPrices({
       </section>
 
       <div className="grid grid-cols-1 gap-5 @4xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
-        <section aria-labelledby="popular-crops-title" className={dashPanel}>
+        <section
+          aria-labelledby="popular-crops-title"
+          className={cn(dashPanel, '@container/popular')}
+        >
           <div className="flex items-start gap-3">
-            <Leaf size={30} aria-hidden="true" className="text-ink-green shrink-0" />
+            <Leaf size={30} aria-hidden="true" className="text-icon shrink-0" />
             <div>
               <h2 id="popular-crops-title" className="text-text text-lg font-bold">
                 Popular crops to watch
@@ -249,7 +252,8 @@ export function MarketPrices({
               </p>
             </div>
           </div>
-          <div className="mt-4 grid grid-cols-2 gap-2 @lg:grid-cols-3 @4xl:grid-cols-5">
+          {/* As many as fit at a width that always shows the full crop name. */}
+          <div className="mt-4 grid grid-cols-[repeat(auto-fill,minmax(9rem,1fr))] gap-2">
             {POPULAR.map((crop) => (
               <button
                 key={crop}
@@ -257,7 +261,7 @@ export function MarketPrices({
                 aria-pressed={filters.crop === crop}
                 onClick={() => pickCrop(crop)}
                 className={cn(
-                  'border-border bg-glass hover:bg-glass-strong text-text text-small inline-flex min-h-11 min-w-0 items-center gap-2 rounded-xl border px-2.5 font-semibold',
+                  'border-border bg-glass hover:bg-glass-strong text-text text-small inline-flex min-h-12 min-w-0 items-center gap-2.5 rounded-xl border px-3 text-left font-semibold whitespace-nowrap',
                   filters.crop === crop && 'border-accent bg-accent/10',
                 )}
               >
@@ -272,7 +276,7 @@ export function MarketPrices({
           className="rounded-card border-accent/25 from-accent/10 to-accent/4 min-w-0 border bg-linear-to-br p-4 sm:p-5"
         >
           <div className="flex items-start gap-3">
-            <CalendarCheck size={30} aria-hidden="true" className="text-ink-green shrink-0" />
+            <CalendarCheck size={30} aria-hidden="true" className="text-icon shrink-0" />
             <div>
               <h2 id="next-market-title" className="text-text text-lg font-bold">
                 What’s next?

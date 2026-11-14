@@ -87,7 +87,7 @@ export function QuickActions({ range }: { range: DashboardRange }) {
 
 function Mark({ icon: Icon, children }: { icon?: LucideIcon; children?: ReactNode }) {
   return (
-    <span className="bg-accent/12 text-ink-green inline-flex size-10 items-center justify-center rounded-xl">
+    <span className="bg-icon-bg text-icon inline-flex size-10 items-center justify-center rounded-xl">
       {Icon ? <Icon size={20} aria-hidden="true" /> : children}
     </span>
   );

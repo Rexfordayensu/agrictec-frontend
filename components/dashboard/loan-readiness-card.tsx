@@ -65,7 +65,7 @@ export function LoanReadinessCard() {
               const body = (
                 <>
                   {item.done ? (
-                    <CircleCheck size={18} aria-hidden="true" className="text-ink-green shrink-0" />
+                    <CircleCheck size={18} aria-hidden="true" className="text-icon shrink-0" />
                   ) : (
                     <CircleAlert size={18} aria-hidden="true" className="text-ink-gold shrink-0" />
                   )}

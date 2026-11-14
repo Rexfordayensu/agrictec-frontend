@@ -170,15 +170,15 @@
   max-width: 390px;
 }
 .dashboard-reference .dash-hero-eyebrow {
-  font-size: 13px;
+  font-size: var(--text-small);
   letter-spacing: 1.6px;
 }
 .dashboard-reference .dash-hero-copy h2 {
-  font-size: 39px;
+  font-size: var(--text-display);
   margin-top: 10px;
 }
 .dashboard-reference .dash-hero-copy p:last-child {
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.55;
   margin-top: 10px;
 }
@@ -189,10 +189,10 @@
   gap: 1px 13px;
 }
 .dashboard-reference .dash-hero-profile strong {
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .dashboard-reference .dash-hero-profile small {
-  font-size: 12px;
+  font-size: var(--text-xs);
   color: #1d3343;
 }
 .dashboard-reference .dash-hero-profile-bar {
@@ -231,10 +231,10 @@
   height: 23px;
 }
 .dashboard-reference .dash-stats dt > span:last-child {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference .dash-stats dt > span:last-child > span:first-child {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference .dash-stats dt > span:last-child > span:last-child {
   margin-top: 2px;
@@ -244,7 +244,7 @@
   margin-left: 54px;
 }
 .dashboard-reference .dash-stats dd > span {
-  font-size: 26px;
+  font-size: var(--text-3xl);
   line-height: 1.2;
   letter-spacing: -0.8px;
   white-space: nowrap;
@@ -257,10 +257,10 @@
   margin-left: 54px;
 }
 .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
-  font-size: 28px;
+  font-size: var(--text-3xl);
 }
 .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:last-child {
-  font-size: 10px;
+  font-size: var(--text-xs);
   border: 1px solid #0a9d6a30;
   padding: 5px 9px;
 }
@@ -278,7 +278,7 @@
   min-height: 309px;
 }
 .dashboard-reference #trend-title {
-  font-size: 18px;
+  font-size: var(--text-lg);
 }
 .dashboard-reference #trend-title + div {
   gap: 12px;
@@ -292,14 +292,14 @@
 }
 .dashboard-reference #trend-title + div > select {
   width: 85px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   padding-inline: 3px;
 }
 .dashboard-reference [aria-labelledby='trend-title'] > div:first-child {
   margin-bottom: 18px;
 }
 .dashboard-reference [aria-labelledby='trend-title'] > p:last-child {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference [aria-labelledby='readiness-title'] > div:first-child {
   gap: 10px;
@@ -315,14 +315,14 @@
   height: 25px;
 }
 .dashboard-reference #readiness-title {
-  font-size: 17px;
+  font-size: var(--text-lg);
 }
 .dashboard-reference #readiness-title + p {
-  font-size: 10px;
+  font-size: var(--text-xs);
   line-height: 1.5;
 }
 .dashboard-reference [aria-labelledby='readiness-title'] > p {
-  font-size: 33px;
+  font-size: var(--text-4xl);
 }
 .dashboard-reference [aria-labelledby='readiness-title'] > [role='progressbar'] {
   height: 13px;
@@ -342,7 +342,7 @@
   > :is(div, a)
   > span
   > span:first-child {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference
   [aria-labelledby='readiness-title']
@@ -350,7 +350,7 @@
   > :is(div, a)
   > span
   > span:nth-child(2) {
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference [aria-labelledby='readiness-title'] li svg:first-child.text-ink-green {
   fill: #0db264;
@@ -372,17 +372,17 @@
   margin-bottom: 18px;
 }
 .dashboard-reference [aria-labelledby='recent-title'] table {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference [aria-labelledby='recent-title'] th {
-  font-size: 11px;
+  font-size: var(--text-xs);
   background: color-mix(in srgb, var(--glass), #cbd5e1 15%);
 }
 .dashboard-reference [aria-labelledby='recent-title'] td {
   padding-block: 11px;
 }
 .dashboard-reference [aria-labelledby='recent-title'] td span {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference [aria-labelledby='quick-title'] > div:first-child {
   gap: 13px;
@@ -399,7 +399,7 @@
   min-height: 77px;
   border-radius: 13px;
   padding: 10px 5px;
-  font-size: 11px;
+  font-size: var(--text-xs);
   background: color-mix(in srgb, var(--glass), #d3f3e6 25%);
   gap: 6px;
 }
@@ -438,10 +438,10 @@
   height: 39px;
 }
 .dashboard-reference [aria-labelledby='next-title'] li a > span:nth-child(2) > span:first-child {
-  font-size: 12px;
+  font-size: var(--text-xs);
 }
 .dashboard-reference [aria-labelledby='next-title'] li a > span:nth-child(2) > span:last-child {
-  font-size: 11px;
+  font-size: var(--text-xs);
   line-height: 1.35;
   margin-top: 2px;
 }
@@ -466,7 +466,7 @@
   height: 28px;
 }
 .dashboard-reference [aria-labelledby='insight-title'] > p {
-  font-size: 14px;
+  font-size: var(--text-sm);
   line-height: 1.6;
 }
 .dashboard-reference [aria-labelledby='insight-title'] > svg {
@@ -487,7 +487,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  font-size: 17px;
+  font-size: var(--text-lg);
   font-weight: 750;
   padding-bottom: 14px;
   border-bottom: 1px solid var(--border);
@@ -502,7 +502,7 @@
   align-items: center;
   gap: 10px;
   margin-top: 12px;
-  font-size: 13px;
+  font-size: var(--text-small);
 }
 .dash-weather-place > svg {
   color: #284dbb;
@@ -523,20 +523,20 @@
 }
 .dash-weather-temperature strong {
   display: block;
-  font-size: 31px;
+  font-size: var(--text-4xl);
   line-height: 1.2;
   font-weight: 750;
   letter-spacing: -1px;
 }
 .dash-weather-temperature span {
   display: block;
-  font-size: 11px;
+  font-size: var(--text-xs);
   max-width: 145px;
 }
 .dash-weather-conditions dl {
   display: grid;
   gap: 7px;
-  font-size: 10px;
+  font-size: var(--text-xs);
 }
 .dash-weather-conditions dl > div {
   display: flex;
@@ -550,7 +550,7 @@
   font-weight: 700;
 }
 .dash-weather-source {
-  font-size: 9px;
+  font-size: var(--text-xs);
   color: var(--text-mute);
   margin: 3px 0 10px;
 }
@@ -564,11 +564,11 @@
   border-radius: 12px;
   background: #d9f4e8;
   color: #005b3d;
-  font-size: 13px;
+  font-size: var(--text-small);
   font-weight: 700;
 }
 .dash-weather-unavailable {
-  font-size: 13px;
+  font-size: var(--text-small);
   line-height: 1.5;
   padding-block: 15px;
 }
@@ -604,13 +604,13 @@
     padding: 13px 11px;
   }
   body:has(.dashboard-reference) aside nav a {
-    font-size: 12px;
+    font-size: var(--text-xs);
     min-height: 39px;
     padding-inline: 11px;
     gap: 13px;
   }
   body:has(.dashboard-reference) aside nav p {
-    font-size: 10px;
+    font-size: var(--text-xs);
     padding-left: 13px;
   }
   body:has(.dashboard-reference) aside nav > div {
@@ -622,7 +622,7 @@
     margin-bottom: 22px;
   }
   body:has(.dashboard-reference) main > header h1 {
-    font-size: 18px;
+    font-size: var(--text-lg);
   }
 }
 @media (min-width: 1450px) {
@@ -664,16 +664,16 @@
     max-width: 320px;
   }
   .dashboard-reference .dash-hero-copy h2 {
-    font-size: 34px;
+    font-size: var(--text-display);
   }
   .dashboard-reference .dash-hero-copy p:last-child {
-    font-size: 13px;
+    font-size: var(--text-small);
   }
   .dashboard-reference .dash-panel {
     padding: 17px;
   }
   .dashboard-reference #trend-title {
-    font-size: 16px;
+    font-size: var(--text-base);
   }
 }
 @media (max-width: 1000px) {
@@ -706,7 +706,7 @@
     max-width: 265px;
   }
   .dashboard-reference .dash-hero-copy h2 {
-    font-size: 35px;
+    font-size: var(--text-display);
   }
   .dashboard-reference .dash-hero-photo {
     inset: 0 0 0 25%;
@@ -732,14 +732,14 @@
     height: 36px;
   }
   .dashboard-reference .dash-stats dt > span:last-child {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
   .dashboard-reference .dash-stats dd {
     margin-left: 0;
     margin-top: 17px;
   }
   .dashboard-reference .dash-stats dd > span {
-    font-size: 22px;
+    font-size: var(--text-2xl);
     white-space: normal;
     overflow-wrap: anywhere;
   }
@@ -750,10 +750,10 @@
     margin-left: 0;
   }
   .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
-    font-size: 25px;
+    font-size: var(--text-2xl);
   }
   .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:last-child {
-    font-size: 9px;
+    font-size: var(--text-xs);
     padding: 4px;
   }
   .dashboard-reference .dash-stats > div:first-child dd > a > span:last-child {
@@ -776,16 +776,16 @@
     > :is(div, a)
     > span
     > span:first-child {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
   .dashboard-reference .dash-weather-conditions {
     margin-block: 25px 12px;
   }
   .dash-weather-temperature strong {
-    font-size: 34px;
+    font-size: var(--text-4xl);
   }
   .dash-weather-conditions dl {
-    font-size: 11px;
+    font-size: var(--text-xs);
   }
 }
 
@@ -813,7 +813,7 @@
 }
 @media (max-width: 600px) {
   .dashboard-reference .dash-stats > div:first-child dd > a > span:first-child > span:first-child {
-    font-size: 22px;
+    font-size: var(--text-2xl);
   }
   .dashboard-reference
     .dash-stats
@@ -823,6 +823,6 @@
     > span:first-child
     > span:first-child
     > span {
-    font-size: 12px;
+    font-size: var(--text-xs);
   }
 }
