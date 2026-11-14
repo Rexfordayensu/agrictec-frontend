@@ -62,7 +62,8 @@ function PlatformLoader({ children }: { children: ReactNode }) {
           .syncSession()
           .catch(() => {})
           .then(() => {
-            if (useAdminAuthStore.getState().admin) void useAdminDataStore.getState().syncFromOtherTab();
+            if (useAdminAuthStore.getState().admin)
+              void useAdminDataStore.getState().syncFromOtherTab();
           });
       }, SETTLE_MS);
     };
@@ -76,7 +77,10 @@ function PlatformLoader({ children }: { children: ReactNode }) {
       const { loadedAt, refresh } = useAdminDataStore.getState();
       if (stale) sync();
       else if (!loadedAt || Date.now() - Date.parse(loadedAt) > REFRESH_ON_FOCUS_MS) {
-        void useAdminAuthStore.getState().syncSession().catch(() => {});
+        void useAdminAuthStore
+          .getState()
+          .syncSession()
+          .catch(() => {});
         void refresh();
       }
     }

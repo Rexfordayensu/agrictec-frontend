@@ -38,7 +38,8 @@ export function IdentityRequirementsCard() {
         setConfig(loaded);
         setDraft(loaded.requirements);
       },
-      (cause: unknown) => active && setError(cause instanceof Error ? cause.message : 'Could not load the settings'),
+      (cause: unknown) =>
+        active && setError(cause instanceof Error ? cause.message : 'Could not load the settings'),
     );
     return () => {
       active = false;
@@ -59,8 +60,14 @@ export function IdentityRequirementsCard() {
     }
   }
 
-  if (error) return <p role="alert" className="text-ink-red text-sm">{error}</p>;
-  if (!config) return <LogoLoader center label="Loading identity requirements" className="min-h-40" />;
+  if (error)
+    return (
+      <p role="alert" className="text-ink-red text-sm">
+        {error}
+      </p>
+    );
+  if (!config)
+    return <LogoLoader center label="Loading identity requirements" className="min-h-40" />;
   const changed = JSON.stringify(draft) !== JSON.stringify(config.requirements);
 
   return (
@@ -79,7 +86,10 @@ export function IdentityRequirementsCard() {
         <fieldset key={feature} className="space-y-2">
           <legend className="text-text text-sm font-semibold">{label}</legend>
           {config.levels.map((level) => (
-            <label key={level} className="text-text-dim flex cursor-pointer items-start gap-3 text-sm">
+            <label
+              key={level}
+              className="text-text-dim flex cursor-pointer items-start gap-3 text-sm"
+            >
               <input
                 type="radio"
                 name={`identity-${feature}`}

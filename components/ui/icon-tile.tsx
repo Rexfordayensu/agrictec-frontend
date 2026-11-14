@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type Tone = 'green' | 'red' | 'gold' | 'blue' | 'grey';
+export type Tone = 'green' | 'red' | 'gold' | 'blue' | 'grey' | 'purple';
 
 /**
  * Green is the standard AgriCtec icon (text-icon on bg-icon-bg, see globals.css). The others keep
@@ -14,6 +14,8 @@ export const ICON_TONES: Record<Tone, string> = {
   gold: 'bg-gold/15 text-ink-gold',
   blue: 'bg-info/12 text-ink-blue',
   grey: 'bg-glass-strong text-text-mute',
+  /** The admin console's accent. */
+  purple: 'bg-purple/12 text-ink-purple',
 };
 
 const SIZES = {

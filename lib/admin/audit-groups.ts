@@ -56,7 +56,13 @@ export function targetHref(entry: Pick<AuditEntry, 'targetType' | 'targetId'>): 
     case 'loan':
       return adminPath(`/admin/loans?open=${encodeURIComponent(entry.targetId)}`);
     case 'lender':
+    case 'loan_product':
       return adminPath('/admin/lenders');
+    case 'transaction':
+    case 'evidence':
+      return adminPath('/admin/transactions');
+    case 'settings':
+      return adminPath('/admin/settings');
     case 'config':
       return adminPath('/admin/credit-rules');
     case 'announcement':
@@ -72,9 +78,13 @@ export function targetHref(entry: Pick<AuditEntry, 'targetType' | 'targetId'>): 
 
 export const TARGET_TYPES: AuditEntry['targetType'][] = [
   'farmer',
+  'transaction',
+  'evidence',
   'loan',
   'lender',
+  'loan_product',
   'config',
+  'settings',
   'content',
   'announcement',
   'risk',

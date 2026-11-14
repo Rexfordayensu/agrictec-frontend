@@ -3,6 +3,7 @@
 import { adminPath } from '@/lib/admin-path';
 
 import Link from 'next/link';
+import { Leaf } from 'lucide-react';
 import { MeterBar, Panel } from '@/components/admin/overview/panel';
 import { CROP_TONES, CropIcon, cropFromName } from '@/components/ui/crop-icon';
 import type { OverviewData } from '@/services/admin/overview.service';
@@ -25,6 +26,7 @@ export function CropPopularityChart({
   return (
     <Panel
       title="Crops"
+      icon={Leaf}
       description={`What ${growers} farmers grow (several each)`}
       className={className}
     >

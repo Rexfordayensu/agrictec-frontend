@@ -4,7 +4,7 @@ import { adminPath } from '@/lib/admin-path';
 
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { Ban, CircleAlert } from 'lucide-react';
+import { Ban, CircleAlert, Layers } from 'lucide-react';
 import { MeterBar, Panel, PanelLink } from '@/components/admin/overview/panel';
 import { useCan } from '@/hooks/admin/use-can';
 import { DATE_RANGES, type DateRange } from '@/lib/admin/overview';
@@ -56,6 +56,7 @@ export function LoanFunnel({
   return (
     <Panel
       title="Loan pipeline"
+      icon={Layers}
       description={`${total} application${total === 1 ? '' : 's'} made ${rangeLabel}`}
       action={canLoans && <PanelLink href={adminPath('/admin/loans')}>Open pipeline</PanelLink>}
       className={className}
@@ -76,7 +77,7 @@ export function LoanFunnel({
                   {stage.reached}
                 </span>
                 <span className="text-text-mute text-right text-xs tabular-nums">
-                  {index === 0 ? '100%' : stage.conversion === null ? '—' : `${stage.conversion}%`}
+                  {index === 0 ? '100%' : stage.conversion == null ? '—' : `${stage.conversion}%`}
                   <span className="sr-only">
                     {index === 0 ? ' started' : ' of the previous stage'}
                   </span>

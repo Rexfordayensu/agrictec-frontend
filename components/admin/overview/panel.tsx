@@ -2,7 +2,8 @@
 
 import { useId, type ReactNode } from 'react';
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, type LucideIcon } from 'lucide-react';
+import { IconTile } from '@/components/ui/icon-tile';
 import { cn } from '@/lib/utils';
 
 /**
@@ -11,6 +12,7 @@ import { cn } from '@/lib/utils';
  */
 export function Panel({
   title,
+  icon,
   description,
   action,
   children,
@@ -18,6 +20,8 @@ export function Panel({
   bodyClassName,
 }: {
   title: string;
+  /** The panel's mark, in a purple tile beside the title. */
+  icon?: LucideIcon;
   description?: ReactNode;
   /** A link or badge on the right of the header. */
   action?: ReactNode;
@@ -32,11 +36,14 @@ export function Panel({
       className={cn('border-border bg-glass flex min-w-0 flex-col rounded-2xl border', className)}
     >
       <header className="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
-        <div className="min-w-0">
-          <h2 id={titleId} className="text-text text-sm font-semibold">
-            {title}
-          </h2>
-          {description && <p className="text-text-mute mt-0.5 text-xs">{description}</p>}
+        <div className="flex min-w-0 items-center gap-3">
+          {icon && <IconTile icon={icon} tone="purple" />}
+          <div className="min-w-0">
+            <h2 id={titleId} className="text-text text-base font-semibold">
+              {title}
+            </h2>
+            {description && <p className="text-text-mute mt-0.5 text-xs">{description}</p>}
+          </div>
         </div>
         {action && <div className="shrink-0">{action}</div>}
       </header>
@@ -76,7 +83,7 @@ export function MeterBar({
 }) {
   const width = max > 0 ? Math.max(value > 0 ? 3 : 0, (value / max) * 100) : 0;
   return (
-    <span aria-hidden="true" className={cn('bg-glass-strong block h-2 rounded-full', className)}>
+    <span aria-hidden="true" className={cn('bg-border/80 block h-2 rounded-full', className)}>
       <span
         className={cn('block h-full rounded-full transition-[width] duration-500', barClassName)}
         style={{ width: `${width}%` }}

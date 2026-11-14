@@ -69,6 +69,10 @@ test('only public information and signing in or up are open to the demo', () => 
     '/auth/signup',
     '/auth/password-reset/request',
     '/auth/replace-temporary-password',
+    // Staff sign in and use the console in a browser where a guest demo is open.
+    '/admin/auth/login',
+    '/admin/farmers',
+    '/auth/impersonation/claim',
   ])
     assert.equal(needsAccount(path), false, path);
   for (const path of [
@@ -81,6 +85,7 @@ test('only public information and signing in or up are open to the demo', () => 
     '/auth/guest',
     '/identity-verification/start',
     '/platformx',
+    '/administrator',
   ])
     assert.equal(needsAccount(path), true, path);
 });
@@ -409,6 +414,27 @@ test('finishing or skipping the tour: a guest on the phone (sent nowhere), a far
     assert.deepEqual(sent, ['POST /api/v1/me/tour']);
   } finally {
     global.fetch = originalFetch;
+    leaveBrowser();
+  }
+});
+
+test('a guest demo in the browser never blocks the admin sign-in', async () => {
+  fakeBrowser();
+  const originalFetch = global.fetch;
+  const sent = [];
+  global.fetch = async (url, options) => {
+    sent.push(`${options.method} ${url}`);
+    return { ok: true, status: 200, headers: new Headers(), text: async () => '{}' };
+  };
+  try {
+    startDemo();
+    await api('/admin/auth/login', { method: 'POST', body: { email: 'a@b.c', password: 'x' } });
+    assert.deepEqual(sent, ['POST /api/v1/admin/auth/login']);
+    // A farmer's account data is still refused to the guest.
+    await assert.rejects(api('/me/profile'), (e) => e.code === 'demo');
+  } finally {
+    global.fetch = originalFetch;
+    endDemo();
     leaveBrowser();
   }
 });

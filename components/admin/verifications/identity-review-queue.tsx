@@ -57,8 +57,8 @@ export function IdentityReviewQueue() {
         Ghana Card identity checks needing review ({items.length})
       </h2>
       <p className="text-text-dim mt-1 text-xs">
-        The identity provider could not decide these. Only the provider can verify an identity:
-        you can close a check as not verified, and the farmer can try again.
+        The identity provider could not decide these. Only the provider can verify an identity: you
+        can close a check as not verified, and the farmer can try again.
       </p>
       <ul className="divide-border mt-3 divide-y">
         {items.map((item) => (
@@ -84,7 +84,12 @@ export function IdentityReviewQueue() {
                   aria-label="Reason for closing the check"
                   className="border-border bg-bg-2 text-text min-h-10 min-w-0 flex-1 rounded-xl border px-3 text-sm"
                 />
-                <Button size="sm" loading={busy} disabled={note.trim().length < 3} onClick={() => void close(item.id)}>
+                <Button
+                  size="sm"
+                  loading={busy}
+                  disabled={note.trim().length < 3}
+                  onClick={() => void close(item.id)}
+                >
                   Close check
                 </Button>
                 <Button size="sm" variant="ghost" onClick={() => setClosing(null)}>

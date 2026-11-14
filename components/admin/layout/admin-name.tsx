@@ -35,7 +35,7 @@ export function AdminNameChip() {
       <button
         type="button"
         onClick={() => openName(true)}
-        className="border-gold/50 bg-gold/10 text-ink-gold hover:bg-gold/20 inline-flex min-h-11 items-center gap-2 rounded-xl border px-3 text-sm font-semibold transition-colors"
+        className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#7c3aed] px-4 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-[#6d28d9]"
       >
         <UserPen size={16} aria-hidden="true" />
         <span className="hidden sm:inline">Add your name</span>

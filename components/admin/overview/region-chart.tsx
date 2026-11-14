@@ -2,13 +2,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, MapPin } from 'lucide-react';
 import { MeterBar, Panel } from '@/components/admin/overview/panel';
 import type { OverviewData } from '@/services/admin/overview.service';
 import { regionHref } from '@/lib/admin/overview';
 import { cn } from '@/lib/utils';
 
-const TOP = 7;
+const TOP = 5;
 
 /** Farmers per region, most first. Each row opens the farmers list for that region. */
 export function RegionChart({
@@ -28,6 +28,7 @@ export function RegionChart({
   return (
     <Panel
       title="Regions"
+      icon={MapPin}
       description={`Farmers in ${covered} of ${regions.length} regions`}
       className={className}
     >
@@ -39,7 +40,11 @@ export function RegionChart({
               className="hover:bg-glass-strong -mx-2 grid min-h-10 grid-cols-[1.25rem_minmax(0,6.5rem)_minmax(0,1fr)_2rem] items-center gap-2.5 rounded-lg px-2 transition-colors"
             >
               <span className="text-text-mute text-xs tabular-nums">{index + 1}</span>
-              <span className="text-text truncate text-sm">{r.region}</span>
+              <span
+                className={cn('truncate text-sm', r.region ? 'text-text' : 'text-text-mute italic')}
+              >
+                {r.region || 'Not set'}
+              </span>
               <MeterBar
                 value={r.count}
                 max={max}

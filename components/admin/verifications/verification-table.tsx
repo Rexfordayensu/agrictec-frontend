@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { differenceInCalendarDays, formatDistanceStrict, subDays } from 'date-fns';
 import { ArrowRight, CheckCheck, Clock, Inbox, PlayCircle, Search } from 'lucide-react';
 import { toast } from 'sonner';
@@ -51,7 +52,7 @@ const isKind = (value: string): value is VerificationKind =>
  * with keyboard shortcuts; phone and location checks can be approved in bulk.
  */
 export function VerificationTable() {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const params = useSearchParams();
   const canReview = useCan('verifications.review');
   const all = useAdminDataStore((s) => s.verifications);

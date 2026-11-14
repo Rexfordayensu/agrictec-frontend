@@ -37,9 +37,10 @@ export function AssistantContent() {
   const [farmers, setFarmers] = useState<FarmerAccount[]>([]);
   useEffect(() => {
     const controller = new AbortController();
-    farmersService
-      .page({ pageSize: '25', sort: 'farmer', dir: 'asc' }, controller.signal)
-      .then((page) => setFarmers(page.items), () => {});
+    farmersService.page({ pageSize: '25', sort: 'farmer', dir: 'asc' }, controller.signal).then(
+      (page) => setFarmers(page.items),
+      () => {},
+    );
     return () => controller.abort();
   }, []);
   const bands = usePlatformStatus()?.creditConfig.bands;

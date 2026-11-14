@@ -140,13 +140,19 @@ export function demoSession(demo: DemoToken | null = currentDemo()): Session {
   };
 }
 
-/** What the demo may still ask the API for: public data, and signing in or up. */
+/**
+ * What the demo may still ask the API for: public data, signing in or up, and the staff side.
+ * A guest demo open in a browser must not stop staff signing in or using the console there:
+ * /admin has its own staff session, and "View as farmer" (/auth/impersonation) is the admin's.
+ */
 const PUBLIC_PATHS = [
   '/platform',
   '/geocoding',
   '/auth/login',
   '/auth/signup',
   '/auth/password-reset',
+  '/admin',
+  '/auth/impersonation',
 ];
 const PUBLIC_EXACT = ['/auth/replace-temporary-password'];
 

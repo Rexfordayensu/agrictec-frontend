@@ -3,7 +3,8 @@
 import { adminPath } from '@/lib/admin-path';
 
 import { useEffect, useState, type ReactNode } from 'react';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { Loader2 } from 'lucide-react';
 import { ChangePasswordForm } from '@/components/admin/auth/change-password-form';
 import { SessionTimeout } from '@/components/admin/auth/session-timeout';
@@ -20,7 +21,7 @@ type GateState = 'checking' | 'ready' | 'redirecting';
  */
 export function AdminSessionGate({ children }: { children: ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const admin = useAdminAuthStore((s) => s.admin);
   const [state, setState] = useState<GateState>('checking');
 

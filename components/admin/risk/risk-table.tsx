@@ -1,7 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { usePathname, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { formatDistanceStrict } from 'date-fns';
 import { ArrowRight, Search, ShieldCheck } from 'lucide-react';
 import { RiskDetailModal } from '@/components/admin/risk/risk-detail-modal';
@@ -57,7 +58,7 @@ export function RiskTable({
   loading: boolean;
   onChanged: () => void;
 }) {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const params = useSearchParams();
   const [now] = useState(() => new Date());
   const [openId, setOpenId] = useState<string | null>(null);

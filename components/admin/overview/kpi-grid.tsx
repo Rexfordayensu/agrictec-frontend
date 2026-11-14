@@ -18,6 +18,7 @@ import {
   type LucideIcon,
 } from 'lucide-react';
 import { Sparkline } from '@/components/charts/sparkline';
+import { IconTile, type Tone } from '@/components/ui/icon-tile';
 import { useAdminRole } from '@/hooks/admin/use-can';
 import { scoreLabel } from '@/lib/calculations/credit-score';
 import { DATE_RANGES, type DateRange, type OverviewKpis } from '@/lib/admin/overview';
@@ -30,6 +31,8 @@ interface Kpi {
   key: string;
   label: string;
   icon: LucideIcon;
+  /** Purple for the platform's figures, green for the review queues and outcomes. */
+  tone: Tone;
   value: string;
   hint: string;
   /** Colours the hint: something is waiting or wrong. */
@@ -71,8 +74,8 @@ function DeltaChip({ delta, lowerIsBetter }: { delta: number; lowerIsBetter?: bo
 }
 
 /**
- * The platform's key figures in one panel, split by hairlines (no card-per-number clutter).
- * Each cell opens the page behind it. Deltas compare the period with the one before it.
+ * The platform's key figures, a card each with its icon tile. Each card opens the page behind
+ * it. Deltas compare the period with the one before it.
  */
 export function KpiGrid({
   range,
@@ -90,6 +93,7 @@ export function KpiGrid({
   const kpis: Kpi[] = [
     {
       key: 'farmers',
+      tone: 'purple',
       label: 'Farmers',
       icon: Users,
       value: k.totalFarmers.toLocaleString(),
@@ -102,6 +106,7 @@ export function KpiGrid({
     },
     {
       key: 'active',
+      tone: 'purple',
       label: 'Active, 30 days',
       icon: UserCheck,
       value: k.active30.toLocaleString(),
@@ -112,6 +117,7 @@ export function KpiGrid({
     },
     {
       key: 'score',
+      tone: 'purple',
       label: 'Average score',
       icon: Gauge,
       value: String(k.averageScore),
@@ -122,6 +128,7 @@ export function KpiGrid({
     },
     {
       key: 'income',
+      tone: 'purple',
       label: 'Income tracked',
       icon: Wallet,
       value: formatCompactGHS(k.incomeTracked),
@@ -132,6 +139,7 @@ export function KpiGrid({
     },
     {
       key: 'loans',
+      tone: 'purple',
       label: 'Loans requested',
       icon: ClipboardList,
       value: formatCompactGHS(k.loanRequested),
@@ -144,6 +152,7 @@ export function KpiGrid({
     },
     {
       key: 'approval',
+      tone: 'green',
       label: 'Approval rate',
       icon: Percent,
       value: k.approvalRate === null ? '—' : `${k.approvalRate}%`,
@@ -154,6 +163,7 @@ export function KpiGrid({
     },
     {
       key: 'verifications',
+      tone: 'green',
       label: 'Verifications waiting',
       icon: BadgeCheck,
       value: String(k.pendingVerifications),
@@ -168,6 +178,7 @@ export function KpiGrid({
     },
     {
       key: 'risk',
+      tone: 'green',
       label: 'Open risk flags',
       icon: ShieldAlert,
       value: String(k.openFlags),
@@ -182,27 +193,23 @@ export function KpiGrid({
 
   const visible = kpis.filter((kpi) => can(role, kpi.needs));
   // Full rows only: 4 across for 8 figures, 3 across for 6 (e.g. analysts).
-  const columns = visible.length % 4 === 0 ? 'lg:grid-cols-4' : 'lg:grid-cols-3';
+  const columns = visible.length % 4 === 0 ? 'xl:grid-cols-4' : 'xl:grid-cols-3';
 
   return (
     <section
       aria-label="Key figures"
-      className="border-border bg-glass overflow-hidden rounded-2xl border"
+      className={cn('grid grid-cols-1 gap-4 sm:grid-cols-2', columns)}
     >
-      {/* Hairlines: every cell draws its top and left border; -m-px hides the outer ones. */}
-      <div className={cn('-mt-px -ml-px grid grid-cols-2', columns)}>
-        {visible.map((kpi) => {
-          const Icon = kpi.icon;
-          const linked = can(role, kpi.linkNeeds);
-          const hasDelta =
-            kpi.delta !== undefined && kpi.delta !== null && Number.isFinite(kpi.delta);
-          const body = (
-            <>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-text-mute flex min-w-0 items-center gap-2 text-xs font-medium">
-                  <Icon size={14} aria-hidden="true" className="shrink-0" />
-                  <span className="truncate">{kpi.label}</span>
-                </span>
+      {visible.map((kpi) => {
+        const linked = can(role, kpi.linkNeeds);
+        const hasDelta =
+          kpi.delta !== undefined && kpi.delta !== null && Number.isFinite(kpi.delta);
+        const body = (
+          <>
+            <IconTile icon={kpi.icon} tone={kpi.tone} />
+            <div className="min-w-0 flex-1">
+              <p className="text-text flex items-center gap-1.5 text-sm font-medium">
+                <span className="truncate">{kpi.label}</span>
                 {linked && (
                   <ArrowUpRight
                     size={14}
@@ -210,9 +217,9 @@ export function KpiGrid({
                     className="text-text-mute shrink-0 opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100"
                   />
                 )}
-              </div>
-              <div className="flex items-end justify-between gap-3">
-                <p className="font-display text-text text-2xl leading-none font-bold whitespace-nowrap tabular-nums sm:text-3xl">
+              </p>
+              <div className="mt-1 flex items-center justify-between gap-3">
+                <p className="font-display text-text text-2xl leading-none font-bold whitespace-nowrap tabular-nums">
                   {kpi.value}
                 </p>
                 {kpi.trend && kpi.trend.length > 1 && (
@@ -220,11 +227,11 @@ export function KpiGrid({
                     data={kpi.trend}
                     fill="none"
                     ariaLabel={`${kpi.label}, last 12 months`}
-                    className="text-ink-purple hidden h-7 w-20 min-w-0 shrink sm:block"
+                    className="text-ink-purple hidden h-8 w-20 min-w-0 shrink sm:block"
                   />
                 )}
               </div>
-              <div className="flex min-w-0 items-center gap-2 text-xs">
+              <div className="mt-2 flex min-w-0 items-center gap-2 text-xs">
                 {hasDelta && <DeltaChip delta={kpi.delta!} lowerIsBetter={kpi.lowerIsBetter} />}
                 <span
                   className={cn(
@@ -239,24 +246,25 @@ export function KpiGrid({
                   {kpi.hint}
                 </span>
               </div>
-            </>
-          );
-          const cell = 'border-border flex min-w-0 flex-col gap-3 border-t border-l p-4 sm:p-5';
-          return linked ? (
-            <Link
-              key={kpi.key}
-              href={kpi.href}
-              className={cn(cell, 'group hover:bg-glass-strong transition-colors')}
-            >
-              {body}
-            </Link>
-          ) : (
-            <div key={kpi.key} className={cell}>
-              {body}
             </div>
-          );
-        })}
-      </div>
+          </>
+        );
+        const card =
+          'border-border bg-glass flex min-w-0 items-start gap-4 rounded-2xl border p-4 sm:p-5';
+        return linked ? (
+          <Link
+            key={kpi.key}
+            href={kpi.href}
+            className={cn(card, 'group hover:border-purple/40 transition-colors')}
+          >
+            {body}
+          </Link>
+        ) : (
+          <div key={kpi.key} className={card}>
+            {body}
+          </div>
+        );
+      })}
     </section>
   );
 }

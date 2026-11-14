@@ -1,13 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { SYSTEM_SETTINGS_SECTIONS } from '@/constants/admin-settings';
 import { useDemoDataAllowed } from '@/hooks/admin/use-demo-data';
 import { cn } from '@/lib/utils';
 
 export function SystemSettingsNav() {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   // "Demo data" is listed only in local development.
   const demo = useDemoDataAllowed();
 
@@ -16,30 +16,30 @@ export function SystemSettingsNav() {
       <ul className="grid grid-cols-2 gap-1.5 sm:grid-cols-3 lg:grid-cols-1">
         {SYSTEM_SETTINGS_SECTIONS.filter((s) => s.id !== 'demo' || demo).map(
           ({ id, href, label, icon: Icon }) => {
-          const active = pathname === href;
-          const danger = id === 'danger';
-          return (
-            <li key={id}>
-              <Link
-                href={href}
-                aria-current={active ? 'page' : undefined}
-                className={cn(
-                  'flex min-h-11 items-center gap-2.5 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors',
-                  active
-                    ? danger
-                      ? 'border-danger/40 bg-danger/10 text-ink-red'
-                      : 'border-purple/40 bg-purple/12 text-text'
-                    : cn(
-                        'border-border text-text-dim hover:text-text hover:bg-glass',
-                        danger && 'text-ink-red/80',
-                      ),
-                )}
-              >
-                <Icon size={15} aria-hidden="true" className="shrink-0" />
-                {label}
-              </Link>
-            </li>
-          );
+            const active = pathname === href;
+            const danger = id === 'danger';
+            return (
+              <li key={id}>
+                <Link
+                  href={href}
+                  aria-current={active ? 'page' : undefined}
+                  className={cn(
+                    'flex min-h-11 items-center gap-2.5 rounded-xl border px-3 py-2 text-sm font-semibold transition-colors',
+                    active
+                      ? danger
+                        ? 'border-danger/40 bg-danger/10 text-ink-red'
+                        : 'border-purple/40 bg-purple/12 text-text'
+                      : cn(
+                          'border-border text-text-dim hover:text-text hover:bg-glass',
+                          danger && 'text-ink-red/80',
+                        ),
+                  )}
+                >
+                  <Icon size={15} aria-hidden="true" className="shrink-0" />
+                  {label}
+                </Link>
+              </li>
+            );
           },
         )}
       </ul>

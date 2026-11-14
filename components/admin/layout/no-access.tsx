@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { ArrowLeft, Lock } from 'lucide-react';
 import { Card } from '@/components/ui/card';
 import { ADMIN_HOME, findAdminNavItem } from '@/constants/admin-navigation';
@@ -18,7 +18,7 @@ export interface NoAccessProps {
 
 /** Shown in place of a page the admin's role can't open. */
 export function NoAccess({ pageLabel, role }: NoAccessProps) {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const currentRole = useAdminRole();
   const effectiveRole = role ?? currentRole;
   const label = pageLabel ?? findAdminNavItem(pathname)?.label ?? 'this page';

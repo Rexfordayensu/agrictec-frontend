@@ -27,6 +27,8 @@ export interface BarChartProps {
   maxBarThickness?: number;
   /** Keep all month labels visible on a compact annual chart. */
   showAllLabels?: boolean;
+  /** Category labels stay level; when they don't all fit, every other one shows instead. */
+  flatLabels?: boolean;
   /** Value-axis labels, e.g. (v) => "GHS 1.0K". */
   formatValue?: (value: number) => string;
   /** A top for the value axis when every bar is 0 (so the empty grid still reads as money). */
@@ -53,6 +55,7 @@ export function BarChart({
   onBarClick,
   maxBarThickness = 36,
   showAllLabels = false,
+  flatLabels = false,
   formatValue,
   emptyMax,
 }: BarChartProps) {
@@ -80,21 +83,32 @@ export function BarChart({
       legend: { ...baseOptions.plugins.legend, display: showLegend },
     },
     interaction: { mode: 'index', intersect: false },
-    ...((showAllLabels || formatValue || emptyMax) && {
+    ...((showAllLabels || flatLabels || formatValue || emptyMax) && {
       scales: {
         ...baseOptions.scales,
-        x: showAllLabels
+        x: flatLabels
           ? {
               ...baseOptions.scales.x,
               ticks: {
                 ...baseOptions.scales.x.ticks,
-                autoSkip: false,
+                autoSkip: true,
+                autoSkipPadding: 10,
                 minRotation: 0,
-                maxRotation: 50,
-                font: { size: 12 },
+                maxRotation: 0,
               },
             }
-          : baseOptions.scales.x,
+          : showAllLabels
+            ? {
+                ...baseOptions.scales.x,
+                ticks: {
+                  ...baseOptions.scales.x.ticks,
+                  autoSkip: false,
+                  minRotation: 0,
+                  maxRotation: 50,
+                  font: { size: 12 },
+                },
+              }
+            : baseOptions.scales.x,
         y: {
           ...baseOptions.scales.y,
           ...(emptyMax && allZero && { min: 0, suggestedMax: emptyMax }),

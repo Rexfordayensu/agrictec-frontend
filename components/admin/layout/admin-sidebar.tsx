@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useAdminPathname } from '@/hooks/admin/use-admin-pathname';
 import { ArrowLeft, X } from 'lucide-react';
 import { AdminBrand } from '@/components/admin/layout/admin-brand';
 import { AdminUserMenu } from '@/components/admin/layout/admin-user-menu';
@@ -34,7 +34,7 @@ const BADGE_LABEL: Record<AdminBadgeKey, string> = {
 
 /** Nav sections the role may use (empty sections are dropped), badges and the account menu. */
 function AdminSidebarContent({ onNavigate }: { onNavigate?: () => void }) {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const role = useAdminRole();
   const badges = useAdminDataStore((s) => s.badgeCounts);
   const sections = getAdminNavForRole(role);
@@ -119,7 +119,7 @@ export function AdminSidebar() {
 
 /** Below 1024px the sidebar is a slide-in drawer (focus trapped, Escape or backdrop closes). */
 export function AdminSidebarDrawer() {
-  const pathname = usePathname();
+  const pathname = useAdminPathname();
   const open = useAdminUiStore((s) => s.sidebarOpen);
   const close = useAdminUiStore((s) => s.closeSidebar);
   const panelRef = useRef<HTMLDivElement>(null);
