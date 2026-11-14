@@ -1,4 +1,5 @@
 'use client';
+import { TriangleAlert } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { AdminTable, type AdminColumn } from '@/components/admin/shared/admin-table';
 import { useAdminTable } from '@/hooks/admin/use-admin-table';
@@ -47,7 +48,20 @@ const columns: AdminColumn<ReviewItem>[] = [
     cell: (r) => formatTransactionMoney(r.entry.amount, r.entry.currency),
   },
   { key: 'status', header: 'Status', cell: (r) => <TransactionStatus entry={r.entry} /> },
-  { key: 'evidence', header: 'Evidence', cell: (r) => `${r.entry.evidence.length} files` },
+  {
+    key: 'evidence',
+    header: 'Evidence',
+    cell: (r) => (
+      <span>
+        {r.entry.evidence.length} files
+        {r.warnings?.length ? (
+          <span className="text-ink-gold mt-0.5 flex items-center gap-1 text-xs font-semibold">
+            <TriangleAlert size={13} aria-hidden="true" /> Check: seen on another account
+          </span>
+        ) : null}
+      </span>
+    ),
+  },
 ];
 
 export function TransactionReview() {
@@ -172,6 +186,19 @@ export function TransactionReview() {
               {formatTransactionMoney(t.amount, t.currency)} / {t.date}
             </p>
             <TransactionStatus entry={t} />
+            {selected?.warnings?.length ? (
+              <div
+                role="alert"
+                className="border-gold/40 bg-gold/10 text-ink-gold space-y-1.5 rounded-xl border p-3 text-sm"
+              >
+                {selected.warnings.map((warning) => (
+                  <p key={warning} className="flex gap-2">
+                    <TriangleAlert size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+                    {warning}
+                  </p>
+                ))}
+              </div>
+            ) : null}
             <dl className="grid grid-cols-2 gap-3 text-xs">
               <div>
                 <dt>Source</dt>

@@ -1,15 +1,10 @@
 import { backupSchema, type DataBackup } from '@/lib/data/backup-schema';
-import { safeProfile } from '@/lib/profile';
-import { defaultProfile } from '@/services/profile.service';
 import { assertWritable } from '@/lib/read-only';
 import { api } from '@/services/api';
 import { loadAllStores, resetAllStores } from '@/store';
 import { useAuthStore } from '@/store/auth-store';
-import { useChatStore } from '@/store/chat-store';
-import { useFarmStore } from '@/store/farm-store';
-import { useLoanStore } from '@/store/loan-store';
-import { useProfileStore, waitForProfileSaves } from '@/store/profile-store';
-import { useSettingsStore, waitForSettingsSaves } from '@/store/settings-store';
+import { waitForProfileSaves } from '@/store/profile-store';
+import { waitForSettingsSaves } from '@/store/settings-store';
 
 function currentUser(): string {
   const id = useAuthStore.getState().session?.userId;
@@ -17,36 +12,27 @@ function currentUser(): string {
   return id;
 }
 
-export function createDataBackup(): DataBackup {
-  const userId = currentUser();
-  const farm = useFarmStore.getState();
-  const settings = useSettingsStore.getState();
-  if (
-    [
-      farm.userId,
-      settings.userId,
-      useProfileStore.getState().userId,
-      useChatStore.getState().userId,
-    ].some((id) => id !== userId)
-  )
-    throw new Error('Your data is still loading. Please try again.');
-  return backupSchema.parse({
-    version: 1,
-    exportedAt: new Date().toISOString(),
-    profile: safeProfile(useProfileStore.getState().profile ?? defaultProfile(userId)),
-    records: farm.records,
-    momo: farm.momo,
-    diagnoses: farm.diagnoses, // The schema strips imageThumb from the returned backup.
-    chat: useChatStore.getState().messages,
-    settings: { language: settings.language, notifications: settings.notifications },
-    loanApplications:
-      useLoanStore.getState().userId === userId ? useLoanStore.getState().applications : [],
-  });
+/**
+ * The backup file is the server's own export (GET /me/export): it carries the server's signature,
+ * so only this unchanged file can be restored into this account.
+ */
+export async function createDataBackup(): Promise<unknown> {
+  currentUser();
+  const exported = await api<unknown>('/me/export');
+  backupSchema.parse(exported); // The file must be one we can restore.
+  return exported;
 }
 
-export async function importDataBackup(input: DataBackup): Promise<void> {
+/**
+ * Restores a backup. The records and MoMo entries are sent exactly as they are in the file (the
+ * signature covers them); `checked` is the same file, validated.
+ */
+export async function importDataBackup(
+  checked: DataBackup,
+  file: Record<string, unknown>,
+): Promise<void> {
   assertWritable();
-  const data = backupSchema.parse(input); // Validate again immediately before sending.
+  const data = backupSchema.parse(checked); // Validate again immediately before sending.
   const userId = currentUser();
   await Promise.all([waitForProfileSaves(), waitForSettingsSaves()]);
   if (currentUser() !== userId) throw new Error('Your session changed. Please try again.');
@@ -57,11 +43,12 @@ export async function importDataBackup(input: DataBackup): Promise<void> {
     body: {
       version: data.version,
       profile: data.profile,
-      records: data.records,
-      momo: data.momo,
+      records: file.records,
+      momo: file.momo,
       diagnoses: data.diagnoses,
       chat: data.chat,
       settings: data.settings,
+      signature: data.signature,
     },
   });
   resetAllStores();

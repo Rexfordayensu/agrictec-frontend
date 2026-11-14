@@ -251,7 +251,10 @@ function RecordForm({
         setDuplicate(values);
         return;
       }
-      if (error instanceof ApiError && error.code === 'receipt_required') {
+      if (
+        error instanceof ApiError &&
+        (error.code === 'receipt_required' || error.code === 'receipt_reused')
+      ) {
         setReceiptError(error.message);
         return;
       }

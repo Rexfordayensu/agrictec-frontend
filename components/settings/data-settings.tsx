@@ -18,7 +18,11 @@ export function DataSettings() {
   const fileRef = useRef<HTMLInputElement>(null);
   const lock = useRef(false);
   const [busy, setBusy] = useState(false);
-  const [pending, setPending] = useState<DataBackup | null>(null);
+  // The validated backup, and the file as read (its records and MoMo go back unchanged).
+  const [pending, setPending] = useState<{
+    checked: DataBackup;
+    file: Record<string, unknown>;
+  } | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmation, setConfirmation] = useState('');
 
@@ -30,7 +34,8 @@ export function DataSettings() {
     lock.current = true;
     setBusy(true);
     try {
-      setPending(parseDataBackup(await file.text()));
+      const text = await file.text();
+      setPending({ checked: parseDataBackup(text), file: JSON.parse(text) });
     } catch (error) {
       toast.error(error instanceof Error ? error.message : 'Could not read this backup');
     } finally {
@@ -43,7 +48,7 @@ export function DataSettings() {
     lock.current = true;
     setBusy(true);
     try {
-      await importDataBackup(pending);
+      await importDataBackup(pending.checked, pending.file);
       setPending(null);
       toast.success('Data imported successfully');
     } catch (error) {
@@ -107,10 +112,10 @@ export function DataSettings() {
             variant="ghost"
             icon={Download}
             disabled={busy}
-            onClick={() => {
+            onClick={async () => {
               try {
                 downloadFile(
-                  JSON.stringify(createDataBackup(), null, 2),
+                  JSON.stringify(await createDataBackup(), null, 2),
                   `AgriCtec_Data_${todayISO()}.json`,
                   'application/json',
                 );
@@ -172,7 +177,7 @@ export function DataSettings() {
         title="Replace your current data?"
         message={
           pending
-            ? `Restore the backup from ${formatDate(pending.exportedAt)} with ${pending.records.length} farm records and ${pending.momo.length} MoMo transactions? Your current profile, records, MoMo and settings will be replaced. Imported transactions become self-reported; receipts and transaction reviews are not restored. Crop diagnoses, assistant chat, identity verifications and loan applications stay as they are.`
+            ? `Restore the backup from ${formatDate(pending.checked.exportedAt)} with ${pending.checked.records.length} farm records and ${pending.checked.momo.length} MoMo transactions? Your current profile, records, MoMo and settings will be replaced. Imported transactions become self-reported; receipts and transaction reviews are not restored. Crop diagnoses, assistant chat, identity verifications and loan applications stay as they are.`
             : ''
         }
         confirmLabel="Replace and import"

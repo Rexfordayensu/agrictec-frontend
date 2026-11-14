@@ -148,6 +148,8 @@ export const backupSchema = z
     chat: z.array(chat).max(10000),
     settings,
     loanApplications: z.array(loan).max(10000).default([]),
+    /** The server's seal on the records and MoMo entries (GET /me/export). */
+    signature: z.string().max(128).optional(),
   })
   .superRefine((backup, ctx) => {
     for (const name of ['records', 'momo', 'diagnoses', 'chat', 'loanApplications'] as const) {
