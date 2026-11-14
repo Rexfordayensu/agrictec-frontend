@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { MoreVertical, type LucideIcon } from 'lucide-react';
 import { useMounted } from '@/hooks/use-mounted';
@@ -20,7 +20,18 @@ const MENU_WIDTH = 208;
  * The ⋮ menu at the end of a table row. Rendered in a portal (a table's scroll area would clip
  * it), positioned under the button, with arrow-key navigation like the account menus.
  */
-export function RowMenu({ label, items }: { label: string; items: RowMenuItem[] }) {
+export function RowMenu({
+  label,
+  items,
+  button,
+  buttonClassName,
+}: {
+  label: string;
+  items: RowMenuItem[];
+  /** The button's content (the ⋮ icon by default), e.g. "Export" with a chevron. */
+  button?: ReactNode;
+  buttonClassName?: string;
+}) {
   const mounted = useMounted();
   const menuId = useId();
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -94,10 +105,13 @@ export function RowMenu({ label, items }: { label: string; items: RowMenuItem[] 
         aria-haspopup="menu"
         aria-expanded={open}
         aria-controls={open ? menuId : undefined}
-        aria-label={label}
-        className="text-text-dim hover:bg-glass-strong hover:text-text inline-flex size-9 items-center justify-center rounded-lg transition-colors"
+        aria-label={button ? undefined : label}
+        className={
+          buttonClassName ??
+          'text-text-dim hover:bg-glass-strong hover:text-text inline-flex size-9 items-center justify-center rounded-lg transition-colors'
+        }
       >
-        <MoreVertical size={16} aria-hidden="true" />
+        {button ?? <MoreVertical size={16} aria-hidden="true" />}
       </button>
       {mounted &&
         position &&

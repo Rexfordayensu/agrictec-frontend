@@ -2,147 +2,44 @@
 
 import { adminPath } from '@/lib/admin-path';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useCallback, useState } from 'react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
-  AppWindow,
   Ban,
-  BadgeCheck,
+  ChevronDown,
   Download,
   Eye,
   KeyRound,
-  MapPin,
+  PanelRight,
   RotateCcw,
-  ScanSearch,
-  Smartphone,
+  ShieldCheck,
   StickyNote,
+  Tags,
   UserRound,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { PageHeader } from '@/components/admin/layout/page-header';
-import {
-  AdminTable,
-  type AdminColumn,
-  type AdminMobileCardParts,
-} from '@/components/admin/shared/admin-table';
-import { RowMenu, type RowMenuItem } from '@/components/admin/shared/row-menu';
-import { StatusBadge } from '@/components/admin/shared/status-badge';
-import { InitialsAvatar } from '@/components/admin/shared/initials-avatar';
 import { AddNoteDialog, ReactivateDialog } from '@/components/admin/farmers/farmer-action-dialogs';
 import { ResetPasswordDialog } from '@/components/admin/farmers/detail/reset-password-dialog';
-import { FarmerQuickViewModal } from '@/components/admin/farmers/farmer-quick-view-modal';
+import { FarmerPanel } from '@/components/admin/farmers/directory/farmer-panel';
+import { FarmerSummaryCards } from '@/components/admin/farmers/directory/farmer-summary-cards';
+import { FarmerTable } from '@/components/admin/farmers/directory/farmer-table';
+import { FarmerToolbar, StatusTabs } from '@/components/admin/farmers/directory/farmer-toolbar';
 import { csvFileName, FarmersBulkActions } from '@/components/admin/farmers/farmers-bulk-actions';
-import { FarmersFilters } from '@/components/admin/farmers/farmers-filters';
 import { SuspendDialog } from '@/components/admin/farmers/suspend-dialog';
 import { TagEditor } from '@/components/admin/farmers/tag-editor';
 import { useViewAsFarmer } from '@/components/admin/farmers/use-view-as-farmer';
-import { Button } from '@/components/ui/button';
-import { CropIcon, cropFromName } from '@/components/ui/crop-icon';
+import { RowMenu, type RowMenuItem } from '@/components/admin/shared/row-menu';
 import { useServerTable } from '@/hooks/admin/use-server-table';
 import { useAdminRole } from '@/hooks/admin/use-can';
 import { usePlatformStatus } from '@/hooks/admin/use-platform-status';
 import { farmerAbilities, FARMER_FILTERS } from '@/lib/admin/farmer-list';
-import { bandTone, MAX_SCORE } from '@/lib/admin/score-tone';
-import { scoreLabel } from '@/lib/calculations/credit-score';
 import { downloadFile } from '@/lib/export/csv';
-import { formatCompactGHS, formatDate } from '@/lib/format';
+import { replaceQuery } from '@/lib/url-state';
 import { cn } from '@/lib/utils';
 import { farmersService, type FarmerPage } from '@/services/admin/farmers.service';
 import { riskService } from '@/services/admin/risk.service';
-import { RiskTag } from '@/components/admin/risk/risk-tag';
 import { useAdminDataStore } from '@/store/admin/admin-data-store';
 import type { FarmerAccount } from '@/types/admin';
-
-const nameOf = (f: FarmerAccount) => f.profile.name || f.email;
-
-function FarmerAvatar({ farmer, size = 'md' }: { farmer: FarmerAccount; size?: 'md' | 'lg' }) {
-  return <InitialsAvatar name={nameOf(farmer)} size={size} />;
-}
-
-/** Name over email. */
-function FarmerName({ farmer }: { farmer: FarmerAccount }) {
-  return (
-    <span className="flex min-w-0 items-center gap-3">
-      <FarmerAvatar farmer={farmer} />
-      <span className="min-w-0">
-        <span className="flex max-w-56 items-center gap-1.5">
-          <span className="truncate">{nameOf(farmer)}</span>
-          <RiskTag count={farmer.riskConfirmed} />
-        </span>
-        <span className="text-text-mute block max-w-48 truncate text-xs font-normal">
-          {farmer.email}
-        </span>
-      </span>
-    </span>
-  );
-}
-
-/** Constituency and region over the main crop (then "+N" more; all of them in the tooltip). */
-function FarmCell({ farmer }: { farmer: FarmerAccount }) {
-  const crops = farmer.profile.primaryCrops;
-  return (
-    <span className="block min-w-0">
-      <span className="text-text block whitespace-nowrap">
-        {farmer.profile.constituency && (
-          <span className="text-text-dim">{farmer.profile.constituency}, </span>
-        )}
-        {farmer.profile.region}
-      </span>
-      {crops.length > 0 ? (
-        <span
-          title={crops.join(', ')}
-          className="text-text-mute mt-0.5 flex items-center gap-1 text-xs whitespace-nowrap"
-        >
-          <CropIcon crop={cropFromName(crops[0])} size={12} />
-          {crops[0]}
-          {crops.length > 1 && <span>+{crops.length - 1}</span>}
-        </span>
-      ) : (
-        <span className="text-text-mute mt-0.5 block text-xs">No crops yet</span>
-      )}
-    </span>
-  );
-}
-
-/** Score and band over a slim bar. */
-function ScoreCell({
-  farmer,
-  bands,
-}: {
-  farmer: FarmerAccount;
-  bands: Parameters<typeof scoreLabel>[1];
-}) {
-  const label = scoreLabel(farmer.stats.score, bands);
-  const tone = bandTone(label);
-  return (
-    <span className="block w-28">
-      <span className="flex items-baseline gap-1.5 whitespace-nowrap">
-        <span className="text-text font-semibold tabular-nums">{farmer.stats.score}</span>
-        <span className={cn('text-xs font-semibold', tone.text)}>{label}</span>
-      </span>
-      <span aria-hidden="true" className="bg-glass-strong mt-1.5 block h-1 rounded-full">
-        <span
-          className={cn('block h-full rounded-full', tone.bar)}
-          style={{ width: `${Math.min(100, (farmer.stats.score / MAX_SCORE) * 100)}%` }}
-        />
-      </span>
-    </span>
-  );
-}
-
-/** Income over the number of records. */
-function IncomeCell({ farmer }: { farmer: FarmerAccount }) {
-  return (
-    <span className="block whitespace-nowrap">
-      <span className="text-text block font-semibold tabular-nums">
-        {formatCompactGHS(farmer.stats.income)}
-      </span>
-      <span className="text-text-mute block text-xs">
-        {farmer.stats.records} record{farmer.stats.records === 1 ? '' : 's'}
-      </span>
-    </span>
-  );
-}
 
 type Dialog =
   | { type: 'suspend'; farmers: FarmerAccount[] }
@@ -152,73 +49,51 @@ type Dialog =
   | { type: 'tag'; farmers: FarmerAccount[] }
   | null;
 
-/** Three small icons: phone, location, Ghana Card (green when verified). */
-function VerifiedIcons({ farmer }: { farmer: FarmerAccount }) {
-  const v = farmer.profile.verification;
-  const items = [
-    { label: 'Phone', icon: Smartphone, done: v.phone },
-    { label: 'Location', icon: MapPin, done: v.location },
-    { label: 'Ghana Card', icon: BadgeCheck, done: v.ghanaCard },
-  ];
-  // A card waiting for review shows gold ("Ghana Card pending review").
-  const cardPending = farmer.profile.ghanaCard.status === 'pending';
-  const stateOf = (label: string, done: boolean) =>
-    `${label} ${done ? 'verified' : label === 'Ghana Card' && cardPending ? 'pending review' : 'not verified'}`;
-  return (
-    <span className="inline-flex items-center gap-1">
-      {items.map(({ label, icon: Icon, done }) => (
-        <span
-          key={label}
-          title={stateOf(label, done)}
-          className={cn(
-            'inline-flex size-6 items-center justify-center rounded-md',
-            done
-              ? 'bg-accent/15 text-ink-green'
-              : label === 'Ghana Card' && cardPending
-                ? 'bg-gold/15 text-ink-gold'
-                : 'bg-glass-strong text-text-mute/60',
-          )}
-        >
-          <Icon size={13} aria-label={stateOf(label, done)} />
-        </span>
-      ))}
-    </span>
-  );
-}
-
-/** The farmers list: search, filters (in the URL), sort, pagination, row and bulk actions. */
+/**
+ * All Farmers: the totals, the directory (search, filters, sort and pages done by the API) and
+ * the selected farmer's panel. Everything comes from the database and reloads by itself when the
+ * console hears a change (Server-Sent Events): a sign-up, a suspension, a verification, a record.
+ * The open farmer is in the URL (?farmer=), so a refresh or a shared link reopens it.
+ */
 export function FarmersTable() {
   const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
   const role = useAdminRole();
   const abilities = farmerAbilities(role);
   const refresh = useAdminDataStore((s) => s.refresh);
   const syncVersion = useAdminDataStore((s) => s.syncVersion);
-  // Reloads the page on screen after a change made here.
+  // Reloads the list and the panel after a change made here.
   const [edits, setEdits] = useState(0);
   const viewAsFarmer = useViewAsFarmer();
   const bands = usePlatformStatus()?.creditConfig.bands;
-  const [quickView, setQuickView] = useState<FarmerAccount | null>(null);
   const [dialog, setDialog] = useState<Dialog>(null);
   const [scanning, setScanning] = useState(false);
   const [exporting, setExporting] = useState(false);
 
-  // The API searches, filters, sorts and pages (guests left out): this browser only ever holds
-  // the page on screen, never every farmer's details.
   const { table, data, loading, error, request } = useServerTable<FarmerAccount, FarmerPage>({
     getRowId: (f) => f.userId,
     filterNames: FARMER_FILTERS,
-    fetchPage: (params, signal) => farmersService.page(params, signal),
+    fetchPage: (query, signal) => farmersService.page(query, signal),
     initialSort: { key: 'joined', dir: 'desc' },
+    pageSize: 20,
     reloadKey: `${syncVersion}:${edits}`,
   });
 
-  const regions = data?.facets.regions ?? [];
-  const crops = data?.facets.crops ?? [];
-  const tags = data?.facets.tags ?? [];
+  const openId = params.get('farmer');
+  const setOpenId = useCallback(
+    (id: string | null) => {
+      const next = new URLSearchParams(window.location.search);
+      if (id) next.set('farmer', id);
+      else next.delete('farmer');
+      replaceQuery(pathname, next);
+    },
+    [pathname],
+  );
+  const closePanel = useCallback(() => setOpenId(null), [setOpenId]);
 
   async function afterChange() {
     setDialog(null);
-    setQuickView(null);
     table.clearSelection();
     setEdits((n) => n + 1);
     await refresh();
@@ -242,15 +117,21 @@ export function FarmersTable() {
     }
   }
 
-  async function exportFiltered() {
+  async function exportFarmers(ids: string[] | 'filtered') {
     setExporting(true);
     try {
-      // Every farmer matching the search and filters, not just this page.
-      const { page: _page, pageSize: _size, ...filters } = request;
-      void [_page, _size];
-      const ids = (await farmersService.page({ ...filters, ids: '1', pageSize: '1' })).ids ?? [];
-      downloadFile(await farmersService.exportCSV(ids), csvFileName('filtered'));
-      toast.success(`Exported ${ids.length} farmer${ids.length === 1 ? '' : 's'}`);
+      let list = ids;
+      if (list === 'filtered') {
+        // Every farmer matching the search and filters, not just this page.
+        const { page: _page, pageSize: _size, ...filters } = request;
+        void [_page, _size];
+        list = (await farmersService.page({ ...filters, ids: '1', pageSize: '1' })).ids ?? [];
+      }
+      downloadFile(
+        await farmersService.exportCSV(list),
+        csvFileName(ids === 'filtered' ? 'filtered' : 'selected'),
+      );
+      toast.success(`Exported ${list.length} farmer${list.length === 1 ? '' : 's'}`);
     } catch (cause) {
       toast.error(cause instanceof Error ? cause.message : 'Could not export');
     } finally {
@@ -258,14 +139,18 @@ export function FarmersTable() {
     }
   }
 
-  function menuItems(farmer: FarmerAccount): RowMenuItem[] {
+  function menuItems(farmer: FarmerAccount, inPanel = false): RowMenuItem[] {
     return [
-      {
-        label: 'View details',
-        icon: UserRound,
-        onSelect: () => router.push(adminPath(`/admin/farmers/${farmer.userId}`)),
-      },
-      { label: 'Quick view', icon: AppWindow, onSelect: () => setQuickView(farmer) },
+      ...(inPanel
+        ? []
+        : [
+            { label: 'Open details', icon: PanelRight, onSelect: () => setOpenId(farmer.userId) },
+            {
+              label: 'View full profile',
+              icon: UserRound,
+              onSelect: () => router.push(adminPath(`/admin/farmers/${farmer.userId}`)),
+            },
+          ]),
       ...(abilities.suspend
         ? [
             farmer.status === 'suspended'
@@ -300,176 +185,171 @@ export function FarmersTable() {
             },
           ]
         : []),
+      ...(abilities.tag && inPanel
+        ? [
+            {
+              label: 'Edit tags',
+              icon: Tags,
+              onSelect: () => setDialog({ type: 'tag', farmers: [farmer] }),
+            },
+          ]
+        : []),
       ...(abilities.impersonate
         ? [{ label: 'View as farmer', icon: Eye, onSelect: () => void viewAsFarmer(farmer) }]
         : []),
     ];
   }
 
-  const columns: AdminColumn<FarmerAccount>[] = [
+  const exportItems: RowMenuItem[] = [
     {
-      key: 'farmer',
-      header: 'Farmer',
-      sortable: true,
-      primary: true,
-      cell: (f) => <FarmerName farmer={f} />,
+      label: `All filtered (${table.total.toLocaleString()})`,
+      icon: Download,
+      onSelect: () => void exportFarmers('filtered'),
     },
-    // Columns appear as the screen widens; the Sort menu covers the hidden ones.
-    {
-      key: 'region',
-      header: 'Farm',
-      sortable: true,
-      className: 'hidden xl:table-cell',
-      cell: (f) => <FarmCell farmer={f} />,
-    },
-    {
-      key: 'score',
-      header: 'AgriCtec score',
-      sortable: true,
-      cell: (f) => <ScoreCell farmer={f} bands={bands} />,
-    },
-    {
-      key: 'income',
-      header: 'Income',
-      sortable: true,
-      className: 'hidden xl:table-cell',
-      cell: (f) => <IncomeCell farmer={f} />,
-    },
-    {
-      key: 'verified',
-      header: 'Verified',
-      sortable: true,
-      className: 'hidden min-[1400px]:table-cell',
-      cell: (f) => <VerifiedIcons farmer={f} />,
-    },
-    {
-      key: 'status',
-      header: 'Status',
-      sortable: true,
-      cell: (f) => <StatusBadge kind="account" status={f.status} />,
-    },
-    {
-      key: 'joined',
-      header: 'Joined',
-      sortable: true,
-      className: 'hidden min-[1440px]:table-cell',
-      cell: (f) => (
-        <span className="text-text-dim whitespace-nowrap">{formatDate(new Date(f.createdAt))}</span>
-      ),
-    },
-    {
-      key: 'menu',
-      header: '',
-      className: 'w-12',
-      cell: (f) => <RowMenu label={`Actions for ${nameOf(f)}`} items={menuItems(f)} />,
-    },
+    ...(table.selectedRows.length > 0
+      ? [
+          {
+            label: `Selected (${table.selectedRows.length})`,
+            icon: Download,
+            onSelect: () => void exportFarmers(table.selectedRows.map((f) => f.userId)),
+          },
+        ]
+      : []),
   ];
 
-  /** Phones: name, status and menu on top; location; then score, income and verification. */
-  function mobileCard(f: FarmerAccount, { opener, checkbox }: AdminMobileCardParts) {
-    return (
-      <div className="space-y-3">
-        <div className="flex items-start gap-3">
-          {checkbox && <span className="pt-3">{checkbox}</span>}
-          <FarmerAvatar farmer={f} size="lg" />
-          <div className="min-w-0 flex-1">
-            {opener(<span className="block truncate">{nameOf(f)}</span>)}
-            <p className="text-text-mute truncate text-xs">{f.email}</p>
-            <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
-              <StatusBadge kind="account" status={f.status} />
-              <RiskTag count={f.riskConfirmed} />
-            </div>
-          </div>
-          <RowMenu label={`Actions for ${nameOf(f)}`} items={menuItems(f)} />
-        </div>
-        <div className="border-border grid grid-cols-2 gap-3 border-t pt-3 text-sm">
-          <FarmCell farmer={f} />
-          <ScoreCell farmer={f} bands={bands} />
-          <IncomeCell farmer={f} />
-          <span className="self-center">
-            <VerifiedIcons farmer={f} />
-          </span>
-        </div>
-      </div>
-    );
-  }
+  const filters = table.filters;
+  const hasFilters = Boolean(table.query) || Object.values(filters).some(Boolean);
+  const openRow = openId ? table.pageRows.find((f) => f.userId === openId) : undefined;
 
   return (
-    <div className="space-y-5">
-      <PageHeader
-        title="All Farmers"
-        description="Search, filter and manage every farmer account."
-        actions={
-          <>
-            {abilities.riskScan && (
-              <Button
-                variant="ghost"
-                icon={ScanSearch}
-                loading={scanning}
-                onClick={() => void runScan()}
-              >
-                Run risk scan
-              </Button>
-            )}
-            {abilities.export && (
-              <Button
-                variant="ghost"
-                icon={Download}
-                loading={exporting}
-                disabled={table.total === 0}
-                onClick={() => void exportFiltered()}
-              >
-                Export
-                <span className="sr-only"> all filtered farmers</span>
-              </Button>
-            )}
-          </>
-        }
-      />
-
-      <FarmersFilters
-        table={table}
-        counts={data?.summary}
-        regions={regions}
-        crops={crops}
-        tags={tags}
-      />
-      {error && (
-        <p role="alert" className="text-ink-red text-sm font-semibold">
-          {error}
-        </p>
+    <div
+      className={cn(
+        openId && '2xl:grid 2xl:grid-cols-[minmax(0,1fr)_28rem] 2xl:items-start 2xl:gap-4',
       )}
+    >
+      <div className="min-w-0 space-y-5">
+        {/* Title and actions */}
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+          <div className="min-w-0">
+            <h1 className="font-display text-text text-display leading-tight font-bold">
+              All Farmers
+            </h1>
+            <p className="text-text-dim mt-1 text-sm">
+              Manage farmer accounts and identity verification.
+            </p>
+          </div>
+          <div className="flex shrink-0 flex-wrap items-center gap-2 sm:gap-3">
+            {abilities.riskScan && (
+              <button
+                type="button"
+                onClick={() => void runScan()}
+                disabled={scanning}
+                aria-busy={scanning}
+                className="border-purple/60 text-ink-purple hover:bg-purple/8 bg-bg-2 inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors disabled:opacity-60"
+              >
+                <ShieldCheck
+                  size={17}
+                  aria-hidden="true"
+                  className={cn(scanning && 'animate-pulse')}
+                />
+                {scanning ? 'Scanning…' : 'Run risk scan'}
+              </button>
+            )}
+            {abilities.export && (table.total === 0 || exporting) && (
+              <button
+                type="button"
+                disabled
+                className="border-border text-text bg-bg-2 inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold opacity-50"
+              >
+                <Download size={17} aria-hidden="true" />
+                {exporting ? 'Exporting…' : 'Export'}
+                <ChevronDown size={16} aria-hidden="true" />
+              </button>
+            )}
+            {abilities.export && table.total > 0 && !exporting && (
+              <RowMenu
+                label="Export farmers"
+                items={exportItems}
+                button={
+                  <>
+                    <Download size={17} aria-hidden="true" />
+                    Export
+                    <ChevronDown size={16} aria-hidden="true" />
+                  </>
+                }
+                buttonClassName="border-border text-text hover:border-purple/40 bg-bg-2 inline-flex min-h-11 items-center gap-2 rounded-xl border px-4 text-sm font-semibold transition-colors"
+              />
+            )}
+          </div>
+        </div>
 
-      <AdminTable
-        table={table}
-        columns={columns}
-        getRowId={(f) => f.userId}
-        caption="Farmers"
-        selectable={abilities.select}
-        rowLabel={nameOf}
-        onRowClick={setQuickView}
-        loading={loading && !data}
-        mobileCard={mobileCard}
-      />
+        <FarmerSummaryCards
+          summary={data?.summary}
+          active={{ status: filters.status ?? '', verification: filters.verification ?? '' }}
+          onFilter={(filter) => {
+            const changes: Record<string, string | null> = { status: null, verification: null };
+            if (filter) changes[filter.name] = filter.value;
+            const next = new URLSearchParams(window.location.search);
+            for (const [key, value] of Object.entries(changes)) {
+              if (value) next.set(key, value);
+              else next.delete(key);
+            }
+            next.delete('page');
+            replaceQuery(pathname, next);
+          }}
+        />
 
-      {abilities.select && (
-        <FarmersBulkActions
-          selected={table.selectedRows}
-          abilities={abilities}
-          onClear={table.clearSelection}
-          onSuspend={(list) => setDialog({ type: 'suspend', farmers: list })}
-          onTag={(list) => setDialog({ type: 'tag', farmers: list })}
+        <section
+          aria-label="Farmers directory"
+          className="border-border bg-bg-2 overflow-hidden rounded-2xl border"
+        >
+          <StatusTabs table={table} counts={data?.summary} />
+          <FarmerToolbar
+            table={table}
+            regions={data?.facets.regions ?? []}
+            crops={data?.facets.crops ?? []}
+            tags={data?.facets.tags ?? []}
+          />
+          {error && (
+            <p role="alert" className="text-ink-red px-4 pb-3 text-sm font-semibold">
+              {error}
+            </p>
+          )}
+          <FarmerTable
+            table={table}
+            bands={bands}
+            pendingChecks={data?.pendingChecks ?? {}}
+            selectedId={openId}
+            onOpen={(f) => setOpenId(f.userId)}
+            menuItems={(f) => menuItems(f)}
+            selectable={abilities.select}
+            loading={loading && !data}
+            hasFilters={hasFilters}
+          />
+        </section>
+
+        {abilities.select && (
+          <FarmersBulkActions
+            selected={table.selectedRows}
+            abilities={abilities}
+            onClear={table.clearSelection}
+            onSuspend={(list) => setDialog({ type: 'suspend', farmers: list })}
+            onTag={(list) => setDialog({ type: 'tag', farmers: list })}
+          />
+        )}
+      </div>
+
+      {openId && (
+        <FarmerPanel
+          key={openId}
+          farmerId={openId}
+          row={openRow}
+          pending={openRow ? data?.pendingChecks?.[openRow.userId] : undefined}
+          onClose={closePanel}
+          menuItems={(f) => menuItems(f, true)}
+          version={edits}
         />
       )}
-
-      <FarmerQuickViewModal
-        key={quickView?.userId ?? 'closed'}
-        farmer={quickView}
-        onClose={() => setQuickView(null)}
-        canSuspend={abilities.suspend}
-        onSuspend={(f) => setDialog({ type: 'suspend', farmers: [f] })}
-        onReactivate={(f) => setDialog({ type: 'reactivate', farmer: f })}
-      />
 
       <SuspendDialog
         farmers={dialog?.type === 'suspend' ? dialog.farmers : []}
@@ -478,7 +358,7 @@ export function FarmersTable() {
       />
       <TagEditor
         farmers={dialog?.type === 'tag' ? dialog.farmers : []}
-        knownTags={tags}
+        knownTags={data?.facets.tags ?? []}
         onClose={() => setDialog(null)}
         onDone={() => void afterChange()}
       />
