@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import {
   ArrowUpRight,
-  BadgeCheck,
+  CreditCard,
   Ban,
   Check,
   Circle,
@@ -16,9 +16,10 @@ import {
 import { GhanaCardModal } from '@/components/profile/ghana-card-modal';
 import { GpsField } from '@/components/profile/gps-field';
 import { PhoneVerifyModal } from '@/components/profile/phone-verify-modal';
+import { IconTile, type Tone } from '@/components/ui/icon-tile';
 import { Badge, type BadgeColor } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
+import { Card } from '@/components/ui/card';
 import { rejectionMessage } from '@/lib/verification';
 import { cn } from '@/lib/utils';
 import { usePlatformStore } from '@/store/platform-store';
@@ -120,7 +121,7 @@ export function VerificationGrid() {
     },
     {
       title: 'Ghana Card (AgriCtec review)',
-      icon: BadgeCheck,
+      icon: CreditCard,
       state: cardState,
       ...(cardState === 'todo' && { badgeLabel: 'Not provided' }),
       ...(cardState === 'verified' && { badgeLabel: 'Reviewed' }),
@@ -133,21 +134,8 @@ export function VerificationGrid() {
   ];
 
   return (
-    <Card className="rounded-3xl">
-      <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <BadgeCheck size={18} aria-hidden="true" className="text-icon" />
-            Identity & verification
-          </CardTitle>
-          <CardSub>
-            Build a more complete farmer profile. Your phone is checked by SMS; your farm location
-            and the Ghana Card number you enter are reviewed by our team (not an NIA identity
-            check).
-          </CardSub>
-        </div>
-      </CardHeader>
-      <div className="mb-5 grid grid-cols-1 gap-3 @xl:grid-cols-2 @4xl:grid-cols-4">
+    <Card className="verification-checks-card rounded-3xl">
+      <div className="verification-check-grid">
         {items.map(({ title, icon: Icon, state, badgeLabel, detail, action }) => {
           const badge = STATE_BADGE[state];
           const BadgeIcon = badge.icon;
@@ -155,36 +143,48 @@ export function VerificationGrid() {
           return (
             <div
               key={title}
-              className={cn(
-                'rounded-2xl border p-4',
-                verified ? 'border-accent/30 bg-accent/5' : 'border-border bg-bg-2/40',
-              )}
+              className={cn('verification-check', verified && 'verification-check-verified')}
             >
-              <div className="flex items-center justify-between gap-2">
-                <Icon
-                  size={20}
-                  aria-hidden="true"
-                  className={verified ? 'text-ink-green' : 'text-text-mute'}
-                />
-                <Badge color={badge.color}>
-                  <BadgeIcon size={11} aria-hidden="true" />
-                  {badgeLabel ?? badge.label}
-                </Badge>
+              <IconTile
+                icon={Icon}
+                tone={
+                  title === 'Ghana Card (AgriCtec review)'
+                    ? 'gold'
+                    : title === 'Account Created'
+                      ? 'green'
+                      : ('blue' as Tone)
+                }
+                size="lg"
+              />
+              <div className="verification-check-content">
+                <header>
+                  <h3>{title}</h3>
+                  <Badge color={badgeLabel === 'Not provided' ? 'gold' : badge.color}>
+                    <BadgeIcon size={12} aria-hidden="true" />
+                    {badgeLabel ?? badge.label}
+                  </Badge>
+                </header>
+                {title === 'Phone' && <p>Your phone is checked by SMS.</p>}
+                <p className={title === 'Phone' ? 'verification-phone-number' : undefined}>
+                  {detail}
+                </p>
+                {(state === 'todo' || state === 'rejected') && action && (
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={action.run}
+                    icon={ArrowUpRight}
+                    mutates
+                    className={
+                      title === 'Farm Location'
+                        ? 'verification-map-action'
+                        : 'verification-primary-action'
+                    }
+                  >
+                    {action.label}
+                  </Button>
+                )}
               </div>
-              <p className="text-text mt-3 text-sm font-semibold">{title}</p>
-              <p className="text-text-mute mt-1 text-xs leading-relaxed break-words">{detail}</p>
-              {(state === 'todo' || state === 'rejected') && action && (
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onClick={action.run}
-                  icon={ArrowUpRight}
-                  mutates
-                  className="mt-3"
-                >
-                  {action.label}
-                </Button>
-              )}
             </div>
           );
         })}

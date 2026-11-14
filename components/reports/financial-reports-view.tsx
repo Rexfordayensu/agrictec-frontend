@@ -5,6 +5,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { format, subMonths } from 'date-fns';
 import {
   ArrowDown,
+  ArrowDownRight,
   ArrowUp,
   CalendarDays,
   Coins,
@@ -36,7 +37,6 @@ import { saveBlob } from '@/lib/loans/application-status';
 import { formatSignedMoney } from '@/lib/transactions';
 import { cn } from '@/lib/utils';
 import { financialService } from '@/services/financial.service';
-import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
 import type { FinancialReport, FinancialSummary, ReportMonths } from '@/types/financial';
 
@@ -45,8 +45,11 @@ const title = 'text-text text-lg font-semibold';
 const MONTHS: ReportMonths[] = [3, 6, 12];
 
 /** "Jun 2026 – Nov 2026" for the last `months` months to today (display only). */
-const rangeLabel = (months: number, today = new Date()) =>
-  `${format(subMonths(today, months - 1), 'MMM yyyy')} – ${format(today, 'MMM yyyy')}`;
+export function reportRangeLabel(months: number, today = new Date(), compact = false) {
+  const start = subMonths(today, months - 1);
+  const firstFormat = compact && start.getFullYear() === today.getFullYear() ? 'MMM' : 'MMM yyyy';
+  return `${format(start, firstFormat)} – ${format(today, 'MMM yyyy')}`;
+}
 
 /**
  * Financial reports: the farmer's recorded figures for 3, 6 or 12 months, worked out by the
@@ -57,23 +60,17 @@ export function FinancialReportsView() {
   const [months, setMonths] = useState<ReportMonths>(6);
   const figures = useFinancialSummary(months);
   const summary = figures.summary?.period.months === months ? figures.summary : null;
-  const records = useFarmStore((s) => s.records);
-  const momo = useFarmStore((s) => s.momo);
-  const farmStatus = useFarmStore((s) => s.status);
-  const knownEmpty =
-    farmStatus === 'ready' && !records.some((r) => r.type !== 'activity') && momo.length === 0;
-  const emptyPeriod = summary ? !hasReportableFigures(summary) : knownEmpty;
   const saved = useSavedReports();
   const periodLabel = summary
     ? `${format(new Date(`${summary.period.from}T00:00:00`), 'MMM yyyy')} – ${format(new Date(`${summary.period.to}T00:00:00`), 'MMM yyyy')}`
-    : rangeLabel(months);
+    : reportRangeLabel(months);
 
   return (
     <div className="financial-reference @container space-y-5">
-      <header className="flex flex-col gap-4 @3xl:flex-row @3xl:items-end @3xl:justify-between">
+      <header className="report-hero">
         <div className="min-w-0">
           <h2 className="text-text text-display leading-tight font-bold tracking-tight">
-            Your financial report
+            Your financial report at a glance.
           </h2>
           <p className="text-text-dim mt-1.5 text-sm">
             A summary of your recorded farm transactions and financial performance.
@@ -99,7 +96,10 @@ export function FinancialReportsView() {
               ))}
             </select>
           </label>
-          <span className="text-text-dim text-sm">{periodLabel}</span>
+          <span className="report-hero-dates">
+            <CalendarDays size={16} aria-hidden="true" />
+            {periodLabel}
+          </span>
         </div>
       </header>
 
@@ -120,34 +120,18 @@ export function FinancialReportsView() {
         </div>
       ) : (
         <>
-          {emptyPeriod && (
-            <EmptyFinancialReport
-              months={months}
-              firstRecord={
-                summary.firstRecordedOn === undefined
-                  ? knownEmpty
-                  : summary.firstRecordedOn === null
-              }
-            />
-          )}
           <Stats summary={summary} />
-          <div className="report-body">
-            <div className="report-main">
-              <div className="report-charts">
-                <CashFlowPanel summary={summary} />
-                <CategoryPanel summary={summary} />
-              </div>
-              <RecentTransactionsPanel summary={summary} />
-            </div>
-            <div className="report-sidebar">
-              <DownloadPanel
-                key={months}
-                pageMonths={months}
-                summary={summary}
-                onCreated={saved.add}
-              />
-              <ReadinessPanel summary={summary} />
-            </div>
+          <div className="report-layout">
+            <CashFlowPanel summary={summary} />
+            <CategoryPanel summary={summary} />
+            <DownloadPanel
+              key={months}
+              pageMonths={months}
+              summary={summary}
+              onCreated={saved.add}
+            />
+            <RecentTransactionsPanel summary={summary} />
+            <ReadinessPanel summary={summary} />
           </div>
         </>
       )}
@@ -261,6 +245,11 @@ function Stat({
 }) {
   return (
     <div className={cn(dashPanel, 'report-stat flex gap-4', `report-stat-${tone}`)}>
+      {label !== 'Total transactions' && (
+        <span className="report-stat-direction" aria-hidden="true">
+          {tone === 'red' ? <ArrowDownRight size={24} /> : <TrendingUp size={24} />}
+        </span>
+      )}
       <span className="pt-1">
         <IconTile icon={icon} tone={tone} />
       </span>
@@ -349,7 +338,7 @@ function DownloadPanel({
       >
         {MONTHS.map((m) => (
           <option key={m} value={m}>
-            Last {m} months ({rangeLabel(m).replace(/ \d{4} –/, ' –')})
+            Last {m} months ({reportRangeLabel(m, new Date(), true)})
           </option>
         ))}
       </select>
@@ -379,16 +368,30 @@ function useSavedReports() {
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
-    financialService.reports().then(
-      (list) => {
-        if (!active) return;
-        setReports(list);
-        setError(null);
-      },
-      (cause) => active && setError(financialReportError(cause, 'reports')),
-    );
+    let version = 0;
+    function refresh() {
+      if (document.visibilityState !== 'visible') return;
+      const request = ++version;
+      financialService.reports().then(
+        (list) => {
+          if (!active || request !== version) return;
+          setReports(list);
+          setError(null);
+        },
+        (cause) => {
+          if (active && request === version) setError(financialReportError(cause, 'reports'));
+        },
+      );
+    }
+    refresh();
+    const timer = window.setInterval(refresh, 30_000);
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
     return () => {
       active = false;
+      window.clearInterval(timer);
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
     };
   }, [attempt]);
   return {
@@ -398,8 +401,14 @@ function useSavedReports() {
       setError(null);
       setAttempt((n) => n + 1);
     },
-    add: (report: FinancialReport) => setReports((list) => [report, ...(list ?? [])]),
-    remove: (id: string) => setReports((list) => (list ?? []).filter((r) => r.id !== id)),
+    add: (report: FinancialReport) => {
+      setReports((list) => [report, ...(list ?? []).filter((r) => r.id !== report.id)]);
+      setAttempt((n) => n + 1);
+    },
+    remove: (id: string) => {
+      setReports((list) => (list ?? []).filter((r) => r.id !== id));
+      setAttempt((n) => n + 1);
+    },
   };
 }
 

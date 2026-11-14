@@ -20,10 +20,12 @@ interface FarmState {
   diagnoses: Diagnosis[];
   status: StoreStatus;
   load: (userId: string, options?: LoadOptions) => Promise<void>;
-  addRecord: (input: NewRecordInput) => Promise<FarmRecord>;
+  /** With a receipt the record and receipt are saved together (mobile money: sent for review). */
+  addRecord: (input: NewRecordInput, receipt?: File) => Promise<FarmRecord>;
   updateRecord: (id: string, patch: Partial<NewRecordInput>) => Promise<FarmRecord>;
   deleteRecord: (id: string) => Promise<void>;
-  addMomo: (input: NewMomoInput) => Promise<MomoTransaction>;
+  /** A new MoMo transaction always comes with its receipt (sent for review). */
+  addMomo: (input: NewMomoInput, receipt: File) => Promise<MomoTransaction>;
   updateMomo: (id: string, patch: Partial<NewMomoInput>) => Promise<MomoTransaction>;
   deleteMomo: (id: string) => Promise<void>;
   /** A diagnosis the API saved with a scan: shown in the history at once. */
@@ -68,9 +70,11 @@ export const useFarmStore = create<FarmState>()((set, get) => {
       }
     },
 
-    addRecord: async (input) => {
+    addRecord: async (input, receipt) => {
       assertWritable();
-      const record = await recordsService.create(requireUser(), input);
+      const record = receipt
+        ? await recordsService.createWithReceipt(requireUser(), input, receipt)
+        : await recordsService.create(requireUser(), input);
       set((state) => ({ records: [record, ...state.records].sort(byNewest) }));
       return record;
     },
@@ -90,9 +94,9 @@ export const useFarmStore = create<FarmState>()((set, get) => {
       set((state) => ({ records: state.records.filter((r) => r.id !== id) }));
     },
 
-    addMomo: async (input) => {
+    addMomo: async (input, receipt) => {
       assertWritable();
-      const transaction = await momoService.create(requireUser(), input);
+      const transaction = await momoService.create(requireUser(), input, receipt);
       set((state) => ({ momo: [transaction, ...state.momo].sort(byNewest) }));
       return transaction;
     },
@@ -115,7 +119,10 @@ export const useFarmStore = create<FarmState>()((set, get) => {
     receiveDiagnosis: (diagnosis) => {
       if (get().userId !== diagnosis.userId) return;
       set((state) => ({
-        diagnoses: [diagnosis, ...state.diagnoses.filter((d) => d.id !== diagnosis.id)].slice(0, 10),
+        diagnoses: [diagnosis, ...state.diagnoses.filter((d) => d.id !== diagnosis.id)].slice(
+          0,
+          10,
+        ),
       }));
     },
 

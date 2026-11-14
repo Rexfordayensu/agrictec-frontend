@@ -13,6 +13,12 @@ import {
 import { Chart } from 'react-chartjs-2';
 import {
   ArrowRight,
+  ChartNoAxesColumnIncreasing,
+  ChartPie,
+  ClipboardCheck,
+  Layers,
+  List,
+  Plus,
   CircleCheck,
   Landmark,
   MoreHorizontal,
@@ -29,6 +35,8 @@ import { DoughnutChart } from '@/components/charts/doughnut-chart';
 import { useChartTheme } from '@/components/charts/use-chart-theme';
 import { dashPanel } from '@/components/dashboard/dashboard-ui';
 import { TransactionReviewModal } from '@/components/transactions/transaction-tools';
+import { Button } from '@/components/ui/button';
+import { IconTile } from '@/components/ui/icon-tile';
 import { Badge } from '@/components/ui/badge';
 import { formatDate, parseISODate } from '@/lib/format';
 import { readOnlyProps, READ_ONLY_CLASS, useReadOnly } from '@/lib/read-only';
@@ -124,7 +132,7 @@ export function CashFlowPanel({ summary }: { summary: FinancialSummary }) {
       className={cn(dashPanel, 'report-cashflow flex flex-col')}
     >
       <h2 id="cashflow-title" className="text-text text-lg font-bold">
-        Income, expenses and cash flow
+        <IconTile icon={ChartNoAxesColumnIncreasing} size="sm" /> Income, expenses and cash flow
       </h2>
       <div className="text-text mt-3 flex flex-wrap justify-end gap-x-4 gap-y-1 text-xs">
         <span className="flex items-center gap-1.5">
@@ -181,7 +189,7 @@ export function CategoryPanel({ summary }: { summary: FinancialSummary }) {
       className={cn(dashPanel, 'report-category @container')}
     >
       <h2 id="category-title" className="text-text text-lg font-bold">
-        Transaction by category
+        <IconTile icon={ChartPie} size="sm" /> Transaction by category
       </h2>
       {!groups ? (
         <p className="text-text-dim mt-4 text-sm">
@@ -191,6 +199,7 @@ export function CategoryPanel({ summary }: { summary: FinancialSummary }) {
         <div className="mt-5 grid grid-cols-1 items-center gap-3 @[18rem]:grid-cols-[8rem_minmax(0,1fr)]">
           <div className="mx-auto w-32">
             <DoughnutChart
+              emptyLabel={null}
               aspectRatio={1}
               showLegend={false}
               labels={groups.map((g) => g.label)}
@@ -201,11 +210,10 @@ export function CategoryPanel({ summary }: { summary: FinancialSummary }) {
                 .join(', ')}.`}
               centerLabel={
                 <span className="block text-center leading-tight">
-                  <span className="text-text block text-xs font-semibold">GHS</span>
-                  <span className="text-text block text-base font-extrabold">
-                    {formatTransactionMoney(summary.categoryTotal ?? '0.00').replace(/^GHS /, '')}
-                  </span>
                   <span className="text-text-dim block text-xs">Total</span>
+                  <span className="text-text block text-base font-extrabold">
+                    {formatTransactionMoney(summary.categoryTotal ?? '0.00')}
+                  </span>
                 </span>
               }
             />
@@ -279,10 +287,10 @@ export function RecentTransactionsPanel({ summary }: { summary: FinancialSummary
     >
       <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
         <h2 id="recent-tx-title" className="text-text text-lg font-bold">
-          Recent transactions
+          <IconTile icon={List} size="sm" /> Recent transactions
         </h2>
         <Link
-          href="/records"
+          href="/records?view=all"
           className="text-ink-green inline-flex items-center gap-1.5 text-sm font-semibold hover:underline"
         >
           View all transactions <ArrowRight size={15} aria-hidden="true" />
@@ -291,10 +299,6 @@ export function RecentTransactionsPanel({ summary }: { summary: FinancialSummary
       {!rows ? (
         <p className="text-text-dim py-6 text-center text-sm">
           Recent transactions are not available yet. Refresh after the server update.
-        </p>
-      ) : rows.length === 0 ? (
-        <p className="text-text-dim py-6 text-center text-sm">
-          No farm income or expenses yet. Your sales and costs will appear here.
         </p>
       ) : (
         <>
@@ -344,9 +348,28 @@ export function RecentTransactionsPanel({ summary }: { summary: FinancialSummary
               );
             })}
           </ul>
+          {rows.length < 5 && <RecentRecordsPrompt empty={rows.length === 0} />}
         </>
       )}
     </section>
+  );
+}
+
+function RecentRecordsPrompt({ empty }: { empty: boolean }) {
+  const openModal = useModalStore((s) => s.openModal);
+  return (
+    <div className="report-record-prompt">
+      <div className="report-record-illustration" aria-hidden="true">
+        <Sprout className="report-prompt-leaf" />
+        <ClipboardCheck />
+        <Sprout className="report-prompt-leaf" />
+      </div>
+      <h3>{empty ? 'No transactions yet.' : 'No more transactions yet.'}</h3>
+      <p>Add your farm income or expenses to see your transaction history here.</p>
+      <Button mutates icon={Plus} onClick={() => openModal('record')}>
+        Add a transaction
+      </Button>
+    </div>
   );
 }
 
@@ -505,7 +528,7 @@ export function ReadinessPanel({ summary }: { summary: FinancialSummary }) {
         id="readiness-report-title"
         className="text-text flex items-center gap-2 text-lg font-bold"
       >
-        Financial record readiness
+        <IconTile icon={Layers} size="sm" /> Financial record readiness
         <span title="What a lender usually looks for in your records, checked against your recorded figures. It is not a loan decision.">
           <svg
             width="16"

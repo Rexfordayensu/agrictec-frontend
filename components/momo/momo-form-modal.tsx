@@ -12,6 +12,7 @@ import {
   type MomoFormValues,
 } from '@/components/momo/momo-schema';
 import { NETWORK_STYLES } from '@/components/momo/momo-filters';
+import { MomoReceiptField } from '@/components/momo/momo-receipt-field';
 import { NetworkLogo } from '@/components/momo/network-logo';
 import { Button } from '@/components/ui/button';
 import { FormField, fieldErrorId, fieldHintId } from '@/components/ui/form-field';
@@ -28,6 +29,7 @@ import { todayISO } from '@/lib/format';
 import { cn } from '@/lib/utils';
 import { useFarmStore } from '@/store/farm-store';
 import { useModalStore } from '@/store/modal-store';
+import { ApiError } from '@/services/api';
 import type { MomoTransaction, NewMomoInput } from '@/types';
 
 const DIRECTIONS = [
@@ -87,6 +89,8 @@ export function MomoFormModal() {
   );
   const formId = useId();
   const [saving, setSaving] = useState(false);
+  // A new transaction can only be saved with its receipt.
+  const [hasReceipt, setHasReceipt] = useState(false);
 
   return (
     <Modal
@@ -98,8 +102,15 @@ export function MomoFormModal() {
           <Button variant="ghost" onClick={closeModal}>
             Cancel
           </Button>
-          <Button mutates type="submit" form={formId} loading={saving}>
-            {editing ? 'Update transaction' : 'Save transaction'}
+          <Button
+            mutates
+            type="submit"
+            form={formId}
+            loading={saving}
+            disabled={!editing && !hasReceipt}
+            title={!editing && !hasReceipt ? 'Add the MoMo receipt first' : undefined}
+          >
+            {editing ? 'Update transaction' : 'Send for review'}
           </Button>
         </>
       }
@@ -111,6 +122,7 @@ export function MomoFormModal() {
         defaults={defaults}
         onDone={closeModal}
         onSavingChange={setSaving}
+        onReceiptChange={setHasReceipt}
       />
     </Modal>
   );
@@ -122,14 +134,23 @@ function MomoForm({
   defaults,
   onDone,
   onSavingChange,
+  onReceiptChange,
 }: {
   formId: string;
   editing?: MomoTransaction;
   defaults?: Partial<NewMomoInput>;
   onDone: () => void;
   onSavingChange: (saving: boolean) => void;
+  onReceiptChange: (hasReceipt: boolean) => void;
 }) {
   const [duplicate, setDuplicate] = useState<MomoFormValues>();
+  const [receipt, setReceipt] = useState<File | null>(null);
+  const [receiptError, setReceiptError] = useState<string>();
+  function changeReceipt(file: File | null, error?: string) {
+    setReceipt(file);
+    setReceiptError(error);
+    onReceiptChange(file !== null);
+  }
   const addMomo = useFarmStore((s) => s.addMomo);
   const updateMomo = useFarmStore((s) => s.updateMomo);
 
@@ -147,6 +168,10 @@ function MomoForm({
   const network = useWatch({ control, name: 'network' });
 
   async function onSubmit(values: MomoFormValues, confirmed = false) {
+    if (!editing && !receipt) {
+      setReceiptError('Add the MoMo receipt. AgriCtec checks it before verifying the transaction.');
+      return;
+    }
     const input: NewMomoInput = {
       direction: values.direction,
       counterparty: values.counterparty,
@@ -165,14 +190,21 @@ function MomoForm({
         await updateMomo(editing.id, input);
         toast.success('Transaction updated');
       } else {
-        await addMomo(input);
-        toast.success('MoMo transaction saved');
+        await addMomo(input, receipt!);
+        toast.success('Transaction sent for review', {
+          description:
+            'AgriCtec will check the receipt and verify it. You will get a notification.',
+        });
       }
       reset();
       onDone();
     } catch (error) {
       if (isPossibleDuplicate(error)) {
         setDuplicate(values);
+        return;
+      }
+      if (error instanceof ApiError && error.code === 'receipt_required') {
+        setReceiptError(error.message);
         return;
       }
       toast.error(error instanceof Error ? error.message : 'Could not save the transaction');
@@ -349,6 +381,10 @@ function MomoForm({
           />
         </FormField>
       </div>
+
+      {!editing && (
+        <MomoReceiptField file={receipt} onChange={changeReceipt} error={receiptError} />
+      )}
     </form>
   );
 }

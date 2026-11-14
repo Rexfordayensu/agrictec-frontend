@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { ExternalLink, MapPin } from 'lucide-react';
+import { Circle, ExternalLink, LocateFixed, MapPin } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from '@/components/ui/badge';
+import { IconTile } from '@/components/ui/icon-tile';
 import { Button } from '@/components/ui/button';
 import { formatGPS } from '@/lib/format';
 import { usePlatformStore } from '@/store/platform-store';
@@ -62,29 +64,42 @@ export function GpsField() {
     );
   }
   return (
-    <div id="farm-location" className="border-border scroll-mt-24 border-t pt-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <p className="text-text text-sm font-semibold">Farm GPS location</p>
-          <p className="text-text-mute mt-1 text-xs tabular-nums">
-            {gps ? formatGPS(gps.lat, gps.lng) : 'Not set'}
-          </p>
-        </div>
-        <Button mutates variant="ghost" icon={MapPin} loading={loading} onClick={locate}>
+    <div id="farm-location" className="verification-gps scroll-mt-24">
+      <IconTile icon={LocateFixed} tone="gold" size="lg" />
+      <div className="verification-gps-content">
+        <h3>Farm GPS location</h3>
+        <p>
+          {gps
+            ? formatGPS(gps.lat, gps.lng)
+            : 'Not set. Add your current farm GPS location for better verification and loan processing.'}
+        </p>
+        {gps && (
+          <a
+            href={`https://www.google.com/maps?q=${gps.lat},${gps.lng}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-ink-green inline-flex items-center gap-1.5 text-xs font-semibold hover:underline"
+          >
+            Open in Google Maps <ExternalLink size={12} aria-hidden="true" />
+          </a>
+        )}
+      </div>
+      <div className="verification-gps-actions">
+        <Badge color={gps ? 'blue' : 'gold'}>
+          <Circle size={12} aria-hidden="true" />
+          {gps ? 'Set' : 'Not set'}
+        </Badge>
+        <Button
+          mutates
+          variant="ghost"
+          icon={MapPin}
+          loading={loading}
+          onClick={locate}
+          className="verification-primary-action"
+        >
           Get Current Location
         </Button>
       </div>
-      {gps && (
-        <a
-          href={`https://www.google.com/maps?q=${gps.lat},${gps.lng}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-ink-green mt-3 inline-flex min-h-9 items-center gap-1.5 text-xs font-semibold hover:underline"
-        >
-          Open in Google Maps
-          <ExternalLink size={12} aria-hidden="true" />
-        </a>
-      )}
     </div>
   );
 }

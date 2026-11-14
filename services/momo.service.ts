@@ -1,4 +1,4 @@
-import { api, apiBlob } from '@/services/api';
+import { api, apiBlob, apiUpload } from '@/services/api';
 import type { MomoTransaction, NewMomoInput } from '@/types';
 import type { MomoSummary } from '@/types/momo-summary';
 
@@ -21,9 +21,15 @@ export const momoService = {
     return api<MomoSummary>('/me/momo/summary', { signal });
   },
 
-  /** A missing reference stays unknown; no reference is invented. */
-  async create(_userId: string, input: NewMomoInput): Promise<MomoTransaction> {
-    return api<MomoTransaction>('/me/momo', { method: 'POST', body: input });
+  /**
+   * Saves the transaction together with its MoMo receipt; the server sends it straight to
+   * AgriCtec's review. A missing reference stays unknown; no reference is invented.
+   */
+  async create(_userId: string, input: NewMomoInput, receipt: File): Promise<MomoTransaction> {
+    const form = new FormData();
+    form.append('data', JSON.stringify(input));
+    form.append('receipt', receipt, receipt.name);
+    return apiUpload<MomoTransaction>('/me/momo', form, () => undefined);
   },
 
   async update(
