@@ -5,7 +5,7 @@ import { SettingsNav } from '@/components/settings/settings-nav';
 export default function SettingsLayout({ children }: { children: ReactNode }) {
   return (
     <div className="@container">
-      <div className="grid grid-cols-1 gap-6 @5xl:grid-cols-[260px_minmax(0,1fr)] @5xl:items-start">
+      <div className="settings-layout-grid grid grid-cols-1 gap-6 @5xl:grid-cols-[260px_minmax(0,1fr)] @5xl:items-start">
         <SettingsNav />
         <div className="@container min-w-0">{children}</div>
       </div>

@@ -8,12 +8,15 @@ import {
   ExternalLink,
   Fingerprint,
   Hourglass,
+  Info,
+  Circle,
   LockKeyhole,
   RefreshCw,
   ShieldCheck,
   type LucideIcon,
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { VerificationArt, VerificationLandscape } from '@/components/profile/verification-art';
 import { Badge, type BadgeColor } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
@@ -42,7 +45,7 @@ const STATUS_BADGE: Record<string, { label: string; color: BadgeColor; icon: Luc
   requires_review: { label: 'Under review', color: 'gold', icon: Hourglass },
   failed: { label: 'Not completed', color: 'red', icon: CircleAlert },
   expired: { label: 'Expired', color: 'red', icon: CircleAlert },
-  not_started: { label: 'Not started', color: 'blue', icon: Fingerprint },
+  not_started: { label: 'Not started', color: 'blue', icon: Circle },
 };
 
 /**
@@ -108,93 +111,98 @@ export function IdentityVerificationCard() {
   const BadgeIcon = badge?.icon ?? Fingerprint;
 
   return (
-    <Card className="mb-5 rounded-3xl">
-      <CardHeader>
-        <div>
-          <CardTitle className="flex items-center gap-2">
-            <Fingerprint size={18} aria-hidden="true" className="text-icon" />
-            Ghana Card verification
-          </CardTitle>
-          <CardSub>
-            Confirms you are the person on your Ghana Card, through the National Identification
-            Authority&apos;s approved verification platform.
-          </CardSub>
-        </div>
-        {state && badge && (
-          <Badge color={badge.color}>
-            <BadgeIcon size={11} aria-hidden="true" />
-            {badge.label}
-          </Badge>
-        )}
-      </CardHeader>
-
-      {error && !state ? (
-        <div role="alert" className="text-sm">
-          <p className="text-ink-red">{error}</p>
-          <Button
-            size="sm"
-            variant="ghost"
-            icon={RefreshCw}
-            className="mt-2"
-            onClick={() => void load()}
-          >
-            Try again
-          </Button>
-        </div>
-      ) : !state ? (
-        <LogoLoader center label="Loading your verification status" className="min-h-40" />
-      ) : (
-        <div className="space-y-5">
-          {state.attempt?.simulated && (
-            <p className="border-gold/40 bg-gold/10 text-ink-gold rounded-xl border px-3 py-2 text-xs">
-              Simulated verification (development only). No Ghana Card, NIA record or face check is
-              involved, and this never counts on the live platform.
-            </p>
-          )}
-          <Body
-            state={state}
-            started={started}
-            consented={consented}
-            setConsented={setConsented}
-            simulate={simulate}
-            setSimulate={setSimulate}
-            busy={busy}
-            readOnly={readOnly}
-            onStart={() => void begin('start')}
-            onRetry={() => void begin('retry')}
-            onRefresh={() => void load()}
-          />
-          <Requirements state={state} />
-          {state.attempt && (
+    <>
+      <Card className="identity-reference-card mb-5 rounded-3xl">
+        <VerificationLandscape />
+        <VerificationArt />
+        <div className="identity-reference-content">
+          <CardHeader>
             <div>
-              {history === null ? (
-                <button
-                  type="button"
-                  onClick={() => void showHistory()}
-                  className="text-ink-green text-xs font-semibold hover:underline"
-                >
-                  Show verification history
-                </button>
-              ) : (
-                <ol className="divide-border border-border divide-y rounded-xl border text-xs">
-                  {history.map((a) => (
-                    <li key={a.id} className="flex flex-wrap justify-between gap-2 px-3 py-2">
-                      <span className="text-text-dim">
-                        Attempt {a.attemptCount} · {formatGhanaDate(a.initiatedAt)}
-                        {a.simulated ? ' · simulated' : ''}
-                      </span>
-                      <span className="text-text font-semibold">
-                        {STATUS_BADGE[a.status]?.label ?? a.status}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+              <div className="identity-title-row">
+                <CardTitle>Ghana Card verification</CardTitle>
+                {state && badge && (
+                  <Badge color={badge.color}>
+                    <BadgeIcon size={12} aria-hidden="true" />
+                    {badge.label}
+                  </Badge>
+                )}
+              </div>
+              <CardSub>
+                Confirms you are the person on your Ghana Card, through the National Identification
+                Authority&apos;s approved verification platform.
+              </CardSub>
+            </div>
+          </CardHeader>
+
+          {error && !state ? (
+            <div role="alert" className="text-sm">
+              <p className="text-ink-red">{error}</p>
+              <Button
+                size="sm"
+                variant="ghost"
+                icon={RefreshCw}
+                className="mt-2"
+                onClick={() => void load()}
+              >
+                Try again
+              </Button>
+            </div>
+          ) : !state ? (
+            <LogoLoader center label="Loading your verification status" className="min-h-40" />
+          ) : (
+            <div className="space-y-5">
+              {state.attempt?.simulated && (
+                <p className="border-gold/40 bg-gold/10 text-ink-gold rounded-xl border px-3 py-2 text-xs">
+                  Simulated verification (development only). No Ghana Card, NIA record or face check
+                  is involved, and this never counts on the live platform.
+                </p>
+              )}
+              <Body
+                state={state}
+                started={started}
+                consented={consented}
+                setConsented={setConsented}
+                simulate={simulate}
+                setSimulate={setSimulate}
+                busy={busy}
+                readOnly={readOnly}
+                onStart={() => void begin('start')}
+                onRetry={() => void begin('retry')}
+                onRefresh={() => void load()}
+              />
+              {state.attempt && (
+                <div>
+                  {history === null ? (
+                    <button
+                      type="button"
+                      onClick={() => void showHistory()}
+                      className="text-ink-green text-xs font-semibold hover:underline"
+                    >
+                      Show verification history
+                    </button>
+                  ) : (
+                    <ol className="divide-border border-border divide-y rounded-xl border text-xs">
+                      {history.map((a) => (
+                        <li key={a.id} className="flex flex-wrap justify-between gap-2 px-3 py-2">
+                          <span className="text-text-dim">
+                            Attempt {a.attemptCount} · {formatGhanaDate(a.initiatedAt)}
+                            {a.simulated ? ' · simulated' : ''}
+                          </span>
+                          <span className="text-text font-semibold">
+                            {STATUS_BADGE[a.status]?.label ?? a.status}
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  )}
+                </div>
               )}
             </div>
           )}
         </div>
-      )}
-    </Card>
+      </Card>
+      {state && <Requirements state={state} />}
+    </>
   );
 }
 
@@ -311,13 +319,16 @@ function Body({
 
   if (!state.provider.available) {
     return (
-      <div className="border-border bg-bg-2/40 rounded-2xl border p-4">
-        <p className="text-text font-semibold">Not available yet</p>
-        <p className="text-text-dim mt-1 text-sm">
-          Ghana Card verification with NIA is not available yet. AgriCtec is completing onboarding
-          with the National Identification Authority. Until then, add your Ghana Card below for an
-          AgriCtec review. Your current level: <strong>{LEVEL_LABEL[state.level]}</strong>.
-        </p>
+      <div className="identity-unavailable rounded-2xl border p-4">
+        <Info className="identity-notice-icon" size={25} aria-hidden="true" />
+        <div>
+          <p className="text-text font-semibold">NIA verification is not yet available</p>
+          <p className="text-text-dim mt-1 text-sm">
+            Ghana Card verification with NIA is not available yet. AgriCtec is completing onboarding
+            with the National Identification Authority. Until then, add your Ghana Card below for an
+            AgriCtec review. Your current level: <strong>{LEVEL_LABEL[state.level]}</strong>.
+          </p>
+        </div>
       </div>
     );
   }
@@ -417,8 +428,14 @@ function PrivacyNotice({ version }: { version: string }) {
 function Requirements({ state }: { state: IdentityState }) {
   if (state.requirements.length === 0) return null;
   return (
-    <div>
-      <p className="text-text text-sm font-semibold">What needs verification</p>
+    <section
+      className={cn(
+        'verification-requirements',
+        state.requirements.length > 1 && 'verification-requirements-multiple',
+      )}
+    >
+      <h3>What needs verification</h3>
+      <p>Apply for a loan through AgriCtec by completing your identity and farm verification.</p>
       <ul className="mt-2 space-y-1.5">
         {state.requirements.map((r) => (
           <li key={r.feature} className="flex flex-wrap items-center justify-between gap-2 text-sm">
@@ -433,6 +450,6 @@ function Requirements({ state }: { state: IdentityState }) {
           </li>
         ))}
       </ul>
-    </div>
+    </section>
   );
 }
