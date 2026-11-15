@@ -70,7 +70,7 @@ export function AdminSessionGate({ children }: { children: ReactNode }) {
 
   if (admin.mustChangePassword) {
     return (
-      <main className="flex min-h-screen items-center justify-center px-4 py-10">
+      <main data-launch-ready className="flex min-h-screen items-center justify-center px-4 py-10">
         <div className="w-full max-w-[440px]">
           <AdminBrand className="mb-6 justify-center" />
           <Card padding="lg">

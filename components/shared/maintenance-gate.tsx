@@ -38,7 +38,11 @@ export function MaintenanceGate({ children }: { children: ReactNode }) {
   if (view === 'maintenance') return <MaintenanceScreen message={message} />;
   // Wait for the flags so a farmer never starts signing in just before maintenance appears.
   if (view === 'loading') {
-    return <div role="status" aria-label="Loading" className="min-h-screen" />;
+    return <div data-launch-pending role="status" aria-label="Loading" className="min-h-screen" />;
   }
-  return <>{children}</>;
+  return (
+    <div data-launch-ready className="contents">
+      {children}
+    </div>
+  );
 }

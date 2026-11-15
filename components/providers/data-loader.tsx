@@ -150,7 +150,7 @@ export function DataLoader({ children }: { children: ReactNode }) {
 
   if (state === 'error') {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div data-launch-ready className="flex min-h-screen items-center justify-center p-4">
         <Card className="max-w-sm text-center">
           <AlertTriangle size={32} aria-hidden="true" className="text-ink-gold mx-auto mb-3" />
           <p className="text-text font-semibold">We couldn&apos;t load your data</p>
@@ -173,7 +173,11 @@ export function DataLoader({ children }: { children: ReactNode }) {
 
   if (state === 'loading') return <AppSkeleton />;
 
-  return <>{children}</>;
+  return (
+    <div data-launch-ready className="contents">
+      {children}
+    </div>
+  );
 }
 
 /**
@@ -219,7 +223,10 @@ function AppSkeleton() {
     return () => clearTimeout(timer);
   }, []);
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-8 px-6">
+    <div
+      data-launch-pending
+      className="flex min-h-screen flex-col items-center justify-center gap-8 px-6"
+    >
       <LogoLoader size="lg" label="Loading AgriCtec" />
       {/* Only after 8 seconds: a slow server is worth saying, a normal load is not. */}
       {slow && (

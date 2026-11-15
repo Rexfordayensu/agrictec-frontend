@@ -8,7 +8,7 @@ import { Card } from '@/components/ui/card';
 // Public pages (proxy.ts lets everyone in), readable during maintenance too.
 export default function LegalLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
+    <main data-launch-ready className="mx-auto w-full max-w-3xl px-4 py-10">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <Link href="/" aria-label="AgriCtec home">
           <BrandLogo />
