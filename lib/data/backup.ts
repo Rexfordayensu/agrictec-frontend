@@ -55,6 +55,17 @@ export async function importDataBackup(
   await loadAllStores(userId);
 }
 
+/**
+ * Closes the account for good (POST /me/delete-account): the password and DELETE typed. The API
+ * deletes everything and signs out every device; the caller then leaves the app.
+ */
+export async function deleteAccount(password: string, confirmation: string): Promise<void> {
+  assertWritable();
+  if (confirmation !== 'DELETE') throw new Error('Type DELETE to confirm.');
+  if (!password) throw new Error('Enter your password.');
+  await api('/me/delete-account', { method: 'POST', body: { password, confirmation } });
+}
+
 export async function deleteUserData(confirmation: string): Promise<void> {
   assertWritable();
   if (confirmation !== 'DELETE') throw new Error('Type DELETE to confirm.');

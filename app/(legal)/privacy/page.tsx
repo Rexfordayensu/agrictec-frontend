@@ -18,7 +18,7 @@ const LINK = 'text-ink-green font-semibold hover:underline';
 export default function PrivacyPage() {
   return (
     <article>
-      <LegalHeader title="Privacy Policy" updated="2 November 2026">
+      <LegalHeader title="Privacy Policy" updated="15 November 2026">
         <p>
           AgriCtec helps farmers in Ghana keep farm records and build a financial identity they can
           use to reach lenders. This policy explains, in plain words, what information we collect
@@ -46,7 +46,8 @@ export default function PrivacyPage() {
           <li>
             <Term>Your Ghana Card:</Term> if you verify your identity, we keep only a masked version
             of the card number (most digits hidden) and a one-way fingerprint that lets us spot the
-            same card used twice. We never store the full number.
+            same card used twice. We never store the full number. A card is checked against your
+            name, so if you change your name after your card is approved, we review the card again.
           </li>
           <li>
             <Term>Your records:</Term> the farm income, expenses and Mobile Money transactions you
@@ -102,16 +103,23 @@ export default function PrivacyPage() {
       <LegalSection id="share" title="3. Who can see it">
         <LegalList>
           <li>
-            <Term>Lenders, when you apply.</Term> When you send a loan application, the lender you
-            chose receives your name, region, the amount, purpose and length of the loan, and your
-            AgriCtec score at the time. They decide whether to lend to you. We share nothing with a
-            lender you have not applied to.
+            <Term>Lenders, when you apply.</Term> When you send a loan application, and only after
+            you agree on the consent screen, the lender you chose receives: your name, phone number
+            and farm details; the application itself (the amount, length and purpose of the loan,
+            your letter and your answers to the lender&apos;s questions); the documents you uploaded
+            for it; your transaction statement for the period the lender assesses, with each entry
+            marked verified or self-reported; and AgriCtec&apos;s preliminary check for that loan
+            product. They decide whether to lend to you. We share nothing with a lender you have not
+            applied to.
           </li>
           <li>
             <Term>Our team.</Term> AgriCtec staff can see farmer accounts to review Ghana Cards,
-            handle loan applications and help with problems. To help you, they can view the app as
-            you see it, but cannot change anything while they do. Changes staff make to accounts are
-            recorded.
+            handle loan applications and help with problems. Your money stays private: staff see the
+            amount of an entry only when they check it against its evidence in our review queue, one
+            entry at a time, and otherwise see only how many records you keep. To help you, they can
+            open the app as you see it, but your records, Mobile Money, statements and assistant
+            conversations are hidden from them there, and they cannot change anything. What staff
+            look at and change is recorded.
           </li>
           <li>
             <Term>Service providers</Term> who run parts of AgriCtec for us. They may only use your
@@ -161,13 +169,16 @@ export default function PrivacyPage() {
             results, chat and settings. Your sign-in, Ghana Card status and loan applications stay.
           </li>
           <li>
-            To close your account completely, write to us at <ContactLink /> from the email on your
-            account. We delete your account and all its data, usually within 30 days.
+            To close your account completely, go to Settings, then Account &amp; data, then Delete
+            my account. This deletes your sign-in, profile, records, Mobile Money, reports and
+            everything else in your account at once, and signs you out on every device. You can also
+            write to us at <ContactLink /> from the email on your account and we will do it for you,
+            usually within 30 days.
           </li>
           <li>
-            The loan applications you sent stay on record after that, without your contact details,
-            because lenders need a history of what they were asked for. Paystack keeps its own
-            records of any payment you made.
+            Your loan applications are deleted from AgriCtec with your account. A lender you already
+            sent an application to keeps the copy it received, under its own privacy rules. Paystack
+            keeps its own records of any payment you made.
           </li>
           <li>
             We make a backup of all data every night and keep each backup for 30 days, so deleted

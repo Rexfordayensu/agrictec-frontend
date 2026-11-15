@@ -1,6 +1,7 @@
 import '@/components/settings/account-data.css';
 import type { Metadata } from 'next';
 import { AccountSettings } from '@/components/settings/account-settings';
+import { ChangePasswordCard } from '@/components/settings/change-password-card';
 import { DataSettings } from '@/components/settings/data-settings';
 import { SettingsSection } from '@/components/settings/settings-section';
 
@@ -15,6 +16,7 @@ export default function AccountSettingsPage() {
       >
         <div className="account-data-content">
           <AccountSettings />
+          <ChangePasswordCard />
           <DataSettings />
         </div>
       </SettingsSection>

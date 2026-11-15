@@ -2,16 +2,20 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Save, UserRound } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { contactSchema, type ContactValues } from '@/components/profile/profile-schema';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
-import { FormField, fieldErrorId } from '@/components/ui/form-field';
+import { FormField, fieldErrorId, fieldHintId } from '@/components/ui/form-field';
 import { Input } from '@/components/ui/input';
 import { useT } from '@/lib/i18n';
 import { normalizePhone } from '@/lib/profile';
 import { useProfileStore } from '@/store/profile-store';
+
+/** A name as compared with the one on a reviewed Ghana Card: capitals and spacing aside. */
+const nameKey = (name: string | undefined) =>
+  (name ?? '').trim().split(/\s+/).join(' ').toLowerCase();
 
 /** `onDone`: shown as an editor (Cancel, and closes after saving) instead of an always-open form. */
 export function PersonalInfoForm({ onDone }: { onDone?: () => void } = {}) {
@@ -22,6 +26,7 @@ export function PersonalInfoForm({ onDone }: { onDone?: () => void } = {}) {
     register,
     handleSubmit,
     reset,
+    control,
     formState: { errors, isDirty, isSubmitting },
   } = useForm<ContactValues>({
     resolver: zodResolver(contactSchema),
@@ -31,14 +36,22 @@ export function PersonalInfoForm({ onDone }: { onDone?: () => void } = {}) {
       email: profile?.email ?? '',
     },
   });
+  // A Ghana Card is reviewed against the name: a new name sends it back to review (the API).
+  const cardApproved = profile?.ghanaCard.status === 'verified';
+  const typedName = useWatch({ control, name: 'name' });
+  const renaming = cardApproved && nameKey(typedName) !== nameKey(profile?.name);
+
   async function submit(values: ContactValues) {
     const current = useProfileStore.getState().profile;
+    const wasApproved = current?.ghanaCard.status === 'verified';
     const changedVerifiedPhone =
       current?.verification.phone && normalizePhone(current.phone) !== normalizePhone(values.phone);
     try {
       const saved = await save({ ...values, phone: normalizePhone(values.phone) });
       reset({ name: saved.name, phone: saved.phone, email: saved.email });
       toast.success('Profile updated');
+      if (wasApproved && saved.ghanaCard.status === 'pending')
+        toast.warning('Your name changed, so your Ghana Card is back with AgriCtec for review.');
       if (changedVerifiedPhone)
         toast.warning('Your phone number changed. Please verify your new number.');
       onDone?.();
@@ -58,13 +71,28 @@ export function PersonalInfoForm({ onDone }: { onDone?: () => void } = {}) {
         </div>
       </CardHeader>
       <form noValidate onSubmit={handleSubmit(submit)} className="space-y-4">
-        <FormField label="Full name" htmlFor="profile-name" error={errors.name?.message}>
+        <FormField
+          label="Full name"
+          htmlFor="profile-name"
+          error={errors.name?.message}
+          hint={
+            renaming
+              ? 'Your Ghana Card was approved for your current name. Saving a new name sends the card back to AgriCtec for review.'
+              : undefined
+          }
+        >
           <Input
             id="profile-name"
             autoComplete="name"
             maxLength={160}
             error={Boolean(errors.name)}
-            aria-describedby={errors.name ? fieldErrorId('profile-name') : undefined}
+            aria-describedby={
+              errors.name
+                ? fieldErrorId('profile-name')
+                : renaming
+                  ? fieldHintId('profile-name')
+                  : undefined
+            }
             {...register('name')}
           />
         </FormField>

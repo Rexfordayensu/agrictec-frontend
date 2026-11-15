@@ -2,14 +2,21 @@
 
 import { useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Download, ShieldAlert, Trash2, Upload } from 'lucide-react';
+import { Download, ShieldAlert, Trash2, Upload, UserX } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { IconTile } from '@/components/ui/icon-tile';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Input } from '@/components/ui/input';
-import { createDataBackup, deleteUserData, importDataBackup } from '@/lib/data/backup';
+import { announceAuthChange } from '@/lib/tab-sync';
+import {
+  createDataBackup,
+  deleteAccount,
+  deleteUserData,
+  importDataBackup,
+} from '@/lib/data/backup';
+import { resetAllStores } from '@/store';
 import { MAX_BACKUP_BYTES, parseDataBackup, type DataBackup } from '@/lib/data/backup-schema';
 import { downloadFile } from '@/lib/export/csv';
 import { formatDate, todayISO } from '@/lib/format';
@@ -27,6 +34,26 @@ export function DataSettings() {
   } | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [confirmation, setConfirmation] = useState('');
+  const [closeOpen, setCloseOpen] = useState(false);
+  const [closePassword, setClosePassword] = useState('');
+  const [closeConfirmation, setCloseConfirmation] = useState('');
+
+  /** Deletes the account for good, then leaves the app (every device is signed out). */
+  async function closeAccount() {
+    if (closeConfirmation !== 'DELETE' || !closePassword || lock.current) return;
+    lock.current = true;
+    setBusy(true);
+    try {
+      await deleteAccount(closePassword, closeConfirmation);
+      resetAllStores();
+      announceAuthChange('signed-out');
+      window.location.replace('/login?reason=closed');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Could not delete your account');
+      lock.current = false;
+      setBusy(false);
+    }
+  }
 
   async function exportData() {
     if (lock.current) return;
@@ -187,6 +214,30 @@ export function DataSettings() {
             Delete all my data
           </Button>
         </div>
+        <div className="account-delete-row">
+          <IconTile icon={UserX} tone="red" size="lg" />
+          <div>
+            <h3>Delete my account</h3>
+            <p>
+              Close your account for good: your sign-in and everything in it are deleted.
+              <br />
+              You will be signed out on every device.
+            </p>
+          </div>
+          <Button
+            variant="danger"
+            icon={UserX}
+            mutates
+            disabled={busy}
+            onClick={() => {
+              setClosePassword('');
+              setCloseConfirmation('');
+              setCloseOpen(true);
+            }}
+          >
+            Delete my account
+          </Button>
+        </div>
       </Card>
       <ConfirmDialog
         open={pending !== null}
@@ -225,6 +276,43 @@ export function DataSettings() {
           autoComplete="off"
           value={confirmation}
           onChange={(event) => setConfirmation(event.target.value)}
+          disabled={busy}
+          className="mt-2"
+        />
+      </ConfirmDialog>
+      <ConfirmDialog
+        open={closeOpen}
+        title="Delete your account?"
+        message="This permanently deletes your account: your sign-in, profile, records, MoMo, receipts, reports, verifications, loan applications, diagnoses and chat. It can't be undone. A lender keeps the copy of any application you already sent them. Download any reports you want to keep and export a backup first."
+        confirmLabel="Delete my account"
+        danger
+        loading={busy}
+        confirmDisabled={closeConfirmation !== 'DELETE' || !closePassword}
+        onConfirm={() => void closeAccount()}
+        onCancel={() => {
+          if (!busy) setCloseOpen(false);
+        }}
+      >
+        <label htmlFor="close-password" className="text-text-dim text-xs font-semibold">
+          Your password
+        </label>
+        <Input
+          id="close-password"
+          type="password"
+          autoComplete="current-password"
+          value={closePassword}
+          onChange={(event) => setClosePassword(event.target.value)}
+          disabled={busy}
+          className="mt-2 mb-3"
+        />
+        <label htmlFor="close-confirmation" className="text-text-dim text-xs font-semibold">
+          Type DELETE to confirm
+        </label>
+        <Input
+          id="close-confirmation"
+          autoComplete="off"
+          value={closeConfirmation}
+          onChange={(event) => setCloseConfirmation(event.target.value)}
           disabled={busy}
           className="mt-2"
         />
