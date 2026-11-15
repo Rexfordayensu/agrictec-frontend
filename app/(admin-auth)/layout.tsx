@@ -104,7 +104,7 @@ function LightCurves() {
  */
 export default function AdminAuthLayout({ children }: { children: ReactNode }) {
   return (
-    <main className="admin-login-screen" data-theme="dark">
+    <main data-launch-ready className="admin-login-screen" data-theme="dark">
       <LightCurves />
       <div className="admin-login-content animate-fade-in">
         <header className="admin-login-brand">

@@ -622,7 +622,7 @@
 }
 
 #agrictec-splash[data-state='leave'] {
-  animation: splash-leave 0.45s ease-in forwards;
+  animation: splash-leave 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   pointer-events: none;
 }
 
@@ -687,7 +687,7 @@
   font-weight: 700;
   letter-spacing: -0.01em;
   line-height: 1.1;
-  animation: splash-rise 0.6s 1s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: splash-rise 0.65s 0.65s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .splash-name-accent {
@@ -700,7 +700,7 @@
   font-weight: 600;
   letter-spacing: 0.32em;
   color: #a8b0c0;
-  animation: splash-rise 0.6s 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: splash-rise 0.65s 0.85s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .splash-tagline {
@@ -708,7 +708,7 @@
   max-width: 22rem;
   font-size: var(--text-sm);
   color: #cbd5e1;
-  animation: splash-rise 0.7s 1.55s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: splash-rise 0.7s 1.05s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 @keyframes splash-mark-in {
@@ -718,7 +718,7 @@
   }
   60% {
     opacity: 1;
-    transform: translateY(0) scale(1.04);
+    transform: translateY(0) scale(1.015);
   }
   100% {
     opacity: 1;
@@ -796,4 +796,32 @@
   .splash-orbit {
     display: none;
   }
+}
+
+/* The launch cover owns the first screen, including accessibility and focus visibility.
+   Removing this attribute restores every ordinary in-app loading indicator. */
+html[data-launch-active] #agrictec-app {
+  visibility: hidden;
+}
+.splash-status {
+  min-height: 2.5em;
+  max-width: 23rem;
+  margin-top: 1.5rem;
+  color: #a8b0c0;
+  font-size: var(--text-small);
+  line-height: 1.5;
+}
+.splash-retry {
+  min-height: 44px;
+  padding: 0.6rem 1.2rem;
+  margin-top: 0.75rem;
+  border: 1px solid #34d39980;
+  border-radius: 12px;
+  color: #baf4d6;
+  background: #123d2d;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+.splash-retry[hidden] {
+  display: none;
 }

@@ -129,7 +129,7 @@ export function OnboardingWizard() {
 
   if (gate === 'error') {
     return (
-      <Card padding="lg" className="onboarding-load-error">
+      <Card data-launch-ready padding="lg" className="onboarding-load-error">
         <AlertCircle size={28} aria-hidden="true" className="text-ink-gold" />
         <div role="alert">
           <h2>We couldn&apos;t load your farm setup</h2>
@@ -150,7 +150,7 @@ export function OnboardingWizard() {
 
   if (gate === 'checking' || status !== 'ready') {
     return (
-      <Card padding="lg" className="onboarding-loading" aria-busy="true">
+      <Card data-launch-pending padding="lg" className="onboarding-loading" aria-busy="true">
         <LogoLoader center label="Loading your farm setup" />
       </Card>
     );
@@ -180,7 +180,7 @@ export function OnboardingWizard() {
   ][step];
 
   return (
-    <div className="onboarding-workspace">
+    <div data-launch-ready className="onboarding-workspace">
       <StepProgress
         step={step}
         reached={reached}

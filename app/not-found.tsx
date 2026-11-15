@@ -7,7 +7,7 @@ export const metadata: Metadata = { title: 'Page not found' };
 /** Any address the app doesn't have. */
 export default function NotFound() {
   return (
-    <main className="flex min-h-screen items-center justify-center px-4 py-10">
+    <main data-launch-ready className="flex min-h-screen items-center justify-center px-4 py-10">
       <div className="border-border bg-glass shadow-glass w-full max-w-md rounded-3xl border p-8 text-center">
         <div className="bg-icon-bg text-icon mx-auto mb-4 flex size-12 items-center justify-center rounded-xl">
           <Compass size={24} aria-hidden="true" />

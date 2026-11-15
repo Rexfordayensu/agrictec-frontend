@@ -94,7 +94,7 @@ function PlatformLoader({ children }: { children: ReactNode }) {
 
   if (state === 'error') {
     return (
-      <div className="flex min-h-screen items-center justify-center p-4">
+      <div data-launch-ready className="flex min-h-screen items-center justify-center p-4">
         <Card className="max-w-sm text-center">
           <AlertTriangle size={32} aria-hidden="true" className="text-ink-gold mx-auto mb-3" />
           <p className="text-text font-semibold">The console couldn&apos;t load its data</p>
@@ -111,11 +111,15 @@ function PlatformLoader({ children }: { children: ReactNode }) {
 
   if (state !== 'ready') {
     return (
-      <div className="flex min-h-screen items-center justify-center">
+      <div data-launch-pending className="flex min-h-screen items-center justify-center">
         <LogoLoader size="lg" label="Loading the console" />
       </div>
     );
   }
 
-  return <>{children}</>;
+  return (
+    <div data-launch-ready className="contents">
+      {children}
+    </div>
+  );
 }

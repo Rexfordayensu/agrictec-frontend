@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/card';
 export function MaintenanceScreen({ message }: { message: string }) {
   return (
     <main
+      data-launch-ready
       role="alert"
       aria-live="polite"
       className="flex min-h-screen items-center justify-center px-4 py-10"

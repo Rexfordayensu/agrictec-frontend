@@ -53,8 +53,10 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
         {/* The installed app's animated opening: first in the page, so it covers the first paint. */}
         <LaunchSplash />
         {/* One shared background for every page, including the 404 and maintenance screens. */}
-        <PageBackground />
-        <AppProviders>{children}</AppProviders>
+        <div id="agrictec-app">
+          <PageBackground />
+          <AppProviders>{children}</AppProviders>
+        </div>
       </body>
     </html>
   );
