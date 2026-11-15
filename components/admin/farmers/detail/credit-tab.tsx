@@ -4,7 +4,6 @@ import { adminPath } from '@/lib/admin-path';
 
 import Link from 'next/link';
 import { ArrowDown, ArrowUp, Minus } from 'lucide-react';
-import { FinancialPanel } from '@/components/admin/farmers/detail/financial-panel';
 import type { TabProps } from '@/components/admin/farmers/detail/types';
 import { Card, CardHeader, CardSub, CardTitle } from '@/components/ui/card';
 import { ScoreRing } from '@/components/ui/score-ring';
@@ -118,9 +117,6 @@ export function CreditTab({ data }: TabProps) {
           })}
         </ul>
       </Card>
-      <div className="xl:col-span-2">
-        <FinancialPanel userId={data.detail.account.userId} />
-      </div>
     </div>
   );
 }

@@ -80,19 +80,21 @@ export function newItemId(title: string, taken: string[]): string {
   return id;
 }
 
-/** The assistant context for a farmer from the console's data (for previews and tests). */
+/**
+ * The assistant context for previews in the console: a real farmer's name, region, crops, score
+ * and record count, never their amounts (money placeholders show as hidden). With no farmer yet,
+ * everything is blank (the placeholders say "Farmer", "your region"): nothing is made up.
+ */
 export function contextFor(
   farmer: FarmerAccount | undefined,
   bands?: CreditConfig['bands'],
 ): AssistantContext {
   return {
-    farmerName: farmer?.profile.name ?? 'Ama',
-    region: farmer?.profile.region ?? 'Ashanti',
-    primaryCrops: farmer?.profile.primaryCrops ?? ['Maize'],
-    score: farmer?.stats.score ?? 640,
-    income: farmer?.stats.income ?? 24_000,
-    expenses: farmer?.stats.expenses ?? 15_000,
-    recordCount: farmer?.stats.records ?? 18,
+    farmerName: farmer?.profile.name ?? '',
+    region: farmer?.profile.region ?? '',
+    primaryCrops: farmer?.profile.primaryCrops ?? [],
+    score: farmer?.stats.score ?? 0,
+    recordCount: farmer?.stats.records ?? 0,
     bands,
   };
 }

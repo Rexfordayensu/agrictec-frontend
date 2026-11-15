@@ -109,7 +109,6 @@ export const FARMER_SORT: Record<string, (f: FarmerAccount) => string | number> 
   crops: (f) => f.profile.primaryCrops.join(', '),
   score: (f) => f.stats.score,
   records: (f) => f.stats.records,
-  income: (f) => f.stats.income,
   verified: (f) => verifiedCount(f),
   status: (f) => STATUS_ORDER[f.status],
   joined: (f) => f.createdAt,

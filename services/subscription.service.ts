@@ -60,13 +60,19 @@ export const subscriptionService = {
    * Starts a real payment (Paystack): the farmer pays on Paystack's page, which sends them back
    * to /settings/plans?reference=… where confirmPayment() finishes it.
    */
-  async checkout(planId: PlanId, method: MockPaymentMethod): Promise<{ reference: string; authorizationUrl: string }> {
+  async checkout(
+    planId: PlanId,
+    method: MockPaymentMethod,
+  ): Promise<{ reference: string; authorizationUrl: string }> {
     return api('/me/subscription/checkout', { method: 'POST', body: { planId, method } });
   },
 
   /** Asks the API (which asks Paystack) how a payment went; the plan is active once paid. */
   async confirmPayment(reference: string): Promise<SubscriptionSnapshot> {
-    return api<SubscriptionSnapshot>('/me/subscription/confirm', { method: 'POST', body: { reference } });
+    return api<SubscriptionSnapshot>('/me/subscription/confirm', {
+      method: 'POST',
+      body: { reference },
+    });
   },
 
   /** Switches to Free, or in demo mode activates a plan with a simulated receipt. */

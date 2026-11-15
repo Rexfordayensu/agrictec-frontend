@@ -53,6 +53,7 @@ export const loanApplicationsService = {
 
   /** The applications (all, or these IDs) as CSV. No farmer contact details. Audited. */
   async exportCSV(ids?: string[]): Promise<string> {
-    return (await apiFile('/admin/loan-applications/export', { method: 'POST', body: { ids } })).content;
+    return (await apiFile('/admin/loan-applications/export', { method: 'POST', body: { ids } }))
+      .content;
   },
 };

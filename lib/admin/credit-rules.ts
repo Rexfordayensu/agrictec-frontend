@@ -5,7 +5,7 @@
 import { DEFAULT_CREDIT_CONFIG } from '@/lib/admin/defaults';
 import { calculateCreditScore, scoreLabel, type ScoreLabel } from '@/lib/calculations/credit-score';
 import { mapInChunks, type ChunkOptions } from '@/lib/chunked';
-import type { FarmRecord, MomoTransaction, Profile } from '@/types';
+import type { CreditScoreBreakdown, FarmRecord, MomoTransaction, Profile } from '@/types';
 import type { CreditConfig, CreditConfigInput } from '@/types/admin';
 
 export type WeightKey = keyof CreditConfig['weights'];
@@ -215,6 +215,19 @@ export interface ScoringInput {
   records: FarmRecord[];
   momo: MomoTransaction[];
   profile: Profile;
+}
+
+/** One farmer scored by the API under the live rules and a draft (never their entries). */
+export interface SimulatedFarmer {
+  userId: string;
+  name: string;
+  region: string;
+  /** Counts only: how many farm records and MoMo entries, and how many are verified. */
+  records: number;
+  momo: number;
+  verified: number;
+  live: CreditScoreBreakdown;
+  draft: CreditScoreBreakdown;
 }
 
 export interface FarmerImpact {

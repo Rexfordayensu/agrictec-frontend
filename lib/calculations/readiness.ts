@@ -1,5 +1,5 @@
 import { isProfileComplete } from '@/lib/calculations/credit-score';
-import type { FarmRecord, MomoTransaction, Profile, ReadinessItem } from '@/types';
+import type { Profile, ReadinessItem } from '@/types';
 
 /**
  * The loan-readiness checklist. Shared by the farmer dashboard (useFarmStats) and the admin's
@@ -12,8 +12,9 @@ export function buildReadiness({
   minRecords,
   cardUnderReview,
 }: {
-  records: FarmRecord[];
-  momo: MomoTransaction[];
+  /** Only how many there are (the console has counts, never the entries themselves). */
+  records: ArrayLike<unknown>;
+  momo: ArrayLike<unknown>;
   profile: Profile | null;
   /** From the admin's credit rules (default 5). */
   minRecords: number;

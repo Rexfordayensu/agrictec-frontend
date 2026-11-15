@@ -58,7 +58,10 @@ export const reportsService = {
 
   /** The builder's preview (no export, so not logged). */
   async preview(spec: BuilderSpec): Promise<BuilderResult> {
-    return api<BuilderResult>('/admin/reports/builder/preview', { method: 'POST', body: builderBody(spec) });
+    return api<BuilderResult>('/admin/reports/builder/preview', {
+      method: 'POST',
+      body: builderBody(spec),
+    });
   },
 
   /** The builder's CSV. Logged with the dataset, columns and filters used. */

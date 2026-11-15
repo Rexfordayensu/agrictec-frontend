@@ -73,8 +73,10 @@ export const adminAuthService = {
 
   /** The signed-in admin's own display name (any role; logged). */
   async updateName(name: string): Promise<AdminUser> {
-    const session = await api<ServerAdminSession>('/admin/auth/me', { method: 'PATCH', body: { name } });
+    const session = await api<ServerAdminSession>('/admin/auth/me', {
+      method: 'PATCH',
+      body: { name },
+    });
     return session.admin;
   },
-
 };

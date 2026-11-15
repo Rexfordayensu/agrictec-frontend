@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { assertWritable } from '@/lib/read-only';
+import { assertWritable, isViewingAsFarmer } from '@/lib/read-only';
 import { generateId } from '@/lib/utils';
 import { ApiError } from '@/services/api';
 import { aiService } from '@/services/ai.service';
@@ -42,6 +42,11 @@ export const useChatStore = create<ChatState>()((set, get) => ({
   load: async (userId, { silent = false } = {}) => {
     const version = ++loadVersion;
     if (!silent) set({ userId, messages: [], isTyping: false, status: 'loading' });
+    // The farmer's conversation stays private while an admin views as them.
+    if (isViewingAsFarmer()) {
+      set({ userId, messages: [], status: 'ready' });
+      return;
+    }
     try {
       const history = await chatService.list(userId);
       if (get().userId !== userId || version !== loadVersion) return;

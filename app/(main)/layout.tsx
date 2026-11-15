@@ -13,6 +13,7 @@ import { DataLoader } from '@/components/providers/data-loader';
 import { AppTour } from '@/components/tour/app-tour';
 import { SubscriptionSync } from '@/components/providers/subscription-sync';
 import { OptionalDataBoundary } from '@/components/providers/optional-data-boundary';
+import { PrivateWhileViewing } from '@/components/providers/private-while-viewing';
 
 export default function MainLayout({ children }: { children: ReactNode }) {
   return (
@@ -30,7 +31,9 @@ export default function MainLayout({ children }: { children: ReactNode }) {
           <main className="min-w-0 flex-1 px-5 pb-[calc(6.5rem+env(safe-area-inset-bottom))] min-[900px]:ml-[276px] min-[900px]:pt-4 min-[900px]:pb-16 md:px-8">
             <Topbar />
             <PageContainer>
-              <OptionalDataBoundary>{children}</OptionalDataBoundary>
+              <PrivateWhileViewing>
+                <OptionalDataBoundary>{children}</OptionalDataBoundary>
+              </PrivateWhileViewing>
             </PageContainer>
           </main>
           <MobileNav />

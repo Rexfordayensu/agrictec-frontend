@@ -20,7 +20,11 @@ export const verificationsService = {
   },
 
   /** The farmer app: phone and location pass at once, a Ghana Card waits for review. */
-  async submit(_userId: string, kind: VerificationKind, value: string): Promise<VerificationRequest> {
+  async submit(
+    _userId: string,
+    kind: VerificationKind,
+    value: string,
+  ): Promise<VerificationRequest> {
     return api<VerificationRequest>('/me/verifications', { method: 'POST', body: { kind, value } });
   },
 
@@ -30,7 +34,10 @@ export const verificationsService = {
 
   /** One of REJECT_REASONS and an optional note (required for "Other"); the farmer sees both. */
   async reject(id: string, reason: string, note = ''): Promise<VerificationRequest> {
-    return api<VerificationRequest>(`${request(id)}/reject`, { method: 'POST', body: { reason, note } });
+    return api<VerificationRequest>(`${request(id)}/reject`, {
+      method: 'POST',
+      body: { reason, note },
+    });
   },
 
   /** Phone and location checks together (each audited); Ghana Cards are reviewed one by one. */

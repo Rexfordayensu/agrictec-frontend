@@ -40,7 +40,10 @@ export const contentService = {
 
   /** The fallback reply ("kb-fallback") can be edited but never removed. */
   async saveAssistantKb(items: AssistantKnowledgeItem[]): Promise<AssistantKnowledgeItem[]> {
-    return api<AssistantKnowledgeItem[]>('/admin/content/assistant', { method: 'PUT', body: items });
+    return api<AssistantKnowledgeItem[]>('/admin/content/assistant', {
+      method: 'PUT',
+      body: items,
+    });
   },
 
   async getDiagnoses(): Promise<DiagnosisContent[]> {

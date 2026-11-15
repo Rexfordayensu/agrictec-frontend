@@ -9,6 +9,7 @@ import {
   Info,
   Languages,
   Mail,
+  MonitorSmartphone,
   MessageSquareText,
   Moon,
   Palette,
@@ -31,10 +32,12 @@ import { useSettingsStore } from '@/store/settings-store';
 import type { Language, NotificationSettings } from '@/types';
 
 type Theme = 'light' | 'dark';
+/** Light, dark, or follow the device (phone or computer). */
+type ThemeChoice = Theme | 'system';
 type Saved = { language: Language; notifications: NotificationSettings };
 
-/** The app's own default (app-providers.tsx): dark. */
-const DEFAULT_THEME: Theme = 'dark';
+/** The app's own default (app-providers.tsx): follow the device. */
+const DEFAULT_THEME: ThemeChoice = 'system';
 
 /** Only English is translated today; the others are listed (disabled) so farmers know they're coming. */
 const LANGUAGES: { value: Language; label: string; available?: boolean }[] = [
@@ -86,7 +89,7 @@ const same = (a: Saved, b: Saved) =>
  */
 export function PreferencesView() {
   const mounted = useMounted();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme: storedTheme, systemTheme, setTheme } = useTheme();
   const language = useSettingsStore((s) => s.language);
   const notifications = useSettingsStore((s) => s.notifications);
   const smsAvailable = useSettingsStore((s) => s.smsAvailable);
@@ -95,11 +98,15 @@ export function PreferencesView() {
 
   const saved: Saved = { language, notifications };
   const [draft, setDraft] = useState<Saved | null>(null);
-  const [themeChoice, setThemeChoice] = useState<Theme | null>(null);
+  const [themeChoice, setThemeChoice] = useState<ThemeChoice | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const currentTheme: Theme = resolvedTheme === 'light' ? 'light' : 'dark';
+  const currentTheme: ThemeChoice =
+    storedTheme === 'light' || storedTheme === 'dark' ? storedTheme : 'system';
   const theme = themeChoice ?? currentTheme;
+  // What the preview shows: the device's own setting for "System".
+  const previewTheme: Theme =
+    theme === 'system' ? (systemTheme === 'light' ? 'light' : 'dark') : theme;
   const shown = draft ?? saved;
   const settingsChanged = draft !== null && !same(draft, saved);
   const themeChanged = themeChoice !== null && themeChoice !== currentTheme;
@@ -162,8 +169,17 @@ export function PreferencesView() {
           <div
             role="radiogroup"
             aria-labelledby="theme-title"
-            className="mt-4 grid grid-cols-1 gap-3 @md/prefs:grid-cols-2"
+            className="mt-4 grid grid-cols-1 gap-3 @md/prefs:grid-cols-3"
           >
+            <ThemeOption
+              value="system"
+              icon={MonitorSmartphone}
+              title="System"
+              sub="Follows your phone or computer"
+              checked={mounted && theme === 'system'}
+              disabled={readOnly || saving}
+              onSelect={setThemeChoice}
+            />
             <ThemeOption
               value="light"
               icon={Sun}
@@ -186,7 +202,7 @@ export function PreferencesView() {
         </div>
         <div className="border-border min-w-0 @3xl/prefs:border-l @3xl/prefs:pl-6">
           <p className="text-text text-sm font-bold">Preview</p>
-          <ThemePreview theme={mounted ? theme : 'dark'} />
+          <ThemePreview theme={mounted ? previewTheme : 'dark'} />
         </div>
       </Panel>
 
@@ -407,13 +423,13 @@ function ThemeOption({
   disabled,
   onSelect,
 }: {
-  value: Theme;
+  value: ThemeChoice;
   icon: LucideIcon;
   title: string;
   sub: string;
   checked: boolean;
   disabled: boolean;
-  onSelect: (theme: Theme) => void;
+  onSelect: (theme: ThemeChoice) => void;
 }) {
   return (
     <label

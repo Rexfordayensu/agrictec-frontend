@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import { THEME_COLORS } from '@/lib/theme-colors';
 import { Inter, Outfit } from 'next/font/google';
 import { PageBackground } from '@/components/layout/page-background';
 import { AppProviders } from '@/components/providers/app-providers';
@@ -27,7 +28,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: '#0a0e1a',
+  // The device's light or dark setting first; ThemeColorSync (app-providers.tsx) follows the
+  // farmer's own choice after that.
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: THEME_COLORS.light },
+    { media: '(prefers-color-scheme: dark)', color: THEME_COLORS.dark },
+  ],
+  // Native controls (scrollbars, date pickers) in the device's scheme before the page loads.
+  colorScheme: 'light dark',
   // Lets the mobile bottom navigation pad itself with env(safe-area-inset-bottom).
   viewportFit: 'cover',
 };

@@ -20,6 +20,27 @@ export const isReadOnly = (): boolean => {
   return state.impersonation !== null || isDemoSession(state);
 };
 
+/**
+ * While an admin views the app as a farmer, the farmer's money, statements and assistant
+ * conversation stay private: the API refuses them ("private_while_viewing") and these pages show
+ * a notice instead (an entry's amount is seen only in Transactions review, while it is checked).
+ */
+export const PRIVATE_WHILE_VIEWING_PATHS = [
+  '/dashboard',
+  '/records',
+  '/momo',
+  '/reports',
+  '/assistant',
+  '/loans',
+] as const;
+
+/** Applications (/loans/applications) stay viewable: they hold no amounts of the farmer's. */
+export const isPrivateWhileViewing = (pathname: string): boolean =>
+  !pathname.startsWith('/loans/applications') &&
+  PRIVATE_WHILE_VIEWING_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+
+export const isViewingAsFarmer = (): boolean => useAuthStore.getState().impersonation !== null;
+
 /** Why nothing can be changed right now, in the words for who is looking. */
 export function readOnlyMessage(): string {
   return isDemoSession(useAuthStore.getState()) ? DEMO_MESSAGE : READ_ONLY_MESSAGE;
