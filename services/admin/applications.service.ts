@@ -13,14 +13,20 @@ import type {
 const base = '/admin/applications';
 const one = (id: string) => `${base}/${encodeURIComponent(id)}`;
 
-export type ApplicationGroup = 'to_review' | 'ready_to_send' | 'with_lender' | 'returned' | 'closed';
+export type ApplicationGroup =
+  'to_review' | 'ready_to_send' | 'with_lender' | 'returned' | 'closed';
 
 export const adminApplicationsService = {
   async list(group?: ApplicationGroup): Promise<ApplicationSummary[]> {
     return api<ApplicationSummary[]>(base, { query: group ? { group } : undefined });
   },
 
-  async counts(): Promise<{ total: number; drafts: number; needsAttention: number; withLender: number }> {
+  async counts(): Promise<{
+    total: number;
+    drafts: number;
+    needsAttention: number;
+    withLender: number;
+  }> {
     return api(`${base}/counts`);
   },
 
@@ -53,7 +59,10 @@ export const adminApplicationsService = {
   },
 
   async approve(id: string, note?: string): Promise<AdminActionResult> {
-    return api<AdminActionResult>(`${one(id)}/approve`, { method: 'POST', body: { note: note ?? null } });
+    return api<AdminActionResult>(`${one(id)}/approve`, {
+      method: 'POST',
+      body: { note: note ?? null },
+    });
   },
 
   async send(id: string): Promise<AdminActionResult> {

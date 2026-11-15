@@ -22,8 +22,12 @@ export interface AssistantContext {
   region: string;
   primaryCrops: string[];
   score: number;
-  income: number;
-  expenses: number;
+  /**
+   * The farmer's own totals, for the farmer's own assistant. Left out in the console's previews:
+   * a farmer's amounts never reach the console, so money placeholders say they are hidden.
+   */
+  income?: number;
+  expenses?: number;
   recordCount: number;
   /** The same factors used by the dashboard; lowest factor gets the first action. */
   creditFactors?: CreditScoreBreakdown;
@@ -128,7 +132,10 @@ function creditSteps(ctx: AssistantContext, name: string): { weakest?: string; s
     {
       key: 'incomeStability',
       label: 'Income Stability',
-      step: `With ${formatGHS(ctx.income)} income and ${formatGHS(ctx.expenses)} expenses, ${ctx.income > ctx.expenses ? 'protect your surplus by budgeting for the next season' : 'review your largest costs and plan sales to improve your surplus'}.`,
+      step:
+        ctx.income === undefined || ctx.expenses === undefined
+          ? 'Record every sale and cost each month so your income pattern is clear.'
+          : `With ${formatGHS(ctx.income)} income and ${formatGHS(ctx.expenses)} expenses, ${ctx.income > ctx.expenses ? 'protect your surplus by budgeting for the next season' : 'review your largest costs and plan sales to improve your surplus'}.`,
     },
     {
       key: 'momoActivity',
@@ -162,7 +169,11 @@ async function placeholderValues(
 ): Promise<Record<string, Value>> {
   const name = ctx.farmerName.trim() || 'Farmer';
   const region = ctx.region.trim() || 'your region';
-  const profit = ctx.income - ctx.expenses;
+  // The console's previews have no amounts (a farmer's money stays private).
+  const known = ctx.income !== undefined && ctx.expenses !== undefined;
+  const income = ctx.income ?? 0;
+  const profit = income - (ctx.expenses ?? 0);
+  const HIDDEN = '[amount hidden in this preview]';
   const credit = creditSteps(ctx, name);
   const values: Record<string, Value> = {
     name,
@@ -174,20 +185,23 @@ async function placeholderValues(
       ? `Your weakest factor is ${credit.weakest}. Start with the first step below.`
       : 'These five steps help build your farm financial history.',
     creditSteps: credit.steps,
-    income: formatGHS(ctx.income),
-    expenses: formatGHS(ctx.expenses),
-    profit: formatGHS(profit),
-    margin:
-      ctx.income > 0
-        ? `${((profit / ctx.income) * 100).toFixed(1)}%`
+    income: known ? formatGHS(income) : HIDDEN,
+    expenses: known ? formatGHS(ctx.expenses ?? 0) : HIDDEN,
+    profit: known ? formatGHS(profit) : HIDDEN,
+    margin: !known
+      ? HIDDEN
+      : income > 0
+        ? `${((profit / income) * 100).toFixed(1)}%`
         : 'not available (no income recorded)',
     records: String(ctx.recordCount),
     financeTip:
       ctx.recordCount === 0
         ? 'Add your first sale and expense in Farm Records to start tracking your profit.'
-        : profit <= 0
-          ? 'Review your largest expense category and compare input prices before your next purchase.'
-          : 'Set aside part of your surplus for next season’s inputs before taking on new spending.',
+        : !known
+          ? 'Compare your sales and costs each month in Farm Records to see your profit.'
+          : profit <= 0
+            ? 'Review your largest expense category and compare input prices before your next purchase.'
+            : 'Set aside part of your surplus for next season’s inputs before taking on new spending.',
     plantingWindow: NORTHERN.test(region)
       ? 'plan around the May–June window and confirm rainfall onset with your local MoFA extension officer'
       : 'confirm your local rainfall pattern with a MoFA extension officer; coastal areas can differ from forest and transitional zones',

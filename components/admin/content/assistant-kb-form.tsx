@@ -315,7 +315,7 @@ function KbForm({
 
           <section aria-labelledby={`${id}-preview`}>
             <h3 id={`${id}-preview`} className="text-text-dim mb-2 text-xs font-semibold">
-              Preview for {context.farmerName}
+              Preview for {context.farmerName || 'a farmer (no farmers yet)'}
             </h3>
             <div className="border-border bg-bg-1/60 rounded-2xl border p-3">
               {preview ? (

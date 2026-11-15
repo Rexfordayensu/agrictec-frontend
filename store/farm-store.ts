@@ -7,7 +7,7 @@ import {
   isDemoUser,
   saveDemoEntries,
 } from '@/lib/demo-entries';
-import { assertEntriesWritable, assertWritable } from '@/lib/read-only';
+import { assertEntriesWritable, assertWritable, isViewingAsFarmer } from '@/lib/read-only';
 import { diagnosesService } from '@/services/diagnoses.service';
 import { momoService } from '@/services/momo.service';
 import { recordsService } from '@/services/records.service';
@@ -73,6 +73,13 @@ export const useFarmStore = create<FarmState>()((set, get) => {
       if (isDemoUser(userId)) return;
       set(silent ? { userId } : { userId, status: 'loading' });
       try {
+        // An admin viewing as the farmer never receives their records or MoMo entries.
+        if (isViewingAsFarmer()) {
+          const diagnoses = await diagnosesService.list(userId);
+          if (get().userId !== userId) return;
+          set({ records: [], momo: [], diagnoses, status: 'ready' });
+          return;
+        }
         const [records, momo, diagnoses] = await Promise.all([
           recordsService.list(userId),
           momoService.list(userId),

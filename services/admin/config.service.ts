@@ -1,7 +1,7 @@
 // Credit rules, feature flags and plans through the API. Reads are open (the farmer app uses
 // them); every save needs the permission, is validated and audited by the API.
 
-import type { Impact, ScoringInput } from '@/lib/admin/credit-rules';
+import type { Impact, SimulatedFarmer } from '@/lib/admin/credit-rules';
 import { normalizePlans } from '@/lib/subscriptions/plans';
 import { api } from '@/services/api';
 import type { CreditConfig, CreditConfigInput, FeatureFlags, Plan } from '@/types/admin';
@@ -41,9 +41,18 @@ export const configService = {
     });
   },
 
-  /** What the score needs for ONE farmer (the simulator tries the draft on them). */
-  async getScoringInput(userId: string, signal?: AbortSignal): Promise<ScoringInput> {
-    return api<ScoringInput>(`/admin/credit-config/scoring-inputs/${encodeURIComponent(userId)}`, {
+  /**
+   * One farmer's score breakdown under the live rules and a draft, worked out by the API: the
+   * farmer's entries and amounts never leave the server. Nothing is saved.
+   */
+  async simulate(
+    userId: string,
+    draft: CreditConfigInput,
+    signal?: AbortSignal,
+  ): Promise<SimulatedFarmer> {
+    return api<SimulatedFarmer>(`/admin/credit-config/simulate/${encodeURIComponent(userId)}`, {
+      method: 'POST',
+      body: { draft },
       signal,
     });
   },
@@ -66,6 +75,8 @@ export const configService = {
   },
 
   async savePlans(plans: Plan[]): Promise<Plan[]> {
-    return normalizePlans(await api<Plan[]>('/admin/settings/plans', { method: 'PUT', body: plans }));
+    return normalizePlans(
+      await api<Plan[]>('/admin/settings/plans', { method: 'PUT', body: plans }),
+    );
   },
 };

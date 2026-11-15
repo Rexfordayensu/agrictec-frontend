@@ -33,7 +33,9 @@ export const adminIdentityService = {
     return api<IdentityRequirementsConfig>('/admin/identity-requirements');
   },
 
-  async saveRequirements(requirements: Record<string, IdentityLevel>): Promise<IdentityRequirementsConfig> {
+  async saveRequirements(
+    requirements: Record<string, IdentityLevel>,
+  ): Promise<IdentityRequirementsConfig> {
     return api<IdentityRequirementsConfig>('/admin/identity-requirements', {
       method: 'PUT',
       body: { requirements },

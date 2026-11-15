@@ -70,8 +70,6 @@ const FARMERS: Dataset<FarmerAccount> = {
     },
     { key: 'crops', label: 'Crops', value: (f) => cropNames(f.profile).join('; '), default: true },
     { key: 'score', label: 'AgriCtec score', value: (f) => f.stats.score, default: true },
-    { key: 'income', label: 'Income (GHS)', value: (f) => f.stats.income, default: true },
-    { key: 'expenses', label: 'Expenses (GHS)', value: (f) => f.stats.expenses },
     { key: 'records', label: 'Records', value: (f) => f.stats.records },
     { key: 'momo', label: 'MoMo transactions', value: (f) => f.stats.momo },
     {

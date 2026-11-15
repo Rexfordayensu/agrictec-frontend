@@ -24,6 +24,9 @@ export const profileService = {
       ...fields
     } = profile;
     void [_id, _card, _verification, _done];
-    return normalizeProfile(userId, await api<Profile>('/me/profile', { method: 'PUT', body: fields }));
+    return normalizeProfile(
+      userId,
+      await api<Profile>('/me/profile', { method: 'PUT', body: fields }),
+    );
   },
 };

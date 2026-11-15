@@ -25,7 +25,6 @@ export interface PlatformKpis {
   newLastMonth: number;
   /** % change of new farmers vs last month; null when last month had none. */
   newChangePct: number | null;
-  totalIncome: number;
   averageScore: number;
   loanRequested: number;
   loanApproved: number;
@@ -57,7 +56,6 @@ export function kpis(
     newThisMonth,
     newLastMonth,
     newChangePct: percentChange(newThisMonth, newLastMonth),
-    totalIncome: sum(people.map((f) => f.stats.income)),
     averageScore: people.length
       ? Math.round(sum(people.map((f) => f.stats.score)) / people.length)
       : 0,
@@ -152,29 +150,4 @@ export function loanFunnel(
     label: LOAN_STATUS_LABELS[status],
     count: apps.filter((a) => a.status === status).length,
   }));
-}
-
-/** Income tracked per region: the total and the average per farmer, highest total first. */
-export function incomeByRegion(
-  farmers: FarmerAccount[],
-): { region: string; total: number; average: number; farmers: number }[] {
-  const byRegion = new Map<string, number[]>(REGIONS.map((region) => [region, []]));
-  for (const f of registered(farmers)) {
-    byRegion.set(f.profile.region, [...(byRegion.get(f.profile.region) ?? []), f.stats.income]);
-  }
-  return [...byRegion.entries()]
-    .map(([region, incomes]) => ({
-      region,
-      total: sum(incomes),
-      average: incomes.length ? Math.round(sum(incomes) / incomes.length) : 0,
-      farmers: incomes.length,
-    }))
-    .sort((a, b) => b.total - a.total || a.region.localeCompare(b.region));
-}
-
-/** The highest credit scores (income breaks ties). */
-export function topFarmers(farmers: FarmerAccount[], n = 10): FarmerAccount[] {
-  return [...registered(farmers)]
-    .sort((a, b) => b.stats.score - a.stats.score || b.stats.income - a.stats.income)
-    .slice(0, n);
 }

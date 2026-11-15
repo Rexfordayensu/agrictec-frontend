@@ -15,9 +15,8 @@ import {
   subDays,
   subMonths,
 } from 'date-fns';
-import { APPROVED_LOAN_STATUSES, LOAN_STATUS_LABELS } from '@/lib/admin/loan-status';
+import { LOAN_STATUS_LABELS } from '@/lib/admin/loan-status';
 import { can } from '@/lib/admin/permissions';
-import { percentChange } from '@/lib/calculations/finance';
 import type {
   AdminRole,
   FarmerAccount,
@@ -63,8 +62,6 @@ const within = (iso: string, from: Date | null, to: Date) => {
 };
 
 const registered = (farmers: FarmerAccount[]) => farmers.filter((f) => !f.isGuest);
-const sum = (values: number[]) => values.reduce((total, value) => total + value, 0);
-const approvedish = (a: LoanApplication) => APPROVED_LOAN_STATUSES.includes(a.status);
 
 export interface OverviewKpis {
   totalFarmers: number;
@@ -93,67 +90,6 @@ export interface OverviewKpis {
   farmersTrend: number[];
   /** Amount requested per month over the last 12 months. */
   loanTrend: number[];
-}
-
-export function overviewKpis(
-  farmers: FarmerAccount[],
-  apps: LoanApplication[],
-  flags: RiskFlag[],
-  verifications: VerificationRequest[],
-  range: DateRange,
-  now = new Date(),
-): OverviewKpis {
-  const people = registered(farmers);
-  const { start, previousStart, end } = rangeWindow(range, now);
-  const joined = (from: Date | null, to: Date) =>
-    people.filter((f) => within(f.createdAt, from, to)).length;
-  const newInRange = joined(start, end);
-  const appsIn = (from: Date | null, to: Date) => apps.filter((a) => within(a.createdAt, from, to));
-  const rangeApps = appsIn(start, end);
-  const decided = rangeApps.filter((a) => approvedish(a) || a.status === 'rejected');
-  const approved = rangeApps.filter(approvedish);
-  const active30 = people.filter(
-    (f) => f.lastActiveAt && differenceInCalendarDays(now, new Date(f.lastActiveAt)) <= 30,
-  ).length;
-  const pending = verifications.filter((v) => v.status === 'pending');
-  const open = flags.filter((f) => f.status === 'open');
-  const months = Array.from({ length: 12 }, (_, i) => startOfMonth(subMonths(now, 11 - i)));
-
-  return {
-    totalFarmers: people.length,
-    newInRange,
-    newDelta:
-      start && previousStart ? percentChange(newInRange, joined(previousStart, start)) : null,
-    active30,
-    activeShare: people.length ? Math.round((active30 / people.length) * 100) : 0,
-    averageScore: people.length
-      ? Math.round(sum(people.map((f) => f.stats.score)) / people.length)
-      : 0,
-    incomeTracked: sum(people.map((f) => f.stats.income)),
-    earningFarmers: people.filter((f) => f.stats.income > 0).length,
-    loanRequested: sum(rangeApps.map((a) => a.amount)),
-    loanCount: rangeApps.length,
-    loanDelta:
-      start && previousStart
-        ? percentChange(
-            sum(rangeApps.map((a) => a.amount)),
-            sum(appsIn(previousStart, start).map((a) => a.amount)),
-          )
-        : null,
-    approvalRate: decided.length ? Math.round((approved.length / decided.length) * 100) : null,
-    approvedCount: approved.length,
-    decidedCount: decided.length,
-    pendingVerifications: pending.length,
-    oldestPendingDays: pending.length
-      ? Math.max(...pending.map((v) => differenceInCalendarDays(now, new Date(v.submittedAt))))
-      : null,
-    openFlags: open.length,
-    openHighFlags: open.filter((f) => f.severity === 'high').length,
-    farmersTrend: months.map(
-      (month) => people.filter((f) => new Date(f.createdAt) < addMonths(month, 1)).length,
-    ),
-    loanTrend: months.map((month) => sum(appsIn(month, addMonths(month, 1)).map((a) => a.amount))),
-  };
 }
 
 /**

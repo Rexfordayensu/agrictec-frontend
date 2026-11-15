@@ -61,11 +61,11 @@ export interface FarmerAccount {
   createdAt: string;
   lastActiveAt?: string;
   profile: Profile;
+  /** Counts and the score only: a farmer's amounts never reach the console (they are seen one
+   *  entry at a time in Transactions review). */
   stats: {
     records: number;
     momo: number;
-    income: number;
-    expenses: number;
     score: number;
     diagnoses: number;
   };

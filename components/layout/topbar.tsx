@@ -1,16 +1,14 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { type LucideIcon } from 'lucide-react';
 import { NotificationBell } from '@/components/layout/notification-bell';
 import { GlobalSearch } from '@/components/layout/global-search';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
-import { ProfileAvatar } from '@/components/profile/profile-avatar';
+import { TopbarUserMenu } from '@/components/layout/topbar-user-menu';
 import { isItemActive, NAV_SECTIONS, PAGE_META } from '@/constants/navigation';
 import { cn } from '@/lib/utils';
 import { navKey, useT } from '@/lib/i18n';
-import { useProfileStore } from '@/store/profile-store';
 
 const iconButtonClass =
   'relative inline-flex size-11 shrink-0 items-center justify-center rounded-xl text-text-dim transition-colors hover:bg-glass-strong hover:text-text';
@@ -49,8 +47,6 @@ export function Topbar() {
   const pathname = usePathname();
   const t = useT();
   const { title, subtitle, section, icon: Icon } = pageInfo(pathname);
-  const name = useProfileStore((s) => s.profile?.name.trim() || 'Farmer');
-  const photoDataUrl = useProfileStore((s) => s.profile?.photoDataUrl);
 
   // Both breakpoints in px so Tailwind orders them (it cannot sort rem md: against px 900px):
   // full-bleed below 900px, inset from the edges from 900px. On desktop the bar rests at the
@@ -93,20 +89,7 @@ export function Topbar() {
           <GlobalSearch />
           <NotificationBell buttonClassName={iconButtonClass} />
           <ThemeToggle />
-          <Link
-            href="/settings/profile"
-            aria-label={`Open ${name}'s profile`}
-            className="hover:bg-glass-strong focus-visible:outline-accent inline-flex min-h-11 min-w-11 items-center justify-center gap-2 rounded-xl p-1"
-          >
-            <ProfileAvatar
-              name={name}
-              photoDataUrl={photoDataUrl}
-              className="ring-accent/30 size-9 text-xs ring-1"
-            />
-            <span className="text-text hidden max-w-24 truncate pr-1 text-xs font-semibold min-[1200px]:block">
-              {name.split(/\s+/)[0]}
-            </span>
-          </Link>
+          <TopbarUserMenu />
         </div>
       </div>
     </header>

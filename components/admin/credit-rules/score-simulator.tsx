@@ -6,11 +6,10 @@ import { FarmerCombobox } from '@/components/admin/credit-rules/farmer-combobox'
 import { FACTOR_COLOR } from '@/components/admin/credit-rules/fields';
 import { DeltaBadge } from '@/components/admin/credit-rules/impact-preview';
 import { DEFAULT_CREDIT_CONFIG } from '@/lib/admin/defaults';
-import { FACTORS, type FarmerChoice, type ScoringInput } from '@/lib/admin/credit-rules';
+import { FACTORS, type FarmerChoice, type SimulatedFarmer } from '@/lib/admin/credit-rules';
 import { configService } from '@/services/admin/config.service';
 import { bandTone } from '@/lib/admin/score-tone';
 import {
-  calculateCreditScore,
   factorPoints,
   factorsFromCounts,
   scoreFromFactors,
@@ -86,17 +85,26 @@ export function ScoreSimulator({
   const [mode, setMode] = useState<Mode>('farmer');
   const [chosenId, setUserId] = useState<string | null>(null);
   const userId = chosenId ?? farmers[0]?.userId ?? null;
-  // Only the chosen farmer's records are fetched, when they are chosen.
-  const [loaded, setLoaded] = useState<ScoringInput | null>(null);
+  // The API scores the chosen farmer under both rule sets: their entries never leave it.
+  const [loaded, setLoaded] = useState<SimulatedFarmer | null>(null);
+  const draftKey = JSON.stringify(draft);
   useEffect(() => {
     if (!userId || mode !== 'farmer') return;
     const controller = new AbortController();
-    configService.getScoringInput(userId, controller.signal).then(
-      (input) => setLoaded(input),
-      () => {},
-    );
-    return () => controller.abort();
-  }, [userId, mode]);
+    // Waits for typing to pause before asking again.
+    const timer = window.setTimeout(() => {
+      configService
+        .simulate(userId, JSON.parse(draftKey) as CreditConfigInput, controller.signal)
+        .then(
+          (result) => setLoaded(result),
+          () => {},
+        );
+    }, 300);
+    return () => {
+      window.clearTimeout(timer);
+      controller.abort();
+    };
+  }, [userId, mode, draftKey]);
   const [counts, setCounts] = useState<ScoreCounts>({
     activeMonths: 4,
     records: 18,
@@ -109,12 +117,10 @@ export function ScoreSimulator({
   const draftConfig = asConfig(draft);
   const farmer = loaded && loaded.userId === userId ? loaded : undefined;
 
-  const score = (config: CreditConfig): CreditScoreBreakdown =>
-    mode === 'farmer' && farmer
-      ? calculateCreditScore(farmer.records, farmer.momo, farmer.profile, config)
-      : scoreFromFactors(factorsFromCounts(counts, config), config.weights);
-  const now = score(liveConfig);
-  const next = score(draftConfig);
+  const custom = (config: CreditConfig): CreditScoreBreakdown =>
+    scoreFromFactors(factorsFromCounts(counts, config), config.weights);
+  const now = mode === 'farmer' && farmer ? farmer.live : custom(liveConfig);
+  const next = mode === 'farmer' && farmer ? farmer.draft : custom(draftConfig);
   const nowPoints = factorPoints(now, liveConfig.weights);
   const nextPoints = factorPoints(next, draftConfig.weights);
 
@@ -155,15 +161,10 @@ export function ScoreSimulator({
             {farmer && (
               <dl className="grid grid-cols-2 gap-2 text-xs">
                 {[
-                  ['Records', farmer.records.length],
-                  ['MoMo', farmer.momo.length],
-                  [
-                    'Verified',
-                    [...farmer.records, ...farmer.momo].filter(
-                      (e) => e.verificationStatus === 'verified',
-                    ).length,
-                  ],
-                  ['Region', farmer.profile.region],
+                  ['Records', farmer.records],
+                  ['MoMo', farmer.momo],
+                  ['Verified', farmer.verified],
+                  ['Region', farmer.region],
                 ].map(([label, v]) => (
                   <div key={label} className="bg-bg-2/60 rounded-lg px-2.5 py-2">
                     <dt className="text-text-mute">{label}</dt>

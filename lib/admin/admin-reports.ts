@@ -115,7 +115,6 @@ function platform(
       { label: 'Active (30 days)', value: String(k.activeLast30Days) },
       { label: 'New this month', value: String(k.newThisMonth) },
       { label: 'Average score', value: String(Math.round(k.averageScore)) },
-      { label: 'Recorded income', value: money(k.totalIncome) },
       { label: 'Loans requested', value: money(k.loanRequested) },
       { label: 'Approval rate', value: k.approvalRate === null ? '—' : `${k.approvalRate}%` },
       { label: 'Pending verifications', value: String(k.pendingVerifications) },
@@ -156,7 +155,6 @@ function regions(
       region,
       count: here.length,
       score: Math.round(avg(here.map((f) => f.stats.score))),
-      income: sum(here.map((f) => f.stats.income)),
       verified: pct(verified, here.length),
     };
   }).sort((a, b) => b.count - a.count);
@@ -166,18 +164,16 @@ function regions(
       { label: 'Farmers', value: String(people.length) },
       { label: 'Regions covered', value: `${rows.filter((r) => r.count > 0).length} of 16` },
       { label: 'Ghana Card verified', value: `${pct(verifiedAll, people.length)}%` },
-      { label: 'Recorded income', value: money(sum(rows.map((r) => r.income))) },
     ],
     tables: [
       {
         title: 'Per region',
-        headers: ['Region', 'Farmers', 'Average score', 'Income (GHS)', 'Ghana Card verified'],
-        numeric: [1, 2, 3, 4],
+        headers: ['Region', 'Farmers', 'Average score', 'Ghana Card verified'],
+        numeric: [1, 2, 3],
         rows: rows.map((r) => [
           r.region,
           r.count,
           r.count ? r.score : '—',
-          Math.round(r.income),
           r.count ? `${r.verified}%` : '—',
         ]),
       },

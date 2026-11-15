@@ -1,14 +1,13 @@
 // Farmer administration through the API. The API checks the admin's permission on every call
 // and writes the audit entry in the same transaction as the change.
 
-import { api, apiBlob, apiFile } from '@/services/api';
+import { api, apiFile } from '@/services/api';
 import type {
   FarmerAccount,
   FarmerDetail,
   VerificationKind,
   VerificationRequest,
 } from '@/types/admin';
-import type { FinancialReport, FinancialSummary, ReportMonths } from '@/types/financial';
 
 const farmer = (id: string) => `/admin/farmers/${encodeURIComponent(id)}`;
 
@@ -65,20 +64,6 @@ export const farmersService = {
     return api<VerificationRequest[]>(`${farmer(id)}/verifications`);
   },
 
-  /** The farmer's own figures (farmers.view). Each look is written to the audit log. */
-  async financialSummary(id: string, months: ReportMonths): Promise<FinancialSummary> {
-    return api<FinancialSummary>(`${farmer(id)}/financial-summary`, { query: { months } });
-  },
-
-  async reports(id: string): Promise<FinancialReport[]> {
-    return api<FinancialReport[]>(`${farmer(id)}/reports`);
-  },
-
-  /** A report the farmer generated (each download is audited). */
-  async reportFile(id: string, reportId: string): Promise<Blob> {
-    return apiBlob(`${farmer(id)}/reports/${encodeURIComponent(reportId)}/file`);
-  },
-
   async get(id: string): Promise<FarmerAccount> {
     return api<FarmerAccount>(farmer(id));
   },
@@ -115,11 +100,6 @@ export const farmersService = {
       { method: 'POST' },
     );
     return temporaryPassword;
-  },
-
-  /** One farmer's records as CSV (newest first). Only the count is logged. */
-  async exportRecordsCSV(id: string): Promise<string> {
-    return (await apiFile(`${farmer(id)}/records.csv`)).content;
   },
 
   /** CSV of the given farmers (or all). Never a password hash or Ghana Card digits. */
