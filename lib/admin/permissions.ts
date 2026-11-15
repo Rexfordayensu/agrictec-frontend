@@ -162,3 +162,13 @@ export class PermissionError extends Error {
 export function assertCan(role: Role | null | undefined, permission: Permission): void {
   if (!can(role, permission)) throw new PermissionError(permission);
 }
+
+/**
+ * Bulk exports of farmers' contact details and farm pins (CSV, report builder): Admin and Super
+ * admin only (app/domain/permissions.py, can_export_contacts). The API enforces it.
+ */
+export const canExportContacts = (role: Role | null | undefined): boolean =>
+  role === 'admin' || role === 'super_admin';
+
+/** The report builder's contact columns (app/domain/reports.py, CONTACT_COLUMNS). */
+export const CONTACT_COLUMNS = ['email', 'phone'];

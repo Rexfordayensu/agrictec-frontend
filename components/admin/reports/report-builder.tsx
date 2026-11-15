@@ -29,6 +29,8 @@ import {
 } from '@/lib/admin/report-builder';
 import { downloadFile } from '@/lib/export/csv';
 import { cn } from '@/lib/utils';
+import { useAdminRole } from '@/hooks/admin/use-can';
+import { canExportContacts, CONTACT_COLUMNS } from '@/lib/admin/permissions';
 import { reportsService } from '@/services/admin/reports.service';
 
 const PREVIEW_ROWS = 20;
@@ -65,7 +67,12 @@ export function ReportBuilder() {
   });
   const [result, setResult] = useState<BuilderResult | null>(null);
   const [exporting, setExporting] = useState(false);
-  const dataset = datasetById(spec.dataset);
+  const role = useAdminRole();
+  const full = datasetById(spec.dataset);
+  // Contact columns only for roles allowed to export them in bulk (the API drops them too).
+  const dataset = canExportContacts(role)
+    ? full
+    : { ...full, columns: full.columns.filter((c) => !CONTACT_COLUMNS.includes(c.key)) };
 
   // Refresh the preview whenever the choices change.
   useEffect(() => {

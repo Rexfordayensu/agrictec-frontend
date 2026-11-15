@@ -10,7 +10,8 @@ export default async function LoginPage({ searchParams }: PageProps<'/login'>) {
     reason === 'suspended' ||
     reason === 'deleted' ||
     reason === 'expired' ||
-    reason === 'demo_ended'
+    reason === 'demo_ended' ||
+    reason === 'closed'
       ? reason
       : undefined;
   // Keyed by the reason, so a note added after the page opened is shown.

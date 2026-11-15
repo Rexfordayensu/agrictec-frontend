@@ -29,12 +29,14 @@ import type { Session } from '@/types';
 import './login.css';
 
 /** Why the app sent the farmer back here (set by DataLoader). */
-export type LoginReason = 'suspended' | 'deleted' | 'expired' | 'demo_ended';
+export type LoginReason = 'suspended' | 'deleted' | 'expired' | 'demo_ended' | 'closed';
 
 const REASON_MESSAGES: Record<LoginReason, string> = {
   suspended: SUSPENDED_MESSAGE,
   deleted: 'This account no longer exists. Create a new account or contact support.',
   expired: 'You were signed out after a week without using AgriCtec. Sign in again to continue.',
+  closed:
+    'Your account and everything in it were deleted. You can create a new account at any time.',
   demo_ended:
     'Your guest demo has ended: a demo lasts one day, and what you tried was deleted from this phone. Create a free account to keep your farm records.',
 };
