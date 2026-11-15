@@ -14,6 +14,8 @@ function ThemeColorSync() {
   const { resolvedTheme } = useTheme();
   useEffect(() => {
     if (resolvedTheme !== 'light' && resolvedTheme !== 'dark') return;
+    // The launch splash keeps the bars navy and sets this theme's colour when it ends.
+    if (document.getElementById('agrictec-splash')?.dataset.state === 'show') return;
     for (const meta of document.querySelectorAll<HTMLMetaElement>('meta[name="theme-color"]')) {
       meta.content = THEME_COLORS[resolvedTheme];
     }
