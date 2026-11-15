@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { THEME_COLORS } from '@/lib/theme-colors';
 import { Inter, Outfit } from 'next/font/google';
 import { PageBackground } from '@/components/layout/page-background';
+import { LaunchSplash } from '@/components/pwa/launch-splash';
 import { AppProviders } from '@/components/providers/app-providers';
 import './globals.css';
 
@@ -49,6 +50,8 @@ export default function RootLayout({ children }: LayoutProps<'/'>) {
     >
       {/* Browser extensions (e.g. Grammarly) add attributes to <body> before React hydrates. */}
       <body suppressHydrationWarning className="overscroll-none">
+        {/* The installed app's animated opening: first in the page, so it covers the first paint. */}
+        <LaunchSplash />
         {/* One shared background for every page, including the 404 and maintenance screens. */}
         <PageBackground />
         <AppProviders>{children}</AppProviders>
