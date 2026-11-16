@@ -506,7 +506,7 @@ test('market and weather have distinct desktop/mobile destinations and dashboard
   }
 });
 
-test('automatic location detection shares in-flight permission requests and tries once per account/tab', async () => {
+test('automatic location detection shares in-flight requests, refreshes on each visit and stops only after a refusal', async () => {
   let calls = 0;
   let success;
   const browser = {
@@ -521,15 +521,28 @@ test('automatic location detection shares in-flight permission requests and trie
   assert.equal(calls, 1);
   success({ coords: { latitude: 6.69, longitude: -1.62, accuracy: 35 } });
   assert.equal((await first).latitude, 6.69);
-  assert.equal(await requestInitialWeatherLocation('test-auto-location', browser), null);
-  assert.equal(calls, 1, 'Navigation preserves the current or manually adjusted selection');
-  const denied = {
+  const next = requestInitialWeatherLocation('test-auto-location', browser);
+  assert.equal(calls, 2, 'The next visit asks for the position again: the farmer may have moved');
+  success({ coords: { latitude: 6.7, longitude: -1.61, accuracy: 20 } });
+  assert.equal((await next).latitude, 6.7);
+  const slow = {
     getCurrentPosition(_success, fail) {
       calls++;
+      fail({ code: 3 });
+    },
+  };
+  await assert.rejects(requestInitialWeatherLocation('test-auto-timeout', slow), /in time/);
+  const before = calls;
+  await assert.rejects(requestInitialWeatherLocation('test-auto-timeout', slow), /in time/);
+  assert.ok(calls > before, 'A weak signal is tried again on the next visit');
+  let refusals = 0;
+  const denied = {
+    getCurrentPosition(_success, fail) {
+      refusals++;
       fail({ code: 1 });
     },
   };
   await assert.rejects(requestInitialWeatherLocation('test-auto-denied', denied), /denied/);
   assert.equal(await requestInitialWeatherLocation('test-auto-denied', denied), null);
-  assert.equal(calls, 2, 'Denied permission is not repeatedly requested on navigation');
+  assert.equal(refusals, 1, 'Denied permission is not repeatedly requested on navigation');
 });

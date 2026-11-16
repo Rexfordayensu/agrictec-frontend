@@ -113,17 +113,19 @@ export function WeatherHero({
           <Navigation aria-hidden="true" />
           <p>
             {error ||
-              (device
-                ? approximate
-                  ? 'Your device returned an approximate position. Showing the region near that position; choose your town for a more specific forecast.'
-                  : /outside Ghana/.test(location.label)
-                    ? 'Your detected position is outside Ghana. Weather is for that position.'
-                    : !place && !naming
-                      ? 'Your position was found, but its town and region could not be named. Try again or choose your town.'
-                      : 'Weather follows your detected position. Place names depend on local map coverage.'
-                : isFarm
-                  ? 'Showing your saved farm location. Allow location access to see weather where you are now.'
-                  : 'Allow location access to get accurate and farm-relevant weather updates for your area.')}
+              (locating
+                ? 'Looking for your current location… Allow location access if your browser asks.'
+                : device
+                  ? approximate
+                    ? 'Your device returned an approximate position. Showing the region near that position; choose your town for a more specific forecast.'
+                    : /outside Ghana/.test(location.label)
+                      ? 'Your detected position is outside Ghana. Weather is for that position.'
+                      : !place && !naming
+                        ? 'Your position was found, but its town and region could not be named. Try again or choose your town.'
+                        : 'Weather follows your detected position. Place names depend on local map coverage.'
+                  : isFarm
+                    ? 'Showing your saved farm location. Allow location access to see weather where you are now.'
+                    : 'Allow location access to get accurate and farm-relevant weather updates for your area.')}
           </p>
         </div>
         {!approximate && (location.village || location.area || location.district) && (

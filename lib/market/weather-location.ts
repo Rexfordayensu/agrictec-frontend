@@ -52,17 +52,45 @@ export const LOCATION_ATTEMPTS: PositionOptions[] = [
   { enableHighAccuracy: true, timeout: 30000, maximumAge: 0 },
 ];
 
+/** Why the device's position couldn't be had, so callers can tell a refusal from bad signal. */
+export class LocationError extends Error {
+  constructor(
+    readonly kind: 'denied' | 'timeout' | 'unavailable' | 'insecure' | 'unsupported',
+    message: string,
+  ) {
+    super(message);
+  }
+}
+
 function position(geolocation: Geolocation, options: PositionOptions) {
   return new Promise<GeolocationPosition>((resolve, reject) =>
     geolocation.getCurrentPosition(resolve, reject, options),
   );
 }
 
+/** The label a position from the device carries until it is named. */
+export const CURRENT_LOCATION_LABEL = 'Your current location';
+
+/** A position the device reported (not a place the farmer picked). */
+export const isDeviceLocation = (location: WeatherLocation | null | undefined) =>
+  location?.kind === 'coordinates' && location.label === CURRENT_LOCATION_LABEL;
+
+/** Browsers only share location on https (or localhost); elsewhere they refuse at once. */
+function insecurePage() {
+  return typeof window !== 'undefined' && window.isSecureContext === false;
+}
+
 /** The browser always controls permission. The position is named separately (nameWeatherLocation). */
 export async function requestWeatherLocation(
   geolocation = typeof navigator !== 'undefined' ? navigator.geolocation : undefined,
 ): Promise<WeatherLocation> {
-  if (!geolocation) throw new Error('This browser can’t share your location.');
+  if (insecurePage())
+    throw new LocationError(
+      'insecure',
+      'Location only works when the app is opened over a secure (https) address.',
+    );
+  if (!geolocation)
+    throw new LocationError('unsupported', 'This browser can’t share your location.');
   let found: GeolocationPosition | undefined;
   let failure: GeolocationPositionError | undefined;
   for (const options of LOCATION_ATTEMPTS) {
@@ -75,16 +103,23 @@ export async function requestWeatherLocation(
     }
   }
   if (!found)
-    throw new Error(
-      failure?.code === 1
-        ? 'Location permission was denied.'
-        : failure?.code === 3
-          ? 'Your location could not be found in time (the GPS signal may be weak).'
-          : 'Your location could not be detected.',
-    );
+    throw failure?.code === 1
+      ? new LocationError(
+          'denied',
+          'Location access was denied for this site. Allow it from the location icon in the browser’s address bar, then tap “Use my current location”.',
+        )
+      : failure?.code === 3
+        ? new LocationError(
+            'timeout',
+            'Your location could not be found in time (the GPS signal may be weak).',
+          )
+        : new LocationError(
+            'unavailable',
+            'Your device could not work out its position. Check that Location (GPS) is turned on in your device settings.',
+          );
   const location: WeatherLocation = {
     kind: 'coordinates',
-    label: 'Your current location',
+    label: CURRENT_LOCATION_LABEL,
     latitude: found.coords.latitude,
     longitude: found.coords.longitude,
     accuracyMetres: found.coords.accuracy,
@@ -140,19 +175,29 @@ export async function nameWeatherLocation(
 }
 
 const initialRequests = new Map<string, Promise<WeatherLocation | null>>();
-/** One automatic attempt per account/tab, shared across mounts and React Strict Mode effects. */
+/**
+ * The automatic attempt when the weather page opens, shared across mounts and React Strict Mode
+ * effects. It runs on every visit, so the weather follows where the farmer is now; a timeout or
+ * a weak signal is simply tried again next time. Only a refusal (or an http page, where the
+ * browser always refuses) stops it for the rest of the tab: the farmer said no.
+ */
 export function requestInitialWeatherLocation(
   key: string,
   geolocation?: Geolocation,
 ): Promise<WeatherLocation | null> {
   const pending = initialRequests.get(key);
   if (pending) return pending;
-  const attemptedKey = `${key}:auto-attempted`;
-  if (sessionStore.get(attemptedKey, false)) return Promise.resolve(null);
-  const request = requestWeatherLocation(geolocation).finally(() => {
-    sessionStore.set(attemptedKey, true);
-    initialRequests.delete(key);
-  });
+  const refusedKey = `${key}:auto-refused`;
+  if (sessionStore.get(refusedKey, false)) return Promise.resolve(null);
+  const request = requestWeatherLocation(geolocation)
+    .catch((error: unknown) => {
+      if (error instanceof LocationError && (error.kind === 'denied' || error.kind === 'insecure'))
+        sessionStore.set(refusedKey, true);
+      throw error;
+    })
+    .finally(() => {
+      initialRequests.delete(key);
+    });
   initialRequests.set(key, request);
   return request;
 }
