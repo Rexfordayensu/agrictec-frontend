@@ -273,3 +273,362 @@
     right: -580px;
   }
 }
+
+/* Desktop: a full-height split screen. The photo fills the left half and never
+   moves; only the form half scrolls (sign-in fits without scrolling). */
+.agric-login-screen {
+  display: block;
+  height: 100svh;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+}
+.agric-login-content {
+  max-width: none;
+  width: 100%;
+  height: 100%;
+}
+.agric-login-side {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px 32px;
+}
+/* Auto margins centre the form, and fall back to the top once it overflows. */
+.agric-login-sideInner {
+  width: 100%;
+  max-width: 440px;
+  margin: auto;
+}
+.agric-login-brand {
+  margin-bottom: 18px;
+}
+.agric-login-logo {
+  gap: 10px;
+}
+.agric-login-logo > svg {
+  width: 52px;
+  height: 46px;
+}
+.agric-login-logo > div > p:first-child {
+  font-size: var(--text-2xl);
+  font-weight: 750;
+  letter-spacing: -0.5px;
+}
+.agric-login-logo > div > p:last-child {
+  font-size: var(--text-xs);
+  letter-spacing: 3px;
+}
+.agric-login-brand > p {
+  margin-top: 6px;
+  font-size: var(--text-sm);
+}
+.agric-login-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  height: 100%;
+}
+
+/* Form panel */
+.agric-login-panel {
+  padding: 24px 28px;
+  border-radius: 20px;
+}
+.agric-login-heading h1 {
+  font-size: var(--text-2xl);
+  letter-spacing: -0.5px;
+  line-height: 1.25;
+}
+.agric-login-heading p {
+  margin-top: 4px;
+  font-size: var(--text-sm);
+}
+.agric-login-form {
+  gap: 14px;
+  margin-top: 18px;
+}
+.agric-login-form label {
+  font-size: var(--text-xs);
+}
+.agric-login-inputWrap input {
+  min-height: 44px;
+  padding: 10px 44px 10px 44px;
+  border-radius: 10px;
+  font-size: var(--text-sm);
+}
+.agric-login-inputWrap::after {
+  display: none;
+}
+.agric-login-fieldIcon {
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+}
+.agric-login-inputWrap button svg {
+  width: 18px;
+  height: 18px;
+}
+.agric-login-forgot {
+  margin-top: -6px;
+  font-size: var(--text-small);
+}
+.agric-login-submit {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: var(--text-base);
+  gap: 8px;
+}
+.agric-login-submit svg {
+  width: 18px;
+  height: 18px;
+}
+.agric-login-form > p {
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+.agric-login-divider {
+  margin: 16px 0 14px;
+}
+.agric-login-guest button {
+  min-height: 44px;
+  border-radius: 10px;
+  font-size: var(--text-sm);
+  gap: 8px;
+}
+.agric-login-guest button svg {
+  width: 18px;
+  height: 18px;
+}
+.agric-login-guest p {
+  margin-top: 8px;
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+.agric-login-signup {
+  margin-top: 16px;
+  font-size: var(--text-sm);
+}
+.agric-login-legal {
+  margin-top: 16px;
+  gap: 20px;
+  font-size: var(--text-small);
+  color: #bdcadc;
+}
+
+/* Photo half: edge to edge, full height, copy centred vertically. */
+.agric-login-story {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+  border-right: 1px solid #2d6f75;
+  background: #063f38;
+}
+.agric-login-storyPhoto {
+  object-fit: cover;
+  object-position: center;
+  z-index: -3;
+}
+.agric-login-storyShade {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    linear-gradient(90deg, #002322f5 0%, #002322db 28%, #0023225c 55%, transparent 76%),
+    linear-gradient(0deg, #00462f42, transparent 30%);
+}
+.agric-login-storyContent {
+  padding: 48px 9% 120px;
+}
+.agric-login-storyAccent {
+  width: 40px;
+  height: 5px;
+  border-radius: 9px;
+  background: linear-gradient(90deg, #00edbc, #61ffa3);
+  margin-bottom: 12px;
+}
+.agric-login-story h2 {
+  font-family: var(--font-inter), sans-serif;
+  font-size: var(--text-3xl);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.8px;
+}
+.agric-login-story h2 span {
+  color: #00efb5;
+  background: linear-gradient(100deg, #00f0c0, #46ed89);
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.agric-login-storyContent > p {
+  max-width: 320px;
+  margin-top: 14px;
+  font-size: var(--text-sm);
+  line-height: 1.55;
+  color: #d0ddeb;
+}
+.agric-login-benefits {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 18px;
+  padding: 0;
+  list-style: none;
+  max-width: 320px;
+}
+.agric-login-benefits li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  line-height: 1.4;
+}
+.agric-login-benefits li > span {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  background: #234b4b83;
+  color: #7effbe;
+}
+.agric-login-benefits li:first-child > span {
+  color: #00f3bc;
+}
+.agric-login-benefits svg {
+  width: 20px;
+  height: 20px;
+  stroke-width: 2;
+}
+.agric-login-storyWave {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  z-index: -1;
+}
+
+/* Sign-up: more fields, so tighter gaps; its form half scrolls. */
+.agric-login-screen--signup .agric-login-form {
+  gap: 12px;
+}
+.agric-login-screen--signup .agric-login-benefits li > span {
+  background: #00855273;
+}
+
+.agric-login-screen a:focus-visible,
+.agric-login-screen button:focus-visible {
+  outline: 2px solid #00edbc;
+  outline-offset: 4px;
+}
+
+/* The photo already carries the tagline, so the header drops it on desktop. */
+@media (min-width: 761px) {
+  .agric-login-brand > p {
+    display: none;
+  }
+}
+/* Short laptop screens (768px tall): tighten so sign-in still fits. */
+@media (min-width: 761px) and (max-height: 760px) {
+  .agric-login-side {
+    padding-top: 12px;
+    padding-bottom: 12px;
+  }
+  .agric-login-brand {
+    margin-bottom: 12px;
+  }
+  .agric-login-logo > svg {
+    width: 44px;
+    height: 40px;
+  }
+  .agric-login-panel {
+    padding: 20px 24px;
+  }
+  .agric-login-form {
+    margin-top: 14px;
+    gap: 12px;
+  }
+  .agric-login-inputWrap input,
+  .agric-login-submit,
+  .agric-login-guest button {
+    min-height: 42px;
+  }
+  .agric-login-divider {
+    margin: 12px 0 10px;
+  }
+  .agric-login-signup,
+  .agric-login-legal {
+    margin-top: 12px;
+  }
+}
+@media (max-width: 1100px) {
+  .agric-login-side {
+    padding: 20px;
+  }
+  .agric-login-panel {
+    padding: 22px 22px;
+  }
+  .agric-login-storyContent {
+    padding: 32px 28px 100px;
+  }
+  .agric-login-story h2 {
+    font-size: var(--text-2xl);
+  }
+  .agric-login-storyContent > p {
+    max-width: 260px;
+  }
+  .agric-login-benefits {
+    max-width: 260px;
+  }
+  .agric-login-benefits li {
+    font-size: var(--text-small);
+    gap: 10px;
+  }
+  .agric-login-storyShade {
+    background: linear-gradient(90deg, #002322f5, #002322bd 55%, #00232220);
+  }
+}
+/* Phones: no photo, and the whole page scrolls normally. */
+@media (max-width: 760px) {
+  .agric-login-screen {
+    height: auto;
+    min-height: 100svh;
+    overflow: hidden;
+  }
+  .agric-login-columns {
+    grid-template-columns: minmax(0, 1fr);
+    height: auto;
+  }
+  .agric-login-side {
+    height: auto;
+    overflow: visible;
+    padding: 20px 16px 24px;
+  }
+  .agric-login-sideInner {
+    max-width: 460px;
+    margin: 0 auto;
+  }
+  .agric-login-story {
+    display: none;
+  }
+  .agric-login-panel {
+    padding: 22px 20px;
+  }
+  .agric-login-legal {
+    margin-top: 20px;
+  }
+}
