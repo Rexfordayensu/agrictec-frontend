@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import dynamic from 'next/dynamic';
 import { WeatherHero } from '@/components/weather/weather-hero';
 import './weather-page.css';
 import Link from 'next/link';
@@ -36,6 +37,7 @@ import { Modal } from '@/components/ui/modal';
 import { Select } from '@/components/ui/select';
 import { Skeleton } from '@/components/ui/skeleton';
 import { WeatherIcon } from '@/components/ui/weather-icon';
+import type { LatLng, MapFocus } from '@/components/onboarding/farm-map';
 import { REGIONS } from '@/constants/regions';
 import { useLocationWeather } from '@/hooks/use-location-weather';
 import { outlookFor, seasonFor } from '@/lib/market/season';
@@ -265,7 +267,8 @@ function WeatherView({
         open={picking}
         onClose={() => setPicking(false)}
         farm={farm}
-        current={location}
+        current={shown}
+        device={isDeviceLocation(location) ? { ...shown, label: location.label } : null}
         onChoose={choose}
       />
     </div>
@@ -668,24 +671,73 @@ function Heading({
   );
 }
 
+/**
+ * The village or town for the form. A rough device position (over 10 km, often a desktop's) gives
+ * none, as on the banner: only its region is trustworthy.
+ */
+function townOf(location: WeatherLocation) {
+  if (isDeviceLocation(location) && (location.accuracyMetres ?? 0) > 10_000) return '';
+  return location.village ?? location.city ?? '';
+}
+
+/** The area map in the location picker (Leaflet needs the browser, so it loads there). */
+const AreaMap = dynamic(() => import('@/components/onboarding/farm-map'), {
+  ssr: false,
+  loading: () => <Skeleton className="h-56 rounded-2xl sm:h-64" />,
+});
+
+const pointOf = (location: WeatherLocation): LatLng | null =>
+  location.kind === 'coordinates' &&
+  location.latitude !== undefined &&
+  location.longitude !== undefined
+    ? { lat: location.latitude, lng: location.longitude }
+    : null;
+
+/** The district for the form; a rough device position gives none (see townOf). */
+function districtOf(location: WeatherLocation) {
+  if (isDeviceLocation(location) && (location.accuracyMetres ?? 0) > 10_000) return '';
+  return location.district ?? '';
+}
+
+/** "Ejisu Municipal District" → "ejisu": the part place results spell the same way. */
+const districtWord = (district: string) =>
+  district
+    .trim()
+    .toLowerCase()
+    .replace(/(municipal|metropolitan|district|assembly)/g, '')
+    .trim()
+    .split(/[s-]+/)[0] ?? '';
+
 /** Farm pin, current position, or a region and town: the same choices as before. */
 function LocationPicker({
   open,
   onClose,
   farm,
   current,
+  device = null,
   onChoose,
 }: {
   open: boolean;
   onClose: () => void;
   farm: WeatherLocation | null;
+  /** The place shown now, with its names, to start the fields from. */
   current: WeatherLocation;
+  /** The device's position when that is what's shown (its names included). */
+  device?: WeatherLocation | null;
   onChoose: (next: WeatherLocation, remember?: boolean) => void;
 }) {
   const id = useId();
   const request = useRef(0);
   const [region, setRegion] = useState(current.region ?? '');
-  const [city, setCity] = useState(current.city ?? '');
+  const [city, setCity] = useState(townOf(device ?? current));
+  const [district, setDistrict] = useState(districtOf(device ?? current));
+  // A position (the device's, or a spot tapped on the map), named, while the fields still show
+  // it: "Show weather" uses its exact coordinates. Editing a field drops it and the farmer's own
+  // entry is searched instead.
+  const [detected, setDetected] = useState<WeatherLocation | null>(device);
+  // The map's pin: the position above, else the place shown now when it is a point.
+  const [pin, setPin] = useState<LatLng | null>(() => pointOf(device ?? current));
+  const [focus, setFocus] = useState<MapFocus | null>(null);
   const [locating, setLocating] = useState(false);
   const [error, setError] = useState('');
   const [matches, setMatches] = useState<Awaited<ReturnType<typeof geocodingService.searchPlaces>>>(
@@ -702,9 +754,21 @@ function LocationPicker({
     const version = ++request.current;
     setLocating(true);
     setError('');
+    setMatches([]);
     try {
       const next = await requestWeatherLocation();
-      if (request.current === version) onChoose(next);
+      if (request.current !== version) return;
+      // The town and region at that position fill the fields (GET /geocoding/reverse). The label
+      // stays "Your current location", so the page keeps following the device.
+      const named = await nameWeatherLocation(next, geocodingService.reverse);
+      if (request.current !== version) return;
+      fill({ ...named, label: next.label });
+      setFocus((last) => ({
+        lat: next.latitude!,
+        lng: next.longitude!,
+        zoom: 14,
+        key: (last?.key ?? 0) + 1,
+      }));
     } catch (cause) {
       if (request.current === version)
         setError(cause instanceof Error ? cause.message : 'Choose your town below.');
@@ -713,10 +777,50 @@ function LocationPicker({
     }
   }
 
+  /** A named position fills the region, district and town, and moves the pin there. */
+  function fill(here: WeatherLocation) {
+    setDetected(here);
+    setPin(pointOf(here));
+    setRegion(here.region ?? '');
+    setCity(townOf(here));
+    setDistrict(districtOf(here));
+  }
+
+  /** A spot tapped (or the pin dragged) on the map: named, then filled in like the device's. */
+  async function pinned(point: LatLng) {
+    const version = ++request.current;
+    setPin(point);
+    setDetected(null);
+    setLocating(true);
+    setError('');
+    setMatches([]);
+    const spot: WeatherLocation = {
+      kind: 'coordinates',
+      label: 'Place chosen on the map',
+      latitude: point.lat,
+      longitude: point.lng,
+    };
+    const named = await nameWeatherLocation(spot, geocodingService.reverse);
+    if (request.current !== version) return;
+    setLocating(false);
+    fill(named);
+  }
+
+  function edited() {
+    request.current++;
+    setLocating(false);
+    setDetected(null);
+    setPin(null);
+    setError('');
+  }
+
   async function submit(event: FormEvent) {
     event.preventDefault();
+    if (detected) return onChoose(detected);
     if (!REGIONS.includes(region)) return setError('Choose a Ghanaian region.');
-    if (!city.trim()) {
+    // The town if there is one, else the district; neither: the region-wide forecast.
+    const name = city.trim() || district.trim();
+    if (!name) {
       onChoose({ kind: 'place', region, label: `${region}, Ghana` });
       return;
     }
@@ -726,10 +830,15 @@ function LocationPicker({
     setMatches([]);
     try {
       const results = await geocodingService.searchPlaces(
-        `${city.trim()}, ${region} Region`.slice(0, 120),
+        `${name}, ${region} Region`.slice(0, 120),
       );
       if (version !== request.current) return;
-      setMatches(results);
+      // A town named in several districts: the ones in the district given come first.
+      const inDistrict = (detail: string) =>
+        city.trim() && district.trim() && detail.toLowerCase().includes(districtWord(district))
+          ? 0
+          : 1;
+      setMatches([...results].sort((a, b) => inDistrict(a.detail) - inDistrict(b.detail)));
       if (!results.length)
         setError(
           'No matching town or village was found. Check the spelling, or choose the region only.',
@@ -765,14 +874,31 @@ function LocationPicker({
             Use my current location
           </Button>
         </div>
+        <div>
+          <AreaMap
+            value={pin}
+            // With a pin the map stays on it; a region picked without one moves the map there.
+            region={pin ? undefined : region || undefined}
+            focus={focus}
+            onChange={(point) => void pinned(point)}
+            onOutside={() => setError('Choose a place inside Ghana.')}
+            pinTitle="Weather location"
+            className="h-56 sm:h-64"
+          />
+          <p className="text-text-mute mt-1.5 text-xs">
+            Tap the map or drag the pin to choose the exact spot. Zoom in to see villages.
+          </p>
+        </div>
         <form onSubmit={(event) => void submit(event)} className="space-y-3">
           <label className="block">
             <span className="text-text-dim mb-1.5 block text-xs font-semibold">Region</span>
             <Select
               value={region}
               onChange={(e) => {
+                edited();
                 setRegion(e.target.value);
                 setCity('');
+                setDistrict('');
               }}
               aria-label="Weather region"
             >
@@ -784,13 +910,30 @@ function LocationPicker({
           </label>
           <label className="block">
             <span className="text-text-dim mb-1.5 block text-xs font-semibold">
+              District (optional)
+            </span>
+            <Input
+              value={district}
+              maxLength={120}
+              onChange={(e) => {
+                edited();
+                setDistrict(e.target.value);
+              }}
+              placeholder="e.g. Ejisu Municipal, Tamale Metropolitan"
+            />
+          </label>
+          <label className="block">
+            <span className="text-text-dim mb-1.5 block text-xs font-semibold">
               Village, town or city (optional)
             </span>
             <Input
               list={`${id}-cities`}
               value={city}
               maxLength={120}
-              onChange={(e) => setCity(e.target.value)}
+              onChange={(e) => {
+                edited();
+                setCity(e.target.value);
+              }}
               placeholder="e.g. Accra, Kumasi, Tamale"
             />
             <datalist id={`${id}-cities`}>
@@ -802,6 +945,19 @@ function LocationPicker({
           {error && (
             <p role="alert" className="text-ink-gold text-sm">
               {error}
+            </p>
+          )}
+          {detected && !error && (
+            <p role="status" className="text-ink-green flex items-start gap-2 text-sm">
+              <LocateFixed size={16} aria-hidden="true" className="mt-0.5 shrink-0" />
+              <span>
+                {!(detected.region || detected.city || detected.village)
+                  ? 'The position was found, but its town and region could not be named.'
+                  : isDeviceLocation(detected)
+                    ? 'Your current location is filled in.'
+                    : 'The place at the pin is filled in.'}{' '}
+                Tap “Show weather” to use it, or change the fields.
+              </span>
             </p>
           )}
           {matches.length > 0 && (

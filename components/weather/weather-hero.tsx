@@ -134,7 +134,7 @@ export function WeatherHero({
               location.village && `Village: ${location.village}`,
               location.area && `Area: ${location.area}`,
               location.city && `Town / city: ${location.city}`,
-              location.district,
+              location.district && `District: ${location.district}`,
             ]
               .filter(Boolean)
               .join(' · ')}
