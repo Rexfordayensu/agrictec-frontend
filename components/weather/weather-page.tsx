@@ -55,6 +55,7 @@ import {
 import {
   DEFAULT_WEATHER_LOCATION,
   GHANA_WEATHER_PLACES,
+  isDeviceLocation,
   nameWeatherLocation,
   requestInitialWeatherLocation,
   requestWeatherLocation,
@@ -90,6 +91,12 @@ export function WeatherPage() {
   );
 }
 
+/** A town, region or farm the farmer picked in this tab (a device position doesn't count). */
+function manualChoice(storageKey: string) {
+  const saved = sessionStore.get<WeatherLocation | null>(storageKey, null);
+  return validWeatherLocation(saved) && !isDeviceLocation(saved);
+}
+
 function WeatherView({
   storageKey,
   farm,
@@ -109,7 +116,9 @@ function WeatherView({
       : DEFAULT_WEATHER_LOCATION;
   });
   const [picking, setPicking] = useState(false);
-  const [locating, setLocating] = useState(false);
+  // The page looks for the device's position as it opens (see the effect below), unless the
+  // farmer picked a place in this tab: the banner says so from the first paint.
+  const [locating, setLocating] = useState(() => !manualChoice(storageKey));
   const [locationError, setLocationError] = useState('');
   const selection = useRef(0);
   const { state, loading, retry } = useLocationWeather(location);
@@ -164,22 +173,26 @@ function WeatherView({
     }
   }
 
-  // The weather follows where the farmer is: once per tab, unless they already chose a place,
-  // ask the browser for the current position (the browser asks permission). Refused or failed:
-  // the page stays on the farm.
+  // The weather follows where the farmer is: on every visit, unless they picked a place in this
+  // tab, ask the browser for the current position (the browser asks permission the first time).
+  // A position found on an earlier visit shows at once and is refreshed. Refused or failed: the
+  // page stays on the farm (or the last position) and says why.
   useEffect(() => {
-    if (validWeatherLocation(sessionStore.get<WeatherLocation | null>(storageKey, null))) return;
+    if (manualChoice(storageKey)) return;
     let active = true;
     const version = selection.current;
     void requestInitialWeatherLocation(storageKey)
       .then((here) => {
-        if (active && version === selection.current && here) choose(here);
+        if (!active || version !== selection.current) return;
+        if (here) choose(here);
+        else setLocating(false);
       })
       .catch((cause: unknown) => {
-        if (active && version === selection.current)
-          setLocationError(
-            `${cause instanceof Error ? cause.message : 'Location is unavailable.'} Showing the selected area; tap its name to choose a town or region.`,
-          );
+        if (!active || version !== selection.current) return;
+        setLocating(false);
+        setLocationError(
+          `${cause instanceof Error ? cause.message : 'Location is unavailable.'} Showing the selected area; tap its name to choose a town or region.`,
+        );
       });
     return () => {
       active = false;
@@ -192,7 +205,7 @@ function WeatherView({
     <div className="weather-reference @container space-y-5">
       <WeatherHero
         location={shown}
-        isCurrent={location.label === 'Your current location'}
+        isCurrent={isDeviceLocation(location)}
         isFarm={isFarm}
         naming={naming}
         locating={locating}
