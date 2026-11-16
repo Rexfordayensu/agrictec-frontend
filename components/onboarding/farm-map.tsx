@@ -60,6 +60,7 @@ export default function FarmMap({
   region,
   focus,
   interactive = true,
+  pinTitle = 'Your farm',
   className,
 }: {
   value: LatLng | null;
@@ -68,6 +69,8 @@ export default function FarmMap({
   region?: string;
   focus?: MapFocus | null;
   interactive?: boolean;
+  /** What the pin is called (its tooltip); the weather page's map marks a place, not a farm. */
+  pinTitle?: string;
   className?: string;
 }) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -196,7 +199,7 @@ export default function FarmMap({
       icon: PIN,
       draggable: interactive,
       keyboard: false,
-      title: 'Your farm',
+      title: pinTitle,
     }).addTo(map);
     marker.on('dragend', () => {
       const moved = pickRef.current(marker.getLatLng());
@@ -205,7 +208,7 @@ export default function FarmMap({
       if (!moved && last) marker.setLatLng([last.lat, last.lng]);
     });
     markerRef.current = marker;
-  }, [value, interactive, initialView]);
+  }, [value, interactive, initialView, pinTitle]);
 
   // ---- Moving the view ----
   // Only a region picked after the map opened moves it (the first view already fits the pin or

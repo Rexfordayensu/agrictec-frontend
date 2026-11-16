@@ -76,6 +76,40 @@ test('manual town selection uses search-result coordinates and never silently us
  assert.equal(chosen[0].kind,'coordinates');assert.equal(chosen[0].latitude,6.7186);assert.equal(chosen[0].longitude,-1.4867);
 });
 
+test('"Use my current location" fills the region and town fields, then shows weather for that exact position',async()=>{
+ const h=runtime(),chosen=[],queries=[];
+ const here={kind:'coordinates',label:'Your current location',latitude:6.7186,longitude:-1.4867,accuracyMetres:30};
+ const {WeatherPage}=page({react:h.react,'@/services/storage':{sessionStore:{get:(_k,f)=>f,set:()=>{}}},
+ '@/lib/market/weather-location':{...require('../lib/market/weather-location.ts'),requestInitialWeatherLocation:()=>Promise.resolve(null),requestWeatherLocation:async()=>here},
+ '@/services/geocoding.service':{geocodingService:{reverse:async()=>({village:'Krapa',town:null,area:null,district:'Ejisu Municipal District',region:'Ashanti',inGhana:true,label:'Krapa, Ashanti, Ghana'}),searchPlaces:async q=>{queries.push(q);return [];}}},
+ });
+ const view=h.render(()=>{const e=WeatherPage();return e.type(e.props);});
+ const Picker=find(view,n=>n.type?.name==='LocationPicker').type;
+ h.clear();const props={open:true,onClose:()=>{},farm:null,current:{kind:'place',region:'Northern',label:'Northern, Ghana'},onChoose:x=>chosen.push(x)};
+ const render=()=>h.render(()=>Picker(props));
+ const locate=find(render(),n=>n.props?.children==='Use my current location');
+ locate.props.onClick();await new Promise(setImmediate);
+ let tree=render();
+ assert.equal(find(tree,n=>n.props?.['aria-label']==='Weather region').props.value,'Ashanti');
+ assert.equal(find(tree,n=>n.props?.placeholder==='e.g. Accra, Kumasi, Tamale').props.value,'Krapa');
+ assert.equal(find(tree,n=>n.props?.placeholder==='e.g. Ejisu Municipal, Tamale Metropolitan').props.value,'Ejisu Municipal District');
+ assert.deepEqual(find(tree,n=>n.props?.pinTitle==='Weather location').props.value,{lat:6.7186,lng:-1.4867},'The area map pins the detected position');
+ assert.equal(chosen.length,0,'The farmer sees the filled fields before the weather changes');
+ find(tree,n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(chosen[0].latitude,6.7186);assert.equal(chosen[0].label,'Your current location');assert.equal(chosen[0].village,'Krapa');assert.deepEqual(queries,[]);
+ // Editing a field means the farmer wants that place instead: it is searched by name.
+ find(render(),n=>n.props?.placeholder==='e.g. Accra, Kumasi, Tamale').props.onChange({target:{value:'Ejisu'}});
+ find(render(),n=>n.type==='form').props.onSubmit({preventDefault(){}});await new Promise(setImmediate);
+ assert.deepEqual(queries,['Ejisu, Ashanti Region']);assert.equal(chosen.length,1);
+ // A spot tapped on the map is named and filled in, and "Show weather" uses that spot.
+ find(render(),n=>n.props?.pinTitle==='Weather location').props.onChange({lat:6.72,lng:-1.49});await new Promise(setImmediate);
+ tree=render();
+ assert.equal(find(tree,n=>n.props?.['aria-label']==='Weather region').props.value,'Ashanti');
+ assert.equal(find(tree,n=>n.props?.placeholder==='e.g. Accra, Kumasi, Tamale').props.value,'Krapa');
+ find(tree,n=>n.type==='form').props.onSubmit({preventDefault(){}});
+ assert.equal(chosen[1].latitude,6.72);assert.equal(chosen[1].label,'Krapa, Ashanti, Ghana');
+});
+
 test('denied current-location access keeps the selected area and exposes a manual fallback',async()=>{
  const h=runtime();
  const {WeatherPage}=page({react:h.react,'@/services/storage':{sessionStore:{get:(_k,f)=>f,set:()=>{}}},
